@@ -191,14 +191,14 @@ void Game::Render()
 
 	// myEntity.getTransform().setPosition(DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f));
 
-	XMMatrixMultiply(myEntity.getTransform().getTransformMatrix(), myEntity.getWorldMatrix());
+	XMMatrixMultiply (myEntity.GetTransform().GetTransformMatrix(), myEntity.GetWorldMatrix());
 
 	//myEntity.Position = newPos;
-	myEntity.Model->Draw(context, *m_states, myEntity.getWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	myEntity.Model->Draw(context, *m_states, myEntity.GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	//
 	camera.AdjustPosition(0.0f, 0.01f, 0.0f);
-	camera.SetLookAtPos(myEntity.getTransform().getPosition());
+	camera.SetLookAtPos(myEntity.GetTransform().GetPosition());
 	//
 
 	float y = sinf(m_pitch);
@@ -310,7 +310,7 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	myEntity.Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 
-	myEntity.setWorldMatrix(m_world);
+	myEntity.SetWorldMatrix(m_world);
 
 	//m_model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	//m_model2 = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);

@@ -14,60 +14,60 @@ Transform::~Transform()
 {
 }
 
-std::shared_ptr<Transform> Transform::translate(const dxmath::Vector3 & position)
+std::shared_ptr<Transform> Transform::Translate(const dxmath::Vector3 & position)
 {
 	return nullptr;
 }
 
-std::shared_ptr<Transform> Transform::scale(const dxmath::Vector3 & scale)
+std::shared_ptr<Transform> Transform::Scale(const dxmath::Vector3 & scale)
 {
-	return setScale(_scale * scale);
+	return SetScale(_scale * scale);
 }
 
-std::shared_ptr<Transform> Transform::scale(float & scale)
+std::shared_ptr<Transform> Transform::Scale(float & scale)
 {
-	return setScale(_scale * scale);
+	return SetScale(_scale * scale);
 }
 
-std::shared_ptr<Transform> Transform::rotate(const dxmath::Vector3 & axis, float angle)
+std::shared_ptr<Transform> Transform::Rotate(const dxmath::Vector3 & axis, float angle)
 {
 	_rotation = dxmath::Quaternion::CreateFromAxisAngle(axis, angle);
 	return shared_from_this();
 }
 
-dxmath::Vector3 Transform::getPosition(void) const
+dxmath::Vector3 Transform::GetPosition(void) const
 {
 	return _position;
 }
 
-dxmath::Quaternion Transform::getRotation(void) const
+dxmath::Quaternion Transform::GetRotation(void) const
 {
 	return _rotation;
 }
 
-dxmath::Vector3 Transform::getScale(void) const
+dxmath::Vector3 Transform::GetScale(void) const
 {
 	return _scale;
 }
 
-dxmath::Matrix Transform::getTransformMatrix(void) const
+dxmath::Matrix Transform::GetTransformMatrix(void) const
 {
 	return dxmath::Matrix::CreateTranslation(_position) * dxmath::Matrix::CreateFromQuaternion(_rotation) * dxmath::Matrix::CreateScale(_scale);
 }
 
-std::shared_ptr <Transform> Transform::setPosition(const dxmath::Vector3 & position)
+std::shared_ptr <Transform> Transform::SetPosition(const dxmath::Vector3 & position)
 {
 	_position = position;
 	return shared_from_this();
 }
 
-std::shared_ptr<Transform> Transform::setRotation(const dxmath::Quaternion & rotation)
+std::shared_ptr<Transform> Transform::SetRotation(const dxmath::Quaternion & rotation)
 {
 	this->_rotation = rotation;
 	return shared_from_this();
 }
 
-std::shared_ptr<Transform> Transform::setScale(const dxmath::Vector3 & scale)
+std::shared_ptr<Transform> Transform::SetScale(const dxmath::Vector3 & scale)
 {
 	this->_scale = scale;
 	return shared_from_this();

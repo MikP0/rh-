@@ -49,7 +49,7 @@ void Entity::SetWorldMatrix(dxmath::Matrix matrix)
 std::shared_ptr<Entity> Entity::GetChildById(int id)
 {
 	for (auto entity : _children) {
-		if (entity->getId() == id)
+		if (entity->GetId() == id)
 		{
 			return entity;
 		}
