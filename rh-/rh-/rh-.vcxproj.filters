@@ -23,7 +23,6 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="System.h" />
     <ClInclude Include="Camera.h">
       <Filter>Inc</Filter>
     </ClInclude>
@@ -37,6 +36,12 @@
       <Filter>Inc</Filter>
     </ClInclude>
     <ClInclude Include="Entity.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioComponent.h">
       <Filter>Inc</Filter>
     </ClInclude>
   </ItemGroup>
@@ -63,6 +68,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioComponent.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
