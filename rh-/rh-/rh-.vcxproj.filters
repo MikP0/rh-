@@ -22,38 +22,15 @@
     <ClInclude Include="DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Game.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
+    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -72,9 +49,6 @@
     </Manifest>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cup.cmo">
-      <Filter>Assets</Filter>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
 </Project>
