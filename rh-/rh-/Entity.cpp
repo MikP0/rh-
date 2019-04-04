@@ -31,9 +31,19 @@ Transform Entity::getTransform() const
 	return _transform;
 }
 
-void Entity::SetTransform(Transform transform)
+dxmath::Matrix Entity::getWorldMatrix() const
+{
+	return _worldMatrix;
+}
+
+void Entity::setTransform(Transform transform)
 {
 	_transform = transform;
+}
+
+void Entity::setWorldMatrix(dxmath::Matrix matrix)
+{
+	_worldMatrix = matrix;
 }
 
 std::shared_ptr<Entity> Entity::getChildById(int id)

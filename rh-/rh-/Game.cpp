@@ -91,10 +91,10 @@ void Game::Render()
 
 	// myEntity.getTransform().setPosition(DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f));
 
-	XMMatrixMultiply(m_world, myEntity.getTransform().getTransformMatrix());
+	XMMatrixMultiply (myEntity.getTransform().getTransformMatrix(), myEntity.getWorldMatrix());
 
 	//myEntity.Position = newPos;
-	myEntity.Model->Draw(context, *m_states, myEntity.getTransform().getTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	myEntity.Model->Draw(context, *m_states, myEntity.getWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	//
 	//camera.AdjustPosition(0.0f, 0.01f, 0.0f);
@@ -195,12 +195,14 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	m_world = Matrix::Identity;
 
-	Transform tran;
-	tran.setPosition(Vector3(0, 0, 0));
+
+	auto tran = std::make_shared<Transform>();
+	tran->setPosition(Vector3(0, 0, 0));
 	
 
 	myEntity.Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity.SetTransform(tran);
+	myEntity.setTransform(*tran);
+	myEntity.setWorldMatrix(m_world);
 
 	//myEntity.Position = m_world;
 	//myEntity.

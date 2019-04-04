@@ -53,10 +53,10 @@ dxmath::Matrix Transform::getTransformMatrix(void) const
 	return dxmath::Matrix::CreateTranslation(_position) * dxmath::Matrix::CreateFromQuaternion(_rotation) * dxmath::Matrix::CreateScale(_scale);
 }
 
-void Transform::setPosition(const dxmath::Vector3 & position)
+std::shared_ptr <Transform> Transform::setPosition(const dxmath::Vector3 & position)
 {
-	this->_position = position;
-	//return shared_from_this();
+	_position = position;
+	return shared_from_this();
 }
 
 std::shared_ptr<Transform> Transform::setRotation(const dxmath::Quaternion & rotation)

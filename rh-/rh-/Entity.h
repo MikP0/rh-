@@ -14,7 +14,10 @@ public:
 	std::shared_ptr<Entity> getPartent() const;
 	std::vector<std::shared_ptr<Entity>> getAllChildren() const;
 	Transform getTransform() const;
-	void SetTransform(Transform transform);
+	dxmath::Matrix getWorldMatrix() const;
+
+	void setTransform(Transform transform);
+	void setWorldMatrix(dxmath::Matrix matrix);
 
 	std::shared_ptr<Entity> getChildById(int id);
 
@@ -27,4 +30,6 @@ private:
 	Transform _transform;
 	std::vector<std::shared_ptr<Entity>> _children;
 	std::shared_ptr<Entity> _parent;
+	dxmath::Matrix _worldMatrix;
+
 };
