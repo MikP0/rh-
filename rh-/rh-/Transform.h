@@ -7,7 +7,10 @@ namespace dxmath = DirectX::SimpleMath;
 class Transform : public std::enable_shared_from_this<Transform>
 {
 public:
-	Transform();
+	Transform(void);
+	//TODO: Check if constructor with parameters is needed
+
+
 	virtual ~Transform();
 
 	std::shared_ptr<Transform> translate(const dxmath::Vector3 &position);

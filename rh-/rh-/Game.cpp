@@ -97,8 +97,8 @@ void Game::Render()
 	myEntity.Model->Draw(context, *m_states, myEntity.getWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	//
-	//camera.AdjustPosition(0.0f, 0.01f, 0.0f);
-	//camera.SetLookAtPos(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	camera.AdjustPosition(0.0f, 0.01f, 0.0f);
+	camera.SetLookAtPos(myEntity.getTransform().getPosition());
 	//
 
 	context;
@@ -195,19 +195,9 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	m_world = Matrix::Identity;
 
-
-	auto tran = std::make_shared<Transform>();
-	tran->setPosition(Vector3(0, 0, 0));
-	
-
 	myEntity.Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity.setTransform(*tran);
+
 	myEntity.setWorldMatrix(m_world);
-
-	//myEntity.Position = m_world;
-	//myEntity.
-
-	//myEntity.getTransform().
 
 	//m_model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	//m_model2 = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);

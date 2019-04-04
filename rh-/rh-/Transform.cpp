@@ -4,7 +4,9 @@
 
 Transform::Transform()
 {
-	_position = DirectX::SimpleMath::Vector3::Zero;
+	_position = dxmath::Vector3::Zero;
+	_scale = dxmath::Vector3::One;
+	_rotation = dxmath::Quaternion::Identity;
 }
 
 
