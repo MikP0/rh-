@@ -21,6 +21,12 @@ public:
 	const XMVECTOR & GetRotationVector() const;
 	const XMFLOAT3 & GetRotationFloat3() const;
 
+	const float GetPitch() const;
+	const float GetYaw() const;
+
+	void SetPitch(float newPitch);
+	void SetYaw(float newYaw);
+
 	void SetPosition(const XMVECTOR & pos);
 	void SetPosition(float x, float y, float z);
 	void AdjustPosition(const XMVECTOR & pos);
@@ -53,4 +59,7 @@ private:
 	XMVECTOR vec_left;
 	XMVECTOR vec_right;
 	XMVECTOR vec_backward;
+
+	float pitch;
+	float yaw;
 };

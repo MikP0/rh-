@@ -67,17 +67,21 @@ private:
 	std::unique_ptr<DirectX::Model> m_model;
 	std::unique_ptr<DirectX::Model> m_model2;
 
+	// cup Object
 	Entity myEntity;
 
+	// camera
 	Camera camera;
 
-
+	// input
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
 	std::unique_ptr<DirectX::Mouse> m_mouse;
 
+	// room
 	std::unique_ptr<DirectX::GeometricPrimitive> m_room;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roomTex;
-	DirectX::SimpleMath::Vector3 m_cameraPos;
+	
+	// mouse settings
 	float m_pitch;
 	float m_yaw;
 };

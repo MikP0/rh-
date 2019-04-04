@@ -22,25 +22,49 @@
     <ClInclude Include="DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Entity.h" />
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="pch.h" />
     <ClInclude Include="System.h" />
-    <ClInclude Include="Component.h" />
+    <ClInclude Include="Camera.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Component.cpp" />
+    <ClCompile Include="Camera.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -50,6 +74,9 @@
       <Filter>Assets</Filter>
     </Image>
     <Image Include="cup.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="roomtexture.dds">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
