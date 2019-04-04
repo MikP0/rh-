@@ -4,6 +4,7 @@
 
 Transform::Transform()
 {
+	_position = DirectX::SimpleMath::Vector3::Zero;
 }
 
 
@@ -13,7 +14,7 @@ Transform::~Transform()
 
 std::shared_ptr<Transform> Transform::translate(const dxmath::Vector3 & position)
 {
-	return setPosition(_position + position);
+	return nullptr;
 }
 
 std::shared_ptr<Transform> Transform::scale(const dxmath::Vector3 & scale)
@@ -52,10 +53,10 @@ dxmath::Matrix Transform::getTransformMatrix(void) const
 	return dxmath::Matrix::CreateTranslation(_position) * dxmath::Matrix::CreateFromQuaternion(_rotation) * dxmath::Matrix::CreateScale(_scale);
 }
 
-std::shared_ptr<Transform> Transform::setPosition(const dxmath::Vector3 & position)
+void Transform::setPosition(const dxmath::Vector3 & position)
 {
 	this->_position = position;
-	return shared_from_this();
+	//return shared_from_this();
 }
 
 std::shared_ptr<Transform> Transform::setRotation(const dxmath::Quaternion & rotation)

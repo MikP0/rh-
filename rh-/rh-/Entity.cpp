@@ -31,10 +31,15 @@ Transform Entity::getTransform() const
 	return _transform;
 }
 
+void Entity::SetTransform(Transform transform)
+{
+	_transform = transform;
+}
+
 std::shared_ptr<Entity> Entity::getChildById(int id)
 {
 	for (auto entity : _children) {
-		if (entity->getId == id)
+		if (entity->getId() == id)
 		{
 			return entity;
 		}

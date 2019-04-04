@@ -24,6 +24,9 @@
     </ClInclude>
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -31,6 +34,10 @@
     </ClCompile>
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -50,5 +57,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="cup.cmo">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
 </Project>

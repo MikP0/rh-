@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <string>
 #include <cstring>
+#include "Transform.h"
 //
 
 extern void ExitGame();
@@ -87,10 +88,13 @@ void Game::Render()
 
 	 Matrix newPos = XMMatrixTranslation(0, 0, 0);
 
-	XMMatrixMultiply(myEntity.Position, newPos);
 
-	myEntity.Position = newPos;
-	myEntity.Model->Draw(context, *m_states, myEntity.Position, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	// myEntity.getTransform().setPosition(DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f));
+
+	XMMatrixMultiply(m_world, myEntity.getTransform().getTransformMatrix());
+
+	//myEntity.Position = newPos;
+	myEntity.Model->Draw(context, *m_states, myEntity.getTransform().getTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	//
 	//camera.AdjustPosition(0.0f, 0.01f, 0.0f);
@@ -191,10 +195,17 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	m_world = Matrix::Identity;
 
+	Transform tran;
+	tran.setPosition(Vector3(0, 0, 0));
+	
 
 	myEntity.Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity.Position = m_world;
+	myEntity.SetTransform(tran);
 
+	//myEntity.Position = m_world;
+	//myEntity.
+
+	//myEntity.getTransform().
 
 	//m_model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	//m_model2 = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
