@@ -160,6 +160,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="System.h" />
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
