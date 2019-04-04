@@ -44,6 +44,9 @@
     <ClInclude Include="AudioComponent.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="SoundSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -71,6 +74,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="AudioComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
