@@ -18,7 +18,8 @@ public:
 	bool CheckIfEnabled();
 
 	void SetParent(std::shared_ptr<Entity> parent);
-
+	void SwitchEnabled(void);
+	void SetIsEnabled(bool flag);
 
 protected:
 	std::shared_ptr<Entity> _parentEntity;
