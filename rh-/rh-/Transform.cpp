@@ -47,6 +47,11 @@ dxmath::Vector3 Transform::getScale(void) const
 	return _scale;
 }
 
+dxmath::Matrix Transform::getTransformMatrix(void) const
+{
+	return dxmath::Matrix::CreateTranslation(_position) * dxmath::Matrix::CreateFromQuaternion(_rotation) * dxmath::Matrix::CreateScale(_scale);
+}
+
 std::shared_ptr<Transform> Transform::setPosition(const dxmath::Vector3 & position)
 {
 	this->_position = position;
