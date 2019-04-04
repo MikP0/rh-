@@ -8,23 +8,51 @@
       <UniqueIdentifier>251320d4-9c93-4fee-aa2e-0b6f2c3d53ea</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Inc">
+      <UniqueIdentifier>{90102ffa-2de1-49fe-9f2a-368b16af1c21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src">
+      <UniqueIdentifier>{78613c45-0373-4a31-94ec-21a0c69e8652}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="Game.h" />
     <ClInclude Include="StepTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="DeviceResources.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -34,10 +62,19 @@
     <Image Include="directx.ico">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="cup.jpg">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">
       <Filter>Assets</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cup.cmo">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
