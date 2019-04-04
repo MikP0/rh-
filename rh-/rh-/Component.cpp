@@ -20,3 +20,8 @@ void Component::SetParent(std::shared_ptr<Entity> parent)
 {
 	_parentEntity = parent;
 }
+
+bool Component::CheckIfEnabled()
+{
+	return _isEnabled;
+}
