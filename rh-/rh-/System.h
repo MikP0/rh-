@@ -9,8 +9,8 @@
 class System
 {
 public:
-	System();
-	virtual ~System();
+	System() {};
+	virtual ~System() {};
 	virtual std::vector<std::shared_ptr<Component>> GetComponents() = 0;
 
 protected:
