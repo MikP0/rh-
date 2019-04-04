@@ -13,20 +13,20 @@ public:
 
 	virtual ~Transform();
 
-	std::shared_ptr<Transform> translate(const dxmath::Vector3 &position);
-	std::shared_ptr<Transform> scale(const dxmath::Vector3 &scale);
-	std::shared_ptr<Transform> scale(float &scale);
-	std::shared_ptr<Transform> rotate(const dxmath::Vector3 &axis, float angle);
+	std::shared_ptr<Transform> Translate(const dxmath::Vector3 &position);
+	std::shared_ptr<Transform> Scale(const dxmath::Vector3 &scale);
+	std::shared_ptr<Transform> Scale(float &scale);
+	std::shared_ptr<Transform> Rotate(const dxmath::Vector3 &axis, float angle);
 
-	dxmath::Vector3 getPosition(void) const;
-	dxmath::Quaternion getRotation(void) const;
-	dxmath::Vector3 getScale(void) const;
+	dxmath::Vector3 GetPosition(void) const;
+	dxmath::Quaternion GetRotation(void) const;
+	dxmath::Vector3 GetScale(void) const;
 
-	dxmath::Matrix getTransformMatrix(void) const;
+	dxmath::Matrix GetTransformMatrix(void) const;
 
-	std::shared_ptr<Transform> setPosition(const dxmath::Vector3 &position);
-	std::shared_ptr<Transform> setRotation(const dxmath::Quaternion &rotation);
-	std::shared_ptr<Transform> setScale(const dxmath::Vector3 &scale);
+	std::shared_ptr<Transform> SetPosition(const dxmath::Vector3 &position);
+	std::shared_ptr<Transform> SetRotation(const dxmath::Quaternion &rotation);
+	std::shared_ptr<Transform> SetScale(const dxmath::Vector3 &scale);
 
 
 private:
