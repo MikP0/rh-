@@ -12,7 +12,13 @@ public:
 	EntityManager();
 	virtual ~EntityManager() {};
 
+	int CreateEntity(); //Returns EntityID
+	void DestroyEntity(int entityId);
+
+	std::shared_ptr<Entity> GetEntity(int entityId);
+
 private:
+	std::vector<std::shared_ptr<Entity>> _entityPool;
 	std::unordered_map<int, std::shared_ptr<Component>> _entityComponentMap; //EntityId - Component pointer map
 };
 

@@ -2,8 +2,11 @@
 #include "Entity.h"
 
 
+int Entity::nextId = 0;
+
 Entity::Entity()
 {
+	_id = ++nextId;
 }
 
 
