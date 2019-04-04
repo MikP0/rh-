@@ -21,7 +21,15 @@ using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
-Game::Game() noexcept(false)
+namespace
+{
+	const XMVECTORF32 ROOM_BOUNDS = { 8.f, 6.f, 12.f, 0.f };
+	const float ROTATION_GAIN = 0.008f;
+	const float MOVEMENT_GAIN = 0.07f;
+}
+
+
+Game::Game() noexcept(false) : m_pitch(0), m_yaw(0)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -44,6 +52,11 @@ void Game::Initialize(HWND window, int width, int height)
 	m_timer.SetFixedTimeStep(true);
 	m_timer.SetTargetElapsedSeconds(1.0 / 60);
 	*/
+
+
+	m_keyboard = std::make_unique<Keyboard>();
+	m_mouse = std::make_unique<Mouse>();
+	m_mouse->SetWindow(window);
 }
 
 #pragma region Frame Update
@@ -65,6 +78,78 @@ void Game::Update(DX::StepTimer const& timer)
 	float time = float(timer.GetTotalSeconds());
 
 	// TODO: Add your game logic here.
+
+
+	// INPUT
+	auto mouse = m_mouse->GetState();
+	auto keyboard = m_keyboard->GetState();
+	Vector3 tempCamera;
+	Vector3 move = Vector3::Zero;
+
+	if (mouse.positionMode == Mouse::MODE_RELATIVE)
+	{
+		Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f)
+			* ROTATION_GAIN;
+
+		m_pitch -= delta.y;
+		m_yaw -= delta.x;
+
+		// limit pitch to straight up or straight down
+		// with a little fudge-factor to avoid gimbal lock
+		float limit = XM_PI / 2.0f - 0.01f;
+		m_pitch = std::max(-limit, m_pitch);
+		m_pitch = std::min(+limit, m_pitch);
+
+		// keep longitude in sane range by wrapping
+		if (m_yaw > XM_PI)
+		{
+			m_yaw -= XM_PI * 2.0f;
+		}
+		else if (m_yaw < -XM_PI)
+		{
+			m_yaw += XM_PI * 2.0f;
+		}
+	}
+
+	m_mouse->SetMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+
+
+	if (keyboard.Escape)
+		ExitGame();
+
+	if (keyboard.PageUp || keyboard.Space)
+		move.y += 1.f;
+
+	if (keyboard.PageDown || keyboard.LeftControl)
+		move.y -= 1.f;
+
+	if (keyboard.Left || keyboard.A)
+		move.x += 1.f;
+
+	if (keyboard.Right || keyboard.D)
+		move.x -= 1.f;
+
+	if (keyboard.Up || keyboard.W)
+		move.z += 1.f;
+
+	if (keyboard.Down || keyboard.S)
+		move.z -= 1.f;
+
+
+	move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
+	move *= MOVEMENT_GAIN;
+	tempCamera = camera.GetPositionVector();
+	tempCamera += move;
+	camera.SetPosition(tempCamera);
+
+	Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f)) - Vector3(0.1f, 0.1f, 0.1f);
+
+	camera.SetPosition(Vector3::Min(camera.GetPositionVector(), halfBound));
+	camera.SetPosition(Vector3::Max(camera.GetPositionVector(), -halfBound));
+	camera.SetPitch(m_pitch);
+	camera.SetYaw(m_yaw);
+	////////
+
 	elapsedTime;
 }
 #pragma endregion
@@ -86,20 +171,16 @@ void Game::Render()
 
 	// TODO: Add your rendering code here.
 
-	 Matrix newPos = XMMatrixTranslation(0, 0, 0);
+	//
+	//camera.AdjustPosition(0.0f, 0.01f, 0.0f);
+	//camera.SetLookAtPos(myEntity.GetTransform().GetPosition());
+	//
 
+	// room
+	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
-	// myEntity.getTransform().setPosition(DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f));
-
-	XMMatrixMultiply (myEntity.GetTransform().GetTransformMatrix(), myEntity.GetWorldMatrix());
-
-	//myEntity.Position = newPos;
+	// cup
 	myEntity.Model->Draw(context, *m_states, myEntity.GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-
-	//
-	camera.AdjustPosition(0.0f, 0.01f, 0.0f);
-	camera.SetLookAtPos(myEntity.GetTransform().GetPosition());
-	//
 
 	context;
 
@@ -195,24 +276,18 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	m_world = Matrix::Identity;
 
-	myEntity.Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 
+	myEntity.Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity.SetWorldMatrix(m_world);
 
-	//m_model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	//m_model2 = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 
+	m_room = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
+		false, true);
 
-
-	/*std::string ma = std::to_string(m_world._11) + "\t" + std::to_string(m_world._12) + "\t" + std::to_string(m_world._13) + "\t";
-	ma = ma + "\n";
-	ma = ma + std::to_string(m_world._21) + "\t" + std::to_string(m_world._22) + "\t" + std::to_string(m_world._23) + "\t";
-	ma = ma + "\n";
-	ma = ma + std::to_string(m_world._31) + "\t" + std::to_string(m_world._32) + "\t" + std::to_string(m_world._33) + "\t";
-	char text[250];
-	strcpy(text, ma.c_str());
-	OutputDebugStringA(text);*/
-
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"roomtexture.dds",
+			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
 
 	device;
 }
@@ -222,13 +297,12 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 {
 	auto size = m_deviceResources->GetOutputSize();										// backBufferWidth/backBufferHeight - > size
 	// TODO: Initialize windows-size dependent objects here.
-	m_view = Matrix::CreateLookAt(Vector3(2.f, 2.f, 2.f),
-		Vector3::Zero, Vector3::UnitY);
-	m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-		float(size.right) / float(size.bottom), 0.1f, 10.f);
 
-	camera.SetPosition(0.0f, 0.0f, -3.0f);
-	camera.SetProjectionValues(XM_PI / 4.f, float(size.right) / float(size.bottom), 0.1f, 100.f);
+	camera.SetPosition(0.0f, 0.0f, -2.0f);
+	//camera.SetProjectionValues(XM_PI / 4.f, float(size.right) / float(size.bottom), 0.1f, 100.f);
+	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
+	camera.SetPitch(m_pitch);
+	camera.SetYaw(m_yaw);
 }
 
 void Game::OnDeviceLost()
@@ -238,6 +312,9 @@ void Game::OnDeviceLost()
 	m_fxFactory.reset();
 
 	myEntity.Model.reset();
+
+	m_room.reset();
+	m_roomTex.Reset();
 }
 
 void Game::OnDeviceRestored()
@@ -248,3 +325,13 @@ void Game::OnDeviceRestored()
 }
 #pragma endregion
 
+
+
+/*std::string ma = std::to_string(m_world._11) + "\t" + std::to_string(m_world._12) + "\t" + std::to_string(m_world._13) + "\t";
+	ma = ma + "\n";
+	ma = ma + std::to_string(m_world._21) + "\t" + std::to_string(m_world._22) + "\t" + std::to_string(m_world._23) + "\t";
+	ma = ma + "\n";
+	ma = ma + std::to_string(m_world._31) + "\t" + std::to_string(m_world._32) + "\t" + std::to_string(m_world._33) + "\t";
+	char text[250];
+	strcpy(text, ma.c_str());
+	OutputDebugStringA(text);*/

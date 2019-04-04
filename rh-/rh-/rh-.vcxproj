@@ -187,6 +187,7 @@
   <ItemGroup>
     <Image Include="cup.jpg" />
     <Image Include="directx.ico" />
+    <Image Include="roomtexture.dds" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest" />
