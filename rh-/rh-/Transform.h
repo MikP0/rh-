@@ -30,4 +30,3 @@ private:
 	dxmath::Vector3 _scale;
 
 };
-

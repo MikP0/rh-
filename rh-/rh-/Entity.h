@@ -10,10 +10,20 @@ public:
 	Entity();
 	virtual ~Entity();
 
+	int getId() const;
+	std::shared_ptr<Entity> getPartent() const;
+	std::vector<std::shared_ptr<Entity>> getAllChildren() const;
+	Transform getTransform() const;
+
+	std::shared_ptr<Entity> getChildById(int id);
+
+	void addChild(std::shared_ptr<Entity> child);
+	
+
 private:
-	int id;
-	Transform transform;
-	std::vector<std::shared_ptr<Entity>> children;
-	std::shared_ptr<Entity> parent;
+	int _id;
+	Transform _transform;
+	std::vector<std::shared_ptr<Entity>> _children;
+	std::shared_ptr<Entity> _parent;
 };
 
