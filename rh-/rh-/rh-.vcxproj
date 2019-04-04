@@ -159,6 +159,7 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="EntityManager.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StepTimer.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="pch.cpp">

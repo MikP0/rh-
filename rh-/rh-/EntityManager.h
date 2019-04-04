@@ -1,18 +1,18 @@
 #pragma once
 
-#include <unordered_map>
-
-#include "pch.h"
+#include"pch.h"
 #include "Entity.h"
 #include "Component.h"
+
+#include <unordered_map>
 
 class EntityManager
 {
 public:
 	EntityManager();
-	virtual ~EntityManager();
+	virtual ~EntityManager() {};
 
 private:
-	std::unordered_multimap <Entity, Component> _entityComponentMap;
+	std::unordered_map<int, std::shared_ptr<Component>> _entityComponentMap; //EntityId - Component pointer map
 };
 
