@@ -11,42 +11,42 @@ Entity::~Entity()
 {
 }
 
-int Entity::getId() const
+int Entity::GetId() const
 {
 	return _id;
 }
 
-std::shared_ptr<Entity> Entity::getPartent() const
+std::shared_ptr<Entity> Entity::GetPartent() const
 {
 	return _parent;
 }
 
-std::vector<std::shared_ptr<Entity>> Entity::getAllChildren() const
+std::vector<std::shared_ptr<Entity>> Entity::GetAllChildren() const
 {
 	return _children;
 }
 
-Transform Entity::getTransform() const
+Transform Entity::GetTransform() const
 {
 	return _transform;
 }
 
-dxmath::Matrix Entity::getWorldMatrix() const
+dxmath::Matrix Entity::GetWorldMatrix() const
 {
 	return _worldMatrix;
 }
 
-void Entity::setTransform(Transform transform)
+void Entity::SetTransform(Transform transform)
 {
 	_transform = transform;
 }
 
-void Entity::setWorldMatrix(dxmath::Matrix matrix)
+void Entity::SetWorldMatrix(dxmath::Matrix matrix)
 {
 	_worldMatrix = matrix;
 }
 
-std::shared_ptr<Entity> Entity::getChildById(int id)
+std::shared_ptr<Entity> Entity::GetChildById(int id)
 {
 	for (auto entity : _children) {
 		if (entity->getId() == id)
@@ -57,7 +57,7 @@ std::shared_ptr<Entity> Entity::getChildById(int id)
 	return nullptr;
 }
 
-void Entity::addChild(std::shared_ptr<Entity> child)
+void Entity::AddChild(std::shared_ptr<Entity> child)
 {
 	_children.push_back(child);
 }

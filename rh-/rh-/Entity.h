@@ -10,18 +10,18 @@ public:
 	Entity();
 	virtual ~Entity();
 
-	int getId() const;
-	std::shared_ptr<Entity> getPartent() const;
-	std::vector<std::shared_ptr<Entity>> getAllChildren() const;
-	Transform getTransform() const;
-	dxmath::Matrix getWorldMatrix() const;
+	int GetId() const;
+	std::shared_ptr<Entity> GetPartent() const;
+	std::vector<std::shared_ptr<Entity>> GetAllChildren() const;
+	Transform GetTransform() const;
+	dxmath::Matrix GetWorldMatrix() const;
 
-	void setTransform(Transform transform);
-	void setWorldMatrix(dxmath::Matrix matrix);
+	void SetTransform(Transform transform);
+	void SetWorldMatrix(dxmath::Matrix matrix);
 
-	std::shared_ptr<Entity> getChildById(int id);
+	std::shared_ptr<Entity> GetChildById(int id);
 
-	void addChild(std::shared_ptr<Entity> child);
+	void AddChild(std::shared_ptr<Entity> child);
 	
 	std::unique_ptr<DirectX::Model> Model;
 
