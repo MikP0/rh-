@@ -5,9 +5,9 @@
 class AudioComponent : public Component
 {
 public:
-	std::string _path;
-	bool _mute, _playOnAwake, _loop;
-	float _volume;
+	std::string Path;
+	bool Mute, PlayOnAwake, Loop;
+	float Volume;
 
 	AudioComponent();
 	AudioComponent(std::string path);

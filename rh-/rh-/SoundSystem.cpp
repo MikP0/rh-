@@ -17,52 +17,52 @@ SoundSystem::SoundSystem(std::vector<std::shared_ptr<AudioComponent>> components
 
 std::string SoundSystem::GetComponentPath(std::shared_ptr<AudioComponent> audioComponent)
 {
-	return audioComponent->_path;
+	return audioComponent->Path;
 }
 
 void SoundSystem::SetComponentPath(std::shared_ptr<AudioComponent> audioComponent, std::string path)
 {
-	audioComponent->_path = path;
+	audioComponent->Path = path;
 }
 
 bool SoundSystem::GetComponentMute(std::shared_ptr<AudioComponent> audioComponent)
 {
-	return audioComponent->_mute;
+	return audioComponent->Mute;
 }
 
 void SoundSystem::SetComponentMute(std::shared_ptr<AudioComponent> audioComponent, bool muteState)
 {
-	audioComponent->_mute = muteState;
+	audioComponent->Mute = muteState;
 }
 
 bool SoundSystem::GetComponentPlayOnAwake(std::shared_ptr<AudioComponent> audioComponent)
 {
-	return audioComponent->_playOnAwake;
+	return audioComponent->PlayOnAwake;
 }
 
 void SoundSystem::SetComponentPlayOnAwake(std::shared_ptr<AudioComponent> audioComponent, bool playOnAwakeState)
 {
-	audioComponent->_playOnAwake = playOnAwakeState;
+	audioComponent->PlayOnAwake = playOnAwakeState;
 }
 
 bool SoundSystem::GetComponentLoop(std::shared_ptr<AudioComponent> audioComponent)
 {
-	return audioComponent->_loop;
+	return audioComponent->Loop;
 }
 
 void SoundSystem::SetComponentLoop(std::shared_ptr<AudioComponent> audioComponent, bool loopState)
 {
-	audioComponent->_loop = loopState;
+	audioComponent->Loop = loopState;
 }
 
 float SoundSystem::GetComponentVolume(std::shared_ptr<AudioComponent> audioComponent)
 {
-	return audioComponent->_volume;
+	return audioComponent->Volume;
 }
 
 void SoundSystem::SetComponentVolume(std::shared_ptr<AudioComponent> audioComponent, float volume)
 {
-	audioComponent->_volume = volume;
+	audioComponent->Volume = volume;
 }
 
 void SoundSystem::Iterate()

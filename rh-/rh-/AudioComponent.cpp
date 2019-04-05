@@ -4,17 +4,17 @@
 
 AudioComponent::AudioComponent()
 {
-	_mute = false;
-	_playOnAwake = true;
-	_loop = true;
+	Mute = false;
+	PlayOnAwake = true;
+	Loop = true;
 }
 
 AudioComponent::AudioComponent(std::string path)
 {
-	_path = path;
-	_mute = false;
-	_playOnAwake = true;
-	_loop = true;
+	Path = path;
+	Mute = false;
+	PlayOnAwake = true;
+	Loop = true;
 }
 
 AudioComponent::~AudioComponent()
