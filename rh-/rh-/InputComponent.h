@@ -5,6 +5,7 @@
 
 enum actionList
 {
+	none,
 	dodge,
 	normal,
 	strong,

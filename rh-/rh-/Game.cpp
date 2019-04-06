@@ -58,17 +58,6 @@ void Game::Initialize(HWND window, int width, int height)
 	m_mouse->SetWindow(window);*/
 
 	inputEntity = std::make_shared<Entity>();
-	std::map<availableKeys, actionList> actionKeysBindings = {
-		{esc, closeWindow},
-		{space, up},
-		{leftControl, down},
-		{a, left},
-		{d, right},
-		{w, forward},
-		{s, backward},
-		{lpm, anchorRotation}
-	};
-	
 	inputComponent = std::make_shared<InputComponent>(actionKeysBindings);
 	inputSystem = std::make_shared<InputSystem>();
 	inputSystem->InsertComponent(inputComponent);
@@ -151,31 +140,33 @@ void Game::Update(DX::StepTimer const& timer)
 	if (keyboard.Down || keyboard.S)
 		move.z -= 1.f;*/
 
-	std::map<actionList, availableKeys> pushedKeysActions = inputSystem->GetPushedBindedKeys(inputComponent);
+	std::vector<actionList> pushedKeysActions = inputSystem->GetActions(inputComponent);
+	inputSystem->SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
-	for (std::map<actionList, availableKeys>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
+	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
-		inputSystem->SetMouseMode(iter->first == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+		// zmiana MouseMode tutaj z udzia³em InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
+		//inputSystem->SetMouseMode(*iter == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
-		if (iter->first == closeWindow)
+		if (*iter == closeWindow)
 			ExitGame();
 
-		if (iter->first == up)
+		if (*iter == up)
 			move.y += 1.f;
 
-		if (iter->first == down)
+		if (*iter == down)
 			move.y -= 1.f;
 
-		if (iter->first == left)
+		if (*iter == left)
 			move.x += 1.f;
 
-		if (iter->first == right)
+		if (*iter == right)
 			move.x -= 1.f;
 
-		if (iter->first == forward)
+		if (*iter == forward)
 			move.z += 1.f;
 
-		if (iter->first == backward)
+		if (*iter == backward)
 			move.z -= 1.f; 
 
 	}

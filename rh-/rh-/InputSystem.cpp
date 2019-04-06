@@ -29,7 +29,7 @@ std::map<availableKeys, actionList> InputSystem::GetActionKeysBindings(InputComp
 	return inputComponent->SkillsKeys;
 }
 
-std::map<availableKeys, bool> InputSystem::GetDirectXpushedKeys()
+std::map<availableKeys, bool> InputSystem::GetPushedKeys()
 {
 	DirectX::Mouse::State MouseState = GetMouseState();
 	DirectX::Keyboard::State KeyboardState = GetKeyboardState();
@@ -73,11 +73,11 @@ void InputSystem::SetMouseMode(DirectX::Mouse::Mode mode)
 	_mouse->SetMode(mode);
 }
 
-std::map<actionList, availableKeys> InputSystem::GetPushedBindedKeys(InputComponentPtr inputComponent)
+std::vector<actionList> InputSystem::GetActions(InputComponentPtr inputComponent)
 {
-	std::map<actionList, availableKeys> pushedBindedKeys;
+	std::vector<actionList> pushedBindedKeys;
 	std::map<availableKeys, actionList> actionKeyBindings = GetActionKeysBindings(inputComponent);
-	std::map<availableKeys, bool> pushedKeys = GetDirectXpushedKeys();
+	std::map<availableKeys, bool> pushedKeys = GetPushedKeys();
 
 
 	for (std::map<availableKeys, bool>::iterator iter = pushedKeys.begin(); iter != pushedKeys.end(); ++iter)
@@ -87,7 +87,7 @@ std::map<actionList, availableKeys> InputSystem::GetPushedBindedKeys(InputCompon
 
 		if (actionKeyBindings.find(iter->first) != actionKeyBindings.end() && iter->second)
 		{
-			pushedBindedKeys[actionKeyBindings[iter->first]] = iter->first;
+			pushedBindedKeys.push_back(actionKeyBindings[iter->first]);
 		}
 	}
 

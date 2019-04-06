@@ -17,8 +17,8 @@ public:
 	DirectX::Mouse::State GetMouseState();
 
 	std::map<availableKeys, actionList> GetActionKeysBindings(InputComponentPtr inputComponent);
-	std::map<actionList, availableKeys> GetPushedBindedKeys(InputComponentPtr inputComponent);
-	std::map<availableKeys, bool> GetDirectXpushedKeys();
+	std::vector<actionList> GetActions(InputComponentPtr inputComponent);
+	std::map<availableKeys, bool> GetPushedKeys();
 	void SetWindow(HWND window);
 	void SetMouseMode(DirectX::Mouse::Mode mode);
 
@@ -34,9 +34,6 @@ protected:
 private:
 	std::unique_ptr<DirectX::Keyboard> _keyboard;
 	std::unique_ptr<DirectX::Mouse> _mouse;
-	//std::map<availableKeys, DirectX::Mouse::State> _directXMouseKeysBinding;
-	//std::map<availableKeys, DirectX::Keyboard::State> _directXKeyboardKeysBinding;
-	//std::map<availableKeys, bool> _directXKeysBinding;
 	ComponentType _componentsType;
 	std::vector<InputComponentPtr> _components;
 };
