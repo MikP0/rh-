@@ -208,14 +208,20 @@ void Game::Render()
 
 	//
 	//camera.AdjustPosition(0.0f, 0.01f, 0.0f);
-	//camera.SetLookAtPos(myEntity.GetTransform().GetPosition());
+	//camera.SetLookAtPos(myEntity.GetTransform()->GetPosition());
 	//
+	//myEntity.GetTransform()->SetPosition(Vector3(0.2f, 1.0f, 1.5f));
+	//myEntity.GetTransform()->SetScale(Vector3(0.2f, 1.0f, 1.5f));
+	//
+
+
 
 	// room
 	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
 	// cup
-	myEntity.Model->Draw(context, *m_states, myEntity.GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	myEntity.Model->Draw(context, *m_states, myEntity.GetTransform()->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
 
 	context;
 

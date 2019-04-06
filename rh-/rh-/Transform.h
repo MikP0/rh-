@@ -1,6 +1,9 @@
-#pragma once
+//
+// Transform.h
+//
 
-#include "SimpleMath.h"
+#pragma once
+#include "pch.h"
 
 namespace dxmath = DirectX::SimpleMath;
 
@@ -24,9 +27,9 @@ public:
 
 	dxmath::Matrix GetTransformMatrix(void) const;
 
-	std::shared_ptr<Transform> SetPosition(const dxmath::Vector3 &position);
-	std::shared_ptr<Transform> SetRotation(const dxmath::Quaternion &rotation);
-	std::shared_ptr<Transform> SetScale(const dxmath::Vector3 &scale);
+	std::shared_ptr<Transform> SetPosition(const dxmath::Vector3 position);
+	std::shared_ptr<Transform> SetRotation(const dxmath::Quaternion rotation);
+	std::shared_ptr<Transform> SetScale(const dxmath::Vector3 scale);
 
 
 private:
