@@ -19,7 +19,8 @@ public:
 	std::map<availableKeys, actionList> GetActionKeysBindings(InputComponentPtr inputComponent);
 	std::vector<actionList> GetActions(InputComponentPtr inputComponent);
 	std::map<availableKeys, bool> GetPushedKeys();
-	void SetWindow(HWND window);
+	DirectX::SimpleMath::Vector2 GetMousePosition();
+	void SetWindowForMouse(HWND window);
 	void SetMouseMode(DirectX::Mouse::Mode mode);
 
 	virtual std::vector<ComponentPtr> GetComponents(ComponentType componentType) override;

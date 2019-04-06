@@ -61,7 +61,7 @@ void Game::Initialize(HWND window, int width, int height)
 	inputComponent = std::make_shared<InputComponent>(actionKeysBindings);
 	inputSystem = std::make_shared<InputSystem>();
 	inputSystem->InsertComponent(inputComponent);
-	inputSystem->SetWindow(window);
+	inputSystem->SetWindowForMouse(window);
 }
 
 #pragma region Frame Update

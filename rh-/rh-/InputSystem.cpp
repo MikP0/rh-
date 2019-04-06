@@ -63,7 +63,14 @@ std::map<availableKeys, bool> InputSystem::GetPushedKeys()
 	return pushedKeys;
 }
 
-void InputSystem::SetWindow(HWND window)
+DirectX::SimpleMath::Vector2 InputSystem::GetMousePosition()
+{
+	DirectX::Mouse::State MouseState = GetMouseState();
+
+	return DirectX::SimpleMath::Vector2(MouseState.x, MouseState.y);
+}
+
+void InputSystem::SetWindowForMouse(HWND window)
 {
 	_mouse->SetWindow(window);
 }
