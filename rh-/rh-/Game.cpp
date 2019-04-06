@@ -53,10 +53,26 @@ void Game::Initialize(HWND window, int width, int height)
 	m_timer.SetTargetElapsedSeconds(1.0 / 60);
 	*/
 
-
-	m_keyboard = std::make_unique<Keyboard>();
+	/*m_keyboard = std::make_unique<Keyboard>();
 	m_mouse = std::make_unique<Mouse>();
-	m_mouse->SetWindow(window);
+	m_mouse->SetWindow(window);*/
+
+	inputEntity = std::make_shared<Entity>();
+	std::map<availableKeys, actionList> actionKeysBindings = {
+		{esc, closeWindow},
+		{space, up},
+		{leftControl, down},
+		{a, left},
+		{d, right},
+		{w, forward},
+		{s, backward},
+		{lpm, anchorRotation}
+	};
+	
+	inputComponent = std::make_shared<InputComponent>(actionKeysBindings);
+	inputSystem = std::make_shared<InputSystem>();
+	inputSystem->InsertComponent(inputComponent);
+	inputSystem->SetWindow(window);
 }
 
 #pragma region Frame Update
@@ -81,8 +97,9 @@ void Game::Update(DX::StepTimer const& timer)
 
 
 	// INPUT
-	auto mouse = m_mouse->GetState();
-	auto keyboard = m_keyboard->GetState();
+	auto mouse = inputSystem->GetMouseState();
+	/*auto mouse = m_mouse->GetState();
+	auto keyboard = m_keyboard->GetState();*/
 	Vector3 tempCamera;
 	Vector3 move = Vector3::Zero;
 
@@ -111,8 +128,7 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 	}
 
-	m_mouse->SetMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-
+	/*m_mouse->SetMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 	if (keyboard.Escape)
 		ExitGame();
@@ -133,8 +149,36 @@ void Game::Update(DX::StepTimer const& timer)
 		move.z += 1.f;
 
 	if (keyboard.Down || keyboard.S)
-		move.z -= 1.f;
+		move.z -= 1.f;*/
 
+	std::map<actionList, availableKeys> pushedKeysActions = inputSystem->GetPushedBindedKeys(inputComponent);
+
+	for (std::map<actionList, availableKeys>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
+	{
+		inputSystem->SetMouseMode(iter->first == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+
+		if (iter->first == closeWindow)
+			ExitGame();
+
+		if (iter->first == up)
+			move.y += 1.f;
+
+		if (iter->first == down)
+			move.y -= 1.f;
+
+		if (iter->first == left)
+			move.x += 1.f;
+
+		if (iter->first == right)
+			move.x -= 1.f;
+
+		if (iter->first == forward)
+			move.z += 1.f;
+
+		if (iter->first == backward)
+			move.z -= 1.f; 
+
+	}
 
 	move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
 	move *= MOVEMENT_GAIN;

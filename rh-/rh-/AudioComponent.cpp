@@ -4,6 +4,7 @@
 
 AudioComponent::AudioComponent()
 {
+	SetIsEnabled(true);
 	Mute = false;
 	PlayOnAwake = true;
 	Loop = true;
@@ -11,6 +12,7 @@ AudioComponent::AudioComponent()
 
 AudioComponent::AudioComponent(std::string path)
 {
+	SetIsEnabled(true);
 	Path = path;
 	Mute = false;
 	PlayOnAwake = true;

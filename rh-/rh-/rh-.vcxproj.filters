@@ -44,7 +44,13 @@
     <ClInclude Include="AudioComponent.h">
       <Filter>Inc</Filter>
     </ClInclude>
-    <ClInclude Include="SoundSystem.h">
+    <ClInclude Include="InputComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSystem.h">
       <Filter>Inc</Filter>
     </ClInclude>
   </ItemGroup>
@@ -76,7 +82,13 @@
     <ClCompile Include="AudioComponent.cpp">
       <Filter>Src</Filter>
     </ClCompile>
-    <ClCompile Include="SoundSystem.cpp">
+    <ClCompile Include="InputComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="InputSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
