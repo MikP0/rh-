@@ -8,6 +8,8 @@
 #include "StepTimer.h"
 
 #include "Entity.h"
+#include "InputComponent.h"
+#include "InputSystem.h"
 #include "Camera.h"
 
 // A basic game implementation that creates a D3D11 device and
@@ -74,8 +76,21 @@ private:
 	Camera camera;
 
 	// input
-	std::unique_ptr<DirectX::Keyboard> m_keyboard;
-	std::unique_ptr<DirectX::Mouse> m_mouse;
+	/*std::unique_ptr<DirectX::Keyboard> m_keyboard;
+	std::unique_ptr<DirectX::Mouse> m_mouse;*/
+	std::map<availableKeys, actionList> actionKeysBindings = {
+		{esc, closeWindow},
+		{space, up},
+		{leftControl, down},
+		{a, left},
+		{d, right},
+		{w, forward},
+		{s, backward},
+		{lpm, anchorRotation}
+	};
+	std::shared_ptr<Entity> inputEntity;
+	std::shared_ptr<InputComponent> inputComponent;
+	std::shared_ptr<InputSystem> inputSystem;
 
 	// room
 	std::unique_ptr<DirectX::GeometricPrimitive> m_room;
