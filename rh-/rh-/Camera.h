@@ -11,6 +11,7 @@ class Camera
 {
 public:
 	Camera();
+	virtual ~Camera();
 	void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 
 	const XMMATRIX & GetViewMatrix() const;

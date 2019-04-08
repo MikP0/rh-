@@ -1,4 +1,7 @@
-#include "pch.h"
+//
+// Transform.cpp
+//
+
 #include "Transform.h"
 
 
@@ -55,19 +58,19 @@ dxmath::Matrix Transform::GetTransformMatrix(void) const
 	return dxmath::Matrix::CreateTranslation(_position) * dxmath::Matrix::CreateFromQuaternion(_rotation) * dxmath::Matrix::CreateScale(_scale);
 }
 
-std::shared_ptr <Transform> Transform::SetPosition(const dxmath::Vector3 & position)
+std::shared_ptr<Transform> Transform::SetPosition(const dxmath::Vector3 position)
 {
 	_position = position;
 	return shared_from_this();
 }
 
-std::shared_ptr<Transform> Transform::SetRotation(const dxmath::Quaternion & rotation)
+std::shared_ptr<Transform> Transform::SetRotation(const dxmath::Quaternion rotation)
 {
 	this->_rotation = rotation;
 	return shared_from_this();
 }
 
-std::shared_ptr<Transform> Transform::SetScale(const dxmath::Vector3 & scale)
+std::shared_ptr<Transform> Transform::SetScale(const dxmath::Vector3 scale)
 {
 	this->_scale = scale;
 	return shared_from_this();

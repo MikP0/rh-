@@ -1,11 +1,14 @@
-#include "pch.h"
+//
+// Entity.cpp
+//
+
 #include "Entity.h"
 
 
 Entity::Entity()
 {
+	_transform = std::make_shared<Transform>();
 }
-
 
 Entity::~Entity()
 {
@@ -26,7 +29,7 @@ std::vector<std::shared_ptr<Entity>> Entity::GetAllChildren() const
 	return _children;
 }
 
-Transform Entity::GetTransform() const
+std::shared_ptr<Transform> Entity::GetTransform() const
 {
 	return _transform;
 }
@@ -36,7 +39,7 @@ dxmath::Matrix Entity::GetWorldMatrix() const
 	return _worldMatrix;
 }
 
-void Entity::SetTransform(Transform transform)
+void Entity::SetTransform(std::shared_ptr<Transform> transform)
 {
 	_transform = transform;
 }

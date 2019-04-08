@@ -22,7 +22,6 @@
     <ClInclude Include="DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h" />
     <ClInclude Include="Camera.h">
       <Filter>Inc</Filter>
     </ClInclude>
@@ -51,6 +50,9 @@
       <Filter>Inc</Filter>
     </ClInclude>
     <ClInclude Include="AudioSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
       <Filter>Inc</Filter>
     </ClInclude>
   </ItemGroup>
