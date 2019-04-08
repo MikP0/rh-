@@ -19,8 +19,10 @@ void EntityManager::DestroyEntity(int entityId) //TODO: Check if it works
 			_entityPool.begin(),
 			_entityPool.end(),
 			[&](std::shared_ptr<Entity> element) -> bool {
-				if (element->GetId() == entityId)
-					return true;
+		if (element->GetId() == entityId)
+			return true;
+		else
+			return false;
 			}
 		),
 		_entityPool.end()
