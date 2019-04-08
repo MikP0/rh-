@@ -31,7 +31,6 @@ protected:
 	virtual void Iterate() override;
 
 private:
-	ComponentType _componentsType;
 	std::vector<AudioComponentPtr> _components;
 };
 

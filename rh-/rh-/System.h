@@ -17,4 +17,5 @@ public:
 	virtual void UpdateComponentsCollection() = 0;
 
 protected:
+	ComponentType _componentsType;
 	virtual void Iterate() = 0;};

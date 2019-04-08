@@ -35,7 +35,6 @@ protected:
 private:
 	std::unique_ptr<DirectX::Keyboard> _keyboard;
 	std::unique_ptr<DirectX::Mouse> _mouse;
-	ComponentType _componentsType;
 	std::vector<InputComponentPtr> _components;
 };
 
