@@ -52,6 +52,11 @@ void Entity::SetWorldMatrix(dxmath::Matrix matrix)
 	_worldMatrix = matrix;
 }
 
+void Entity::SetParent(std::shared_ptr<Entity> parent)
+{
+	_parent = parent;
+}
+
 std::shared_ptr<Entity> Entity::GetChildById(int id)
 {
 	for (auto entity : _children) {
@@ -65,5 +70,18 @@ std::shared_ptr<Entity> Entity::GetChildById(int id)
 
 void Entity::AddChild(std::shared_ptr<Entity> child)
 {
+	child->SetParent(shared_from_this());
 	_children.push_back(child);
+}
+
+void Entity::Update()
+{
+	if (_parent == nullptr)
+		_worldMatrix = _transform->GetTransformMatrix();
+	else
+		_worldMatrix = _parent->GetWorldMatrix() * _transform->GetTransformMatrix();
+
+	for (auto child : _children) {
+		if (child) child->Update();
+	}
 }

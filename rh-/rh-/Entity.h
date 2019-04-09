@@ -8,7 +8,7 @@
 #include "Transform.h"
 #include "pch.h"
 
-class Entity
+class Entity : public std::enable_shared_from_this<Entity>
 {
 public:
 	Entity();
@@ -22,6 +22,7 @@ public:
 
 	void SetTransform(std::shared_ptr<Transform> transform);
 	void SetWorldMatrix(dxmath::Matrix matrix);
+	void SetParent(std::shared_ptr<Entity> parent);
 
 	std::shared_ptr<Entity> GetChildById(int id);
 
