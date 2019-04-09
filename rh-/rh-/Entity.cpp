@@ -59,7 +59,8 @@ void Entity::SetParent(std::shared_ptr<Entity> parent)
 
 std::shared_ptr<Entity> Entity::GetChildById(int id)
 {
-	for (auto entity : _children) {
+	for (auto entity : _children) 
+	{
 		if (entity->GetId() == id)
 		{
 			return entity;
@@ -81,7 +82,8 @@ void Entity::Update()
 	else
 		_worldMatrix = _parent->GetWorldMatrix() * _transform->GetTransformMatrix();
 
-	for (auto child : _children) {
-		if (child) child->Update();
+	for (auto child : _children) 
+	{
+		child->Update();
 	}
 }

@@ -27,6 +27,8 @@ public:
 	std::shared_ptr<Entity> GetChildById(int id);
 
 	void AddChild(std::shared_ptr<Entity> child);
+
+	void Update();
 	
 	std::unique_ptr<DirectX::Model> Model;
 
