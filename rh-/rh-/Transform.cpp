@@ -19,7 +19,7 @@ Transform::~Transform()
 
 std::shared_ptr<Transform> Transform::Translate(const dxmath::Vector3 & position)
 {
-	return nullptr;
+	return SetPosition(_position + position);
 }
 
 std::shared_ptr<Transform> Transform::Scale(const dxmath::Vector3 & scale)
