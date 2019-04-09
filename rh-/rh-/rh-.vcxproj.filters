@@ -55,6 +55,9 @@
     <ClInclude Include="Transform.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="EntityManager.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -91,6 +94,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="AudioSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityManager.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

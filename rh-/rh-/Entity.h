@@ -29,8 +29,11 @@ public:
 	
 	std::unique_ptr<DirectX::Model> Model;
 
+	static int nextId;
+
 private:
 	int _id;
+	std::string name;
 	std::shared_ptr<Transform> _transform;
 	std::vector<std::shared_ptr<Entity>> _children;
 	std::shared_ptr<Entity> _parent;

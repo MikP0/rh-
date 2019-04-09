@@ -5,9 +5,12 @@
 #include "Entity.h"
 
 
+int Entity::nextId = 0;
+
 Entity::Entity()
 {
 	_transform = std::make_shared<Transform>();
+	_id = ++nextId;
 }
 
 Entity::~Entity()
