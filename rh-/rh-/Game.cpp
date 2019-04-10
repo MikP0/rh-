@@ -220,8 +220,18 @@ void Game::Render()
 	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
 	// cup
-	myEntity.Model->Draw(context, *m_states, myEntity.GetTransform()->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	
+	
+	myEntity2->GetTransform()->SetPosition(Vector3(0.2f, 0.0f, 1.5f));
 
+	myEntity1->GetTransform()->Translate(Vector3(0.0f, 0.1f, 0.0f));
+	myEntity1->GetTransform()->SetScale(Vector3(0.2, 0.2, 0.2));
+	myEntity2->GetTransform()->SetScale(Vector3(1.2, 1.2, 1.2));
+	myEntity1->Update();
+
+	
 
 	context;
 
@@ -317,10 +327,16 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	m_world = Matrix::Identity;
 
+	myEntity1 = std::make_shared<Entity>();
+	myEntity2 = std::make_shared<Entity>();
 
-	myEntity.Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity.SetWorldMatrix(m_world);
+	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	myEntity1->SetWorldMatrix(m_world);
 
+	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	myEntity2->SetWorldMatrix(m_world);
+
+	myEntity1->AddChild(myEntity2);
 
 	m_room = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
@@ -331,6 +347,8 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
 
 	device;
+
+
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -352,7 +370,8 @@ void Game::OnDeviceLost()
 	m_states.reset();
 	m_fxFactory.reset();
 
-	myEntity.Model.reset();
+	myEntity1->Model.reset();
+	myEntity2->Model.reset();
 
 	m_room.reset();
 	m_roomTex.Reset();
