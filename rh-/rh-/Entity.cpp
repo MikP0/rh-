@@ -11,6 +11,17 @@ Entity::Entity()
 {
 	_transform = std::make_shared<Transform>();
 	_id = ++nextId;
+	_parent = nullptr;
+}
+
+Entity::Entity(const Entity & entity)
+{
+	_transform = entity._transform;
+	_id = entity._id;
+	_name = entity._name;
+	_children = entity._children;
+	_parent = entity._parent;
+	_worldMatrix = entity._worldMatrix;
 }
 
 Entity::~Entity()
@@ -22,7 +33,7 @@ int Entity::GetId() const
 	return _id;
 }
 
-std::shared_ptr<Entity> Entity::GetPartent() const
+Entity* Entity::GetPartent() const
 {
 	return _parent;
 }
@@ -52,7 +63,7 @@ void Entity::SetWorldMatrix(dxmath::Matrix matrix)
 	_worldMatrix = matrix;
 }
 
-void Entity::SetParent(std::shared_ptr<Entity> parent)
+void Entity::SetParent(Entity* parent)
 {
 	_parent = parent;
 }
@@ -71,7 +82,7 @@ std::shared_ptr<Entity> Entity::GetChildById(int id)
 
 void Entity::AddChild(std::shared_ptr<Entity> child)
 {
-	child->SetParent(shared_from_this());
+	child->SetParent(this);
 	_children.push_back(child);
 }
 
@@ -82,8 +93,10 @@ void Entity::Update()
 	else
 		_worldMatrix = _parent->GetWorldMatrix() * _transform->GetTransformMatrix();
 
-	for (auto child : _children) 
-	{
-		child->Update();
+	if (_children.size() != 0) {
+		for (auto child : _children)
+		{
+			child->Update();
+		}
 	}
 }

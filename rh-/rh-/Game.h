@@ -70,8 +70,10 @@ private:
 	std::unique_ptr<DirectX::Model> m_model2;
 
 	// cup Object
-	Entity myEntity;
 
+	std::shared_ptr<Entity> myEntity1;
+	std::shared_ptr<Entity> myEntity2;
+	
 	// camera
 	Camera camera;
 
