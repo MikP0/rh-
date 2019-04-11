@@ -22,9 +22,8 @@ public:
 	void SetIsEnabled(bool flag);
 
 protected:
+	bool _isEnabled;
 	std::shared_ptr<Entity> _parentEntity;
 
-private:
-	bool _isEnabled;
 };
 

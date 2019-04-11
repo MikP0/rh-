@@ -58,6 +58,15 @@
     <ClInclude Include="EntityManager.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -97,6 +106,15 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="EntityManager.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
