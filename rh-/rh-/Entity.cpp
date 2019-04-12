@@ -53,6 +53,11 @@ dxmath::Matrix Entity::GetWorldMatrix() const
 	return _worldMatrix;
 }
 
+std::wstring Entity::GetName() const
+{
+	return _name;
+}
+
 void Entity::SetTransform(std::shared_ptr<Transform> transform)
 {
 	_transform = transform;

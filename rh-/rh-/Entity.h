@@ -20,6 +20,7 @@ public:
 	std::vector<std::shared_ptr<Entity>> GetAllChildren() const;
 	std::shared_ptr<Transform> GetTransform() const;
 	dxmath::Matrix GetWorldMatrix() const;
+	std::wstring GetName() const;
 
 	void SetTransform(std::shared_ptr<Transform> transform);
 	void SetWorldMatrix(dxmath::Matrix matrix);
@@ -31,10 +32,10 @@ public:
 
 	void Update();
 	
-	std::unique_ptr<DirectX::Model> Model;
+	std::unique_ptr<DirectX::Model> Model; //TODO: Move to renderer component
 
 	static int nextId;
-	std::string _name;
+	std::wstring _name;
 
 private:
 	int _id;

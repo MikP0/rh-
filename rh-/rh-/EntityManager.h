@@ -16,6 +16,7 @@ public:
 	void DestroyEntity(int entityId);
 
 	std::shared_ptr<Entity> GetEntity(int entityId);
+	std::shared_ptr<Entity> GetEntity(std::wstring entityName);
 
 private:
 	std::vector<std::shared_ptr<Entity>> _entityPool;
