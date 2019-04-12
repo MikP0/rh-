@@ -12,6 +12,15 @@ Entity::Entity()
 	_transform = std::make_shared<Transform>();
 	_id = ++nextId;
 	_parent = nullptr;
+	_name = "Entity " + std::to_string(_id);
+}
+
+Entity::Entity(const std::string name)
+{
+	_transform = std::make_shared<Transform>();
+	_id = ++nextId;
+	_parent = nullptr;
+	_name = name;
 }
 
 Entity::Entity(const Entity & entity)

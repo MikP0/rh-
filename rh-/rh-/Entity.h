@@ -12,6 +12,7 @@ class Entity : public std::enable_shared_from_this<Entity>
 {
 public:
 	Entity();
+	Entity(const std::string name);
 	Entity(const Entity&);
 	virtual ~Entity();
 
@@ -35,7 +36,7 @@ public:
 	std::unique_ptr<DirectX::Model> Model; //TODO: Move to renderer component
 
 	static int nextId;
-	std::wstring _name;
+	std::string _name;
 
 private:
 	int _id;
