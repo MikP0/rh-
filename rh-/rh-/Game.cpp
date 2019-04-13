@@ -59,9 +59,11 @@ void Game::Initialize(HWND window, int width, int height)
 
 	inputEntity = std::make_shared<Entity>();
 	inputComponent = std::make_shared<InputComponent>(actionKeysBindings);
+	inputComponent->SetParent(inputEntity);
 	inputSystem = std::make_shared<InputSystem>();
 	inputSystem->InsertComponent(inputComponent);
 	inputSystem->SetWindowForMouse(window);
+
 }
 
 #pragma region Frame Update
@@ -230,6 +232,7 @@ void Game::Render()
 	myEntity1->GetTransform()->SetScale(Vector3(0.2, 0.2, 0.2));
 	myEntity2->GetTransform()->SetScale(Vector3(1.2, 1.2, 1.2));
 	myEntity1->Update();
+	collisionSystem->UpdateColliders();
 
 	
 
@@ -338,6 +341,15 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	myEntity1->AddChild(myEntity2);
 
+	colliderCup1 = std::make_shared<PhysicsComponent>();
+	colliderCup1->SetParent(myEntity1);
+	colliderCup2 = std::make_shared<PhysicsComponent>();
+	colliderCup2->SetParent(myEntity2);
+	collisionSystem = std::make_shared<PhysicsSystem>();
+	collisionSystem->InsertComponent(colliderCup1);
+	collisionSystem->InsertComponent(colliderCup2);
+	
+
 	m_room = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
 		false, true);
@@ -385,6 +397,105 @@ void Game::OnDeviceRestored()
 }
 #pragma endregion
 
+//--------------------------------------------------------------------------------------
+void Game::DrawCube(CXMMATRIX mWorld, FXMVECTOR color)
+{
+	static const XMVECTOR s_verts[8] =
+	{
+		{ -1, -1, -1, 0 },
+		{ 1, -1, -1, 0 },
+		{ 1, -1, 1, 0 },
+		{ -1, -1, 1, 0 },
+		{ -1, 1, -1, 0 },
+		{ 1, 1, -1, 0 },
+		{ 1, 1, 1, 0 },
+		{ -1, 1, 1, 0 }
+	};
+	static const WORD s_indices[] =
+	{
+		0, 1,
+		1, 2,
+		2, 3,
+		3, 0,
+		4, 5,
+		5, 6,
+		6, 7,
+		7, 4,
+		0, 4,
+		1, 5,
+		2, 6,
+		3, 7
+	};
+
+	VertexPositionColor verts[8];
+	for (int i = 0; i < 8; ++i)
+	{
+		XMVECTOR v = XMVector3Transform(s_verts[i], mWorld);
+		XMStoreFloat3(&verts[i].position, v);
+		XMStoreFloat4(&verts[i].color, color);
+	}
+
+	auto context = m_deviceResources->GetD3DDeviceContext();
+	g_BatchEffect->Apply(context);
+
+	//context->IASetInputLayout(g_pBatchInputLayout);
+
+	g_Batch->Begin();
+
+	g_Batch->DrawIndexed(D3D11_PRIMITIVE_TOPOLOGY_LINELIST, s_indices, _countof(s_indices), verts, 8);
+
+	g_Batch->End();
+}
+
+
+//--------------------------------------------------------------------------------------
+void Game::DrawAabb(const BoundingBox& box, FXMVECTOR color)
+{
+	XMMATRIX matWorld = XMMatrixScaling(box.Extents.x, box.Extents.y, box.Extents.z);
+	XMVECTOR position = XMLoadFloat3(&box.Center);
+	matWorld.r[3] = XMVectorSelect(matWorld.r[3], position, g_XMSelect1110);
+
+	DrawCube(matWorld, color);
+}
+
+void Game::DrawRay(FXMVECTOR Origin, FXMVECTOR Direction, bool bNormalize, FXMVECTOR color)
+{
+	VertexPositionColor verts[3];
+	XMStoreFloat3(&verts[0].position, Origin);
+
+	XMVECTOR NormDirection = XMVector3Normalize(Direction);
+	XMVECTOR RayDirection = (bNormalize) ? NormDirection : Direction;
+
+	XMVECTOR PerpVector = XMVector3Cross(NormDirection, g_XMIdentityR1);
+
+	if (XMVector3Equal(XMVector3LengthSq(PerpVector), g_XMZero))
+	{
+		PerpVector = XMVector3Cross(NormDirection, g_XMIdentityR2);
+	}
+	PerpVector = XMVector3Normalize(PerpVector);
+
+	XMStoreFloat3(&verts[1].position, XMVectorAdd(RayDirection, Origin));
+	PerpVector = XMVectorScale(PerpVector, 0.0625f);
+	NormDirection = XMVectorScale(NormDirection, -0.25f);
+	RayDirection = XMVectorAdd(PerpVector, RayDirection);
+	RayDirection = XMVectorAdd(NormDirection, RayDirection);
+	XMStoreFloat3(&verts[2].position, XMVectorAdd(RayDirection, Origin));
+
+	XMStoreFloat4(&verts[0].color, color);
+	XMStoreFloat4(&verts[1].color, color);
+	XMStoreFloat4(&verts[2].color, color);
+
+	auto context = m_deviceResources->GetD3DDeviceContext();
+	g_BatchEffect->Apply(context);
+
+	//context->IASetInputLayout(g_pBatchInputLayout);
+
+	g_Batch->Begin();
+
+	g_Batch->Draw(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP, verts, 2);
+
+	g_Batch->End();
+}
 
 
 /*std::string ma = std::to_string(m_world._11) + "\t" + std::to_string(m_world._12) + "\t" + std::to_string(m_world._13) + "\t";

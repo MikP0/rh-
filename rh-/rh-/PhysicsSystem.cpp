@@ -37,6 +37,15 @@ CollisionPtr PhysicsSystem::Collide(PhysicsComponentPtr collider1, PhysicsCompon
 	return nullptr;
 }
 
+void PhysicsSystem::UpdateColliders()
+{
+	for each (PhysicsComponentPtr component in _components)
+	{
+		dxmath::Vector3 objectPosition = component->GetParent()->GetTransform()->GetPosition();	
+		component->CollisionBox.BoundingBox.Center = XMFLOAT3(objectPosition.x, objectPosition.y, objectPosition.z);
+	}
+}
+
 
 std::vector<ComponentPtr> PhysicsSystem::GetComponents(ComponentType componentType)
 {
@@ -64,6 +73,11 @@ void PhysicsSystem::UpdateComponentsCollection()
 		PhysicsComponentPtr physicsComponent = std::dynamic_pointer_cast<PhysicsComponent>(component);
 		_components.push_back(physicsComponent);
 	}
+}
+
+void PhysicsSystem::InsertComponent(PhysicsComponentPtr component)
+{
+	_components.push_back(component);
 }
 
 void PhysicsSystem::Iterate()

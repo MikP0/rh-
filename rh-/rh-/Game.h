@@ -9,7 +9,9 @@
 
 #include "Entity.h"
 #include "InputComponent.h"
+#include "PhysicsComponent.h"
 #include "InputSystem.h"
+#include "PhysicsSystem.h"
 #include "Camera.h"
 
 // A basic game implementation that creates a D3D11 device and
@@ -41,6 +43,10 @@ public:
     // Properties
     void GetDefaultSize( int& width, int& height ) const;
 
+	void DrawCube(CXMMATRIX mWorld, FXMVECTOR color);
+	void DrawAabb(const BoundingBox& box, FXMVECTOR color);
+	void DrawRay(FXMVECTOR Origin, FXMVECTOR Direction, bool bNormalize, FXMVECTOR color);
+
 private:
 
     void Update(DX::StepTimer const& timer);
@@ -70,9 +76,13 @@ private:
 	std::unique_ptr<DirectX::Model> m_model2;
 
 	// cup Object
-
 	std::shared_ptr<Entity> myEntity1;
 	std::shared_ptr<Entity> myEntity2;
+
+	// Collision boundings
+	std::shared_ptr<PhysicsComponent> colliderCup1;
+	std::shared_ptr<PhysicsComponent> colliderCup2;
+	std::shared_ptr<PhysicsSystem> collisionSystem;
 	
 	// camera
 	Camera camera;
@@ -101,4 +111,9 @@ private:
 	// mouse settings
 	float m_pitch;
 	float m_yaw;
+
+	//
+	std::unique_ptr<CommonStates>                           g_States;
+	std::unique_ptr<BasicEffect>                            g_BatchEffect;
+	std::unique_ptr<PrimitiveBatch<VertexPositionColor>>    g_Batch;
 };

@@ -1,4 +1,6 @@
 #pragma once
+
+#include <DirectXCollision.h>
 #include "Entity.h"
 
 using namespace DirectX;
@@ -23,10 +25,6 @@ public:
 	EntityPtr OriginComponent;
 	EntityPtr ColliderComponent;
 	ContainmentType CollisionKind;
-
-	std::unique_ptr<CommonStates>                           g_States;
-	std::unique_ptr<BasicEffect>                            g_BatchEffect;
-	std::unique_ptr<PrimitiveBatch<VertexPositionColor>>    g_Batch;
 
 	Collision(EntityPtr origin, EntityPtr collider, ContainmentType collisionKind);
 	~Collision();
