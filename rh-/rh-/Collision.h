@@ -1,54 +1,36 @@
 #pragma once
-#include "PhysicsComponent.h"
+#include "Entity.h"
 
-typedef std::shared_ptr<PhysicsComponent> PhysicsComponentPtr;
+using namespace DirectX;
 
-// Collision objects
-struct CollisionSphere
+typedef std::shared_ptr<Entity> EntityPtr;
+
+struct ColliderAABB
 {
-	DirectX::BoundingSphere sphere;
-	DirectX::ContainmentType collision;
+	ContainmentType CollisionKind = DISJOINT;
+	DirectX::BoundingBox BoundingBox;
 };
 
-struct CollisionBox
+struct ColliderRay
 {
-	DirectX::BoundingOrientedBox obox;
-	DirectX::ContainmentType collision;
-};
-
-struct CollisionAABox
-{
-	DirectX::BoundingBox aabox;
-	DirectX::ContainmentType collision;
-};
-
-struct CollisionFrustum
-{
-	DirectX::BoundingFrustum frustum;
-	DirectX::ContainmentType collision;
-};
-
-struct CollisionTriangle
-{
-	DirectX::XMVECTOR pointa;
-	DirectX::XMVECTOR pointb;
-	DirectX::XMVECTOR pointc;
-	DirectX::ContainmentType collision;
-};
-
-struct CollisionRay
-{
-	DirectX::XMVECTOR origin;
-	DirectX::XMVECTOR direction;
+	DirectX::XMVECTOR Origin;
+	DirectX::XMVECTOR Direction;
 };
 
 class Collision
 {
 public:
-	PhysicsComponentPtr OriginComponent;
-	PhysicsComponentPtr ColliderComponent;
+	EntityPtr OriginComponent;
+	EntityPtr ColliderComponent;
+	ContainmentType CollisionKind;
 
-	Collision(PhysicsComponentPtr originComponent, PhysicsComponentPtr colliderComponent);
+	std::unique_ptr<CommonStates>                           g_States;
+	std::unique_ptr<BasicEffect>                            g_BatchEffect;
+	std::unique_ptr<PrimitiveBatch<VertexPositionColor>>    g_Batch;
+
+	Collision(EntityPtr origin, EntityPtr collider, ContainmentType collisionKind);
 	~Collision();
+
+	XMVECTOR Collision::GetCollisionColor(ContainmentType collisionKind);
 };
 

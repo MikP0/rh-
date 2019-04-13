@@ -11,11 +11,32 @@ PhysicsSystem::~PhysicsSystem()
 {
 }
 
-Collision PhysicsSystem::Collide(PhysicsComponentPtr collider1, PhysicsComponentPtr collider2)
+CollisionPtr PhysicsSystem::Collide(PhysicsComponentPtr collider1, PhysicsComponentPtr collider2)
 {
-	// to do
-	return Collision(collider1, collider2);
+	ContainmentType collider1Result = collider1->CollisionBox.BoundingBox.Contains(collider2->CollisionBox.BoundingBox);
+	ContainmentType collider2Result = collider2->CollisionBox.BoundingBox.Contains(collider1->CollisionBox.BoundingBox);
+
+	collider1->CollisionBox.CollisionKind = collider1Result;
+	collider2->CollisionBox.CollisionKind = collider2Result;
+
+	if (collider1Result == INTERSECTS && collider2Result == INTERSECTS)
+	{
+		return (std::make_shared<Collision>(collider1->GetParent(), collider2->GetParent(), INTERSECTS));
+	}
+
+	if (collider1Result == CONTAINS)
+	{
+		return (std::make_shared<Collision>(collider1->GetParent(), collider2->GetParent(), CONTAINS));
+	}
+
+	if (collider2Result == CONTAINS)
+	{
+		return (std::make_shared<Collision>(collider2->GetParent(), collider1->GetParent(), CONTAINS));
+	}
+
+	return nullptr;
 }
+
 
 std::vector<ComponentPtr> PhysicsSystem::GetComponents(ComponentType componentType)
 {

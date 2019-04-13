@@ -4,20 +4,7 @@
 
 PhysicsComponent::PhysicsComponent()
 {
-	ColliderType = AABB;
 }
-
-PhysicsComponent::PhysicsComponent(int colliderType)
-{
-	if (colliderType == 0)
-		ColliderType = Sphere;
-	else
-		if (colliderType == 1)
-			ColliderType = AABB;
-		else
-			ColliderType = OBB;
-}
-
 
 PhysicsComponent::~PhysicsComponent()
 {
