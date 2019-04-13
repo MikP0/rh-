@@ -222,6 +222,8 @@ void Game::Render()
 	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
 	// cup
+	collisionSystem->UpdateColliders();
+
 	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
@@ -232,9 +234,21 @@ void Game::Render()
 	myEntity1->GetTransform()->SetScale(Vector3(0.2, 0.2, 0.2));
 	myEntity2->GetTransform()->SetScale(Vector3(1.2, 1.2, 1.2));
 	myEntity1->Update();
-	collisionSystem->UpdateColliders();
-
 	
+	collisionSystem->UpdateColliders();
+	CollisionPtr collision = collisionSystem->Collide(colliderCup1, colliderCup2);
+	
+	if (collision != nullptr)
+	{
+		ExitGame();
+	}
+
+	XMVECTOR c1 = Collision::GetCollisionColor(colliderCup1->CollisionBox.CollisionKind);
+	//DrawAabb(colliderCup1->CollisionBox.BoundingBox, c1);
+
+	XMVECTOR c2 = Collision::GetCollisionColor(colliderCup2->CollisionBox.CollisionKind);
+	//DrawAabb(colliderCup2->CollisionBox.BoundingBox, c2);
+
 
 	context;
 
@@ -345,6 +359,8 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 	colliderCup1->SetParent(myEntity1);
 	colliderCup2 = std::make_shared<PhysicsComponent>();
 	colliderCup2->SetParent(myEntity2);
+	colliderCup1->CollisionBox.BoundingBox.Extents = XMFLOAT3(0.4f, 0.4f, 0.4f);
+	colliderCup1->CollisionBox.BoundingBox.Extents = XMFLOAT3(0.4f, 0.4f, 0.4f);
 	collisionSystem = std::make_shared<PhysicsSystem>();
 	collisionSystem->InsertComponent(colliderCup1);
 	collisionSystem->InsertComponent(colliderCup2);

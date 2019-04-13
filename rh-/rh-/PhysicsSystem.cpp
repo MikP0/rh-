@@ -13,6 +13,9 @@ PhysicsSystem::~PhysicsSystem()
 
 CollisionPtr PhysicsSystem::Collide(PhysicsComponentPtr collider1, PhysicsComponentPtr collider2)
 {
+	collider1->CollisionBox.CollisionKind = DISJOINT;
+	collider2->CollisionBox.CollisionKind = DISJOINT;
+
 	ContainmentType collider1Result = collider1->CollisionBox.BoundingBox.Contains(collider2->CollisionBox.BoundingBox);
 	ContainmentType collider2Result = collider2->CollisionBox.BoundingBox.Contains(collider1->CollisionBox.BoundingBox);
 
