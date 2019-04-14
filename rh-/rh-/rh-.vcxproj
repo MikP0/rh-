@@ -288,6 +288,7 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="cat.DDS" />
     <Image Include="cup.jpg" />
     <Image Include="directx.ico" />
     <Image Include="roomtexture.dds" />

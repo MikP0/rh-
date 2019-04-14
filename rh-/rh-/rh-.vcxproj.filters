@@ -266,6 +266,9 @@
     <Image Include="roomtexture.dds">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="cat.DDS">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">

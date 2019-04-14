@@ -26,6 +26,8 @@ namespace
 	const XMVECTORF32 ROOM_BOUNDS = { 8.f, 6.f, 12.f, 0.f };
 	const float ROTATION_GAIN = 0.008f;
 	const float MOVEMENT_GAIN = 0.07f;
+
+	const XMVECTORF32 PLANE_BOUNDS = { 1.5f, 1.5f, 1.5f, 0.f };
 }
 
 
@@ -216,6 +218,12 @@ void Game::Update(DX::StepTimer const& timer)
 		mSkinModel->GetAnimatorPlayer()->PauseClip();
 	}
 
+
+	//billboarding
+	planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
+
+
+
 	elapsedTime;
 }
 #pragma endregion
@@ -265,6 +273,9 @@ void Game::Render()
 	
 	// skinned model
 	mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
+	// billboarding
+	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 
 	context;
 
@@ -382,6 +393,18 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 	//skinned model
 	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
 
+
+	//billboarding
+	m_plane = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"cat.dds",
+			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
+	planeWorld = m_world;
+	planePos = Vector3(2.0f, 0.f, 4.0f);
+	planeWorld.CreateTranslation(planePos);
+
 	device;
 }
 
@@ -409,6 +432,10 @@ void Game::OnDeviceLost()
 
 	m_room.reset();
 	m_roomTex.Reset();
+
+
+	m_plane.reset();
+	m_planeTex.Reset();
 }
 
 void Game::OnDeviceRestored()
