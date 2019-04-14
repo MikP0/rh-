@@ -62,7 +62,7 @@ dxmath::Matrix Entity::GetWorldMatrix() const
 	return _worldMatrix;
 }
 
-std::wstring Entity::GetName() const
+std::string Entity::GetName() const
 {
 	return _name;
 }

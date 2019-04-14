@@ -39,7 +39,7 @@ std::shared_ptr<Entity> EntityManager::GetEntity(int entityId)
 	return nullptr;
 }
 
-std::shared_ptr<Entity> EntityManager::GetEntity(std::wstring entityName)
+std::shared_ptr<Entity> EntityManager::GetEntity(std::string entityName)
 {
 	for (auto entity : _entityPool) {
 		if (entity->GetName() == entityName) {
