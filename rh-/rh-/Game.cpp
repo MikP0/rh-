@@ -216,38 +216,69 @@ void Game::Render()
 	//myEntity.GetTransform()->SetScale(Vector3(0.2f, 1.0f, 1.5f));
 	//
 
+	/*g_BatchEffect->SetWorld(m_world);
+	g_BatchEffect->SetView(camera.GetViewMatrix());
+	g_BatchEffect->SetProjection(camera.GetProjectionMatrix());*/
 
+	// check collisions
+	static Vector3 dir1(1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
+	static bool coolidedBefore = false;
+	collisionSystem->UpdateColliders();
+	CollisionPtr collision = collisionSystem->Collide(colliderCup1, colliderCup2);
+	
+	if (collision != nullptr && !coolidedBefore)
+	{
+			coolidedBefore = true;
+			dir1 *= -1.0f;
+			dir2 *= -1.0f;
+	}
 
 	// room
 	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
 	// cup
-	collisionSystem->UpdateColliders();
-
 	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
 	
-	myEntity2->GetTransform()->SetPosition(Vector3(0.2f, 0.0f, 1.5f));
+	/*myEntity2->GetTransform()->SetPosition(Vector3(0.2f, 0.0f, 1.5f));
 
 	myEntity1->GetTransform()->Translate(Vector3(0.0f, 0.1f, 0.0f));
 	myEntity1->GetTransform()->SetScale(Vector3(0.2, 0.2, 0.2));
 	myEntity2->GetTransform()->SetScale(Vector3(1.2, 1.2, 1.2));
+	myEntity1->Update();*/
+
+	myEntity1->GetTransform()->Translate(Vector3(-0.1f, 0.0f, 0.0f) * dir1);
+	myEntity2->GetTransform()->Translate(Vector3(0.1f, 0.0f, 0.0f) * dir2);
+	myEntity1->GetTransform()->SetScale(Vector3(0.5, 0.5, 0.5));
+	myEntity2->GetTransform()->SetScale(Vector3(0.5, 0.5, 0.5));
 	myEntity1->Update();
+	myEntity2->Update();
 	
-	collisionSystem->UpdateColliders();
-	CollisionPtr collision = collisionSystem->Collide(colliderCup1, colliderCup2);
-	
-	if (collision != nullptr)
+	if (myEntity1->GetTransform()->GetPosition().x >= (ROOM_BOUNDS[0] - 0.5f)
+		|| myEntity1->GetTransform()->GetPosition().x <= (-ROOM_BOUNDS[0] + 0.5f))
+	{
+		coolidedBefore = false;
+		dir1 *= -1.0f;
+	}
+
+	if (myEntity2->GetTransform()->GetPosition().x >= (ROOM_BOUNDS[0] - 0.5f)
+		|| myEntity2->GetTransform()->GetPosition().x <= (-ROOM_BOUNDS[0] + 0.5f))
+	{
+		coolidedBefore = false;
+		dir2 *= -1.0f;
+	}
+
+	/*if (collision != nullptr)
 	{
 		ExitGame();
 	}
 
 	XMVECTOR c1 = Collision::GetCollisionColor(colliderCup1->CollisionBox.CollisionKind);
-	//DrawAabb(colliderCup1->CollisionBox.BoundingBox, c1);
+	DrawAabb(colliderCup1->CollisionBox.BoundingBox, c1);
 
 	XMVECTOR c2 = Collision::GetCollisionColor(colliderCup2->CollisionBox.CollisionKind);
-	//DrawAabb(colliderCup2->CollisionBox.BoundingBox, c2);
+	DrawAabb(colliderCup2->CollisionBox.BoundingBox, c2);*/
 
 
 	context;
@@ -339,6 +370,24 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 	// TODO: Initialize device dependent objects here (independent of window size).
 
 	m_states = std::make_unique<CommonStates>(device);
+	//g_Batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(context);
+
+	//g_BatchEffect = std::make_unique<BasicEffect>(device);
+	//g_BatchEffect->SetVertexColorEnabled(true);
+
+	//{
+	//	void const* shaderByteCode;
+	//	size_t byteCodeLength;
+
+	//	g_BatchEffect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
+
+	//	/*hr = device->CreateInputLayout(VertexPositionColor::InputElements,
+	//		VertexPositionColor::InputElementCount,
+	//		shaderByteCode, byteCodeLength,
+	//		&g_pBatchInputLayout);
+	//	if (FAILED(hr))
+	//		return hr;*/
+	//}
 
 	m_fxFactory = std::make_unique<EffectFactory>(device);
 
@@ -349,11 +398,12 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity1->SetWorldMatrix(m_world);
+	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
 
 	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity2->SetWorldMatrix(m_world);
-
-	myEntity1->AddChild(myEntity2);
+	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
+	//myEntity1->AddChild(myEntity2);
 
 	colliderCup1 = std::make_shared<PhysicsComponent>();
 	colliderCup1->SetParent(myEntity1);
@@ -454,7 +504,7 @@ void Game::DrawCube(CXMMATRIX mWorld, FXMVECTOR color)
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	g_BatchEffect->Apply(context);
 
-	//context->IASetInputLayout(g_pBatchInputLayout);
+	//context->IASetInputLayout(g_pBatchInputLayout.get());
 
 	g_Batch->Begin();
 

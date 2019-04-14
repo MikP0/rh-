@@ -68,8 +68,12 @@ private:
 	DirectX::SimpleMath::Matrix m_view;
 	DirectX::SimpleMath::Matrix m_proj;
 
+	//std::shared_ptr<ID3D11InputLayout> g_pBatchInputLayout = nullptr;
+	ID3D11InputLayout* g_pBatchInputLayout = nullptr;
 	std::unique_ptr<DirectX::CommonStates> m_states;
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
+	std::unique_ptr<DirectX::BasicEffect> g_BatchEffect;
+	std::unique_ptr<DirectX::PrimitiveBatch<VertexPositionColor>> g_Batch;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;
@@ -111,9 +115,4 @@ private:
 	// mouse settings
 	float m_pitch;
 	float m_yaw;
-
-	//
-	std::unique_ptr<CommonStates>                           g_States;
-	std::unique_ptr<BasicEffect>                            g_BatchEffect;
-	std::unique_ptr<PrimitiveBatch<VertexPositionColor>>    g_Batch;
 };
