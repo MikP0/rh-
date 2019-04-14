@@ -74,6 +74,24 @@
 #include "VertexTypes.h"
 #include "WICTextureLoader.h"
 
+
+
+#include <vector>
+#include <string>
+#include <cstring>
+#include <cstdlib>
+
+#include "RTTI.h"
+#include "MatrixHelper.h"
+#include "VectorHelper.h"
+#include "BufferContainer.h"
+#include <d3dx11Effect.h>
+
+#define DeleteObject(object) if((object) != NULL) { delete object; object = NULL; }
+#define DeleteObjects(objects) if((objects) != NULL) { delete[] objects; objects = NULL; }
+#define ReleaseObject(object) if((object) != NULL) { object->Release(); object = NULL; }
+
+
 namespace DX
 {
     // Helper class for COM exceptions

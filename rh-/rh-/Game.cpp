@@ -151,11 +151,11 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == closeWindow)
 			ExitGame();
 
-		if (*iter == up)
+		/*if (*iter == up)
 			move.y += 1.f;
 
 		if (*iter == down)
-			move.y -= 1.f;
+			move.y -= 1.f;*/
 
 		if (*iter == left)
 			move.x += 1.f;
@@ -169,6 +169,24 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == backward)
 			move.z -= 1.f; 
 
+		if (*iter == up)
+		{
+			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, 0.03f);
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+
+		if (*iter == down)
+		{
+			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, -0.03f);
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
+		}
+	}
+
+	if (pushedKeysActions.size() == 0)
+	{
+		mSkinModel->SetInMove(false);
 	}
 
 	move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
@@ -184,6 +202,19 @@ void Game::Update(DX::StepTimer const& timer)
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
 	////////
+
+
+	// skinned model
+	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
+
+	if (mSkinModel->GetInMove())
+	{
+		mSkinModel->GetAnimatorPlayer()->ResumeClip();
+	}
+	else
+	{
+		mSkinModel->GetAnimatorPlayer()->PauseClip();
+	}
 
 	elapsedTime;
 }
@@ -232,6 +263,8 @@ void Game::Render()
 	myEntity1->Update();
 
 	
+	// skinned model
+	mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	context;
 
@@ -346,9 +379,10 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 		CreateDDSTextureFromFile(device, L"roomtexture.dds",
 			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
 
+	//skinned model
+	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
+
 	device;
-
-
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -384,14 +418,3 @@ void Game::OnDeviceRestored()
 	CreateWindowSizeDependentResources();
 }
 #pragma endregion
-
-
-
-/*std::string ma = std::to_string(m_world._11) + "\t" + std::to_string(m_world._12) + "\t" + std::to_string(m_world._13) + "\t";
-	ma = ma + "\n";
-	ma = ma + std::to_string(m_world._21) + "\t" + std::to_string(m_world._22) + "\t" + std::to_string(m_world._23) + "\t";
-	ma = ma + "\n";
-	ma = ma + std::to_string(m_world._31) + "\t" + std::to_string(m_world._32) + "\t" + std::to_string(m_world._33) + "\t";
-	char text[250];
-	strcpy(text, ma.c_str());
-	OutputDebugStringA(text);*/

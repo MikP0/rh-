@@ -12,6 +12,8 @@
 #include "InputSystem.h"
 #include "Camera.h"
 
+#include "ModelSkinned.h"
+
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
 class Game : public DX::IDeviceNotify
@@ -101,4 +103,7 @@ private:
 	// mouse settings
 	float m_pitch;
 	float m_yaw;
+
+	// skinned model
+	std::shared_ptr<ModelSkinned> mSkinModel;
 };

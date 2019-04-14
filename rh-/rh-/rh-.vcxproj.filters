@@ -14,6 +14,21 @@
     <Filter Include="Src">
       <UniqueIdentifier>{78613c45-0373-4a31-94ec-21a0c69e8652}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Inc\Skinning">
+      <UniqueIdentifier>{6e661ba6-b118-4258-a510-3072b98fd52c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\Skinning\Effect">
+      <UniqueIdentifier>{5933949f-cf22-452a-9c7b-ff1795cad033}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\Skinning\Content">
+      <UniqueIdentifier>{b4fd39d1-e2b3-4134-b022-c7e0fc157df6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Skinning">
+      <UniqueIdentifier>{09e5d1c6-b932-4def-a53f-89af61c0521c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Skinning\Effect">
+      <UniqueIdentifier>{645dbfad-b890-4e51-96ad-d19562e84c1b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StepTimer.h">
@@ -58,6 +73,78 @@
     <ClInclude Include="EntityManager.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="AnimationClip.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationPlayer.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="Bone.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneAnimation.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferContainer.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="GameException.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyframe.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="MatrixHelper.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshSK.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelMaterial.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelSK.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="RTTI.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneNode.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorHelper.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexDeclarations.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialSK.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectSK.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Pass.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Variable.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedModelMaterial.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Technique.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelSkinned.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="MyGame.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -99,6 +186,72 @@
     <ClCompile Include="EntityManager.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="AnimationClip.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationPlayer.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="Bone.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="BoneAnimation.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferContainer.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyframe.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="GameException.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectSK.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialSK.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="MatrixHelper.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMaterial.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelSK.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshSK.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneNode.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="VectorHelper.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="Pass.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Technique.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Variable.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedModelMaterial.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelSkinned.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="MyGame.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -124,5 +277,13 @@
     <None Include="cup.cmo">
       <Filter>Assets</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="content\Effects\BasicEffect.fx">
+      <Filter>Inc\Skinning\Content</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Effects\SkinnedModel.fx">
+      <Filter>Inc\Skinning\Content</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
