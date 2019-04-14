@@ -119,29 +119,6 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 	}
 
-	/*m_mouse->SetMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-
-	if (keyboard.Escape)
-		ExitGame();
-
-	if (keyboard.PageUp || keyboard.Space)
-		move.y += 1.f;
-
-	if (keyboard.PageDown || keyboard.LeftControl)
-		move.y -= 1.f;
-
-	if (keyboard.Left || keyboard.A)
-		move.x += 1.f;
-
-	if (keyboard.Right || keyboard.D)
-		move.x -= 1.f;
-
-	if (keyboard.Up || keyboard.W)
-		move.z += 1.f;
-
-	if (keyboard.Down || keyboard.S)
-		move.z -= 1.f;*/
-
 	std::vector<actionList> pushedKeysActions = inputSystem->GetActions(inputComponent);
 	inputSystem->SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
@@ -222,6 +199,7 @@ void Game::Render()
 
 	// check collisions
 	static Vector3 dir1(1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
+	static XMVECTORF32 collider1Color = DirectX::Colors::White;
 	static bool coolidedBefore = false;
 	collisionSystem->UpdateColliders();
 	CollisionPtr collision = collisionSystem->Collide(colliderCup1, colliderCup2);
@@ -231,16 +209,23 @@ void Game::Render()
 			coolidedBefore = true;
 			dir1 *= -1.0f;
 			dir2 *= -1.0f;
+			collider1Color = Collision::GetCollisionColor(colliderCup1->CollisionBox.CollisionKind);
 	}
 
 	// room
 	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
 	// cup
+	static DirectX::SimpleMath::Matrix translatedMatrix1 = colliderCup1->GetParent()->GetTransform()->GetTransformMatrix() * colliderCup1->GetParent()->GetWorldMatrix();
+	//translatedMatrix1 = translatedMatrix1 * DirectX::XMMatrixTranslation(colliderCup1->GetParent()->GetTransform()->GetPosition().x, colliderCup1->GetParent()->GetTransform()->GetPosition().y, colliderCup1->GetParent()->GetTransform()->GetPosition().z);
+	translatedMatrix1(3, 0) = colliderCup1->GetParent()->GetTransform()->GetPosition().x;
+	translatedMatrix1(3, 1) = colliderCup1->GetParent()->GetTransform()->GetPosition().y;
+	translatedMatrix1(3, 2) = colliderCup1->GetParent()->GetTransform()->GetPosition().z;
+
+	//translatedMatrix1 = translatedMatrix1 * DirectX::XMMatrixTranslation(-0.058f * dir1.x, 0.0f, 0.0f);
 	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	
-	
+	m_boundingEntity1->Draw(translatedMatrix1, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider1Color, nullptr, true);
 	/*myEntity2->GetTransform()->SetPosition(Vector3(0.2f, 0.0f, 1.5f));
 
 	myEntity1->GetTransform()->Translate(Vector3(0.0f, 0.1f, 0.0f));
@@ -248,10 +233,10 @@ void Game::Render()
 	myEntity2->GetTransform()->SetScale(Vector3(1.2, 1.2, 1.2));
 	myEntity1->Update();*/
 
-	myEntity1->GetTransform()->Translate(Vector3(-0.1f, 0.0f, 0.0f) * dir1);
-	myEntity2->GetTransform()->Translate(Vector3(0.1f, 0.0f, 0.0f) * dir2);
 	myEntity1->GetTransform()->SetScale(Vector3(0.5, 0.5, 0.5));
 	myEntity2->GetTransform()->SetScale(Vector3(0.5, 0.5, 0.5));
+	myEntity1->GetTransform()->Translate(Vector3(-0.1f, 0.0f, 0.0f) * dir1);
+	myEntity2->GetTransform()->Translate(Vector3(0.1f, 0.0f, 0.0f) * dir2);
 	myEntity1->Update();
 	myEntity2->Update();
 	
@@ -260,6 +245,7 @@ void Game::Render()
 	{
 		coolidedBefore = false;
 		dir1 *= -1.0f;
+		collider1Color = Collision::GetCollisionColor(colliderCup1->CollisionBox.CollisionKind);
 	}
 
 	if (myEntity2->GetTransform()->GetPosition().x >= (ROOM_BOUNDS[0] - 0.5f)
@@ -355,8 +341,8 @@ void Game::OnWindowSizeChanged(int width, int height)
 void Game::GetDefaultSize(int& width, int& height) const
 {
 	// TODO: Change to desired default window size (note minimum size is 320x200).
-	width = 800;
-	height = 600;
+	width = 1280;
+	height = 800;
 }
 #pragma endregion
 
@@ -409,8 +395,8 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 	colliderCup1->SetParent(myEntity1);
 	colliderCup2 = std::make_shared<PhysicsComponent>();
 	colliderCup2->SetParent(myEntity2);
-	colliderCup1->CollisionBox.BoundingBox.Extents = XMFLOAT3(0.4f, 0.4f, 0.4f);
-	colliderCup1->CollisionBox.BoundingBox.Extents = XMFLOAT3(0.4f, 0.4f, 0.4f);
+	colliderCup1->CollisionBox.BoundingBox.Extents = XMFLOAT3(0.4f, 0.5f, 0.4f);
+	colliderCup2->CollisionBox.BoundingBox.Extents = XMFLOAT3(0.4f, 0.4f, 0.4f);
 	collisionSystem = std::make_shared<PhysicsSystem>();
 	collisionSystem->InsertComponent(colliderCup1);
 	collisionSystem->InsertComponent(colliderCup2);
@@ -418,6 +404,12 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	m_room = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
+		false, true);
+
+	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(colliderCup1->CollisionBox.BoundingBox.Extents.x, 
+			colliderCup1->CollisionBox.BoundingBox.Extents.y, 
+			colliderCup1->CollisionBox.BoundingBox.Extents.z),
 		false, true);
 
 	DX::ThrowIfFailed(
@@ -452,6 +444,7 @@ void Game::OnDeviceLost()
 	myEntity2->Model.reset();
 
 	m_room.reset();
+	m_boundingEntity1.reset();
 	m_roomTex.Reset();
 }
 
@@ -464,104 +457,104 @@ void Game::OnDeviceRestored()
 #pragma endregion
 
 //--------------------------------------------------------------------------------------
-void Game::DrawCube(CXMMATRIX mWorld, FXMVECTOR color)
-{
-	static const XMVECTOR s_verts[8] =
-	{
-		{ -1, -1, -1, 0 },
-		{ 1, -1, -1, 0 },
-		{ 1, -1, 1, 0 },
-		{ -1, -1, 1, 0 },
-		{ -1, 1, -1, 0 },
-		{ 1, 1, -1, 0 },
-		{ 1, 1, 1, 0 },
-		{ -1, 1, 1, 0 }
-	};
-	static const WORD s_indices[] =
-	{
-		0, 1,
-		1, 2,
-		2, 3,
-		3, 0,
-		4, 5,
-		5, 6,
-		6, 7,
-		7, 4,
-		0, 4,
-		1, 5,
-		2, 6,
-		3, 7
-	};
-
-	VertexPositionColor verts[8];
-	for (int i = 0; i < 8; ++i)
-	{
-		XMVECTOR v = XMVector3Transform(s_verts[i], mWorld);
-		XMStoreFloat3(&verts[i].position, v);
-		XMStoreFloat4(&verts[i].color, color);
-	}
-
-	auto context = m_deviceResources->GetD3DDeviceContext();
-	g_BatchEffect->Apply(context);
-
-	//context->IASetInputLayout(g_pBatchInputLayout.get());
-
-	g_Batch->Begin();
-
-	g_Batch->DrawIndexed(D3D11_PRIMITIVE_TOPOLOGY_LINELIST, s_indices, _countof(s_indices), verts, 8);
-
-	g_Batch->End();
-}
-
-
-//--------------------------------------------------------------------------------------
-void Game::DrawAabb(const BoundingBox& box, FXMVECTOR color)
-{
-	XMMATRIX matWorld = XMMatrixScaling(box.Extents.x, box.Extents.y, box.Extents.z);
-	XMVECTOR position = XMLoadFloat3(&box.Center);
-	matWorld.r[3] = XMVectorSelect(matWorld.r[3], position, g_XMSelect1110);
-
-	DrawCube(matWorld, color);
-}
-
-void Game::DrawRay(FXMVECTOR Origin, FXMVECTOR Direction, bool bNormalize, FXMVECTOR color)
-{
-	VertexPositionColor verts[3];
-	XMStoreFloat3(&verts[0].position, Origin);
-
-	XMVECTOR NormDirection = XMVector3Normalize(Direction);
-	XMVECTOR RayDirection = (bNormalize) ? NormDirection : Direction;
-
-	XMVECTOR PerpVector = XMVector3Cross(NormDirection, g_XMIdentityR1);
-
-	if (XMVector3Equal(XMVector3LengthSq(PerpVector), g_XMZero))
-	{
-		PerpVector = XMVector3Cross(NormDirection, g_XMIdentityR2);
-	}
-	PerpVector = XMVector3Normalize(PerpVector);
-
-	XMStoreFloat3(&verts[1].position, XMVectorAdd(RayDirection, Origin));
-	PerpVector = XMVectorScale(PerpVector, 0.0625f);
-	NormDirection = XMVectorScale(NormDirection, -0.25f);
-	RayDirection = XMVectorAdd(PerpVector, RayDirection);
-	RayDirection = XMVectorAdd(NormDirection, RayDirection);
-	XMStoreFloat3(&verts[2].position, XMVectorAdd(RayDirection, Origin));
-
-	XMStoreFloat4(&verts[0].color, color);
-	XMStoreFloat4(&verts[1].color, color);
-	XMStoreFloat4(&verts[2].color, color);
-
-	auto context = m_deviceResources->GetD3DDeviceContext();
-	g_BatchEffect->Apply(context);
-
-	//context->IASetInputLayout(g_pBatchInputLayout);
-
-	g_Batch->Begin();
-
-	g_Batch->Draw(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP, verts, 2);
-
-	g_Batch->End();
-}
+//void Game::DrawCube(CXMMATRIX mWorld, FXMVECTOR color)
+//{
+//	static const XMVECTOR s_verts[8] =
+//	{
+//		{ -1, -1, -1, 0 },
+//		{ 1, -1, -1, 0 },
+//		{ 1, -1, 1, 0 },
+//		{ -1, -1, 1, 0 },
+//		{ -1, 1, -1, 0 },
+//		{ 1, 1, -1, 0 },
+//		{ 1, 1, 1, 0 },
+//		{ -1, 1, 1, 0 }
+//	};
+//	static const WORD s_indices[] =
+//	{
+//		0, 1,
+//		1, 2,
+//		2, 3,
+//		3, 0,
+//		4, 5,
+//		5, 6,
+//		6, 7,
+//		7, 4,
+//		0, 4,
+//		1, 5,
+//		2, 6,
+//		3, 7
+//	};
+//
+//	VertexPositionColor verts[8];
+//	for (int i = 0; i < 8; ++i)
+//	{
+//		XMVECTOR v = XMVector3Transform(s_verts[i], mWorld);
+//		XMStoreFloat3(&verts[i].position, v);
+//		XMStoreFloat4(&verts[i].color, color);
+//	}
+//
+//	auto context = m_deviceResources->GetD3DDeviceContext();
+//	g_BatchEffect->Apply(context);
+//
+//	//context->IASetInputLayout(g_pBatchInputLayout.get());
+//
+//	g_Batch->Begin();
+//
+//	g_Batch->DrawIndexed(D3D11_PRIMITIVE_TOPOLOGY_LINELIST, s_indices, _countof(s_indices), verts, 8);
+//
+//	g_Batch->End();
+//}
+//
+//
+////--------------------------------------------------------------------------------------
+//void Game::DrawAabb(const BoundingBox& box, FXMVECTOR color)
+//{
+//	XMMATRIX matWorld = XMMatrixScaling(box.Extents.x, box.Extents.y, box.Extents.z);
+//	XMVECTOR position = XMLoadFloat3(&box.Center);
+//	matWorld.r[3] = XMVectorSelect(matWorld.r[3], position, g_XMSelect1110);
+//
+//	DrawCube(matWorld, color);
+//}
+//
+//void Game::DrawRay(FXMVECTOR Origin, FXMVECTOR Direction, bool bNormalize, FXMVECTOR color)
+//{
+//	VertexPositionColor verts[3];
+//	XMStoreFloat3(&verts[0].position, Origin);
+//
+//	XMVECTOR NormDirection = XMVector3Normalize(Direction);
+//	XMVECTOR RayDirection = (bNormalize) ? NormDirection : Direction;
+//
+//	XMVECTOR PerpVector = XMVector3Cross(NormDirection, g_XMIdentityR1);
+//
+//	if (XMVector3Equal(XMVector3LengthSq(PerpVector), g_XMZero))
+//	{
+//		PerpVector = XMVector3Cross(NormDirection, g_XMIdentityR2);
+//	}
+//	PerpVector = XMVector3Normalize(PerpVector);
+//
+//	XMStoreFloat3(&verts[1].position, XMVectorAdd(RayDirection, Origin));
+//	PerpVector = XMVectorScale(PerpVector, 0.0625f);
+//	NormDirection = XMVectorScale(NormDirection, -0.25f);
+//	RayDirection = XMVectorAdd(PerpVector, RayDirection);
+//	RayDirection = XMVectorAdd(NormDirection, RayDirection);
+//	XMStoreFloat3(&verts[2].position, XMVectorAdd(RayDirection, Origin));
+//
+//	XMStoreFloat4(&verts[0].color, color);
+//	XMStoreFloat4(&verts[1].color, color);
+//	XMStoreFloat4(&verts[2].color, color);
+//
+//	auto context = m_deviceResources->GetD3DDeviceContext();
+//	g_BatchEffect->Apply(context);
+//
+//	//context->IASetInputLayout(g_pBatchInputLayout);
+//
+//	g_Batch->Begin();
+//
+//	g_Batch->Draw(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP, verts, 2);
+//
+//	g_Batch->End();
+//}
 
 
 /*std::string ma = std::to_string(m_world._11) + "\t" + std::to_string(m_world._12) + "\t" + std::to_string(m_world._13) + "\t";

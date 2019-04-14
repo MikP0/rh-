@@ -13,7 +13,7 @@ Collision::~Collision()
 {
 }
 
-XMVECTOR Collision::GetCollisionColor(DirectX::ContainmentType collisionKind)
+XMVECTORF32 Collision::GetCollisionColor(DirectX::ContainmentType collisionKind)
 {
 	if (collisionKind == DirectX::DISJOINT)
 		return DirectX::Colors::White;

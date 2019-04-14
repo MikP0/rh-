@@ -68,12 +68,11 @@ private:
 	DirectX::SimpleMath::Matrix m_view;
 	DirectX::SimpleMath::Matrix m_proj;
 
-	//std::shared_ptr<ID3D11InputLayout> g_pBatchInputLayout = nullptr;
-	ID3D11InputLayout* g_pBatchInputLayout = nullptr;
+	//ID3D11InputLayout* g_pBatchInputLayout = nullptr;
 	std::unique_ptr<DirectX::CommonStates> m_states;
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
-	std::unique_ptr<DirectX::BasicEffect> g_BatchEffect;
-	std::unique_ptr<DirectX::PrimitiveBatch<VertexPositionColor>> g_Batch;
+	//std::unique_ptr<DirectX::BasicEffect> g_BatchEffect;
+	//std::unique_ptr<DirectX::PrimitiveBatch<VertexPositionColor>> g_Batch;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;
@@ -110,6 +109,8 @@ private:
 
 	// room
 	std::unique_ptr<DirectX::GeometricPrimitive> m_room;
+	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity1;
+	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingCup2;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roomTex;
 	
 	// mouse settings

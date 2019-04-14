@@ -29,6 +29,6 @@ public:
 	Collision(EntityPtr origin, EntityPtr collider, ContainmentType collisionKind);
 	~Collision();
 
-	static XMVECTOR Collision::GetCollisionColor(ContainmentType collisionKind);
+	static XMVECTORF32 Collision::GetCollisionColor(ContainmentType collisionKind);
 };
 
