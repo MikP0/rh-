@@ -53,12 +53,20 @@ dxmath::Matrix Entity::GetWorldMatrix() const
 	return _worldMatrix;
 }
 
+dxmath::Matrix Entity::GetWorldTransformMatrix() const
+{
+	if (_transform != nullptr)
+		return _worldMatrix * _transform->GetTransformMatrix();
+	else
+		return _worldMatrix;
+}
+
 void Entity::SetTransform(std::shared_ptr<Transform> transform)
 {
 	_transform = transform;
 }
 
-void Entity::SetWorldMatrix(dxmath::Matrix matrix)
+void Entity::SetWorldMatrix(dxmath::Matrix &matrix)
 {
 	_worldMatrix = matrix;
 }

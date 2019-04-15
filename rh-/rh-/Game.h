@@ -111,6 +111,9 @@ private:
 	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity2;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roomTex;
 	
+	XMFLOAT3 initialBoundingEntity1Size;
+	XMFLOAT3 initialBoundingEntity2Size;
+
 	// mouse settings
 	float m_pitch;
 	float m_yaw;
