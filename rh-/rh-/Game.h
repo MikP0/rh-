@@ -7,6 +7,11 @@
 #include "DeviceResources.h"
 #include "StepTimer.h"
 
+#include <iostream>
+#include <cstdlib>
+#include <string>
+#include <cstring>
+#include "Transform.h"
 #include "Entity.h"
 #include "InputComponent.h"
 #include "PhysicsComponent.h"
@@ -43,10 +48,6 @@ public:
     // Properties
     void GetDefaultSize( int& width, int& height ) const;
 
-	void DrawCube(CXMMATRIX mWorld, FXMVECTOR color);
-	void DrawAabb(const BoundingBox& box, FXMVECTOR color);
-	void DrawRay(FXMVECTOR Origin, FXMVECTOR Direction, bool bNormalize, FXMVECTOR color);
-
 private:
 
     void Update(DX::StepTimer const& timer);
@@ -68,11 +69,8 @@ private:
 	DirectX::SimpleMath::Matrix m_view;
 	DirectX::SimpleMath::Matrix m_proj;
 
-	//ID3D11InputLayout* g_pBatchInputLayout = nullptr;
 	std::unique_ptr<DirectX::CommonStates> m_states;
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
-	//std::unique_ptr<DirectX::BasicEffect> g_BatchEffect;
-	//std::unique_ptr<DirectX::PrimitiveBatch<VertexPositionColor>> g_Batch;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;
@@ -83,8 +81,8 @@ private:
 	std::shared_ptr<Entity> myEntity2;
 
 	// Collision boundings
-	std::shared_ptr<PhysicsComponent> colliderCup1;
-	std::shared_ptr<PhysicsComponent> colliderCup2;
+	std::shared_ptr<PhysicsComponent<ColliderAABB>> colliderCup1;
+	std::shared_ptr<PhysicsComponent<ColliderAABB>> colliderCup2;
 	std::shared_ptr<PhysicsSystem> collisionSystem;
 	
 	// camera
@@ -110,7 +108,7 @@ private:
 	// room
 	std::unique_ptr<DirectX::GeometricPrimitive> m_room;
 	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity1;
-	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingCup2;
+	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity2;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roomTex;
 	
 	// mouse settings

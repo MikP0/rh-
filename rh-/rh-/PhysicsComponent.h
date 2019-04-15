@@ -2,14 +2,20 @@
 #include "Component.h"
 #include "Collision.h"
 
+template<typename T>
 class PhysicsComponent : public Component
 {
 public:
-	ColliderAABB CollisionBox;
+	T ColliderBounding;
 
-	PhysicsComponent();
-	~PhysicsComponent();
+	PhysicsComponent() {};
+	~PhysicsComponent() {};
 
-	virtual ComponentType GetType(void) override;
+	virtual ComponentType GetType(void) override
+	{
+		ComponentType componentType;
+		componentType.name = "Physics";
+		return componentType;
+	}
 };
 

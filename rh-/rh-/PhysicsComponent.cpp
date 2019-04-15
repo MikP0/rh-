@@ -1,18 +1,20 @@
 #include "pch.h"
 #include "PhysicsComponent.h"
-
-
-PhysicsComponent::PhysicsComponent()
-{
-}
-
-PhysicsComponent::~PhysicsComponent()
-{
-}
-
-ComponentType PhysicsComponent::GetType(void)
-{
-	ComponentType componentType;
-	componentType.name = "Physics";
-	return componentType;
-}
+//
+//template<typename T>
+//PhysicsComponent<T>::PhysicsComponent()
+//{
+//}
+//
+//template<typename T>
+//PhysicsComponent<T>::~PhysicsComponent()
+//{
+//}
+//
+//template<typename T>
+//ComponentType PhysicsComponent<T>::GetType(void)
+//{
+//	ComponentType componentType;
+//	componentType.name = "Physics";
+//	return componentType;
+//}

@@ -6,7 +6,7 @@
 #include "PhysicsComponent.h"
 #include "Collision.h"
 
-typedef std::shared_ptr<PhysicsComponent> PhysicsComponentPtr;
+typedef std::shared_ptr<PhysicsComponent<ColliderAABB>> PhysicsComponentPtr;
 typedef std::shared_ptr<Collision> CollisionPtr;
 
 class PhysicsSystem : public System

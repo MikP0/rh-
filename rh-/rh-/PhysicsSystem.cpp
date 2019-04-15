@@ -13,14 +13,14 @@ PhysicsSystem::~PhysicsSystem()
 
 CollisionPtr PhysicsSystem::Collide(PhysicsComponentPtr collider1, PhysicsComponentPtr collider2)
 {
-	collider1->CollisionBox.CollisionKind = DISJOINT;
-	collider2->CollisionBox.CollisionKind = DISJOINT;
+	collider1->ColliderBounding.CollisionKind = DISJOINT;
+	collider2->ColliderBounding.CollisionKind = DISJOINT;
 
-	ContainmentType collider1Result = collider1->CollisionBox.BoundingBox.Contains(collider2->CollisionBox.BoundingBox);
-	ContainmentType collider2Result = collider2->CollisionBox.BoundingBox.Contains(collider1->CollisionBox.BoundingBox);
+	ContainmentType collider1Result = collider1->ColliderBounding.Bounding.Contains(collider2->ColliderBounding.Bounding);
+	ContainmentType collider2Result = collider2->ColliderBounding.Bounding.Contains(collider1->ColliderBounding.Bounding);
 
-	collider1->CollisionBox.CollisionKind = collider1Result;
-	collider2->CollisionBox.CollisionKind = collider2Result;
+	collider1->ColliderBounding.CollisionKind = collider1Result;
+	collider2->ColliderBounding.CollisionKind = collider2Result;
 
 	if (collider1Result == INTERSECTS && collider2Result == INTERSECTS)
 	{
@@ -46,7 +46,7 @@ void PhysicsSystem::UpdateColliders()
 	{
 		dxmath::Matrix objectMatrix = component->GetParent()->GetWorldMatrix() * component->GetParent()->GetTransform()->GetTransformMatrix();
 		dxmath::Vector3 objectPosition = DirectX::XMVector3Transform(component->GetParent()->GetTransform()->GetPosition(), objectMatrix);
-		component->CollisionBox.BoundingBox.Center = objectPosition;
+		component->ColliderBounding.Bounding.Center = objectPosition;
 	}
 }
 
@@ -59,7 +59,7 @@ std::vector<ComponentPtr> PhysicsSystem::GetComponents(ComponentType componentTy
 
 	for each (ComponentPtr component in allComponents)
 	{
-		if (std::dynamic_pointer_cast<PhysicsComponent>(component)->GetType().name.compare(componentType.name) == 0)
+		if (std::dynamic_pointer_cast<PhysicsComponent<ColliderAABB>>(component)->GetType().name.compare(componentType.name) == 0)
 		{
 			selectedComponents.push_back(component);
 		}
@@ -74,7 +74,7 @@ void PhysicsSystem::UpdateComponentsCollection()
 	std::vector<ComponentPtr> selectedComponents = GetComponents(_componentsType);
 	for each (ComponentPtr component in selectedComponents)
 	{
-		PhysicsComponentPtr physicsComponent = std::dynamic_pointer_cast<PhysicsComponent>(component);
+		PhysicsComponentPtr physicsComponent = std::dynamic_pointer_cast<PhysicsComponent<ColliderAABB>>(component);
 		_components.push_back(physicsComponent);
 	}
 }

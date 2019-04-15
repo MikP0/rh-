@@ -7,16 +7,28 @@ using namespace DirectX;
 
 typedef std::shared_ptr<Entity> EntityPtr;
 
+struct ColliderSphere
+{
+	BoundingSphere Bounding;
+	ContainmentType collision;
+};
+
 struct ColliderAABB
 {
+	BoundingBox Bounding;
 	ContainmentType CollisionKind = DISJOINT;
-	DirectX::BoundingBox BoundingBox;
+};
+
+struct ColliderOrientedBox
+{
+	BoundingOrientedBox Bounding;
+	ContainmentType CollisionKind = DISJOINT;
 };
 
 struct ColliderRay
 {
-	DirectX::XMVECTOR Origin;
-	DirectX::XMVECTOR Direction;
+	XMVECTOR Origin;
+	XMVECTOR Direction;
 };
 
 class Collision
