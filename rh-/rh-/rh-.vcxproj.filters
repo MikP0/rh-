@@ -58,6 +58,9 @@
     <ClInclude Include="EntityManager.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentFactory.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -97,6 +100,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="EntityManager.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentFactory.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

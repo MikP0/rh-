@@ -9,6 +9,7 @@
 
 #include "Entity.h"
 #include "InputComponent.h"
+#include "EntityManager.h"
 #include "InputSystem.h"
 #include "Camera.h"
 
@@ -101,4 +102,6 @@ private:
 	// mouse settings
 	float m_pitch;
 	float m_yaw;
+
+	EntityManager &em = EntityManager::GetInstance();
 };

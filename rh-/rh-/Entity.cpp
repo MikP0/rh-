@@ -82,6 +82,11 @@ void Entity::SetParent(Entity* parent)
 	_parent = parent;
 }
 
+void Entity::SetName(std::string name)
+{
+	_name = name;
+}
+
 std::shared_ptr<Entity> Entity::GetChildById(int id)
 {
 	for (auto entity : _children) 

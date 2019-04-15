@@ -26,6 +26,7 @@ public:
 	void SetTransform(std::shared_ptr<Transform> transform);
 	void SetWorldMatrix(dxmath::Matrix matrix);
 	void SetParent(Entity* parent);
+	void SetName(std::string name);
 
 	std::shared_ptr<Entity> GetChildById(int id);
 
@@ -36,13 +37,13 @@ public:
 	std::unique_ptr<DirectX::Model> Model; //TODO: Move to renderer component
 
 	static int nextId;
-	std::string _name;
-
+	
 private:
 	int _id;
 	
 	std::shared_ptr<Transform> _transform;
 	std::vector<std::shared_ptr<Entity>> _children;
 	Entity *_parent;
+	std::string _name;
 	dxmath::Matrix _worldMatrix;
 };

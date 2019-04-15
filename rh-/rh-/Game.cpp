@@ -12,6 +12,7 @@
 #include <string>
 #include <cstring>
 #include "Transform.h"
+#include "AudioComponent.h"
 //
 
 extern void ExitGame();
@@ -329,6 +330,12 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	myEntity1 = std::make_shared<Entity>();
 	myEntity2 = std::make_shared<Entity>();
+
+	auto l_id = em.CreateEntity("MojeEntity");
+	auto a_component = std::make_shared<AudioComponent>();
+	em.AddComponent(l_id, a_component);
+	
+
 
 	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity1->SetWorldMatrix(m_world);

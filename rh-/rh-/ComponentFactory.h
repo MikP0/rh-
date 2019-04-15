@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Component.h"
+#include "EntityManager.h"
 
 class ComponentFactory
 {
@@ -7,6 +9,10 @@ public:
 	ComponentFactory();
 	~ComponentFactory();
 
-	Component CreateComponent(int entityId)
+	void CreateComponent(int entityId, std::shared_ptr<Component> component);
+	void CreateComponent(std::shared_ptr<Entity> entity, std::shared_ptr<Component> component);
+
+private:
+	EntityManager& _entityManager = EntityManager::GetInstance();
 };
 

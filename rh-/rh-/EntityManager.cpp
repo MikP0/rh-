@@ -1,13 +1,16 @@
 #include "pch.h"
 #include "EntityManager.h"
 
-EntityManager::EntityManager()
-{
-}
-
 int EntityManager::CreateEntity()
 {
 	auto newEntity = std::make_shared<Entity>();
+	_entityPool.push_back(newEntity);
+	return newEntity->GetId();
+}
+
+int EntityManager::CreateEntity(std::string name)
+{
+	auto newEntity = std::make_shared<Entity>(name);
 	_entityPool.push_back(newEntity);
 	return newEntity->GetId();
 }
@@ -47,4 +50,14 @@ std::shared_ptr<Entity> EntityManager::GetEntity(std::string entityName)
 		}
 	}
 	return nullptr;
+}
+
+void EntityManager::AddComponent(int id, std::shared_ptr<Component> component)
+{
+	_entityComponentMap.insert(std::make_pair(id, component));
+}
+
+void EntityManager::AddComponent(std::shared_ptr<Entity> entity, std::shared_ptr<Component> component)
+{
+	_entityComponentMap.insert(std::make_pair(entity->GetId(), component));
 }
