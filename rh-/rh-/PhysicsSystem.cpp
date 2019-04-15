@@ -47,6 +47,7 @@ void PhysicsSystem::UpdateColliders()
 		dxmath::Matrix objectMatrix = component->GetParent()->GetWorldTransformMatrix();
 		dxmath::Vector3 objectPosition = DirectX::XMVector3Transform(dxmath::Vector3::Zero, objectMatrix);
 		component->ColliderBounding.Bounding.Center = objectPosition;
+
 	}
 }
 

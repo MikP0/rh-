@@ -192,9 +192,9 @@ void Game::Render()
 	
 	if (collision != nullptr && !coolidedBefore)
 	{
-			//coolidedBefore = true;
-			//dir1 *= -1.0f;
-			//dir2 *= -1.0f;
+			coolidedBefore = true;
+			dir1 *= -1.0f;
+			dir2 *= -1.0f;
 			collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding.CollisionKind);
 			collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding.CollisionKind);
 	}
@@ -206,10 +206,10 @@ void Game::Render()
 	Vector3 scaleEntity1(0.5, 0.5, 0.5), scaleEntity2(0.5, 0.5, 0.5);
 
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
-	colliderCup1->ColliderBounding.Bounding.Extents = Vector3(initialBoundingEntity1Size) * scaleEntity1;
+	colliderCup1->ColliderBounding.Bounding.Extents = Vector3(initialBoundingEntity1Size) * Vector3(scaleEntity1 / 5.0f);
 	myEntity1->GetTransform()->Translate(Vector3(-0.05f, 0.0f, 0.0f) * dir1);
 	myEntity1->Update();
-	colliderCup2->ColliderBounding.Bounding.Extents = Vector3(initialBoundingEntity2Size) * scaleEntity2;
+	colliderCup2->ColliderBounding.Bounding.Extents = Vector3(initialBoundingEntity2Size) * Vector3(scaleEntity2 / 5.0f);
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2);
 	myEntity2->Update();
@@ -217,17 +217,17 @@ void Game::Render()
 	if (myEntity1->GetTransform()->GetPosition().x > (ROOM_BOUNDS[0]/2.0f)
 		|| myEntity1->GetTransform()->GetPosition().x < (-ROOM_BOUNDS[0]/2.0f))
 	{
-		//coolidedBefore = false;
+		coolidedBefore = false;
 		dir1 *= -1.0f;
-		//collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding.CollisionKind);
+		collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding.CollisionKind);
 	}
 
 	if (myEntity2->GetTransform()->GetPosition().x >= (ROOM_BOUNDS[0]/2.0f)
 		|| myEntity2->GetTransform()->GetPosition().x <= (-ROOM_BOUNDS[0]/ 2.0f))
 	{
-		//coolidedBefore = false;
+		coolidedBefore = false;
 		dir2 *= -1.0f;
-		//collider2Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding.CollisionKind);
+		collider2Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding.CollisionKind);
 	}
 
 	// room
@@ -359,12 +359,11 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity1->SetWorldMatrix(m_world);
-	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
 	myEntity1->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 
 	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity2->SetWorldMatrix(m_world);
-	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
+	myEntity2->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 	//myEntity1->AddChild(myEntity2);
 
 	initialBoundingEntity1Size = XMFLOAT3(1.0f, 1.0f, 1.0f);
