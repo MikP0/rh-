@@ -20,7 +20,6 @@ public:
 	std::vector<std::shared_ptr<Entity>> GetAllChildren() const;
 	std::shared_ptr<Transform> GetTransform() const;
 	dxmath::Matrix GetWorldMatrix() const;
-	dxmath::Matrix GetWorldTransformMatrix() const;
 
 	void SetTransform(std::shared_ptr<Transform> transform);
 	void SetWorldMatrix(dxmath::Matrix &matrix);

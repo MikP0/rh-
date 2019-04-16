@@ -37,6 +37,7 @@ CollisionPtr PhysicsSystem::Collide(PhysicsComponentPtr collider1, PhysicsCompon
 		return (std::make_shared<Collision>(collider2->GetParent(), collider1->GetParent(), CONTAINS));
 	}
 
+
 	return nullptr;
 }
 
@@ -44,10 +45,9 @@ void PhysicsSystem::UpdateColliders()
 {
 	for each (PhysicsComponentPtr component in _components)
 	{
-		dxmath::Matrix objectMatrix = component->GetParent()->GetWorldTransformMatrix();
+		dxmath::Matrix objectMatrix = component->GetParent()->GetWorldMatrix();
 		dxmath::Vector3 objectPosition = DirectX::XMVector3Transform(dxmath::Vector3::Zero, objectMatrix);
 		component->ColliderBounding.Bounding.Center = objectPosition;
-
 	}
 }
 
