@@ -41,7 +41,6 @@ public:
 	const XMVECTOR & GetRightVector();
 	const XMVECTOR & GetBackwardVector();
 	const XMVECTOR & GetLeftVector();
-	const XMVECTOR & GetUpVector();
 private:
 	void UpdateViewMatrix();
 	XMVECTOR posVector;
@@ -61,7 +60,6 @@ private:
 	XMVECTOR vec_left;
 	XMVECTOR vec_right;
 	XMVECTOR vec_backward;
-	XMVECTOR vec_up;
 
 	float pitch;
 	float yaw;

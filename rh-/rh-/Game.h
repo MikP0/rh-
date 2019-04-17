@@ -106,10 +106,4 @@ private:
 
 	// skinned model
 	std::shared_ptr<ModelSkinned> mSkinModel;
-
-	// billboarding
-	std::shared_ptr<DirectX::GeometricPrimitive> m_plane;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_planeTex;
-	DirectX::SimpleMath::Matrix planeWorld;
-	DirectX::SimpleMath::Vector3 planePos;
 };

@@ -180,11 +180,6 @@ const XMVECTOR & Camera::GetLeftVector()
 	return this->vec_left;
 }
 
-const XMVECTOR & Camera::GetUpVector()
-{
-	return this->vec_up;
-}
-
 void Camera::UpdateViewMatrix() //Updates view matrix and also updates the movement vectors
 {
 	//Calculate camera rotation matrix
@@ -217,5 +212,4 @@ void Camera::UpdateViewMatrix() //Updates view matrix and also updates the movem
 	this->vec_backward = XMVector3TransformCoord(this->DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
 	this->vec_left = XMVector3TransformCoord(this->DEFAULT_LEFT_VECTOR, vecRotationMatrix);
 	this->vec_right = XMVector3TransformCoord(this->DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
-	this->vec_up = XMVector3TransformCoord(this->DEFAULT_UP_VECTOR, vecRotationMatrix);
 }
