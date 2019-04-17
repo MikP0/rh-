@@ -106,6 +106,8 @@ private:
 
 	// skinned model
 	std::shared_ptr<ModelSkinned> mSkinModel;
+	std::shared_ptr<Transform> mSkinTran;
+
 
 	// billboarding
 	std::shared_ptr<DirectX::GeometricPrimitive> m_plane;

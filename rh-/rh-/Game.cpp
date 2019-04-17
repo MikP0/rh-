@@ -171,8 +171,25 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == backward)
 			move.z -= 1.f; 
 
+
+		//if (*iter == forward)
+		//{
+		//	//myEntity1->GetTransform()->Translate(Vector3(0.03f, 0.0f, 0.0f));
+		//	//myEntity1->GetTransform()->Rotate(myEntity1->GetTransform()->GetPosition(), XMConvertToRadians(90));
+		//	Vector3 newpos = myEntity1->GetTransform()->GetPosition();
+		//	myEntity1->GetTransform()->Rotate(myEntity1->GetTransform()->GetPosition(), XMConvertToRadians(90));
+		//}
+
+		//if (*iter == backward)
+		//{
+		//	myEntity1->GetTransform()->Translate(Vector3(-0.03f, 0.0f, 0.0f));
+		//	//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), 1);
+		//}
+
+
 		if (*iter == up)
 		{
+			//myEntity1->GetTransform()->Translate(Vector3(0.0f, 0.0f, 0.03f));
 			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, 0.03f);
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
@@ -180,6 +197,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (*iter == down)
 		{
+			//myEntity1->GetTransform()->Translate(Vector3(0.0f, 0.0f, -0.03f));
 			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, -0.03f);
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
@@ -273,6 +291,7 @@ void Game::Render()
 	
 	// skinned model
 	mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
 
 	// billboarding
 	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
@@ -392,7 +411,13 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	//skinned model
 	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
+	mSkinTran = std::make_shared<Transform>();
 
+	
+	mSkinTran->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+	mSkinTran->SetPosition(Vector3(0, -300.f, 0));
+
+	mSkinModel->character_world = mSkinTran->GetTransformMatrix();
 
 	//billboarding
 	m_plane = GeometricPrimitive::CreateBox(context,
@@ -417,7 +442,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	camera.SetPosition(0.0f, 0.0f, -2.0f);
 	//camera.SetProjectionValues(XM_PI / 4.f, float(size.right) / float(size.bottom), 0.1f, 100.f);
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
-	camera.SetPitch(m_pitch);
+	camera.SetPitch(m_pitch); 
 	camera.SetYaw(m_yaw);
 }
 

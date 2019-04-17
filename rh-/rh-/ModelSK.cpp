@@ -10,6 +10,8 @@
 #include <assimp/postprocess.h>
 #include "MyGame.h"
 
+
+
 ModelSK::ModelSK(MyGame& game, const std::string& filename, bool flipUVs)
 	: mGame(game), mMeshes(), mMaterials(), mAnimations(), mBones(), mBoneIndexMapping(), mRootNode(nullptr)
 {
@@ -23,6 +25,13 @@ ModelSK::ModelSK(MyGame& game, const std::string& filename, bool flipUVs)
 
 
 	const aiScene* scene = importer.ReadFile(filename, flags);
+
+	char text[350];
+	std::string aa = importer.GetErrorString();
+	strcpy(text, aa.c_str());
+	OutputDebugStringA(text);
+
+	//OutputDebugString((std::string)importer.GetErrorString());
 	if (scene == nullptr)
 	{
 		throw GameException(importer.GetErrorString());
