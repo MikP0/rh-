@@ -19,6 +19,9 @@
 #include "PhysicsSystem.h"
 #include "Camera.h"
 
+typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
+typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
+
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
 class Game : public DX::IDeviceNotify
@@ -81,8 +84,12 @@ private:
 	std::shared_ptr<Entity> myEntity2;
 
 	// Collision boundings
-	std::shared_ptr<PhysicsComponent<ColliderAABB>> colliderCup1;
-	std::shared_ptr<PhysicsComponent<ColliderAABB>> colliderCup2;
+	std::shared_ptr<PhysicsComponent> colliderCup1;
+	std::shared_ptr<PhysicsComponent> colliderCup2;
+	//ColliderAABBptr colliderBoundingCup1;
+	ColliderSpherePtr colliderBoundingCup1;
+	// ColliderAABBptr colliderBoundingCup2;
+	ColliderSpherePtr colliderBoundingCup2;
 	std::shared_ptr<PhysicsSystem> collisionSystem;
 	
 	// camera
@@ -113,6 +120,8 @@ private:
 	
 	XMFLOAT3 initialBoundingEntity1Size;
 	XMFLOAT3 initialBoundingEntity2Size;
+	float initialBounding1Radius;
+	float initialBounding2Radius;
 
 	// mouse settings
 	float m_pitch;

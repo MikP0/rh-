@@ -2,20 +2,15 @@
 #include "Component.h"
 #include "Collision.h"
 
-template<typename T>
 class PhysicsComponent : public Component
 {
 public:
-	T ColliderBounding;
+	std::shared_ptr<ColliderBase> ColliderBounding;
 
-	PhysicsComponent() {};
-	~PhysicsComponent() {};
+	PhysicsComponent();
+	PhysicsComponent(ColliderType colliderType);
+	~PhysicsComponent();
 
-	virtual ComponentType GetType(void) override
-	{
-		ComponentType componentType;
-		componentType.name = "Physics";
-		return componentType;
-	}
+	virtual ComponentType GetType(void) override;
 };
 

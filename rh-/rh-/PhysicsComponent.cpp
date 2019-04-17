@@ -1,20 +1,29 @@
 #include "pch.h"
 #include "PhysicsComponent.h"
-//
-//template<typename T>
-//PhysicsComponent<T>::PhysicsComponent()
-//{
-//}
-//
-//template<typename T>
-//PhysicsComponent<T>::~PhysicsComponent()
-//{
-//}
-//
-//template<typename T>
-//ComponentType PhysicsComponent<T>::GetType(void)
-//{
-//	ComponentType componentType;
-//	componentType.name = "Physics";
-//	return componentType;
-//}
+
+PhysicsComponent::PhysicsComponent()
+{
+	ColliderBounding = std::make_shared<ColliderAABB>();
+}
+
+PhysicsComponent::PhysicsComponent(ColliderType colliderType)
+{
+	if (colliderType == AABB)
+		ColliderBounding = std::make_shared<ColliderAABB>();
+	else
+		if (colliderType == Sphere)
+			ColliderBounding = std::make_shared<ColliderSphere>();
+		else
+			ColliderBounding = std::make_shared<ColliderAABB>();
+}
+
+PhysicsComponent::~PhysicsComponent()
+{
+}
+
+ComponentType PhysicsComponent::GetType(void)
+{
+	ComponentType componentType;
+	componentType.name = "Physics";
+	return componentType;
+}

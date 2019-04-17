@@ -9,6 +9,14 @@ Collision::Collision(EntityPtr origin, EntityPtr collider, ContainmentType colli
 	CollisionKind = collisionKind;
 }
 
+Collision::Collision(EntityPtr origin, ContainmentType collisionKind, float rayIntersectDist)
+{
+	OriginComponent = origin;
+	ColliderComponent = nullptr;
+	CollisionKind = collisionKind;
+	RayIntersectDist = rayIntersectDist;
+}
+
 Collision::~Collision()
 {
 }
