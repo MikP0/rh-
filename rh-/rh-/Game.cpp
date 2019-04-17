@@ -216,7 +216,7 @@ void Game::Render()
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2);	
 	myEntity2->Update();
 
-	/*if (colliderBoundingCup1->Bounding.Center.x >= ((ROOM_BOUNDS[0] / 2.0f) - colliderBoundingCup1->Bounding.Extents.x))
+	if (colliderBoundingCup1->Bounding.Center.x >= ((ROOM_BOUNDS[0] / 2.0f) - colliderBoundingCup1->Bounding.Extents.x))
 	{
 		coolidedBefore = false;
 		dir1.x = -1.0f;
@@ -228,9 +228,9 @@ void Game::Render()
 		coolidedBefore = false;
 		dir1.x = 1.0f;
 		collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
-	}*/
+	}
 
-	if (colliderBoundingCup1->Bounding.Center.x >= ((ROOM_BOUNDS[0] / 2.0f) - colliderBoundingCup1->Bounding.Radius))
+	/*if (colliderBoundingCup1->Bounding.Center.x >= ((ROOM_BOUNDS[0] / 2.0f) - colliderBoundingCup1->Bounding.Radius))
 	{
 		coolidedBefore = false;
 		dir1.x = -1.0f;
@@ -242,7 +242,7 @@ void Game::Render()
 		coolidedBefore = false;
 		dir1.x = 1.0f;
 		collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
-	}
+	}*/
 
 
 	/*if (colliderBoundingCup2->Bounding.Center.x >= ((ROOM_BOUNDS[0] / 2.0f) - colliderBoundingCup2->Bounding.Extents.x))
@@ -279,15 +279,15 @@ void Game::Render()
 
 	// cups
 
-	/*m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
+	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(colliderBoundingCup1->Bounding.Extents.x * 2.0f,
 			colliderBoundingCup1->Bounding.Extents.y * 2.0f,
 			colliderBoundingCup1->Bounding.Extents.z * 2.0f),
-		false, true);*/
+		false, true);
 
-	m_boundingEntity1 = GeometricPrimitive::CreateSphere(context,
+	/*m_boundingEntity1 = GeometricPrimitive::CreateSphere(context,
 		colliderBoundingCup1->Bounding.Radius * 2.0f,
-		16, false, true);
+		16, false, true);*/
 
 	/*m_boundingEntity2 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(colliderBoundingCup2->Bounding.Extents.x * 2.0f,
@@ -308,8 +308,8 @@ void Game::Render()
 	m_boundingEntity1->Draw(boundingMatrix1, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider1Color, nullptr, true);
 	m_boundingEntity2->Draw(boundingMatrix2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider2Color, nullptr, true);
 
-	/*auto test1 = colliderBoundingCup1->Bounding.Center;
-	auto test2 = colliderBoundingCup1->Bounding.Center;*/
+	auto test1 = colliderBoundingCup1->Bounding.Center;
+	auto test2 = colliderBoundingCup2->Bounding.Center;
 
 	int a = 0;
 	context;
@@ -418,19 +418,19 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
 	//myEntity1->AddChild(myEntity2);
 
-	initialBoundingEntity1Size = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	initialBoundingEntity1Size = XMFLOAT3(0.3f, 0.3f, 0.3f);
 	initialBoundingEntity2Size = XMFLOAT3(0.8f, 0.8f, 0.8f);
 	initialBounding1Radius = 0.3f;
-	initialBounding2Radius = 0.5f;
+	initialBounding2Radius = 0.8f;
 
 	collisionSystem = std::make_shared<PhysicsSystem>();
-	//colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
-	colliderCup1 = std::make_shared<PhysicsComponent>(Sphere);
+	colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
+	//colliderCup1 = std::make_shared<PhysicsComponent>(Sphere);
 	colliderCup1->SetParent(myEntity1);
-	//colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
-	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup1->ColliderBounding);
-	//colliderBoundingCup1->Bounding.Extents = initialBoundingEntity1Size;
-	colliderBoundingCup1->Bounding.Radius = initialBounding2Radius;
+	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
+	//colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup1->ColliderBounding);
+	colliderBoundingCup1->Bounding.Extents = initialBoundingEntity1Size;
+	//colliderBoundingCup1->Bounding.Radius = initialBounding1Radius;
 	collisionSystem->InsertComponent(colliderCup1);
 	//colliderCup2 = std::make_shared<PhysicsComponent>(AABB);
 	colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
@@ -438,22 +438,22 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup2->ColliderBounding);
 	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
 	//colliderBoundingCup2->Bounding.Extents = initialBoundingEntity2Size;
-	colliderBoundingCup2->Bounding.Radius = initialBounding1Radius;
+	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
 	collisionSystem->InsertComponent(colliderCup2);
 
 	m_room = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
 		false, true);
 
-	/*m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
+	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(colliderBoundingCup1->Bounding.Extents.x,
 			colliderBoundingCup1->Bounding.Extents.y,
 			colliderBoundingCup1->Bounding.Extents.z),
-		false, true);*/
+		false, true);
 
-	m_boundingEntity1 = GeometricPrimitive::CreateSphere(context,
+	/*m_boundingEntity1 = GeometricPrimitive::CreateSphere(context,
 		colliderBoundingCup1->Bounding.Radius * 2.0f,
-		16, false, true);
+		16, false, true);*/
 
 	/*m_boundingEntity2 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(colliderBoundingCup2->Bounding.Extents.x,

@@ -86,8 +86,8 @@ private:
 	// Collision boundings
 	std::shared_ptr<PhysicsComponent> colliderCup1;
 	std::shared_ptr<PhysicsComponent> colliderCup2;
-	//ColliderAABBptr colliderBoundingCup1;
-	ColliderSpherePtr colliderBoundingCup1;
+	ColliderAABBptr colliderBoundingCup1;
+	//ColliderSpherePtr colliderBoundingCup1;
 	// ColliderAABBptr colliderBoundingCup2;
 	ColliderSpherePtr colliderBoundingCup2;
 	std::shared_ptr<PhysicsSystem> collisionSystem;

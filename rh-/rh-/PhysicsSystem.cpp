@@ -110,7 +110,7 @@ float PhysicsSystem::Collide(ColliderSpherePtr collider, ColliderRay ray)
 CollisionPtr PhysicsSystem::CheckCollision(PhysicsComponentPtr component1, PhysicsComponentPtr component2)
 {
 	ColliderType colliderType1 = component1->ColliderBounding->Type;
-	ColliderType colliderType2 = component1->ColliderBounding->Type;
+	ColliderType colliderType2 = component2->ColliderBounding->Type;
 
 	if (colliderType1 == AABB && colliderType2 == AABB)
 	{
@@ -128,7 +128,7 @@ CollisionPtr PhysicsSystem::CheckCollision(PhysicsComponentPtr component1, Physi
 
 		if (collisionResult[1] == CONTAINS)
 		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), CONTAINS));
+			return (std::make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
 		}
 	}
 
@@ -148,7 +148,7 @@ CollisionPtr PhysicsSystem::CheckCollision(PhysicsComponentPtr component1, Physi
 
 		if (collisionResult[1] == CONTAINS)
 		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), CONTAINS));
+			return (std::make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
 		}
 	}
 
@@ -168,7 +168,7 @@ CollisionPtr PhysicsSystem::CheckCollision(PhysicsComponentPtr component1, Physi
 
 		if (collisionResult[1] == CONTAINS)
 		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), CONTAINS));
+			return (std::make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
 		}
 	}
 
@@ -188,7 +188,7 @@ CollisionPtr PhysicsSystem::CheckCollision(PhysicsComponentPtr component1, Physi
 
 		if (collisionResult[1] == CONTAINS)
 		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), CONTAINS));
+			return (std::make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
 		}
 	}
 
