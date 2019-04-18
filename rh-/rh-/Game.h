@@ -10,6 +10,7 @@
 #include "Transform.h"
 #include "Entity.h"
 #include "Camera.h"
+#include "EntityManager.h"
 
 #include "InputComponent.h"
 #include "PhysicsComponent.h"
@@ -77,6 +78,9 @@ private:
 
 	std::unique_ptr<DirectX::CommonStates> m_states;
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
+
+	//Managers
+	std::unique_ptr<EntityManager> entityManager;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;

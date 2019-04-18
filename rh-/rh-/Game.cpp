@@ -211,7 +211,7 @@ void Game::UpdateObjects(float elapsedTime)
 	static bool coolidedBefore = false;
 
 	collisionSystem->UpdateCollidersPositions();
-	CollisionPtr collision = collisionSystem->CheckCollision(colliderCup1, colliderCup2);
+	CollisionPtr collisionBetweenCups = collisionSystem->CheckCollision(colliderCup1, colliderCup2);
 
 	// Bouncing colliders from other collider
 	/*if (collision != nullptr && !coolidedBefore)
@@ -489,9 +489,11 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 {
 	m_world = Matrix::Identity;
 
-	myEntity1 = std::make_shared<Entity>();
-	myEntity2 = std::make_shared<Entity>();
-	myEntity3 = std::make_shared<Entity>();
+	entityManager = std::make_unique<EntityManager>();
+
+	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity());
+	myEntity2 = entityManager->GetEntity(entityManager->CreateEntity());
+	myEntity3 = entityManager->GetEntity(entityManager->CreateEntity());
 
 	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity1->SetWorldMatrix(m_world);
