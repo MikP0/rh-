@@ -161,6 +161,7 @@
     <ClInclude Include="BoneAnimation.h" />
     <ClInclude Include="BufferContainer.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="EffectSK.h" />
@@ -181,6 +182,8 @@
     <ClInclude Include="Pass.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="AudioSystem.h" />
+    <ClInclude Include="PhysicsComponent.h" />
+    <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="RTTI.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SkinnedModelMaterial.h" />
@@ -213,6 +216,7 @@
     <ClCompile Include="Camera.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectSK.cpp">
@@ -262,6 +266,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AudioSystem.cpp" />
+    <ClCompile Include="PhysicsComponent.cpp" />
+    <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="SceneNode.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
