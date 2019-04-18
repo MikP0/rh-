@@ -32,6 +32,7 @@ public:
 
     // Initialization and management
     void Initialize(HWND window, int width, int height);
+	void InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context);
 
     // Basic game loop
     void Tick();
@@ -54,7 +55,9 @@ public:
 private:
 
     void Update(DX::StepTimer const& timer);
+	void UpdateObjects();
     void Render();
+	void RenderObjects(ID3D11DeviceContext1 *context);
 
     void Clear();
 
