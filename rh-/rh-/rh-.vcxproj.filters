@@ -1,0 +1,292 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>514a9dff-e027-4a7f-ad4b-281aadef2fc7</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>251320d4-9c93-4fee-aa2e-0b6f2c3d53ea</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Inc">
+      <UniqueIdentifier>{90102ffa-2de1-49fe-9f2a-368b16af1c21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src">
+      <UniqueIdentifier>{78613c45-0373-4a31-94ec-21a0c69e8652}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\Skinning">
+      <UniqueIdentifier>{6e661ba6-b118-4258-a510-3072b98fd52c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\Skinning\Effect">
+      <UniqueIdentifier>{5933949f-cf22-452a-9c7b-ff1795cad033}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\Skinning\Content">
+      <UniqueIdentifier>{b4fd39d1-e2b3-4134-b022-c7e0fc157df6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Skinning">
+      <UniqueIdentifier>{09e5d1c6-b932-4def-a53f-89af61c0521c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Skinning\Effect">
+      <UniqueIdentifier>{645dbfad-b890-4e51-96ad-d19562e84c1b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="StepTimer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceResources.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="InputComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityManager.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationClip.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationPlayer.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="Bone.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneAnimation.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferContainer.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="GameException.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyframe.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="MatrixHelper.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshSK.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelMaterial.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelSK.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="RTTI.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneNode.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorHelper.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexDeclarations.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialSK.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectSK.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Pass.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Variable.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedModelMaterial.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Technique.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelSkinned.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="MyGame.h">
+      <Filter>Inc\Skinning</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DeviceResources.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="InputComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="InputSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityManager.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationClip.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationPlayer.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="Bone.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="BoneAnimation.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferContainer.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyframe.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="GameException.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectSK.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialSK.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="MatrixHelper.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelMaterial.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelSK.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshSK.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneNode.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="VectorHelper.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="Pass.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Technique.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Variable.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedModelMaterial.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelSkinned.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="MyGame.cpp">
+      <Filter>Src\Skinning</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="directx.ico">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="cup.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="roomtexture.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="cat.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="settings.manifest">
+      <Filter>Assets</Filter>
+    </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="cup.cmo">
+      <Filter>Assets</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="content\Effects\BasicEffect.fx">
+      <Filter>Inc\Skinning\Content</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Effects\SkinnedModel.fx">
+      <Filter>Inc\Skinning\Content</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
