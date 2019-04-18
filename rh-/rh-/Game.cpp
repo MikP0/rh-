@@ -143,6 +143,8 @@ void Game::Update(DX::StepTimer const& timer)
 	std::vector<actionList> pushedKeysActions = inputSystem->GetActions(inputComponent);
 	inputSystem->SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
+	float myDeg = 0;
+
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
 		// zmiana MouseMode tutaj z udzia³em InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
@@ -163,26 +165,96 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == right)
 			move.x -= 1.f;
 
-		if (*iter == forward)
+		/*if (*iter == forward)
 			move.z += 1.f;
 
 		if (*iter == backward)
-			move.z -= 1.f; 
+			move.z -= 1.f;*/ 
 
+		if (*iter == forward)
+		{
+			//Matrix oldmat = myEntity1->GetWorldMatrix();
+			//Vector3 oldpos = myEntity1->GetTransform()->GetPosition();
+			//myEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
+			//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
+			//Matrix newmat = myEntity1->GetWorldMatrix();
+			//Vector3 newpos = myEntity1->GetTransform()->GetPosition();
+
+			//myEntity1->SetWorldMatrix(myEntity1->GetTransform()->RotateMy(Vector3(0, 1, 0), 0.1f));
+
+			//myEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
+			//myEntity1->SetWorldMatrix(oldmat*newmat);
+
+			//myEntity1->Update();
+			
+			//Matrix oldmat = mSkinModel->character_world;
+
+			//mSkinModel->character_world = mSkinModel->character_world * 
+
+			//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
+			//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
+			//myEntity1->GetTransform()->RotateAroundLocalYAxisDegrees(10.f);
+			//myEntity1->GetTransform()->SetRotation(Quaternion(Vector3(0, 1, 0), 0.1f));
+			//myEntity1->GetTransform()->RotateAroundPointAndAxis(Vector3(0, 1, 0), 0.1f, myEntity1->GetTransform()->GetPosition());
+			//myEntity1->GetTransform()->RotateAroundPointAndAxis(Vector3(0, 0, 0), 0.1f, myEntity1->GetTransform()->GetPosition());
+			
+			//myDeg += 90.f;
+
+			mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
+			//mSkintran->SetRotation(Quaternion(Vector3(0,1,0),0.5f));
+			mSkintran->Translate(Vector3(0.03f, 0.0f, 0.0f));
+			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.03f, 0.0f, 0.0f);
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		
+		}
+
+		if (*iter == backward)
+		{
+			//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), -0.1f);
+			//myEntity1->Update();
+			
+			//myDeg += -90.f;
+			mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
+			//mSkintran->SetRotation(Quaternion(Vector3(0, 1, 0), -0.5f));
+			mSkintran->Translate(Vector3(-0.03f, 0.0f, 0.0f));
+			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(-0.03f, 0.0f, 0.0f);
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+		
 		if (*iter == up)
 		{
-			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, 0.03f);
+			//myDeg += 0.f;
+			mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
+			//mSkintran->Rotate(Vector3(0,1,0),0.1f);
+			//mSkintran->SetRotation(Quaternion(Vector3(0, -1, 0), 0.0f));
+			//myEntity1->GetTransform()->Translate(Vector3(0, 0, 0.03f));
+			//myEntity1->Update();
+			mSkintran->Translate(Vector3(0.0f, 0.0f, 0.03f));
+			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, 0.03f);
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
 
 		if (*iter == down)
 		{
-			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, -0.03f);
+			//myDeg += 0.f;
+			mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
+			//mSkintran->SetRotation(Quaternion(Vector3(0, -1, 0), 0.0f));
+			//myEntity1->GetTransform()->Translate(Vector3(0, 0, -0.03f));
+			//myEntity1->Update();
+			mSkintran->Translate(Vector3(0.0f, 0.0f, -0.03f));
+			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, -0.03f);
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
 		}
 	}
+
+	//mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(myDeg));
+
+	//myEntity1->Update();
+	mSkinModel->character_world = mSkintran->GetTransformMatrix();
 
 	if (pushedKeysActions.size() == 0)
 	{
@@ -245,6 +317,9 @@ void Game::Render()
 	//myEntity.GetTransform()->SetScale(Vector3(0.2f, 1.0f, 1.5f));
 	//
 
+	//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
+	//myEntity2->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
+	myEntity1->Update();
 
 
 	// room
@@ -255,13 +330,13 @@ void Game::Render()
 	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
 	
-	myEntity2->GetTransform()->SetPosition(Vector3(0.2f, 0.0f, 1.5f));
+	//myEntity2->GetTransform()->SetPosition(Vector3(0.2f, 0.0f, 1.5f));
 
-	myEntity1->GetTransform()->Translate(Vector3(0.0f, 0.1f, 0.0f));
-	myEntity1->GetTransform()->SetScale(Vector3(0.2, 0.2, 0.2));
-	myEntity2->GetTransform()->SetScale(Vector3(1.2, 1.2, 1.2));
-	myEntity1->Update();
+	//myEntity1->GetTransform()->Translate(Vector3(0.0f, 0.1f, 0.0f));
+	//myEntity1->GetTransform()->SetScale(Vector3(0.2, 0.2, 0.2));
+	//myEntity2->GetTransform()->SetScale(Vector3(1.2, 1.2, 1.2));
 
+	
 	
 	// skinned model
 	mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
@@ -366,6 +441,9 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity1->SetWorldMatrix(m_world);
 
+	myEntity1->GetTransform()->SetPosition(Vector3(1, 1, 1));
+	myEntity1->Update();
+
 	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity2->SetWorldMatrix(m_world);
 
@@ -381,6 +459,9 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	//skinned model
 	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
+	mSkintran = std::make_shared<Transform>();
+	mSkintran->SetPosition(Vector3(0, -3.f, 0));
+	mSkintran->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 
 	device;
 }

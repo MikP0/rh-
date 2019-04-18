@@ -65,7 +65,7 @@ ModelSkinned::ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1* dev
 
 	character_world = DirectX::SimpleMath::Matrix::Identity;
 	character_world = DirectX::XMMatrixScaling(0.01f, 0.01f, 0.01f);
-	character_world = character_world * (DirectX::XMMatrixTranslation(-1.0f, -3.0f, 0.0f));
+	character_world = character_world * (DirectX::XMMatrixTranslation(0.0f, -3.0f, 0.0f));
 
 	mAnimationPlayer = new AnimationPlayer(myGameTemp, *mSkinnedModel, false);
 	mAnimationPlayer->StartClip(*(mSkinnedModel->Animations().at(0)));

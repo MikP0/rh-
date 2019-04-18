@@ -106,4 +106,6 @@ private:
 
 	// skinned model
 	std::shared_ptr<ModelSkinned> mSkinModel;
+	std::shared_ptr<Transform> mSkintran;
+	//Matrix mSkinPos;
 };

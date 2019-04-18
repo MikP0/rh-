@@ -20,6 +20,7 @@ public:
 	std::shared_ptr<Transform> Scale(const dxmath::Vector3 &scale);
 	std::shared_ptr<Transform> Scale(float &scale);
 	std::shared_ptr<Transform> Rotate(const dxmath::Vector3 &axis, float angle);
+	dxmath::Matrix RotateMy(const dxmath::Vector3 &axis, float angle);
 
 	dxmath::Vector3 GetPosition(void) const;
 	dxmath::Quaternion GetRotation(void) const;
@@ -31,6 +32,14 @@ public:
 	std::shared_ptr<Transform> SetRotation(const dxmath::Quaternion rotation);
 	std::shared_ptr<Transform> SetScale(const dxmath::Vector3 scale);
 
+	void RotateAroundPointAndAxis(const dxmath::Vector3 & axis, float angle, const dxmath::Vector3 & point);
+
+	inline void RotateAroundLocalYAxisDegrees(float angle) { RotateInLocalSpace(dxmath::Quaternion::CreateFromAxisAngle(dxmath::Vector3::UnitY, std::forward<float>(DirectX::XMConvertToRadians(angle)))); }
+	inline void RotateInLocalSpace(const dxmath::Quaternion& q) { _rotation = _rotation * q; }
+
+	inline void RotateAroundGlobalYAxisDegrees(float angle) { RotateAroundAxisDegrees(dxmath::Vector3::UnitY, std::forward<float>(angle)); }
+	inline void RotateInWorldSpace(const dxmath::Quaternion& q) { _rotation = q * _rotation; }
+	inline void RotateAroundAxisDegrees(const dxmath::Vector3& axis, float angle) { RotateInWorldSpace(dxmath::Quaternion::CreateFromAxisAngle(axis, DirectX::XMConvertToRadians(angle))); }
 
 private:
 	dxmath::Vector3 _position;
