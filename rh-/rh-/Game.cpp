@@ -57,55 +57,6 @@ void Game::Initialize(HWND window, int width, int height)
 	inputSystem->SetWindowForMouse(window);
 }
 
-void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context)
-{
-	myEntity1 = std::make_shared<Entity>();
-	myEntity2 = std::make_shared<Entity>();
-	myEntity3 = std::make_shared<Entity>();
-
-	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity1->SetWorldMatrix(m_world);
-	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
-
-	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity2->SetWorldMatrix(m_world);
-	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
-
-	myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity3->SetWorldMatrix(m_world);
-	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
-
-	myEntity1->AddChild(myEntity3);
-
-	initialBoundingEntity1Size = XMFLOAT3(0.3f, 0.3f, 0.3f);
-	initialBoundingEntity2Size = XMFLOAT3(0.8f, 0.8f, 0.8f);
-	initialBounding1Radius = 0.3f;
-	initialBounding2Radius = 0.8f;
-
-	collisionSystem = std::make_shared<PhysicsSystem>();
-	colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
-	//colliderCup1 = std::make_shared<PhysicsComponent>(Sphere);
-	colliderCup1->SetParent(myEntity1);
-	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
-	//colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup1->ColliderBounding);
-	colliderBoundingCup1->Bounding.Extents = initialBoundingEntity1Size;
-	//colliderBoundingCup1->Bounding.Radius = initialBounding1Radius;
-	collisionSystem->InsertComponent(colliderCup1);
-
-	//colliderCup2 = std::make_shared<PhysicsComponent>(AABB);
-	colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
-	colliderCup2->SetParent(myEntity2);
-	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup2->ColliderBounding);
-	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
-	//colliderBoundingCup2->Bounding.Extents = initialBoundingEntity2Size;
-	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
-	collisionSystem->InsertComponent(colliderCup2);
-
-	m_room = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
-		false, true);
-}
-
 #pragma region Frame Update
 // Executes the basic game loop.
 void Game::Tick()
@@ -125,6 +76,7 @@ void Game::Update(DX::StepTimer const& timer)
 	float time = float(timer.GetTotalSeconds());
 
 	// TODO: Add your game logic here.
+
 
 	// INPUT
 	auto mouse = inputSystem->GetMouseState();
@@ -186,7 +138,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
-		// zmiana MouseMode tutaj z udzialem InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
+		// zmiana MouseMode tutaj z udzia³em InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
 		//inputSystem->SetMouseMode(*iter == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		if (*iter == closeWindow)
@@ -208,9 +160,9 @@ void Game::Update(DX::StepTimer const& timer)
 			move.z += 1.f;
 
 		if (*iter == backward)
-			move.z -= 1.f;
+			move.z -= 1.f; 
 
-		/*if (*iter == up)
+		if (*iter == up)
 		{
 			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, 0.03f);
 			mSkinModel->SetInMove(true);
@@ -222,14 +174,13 @@ void Game::Update(DX::StepTimer const& timer)
 			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, -0.03f);
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
-		}*/
-
+		}
 	}
 
-	/*if (pushedKeysActions.size() == 0)
+	if (pushedKeysActions.size() == 0)
 	{
 		mSkinModel->SetInMove(false);
-	}*/
+	}
 
 	move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
 	move *= MOVEMENT_GAIN;
@@ -245,64 +196,39 @@ void Game::Update(DX::StepTimer const& timer)
 	camera.SetYaw(m_yaw);
 	////////
 
+	UpdateObjects(elapsedTime);
 
-	// skinned model
-	/*mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
-
-	if (mSkinModel->GetInMove())
-	{
-		mSkinModel->GetAnimatorPlayer()->ResumeClip();
-	}
-	else
-	{
-		mSkinModel->GetAnimatorPlayer()->PauseClip();
-	}*/
-
-
-	//billboarding
-	planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
-
-	// updating scene game objects
-	UpdateObjects();
 
 	elapsedTime;
 }
 
-void Game::UpdateObjects()
+void Game::UpdateObjects(float elapsedTime)
 {
 	// check collisions
 	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
 	XMVECTORF32 collider1Color = DirectX::Colors::White;
 	XMVECTORF32 collider2Color = DirectX::Colors::White;
 	static bool coolidedBefore = false;
-	collisionSystem->UpdateCollidersPositions();
 
+	collisionSystem->UpdateCollidersPositions();
 	CollisionPtr collision = collisionSystem->CheckCollision(colliderCup1, colliderCup2);
 
-	if (collision != nullptr && !coolidedBefore)
-		//if (collision != nullptr)
+	// Bouncing colliders from other collider
+	/*if (collision != nullptr && !coolidedBefore)
 	{
-		/*coolidedBefore = true;
+		coolidedBefore = true;
 		dir1 *= -1.0f;
-		dir2 *= -1.0f;*/
-	}
-
-	// cup
+		dir2 *= -1.0f;
+	}*/
 
 	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f);
-	//1,1,1
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
-	//colliderCup1->ColliderBounding.Bounding.Extents = Vector3(initialBoundingEntity1Size) * Vector3(scaleEntity1 / 4.0f);
-	//colliderCup1->ColliderBounding.Bounding.Extents = Vector3(Vector3(initialBoundingEntity1Size)) * Vector3(scaleEntity1);
 	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1);
 	myEntity1->Update();
-	//colliderCup2->ColliderBounding.Bounding.Extents = Vector3(initialBoundingEntity2Size) * Vector3(scaleEntity2 / 4.0f);
-	//colliderCup2->ColliderBounding.Bounding.Extents = Vector3(Vector3(initialBoundingEntity2Size)) * Vector3(scaleEntity2);
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2);
 	myEntity2->Update();
-
-	myEntity3->GetTransform()->SetScale(scaleEntity1);
+	myEntity3->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->Update();
 
 	if (colliderBoundingCup1->Bounding.Center.x >= ((ROOM_BOUNDS[0] / 2.0f) - colliderBoundingCup1->Bounding.Extents.x))
@@ -355,7 +281,24 @@ void Game::UpdateObjects()
 		dir2.x = 1.0f;
 		collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 	}
+
+	// skinned model
+	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
+
+	if (mSkinModel->GetInMove())
+	{
+		mSkinModel->GetAnimatorPlayer()->ResumeClip();
+	}
+	else
+	{
+		mSkinModel->GetAnimatorPlayer()->PauseClip();
+	}
+
+
+	//billboarding
+	planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
 }
+
 #pragma endregion
 
 #pragma region Frame Render
@@ -383,12 +326,6 @@ void Game::Render()
 	//myEntity.GetTransform()->SetScale(Vector3(0.2f, 1.0f, 1.5f));
 	//
 
-	// skinned model
-	//mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
-
-	// billboarding
-	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
-
 	RenderObjects(context);
 
 	context;
@@ -404,12 +341,10 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
-
 	// room
-	m_room->Draw(m_world, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
-	//m_room->Draw(m_world, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::DeepPink, nullptr, false);
+	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
-
+	// cups
 	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(colliderBoundingCup1->Bounding.Extents.x * 2.0f,
 			colliderBoundingCup1->Bounding.Extents.y * 2.0f,
@@ -440,6 +375,12 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	m_boundingEntity1->Draw(boundingMatrix1, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider1Color, nullptr, true);
 	m_boundingEntity2->Draw(boundingMatrix2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider2Color, nullptr, true);
+
+	// skinned model
+	mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
+	// billboarding
+	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 }
 
 // Helper method to clear the back buffers.
@@ -515,11 +456,10 @@ void Game::GetDefaultSize(int& width, int& height) const
 
 #pragma region Direct3D Resources
 // These are the resources that depend on the device.
-void Game::CreateDeviceDependentResources()														// !!  CreateDevice()
+void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 {
 	auto device = m_deviceResources->GetD3DDevice();									// m_d3dDevice.Get()  -> device
-	auto context = m_deviceResources->GetD3DDeviceContext();					// m_d3dContext.Get() -> context
-
+	auto context = m_deviceResources->GetD3DDeviceContext();							// m_d3dContext.Get() -> context
 
 	// TODO: Initialize device dependent objects here (independent of window size).
 
@@ -527,28 +467,7 @@ void Game::CreateDeviceDependentResources()														// !!  CreateDevice()
 
 	m_fxFactory = std::make_unique<EffectFactory>(device);
 
-	m_world = Matrix::Identity;
-
 	InitializeObjects(device, context);
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(device, L"roomtexture.dds",
-			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
-
-	//skinned model
-	//mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
-
-
-	//billboarding
-	m_plane = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
-		true, true);
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(device, L"cat.dds",
-			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
-	planeWorld = m_world;
-	planePos = Vector3(2.0f, 0.f, 4.0f);
-	planeWorld.CreateTranslation(planePos);
 
 	device;
 }
@@ -564,6 +483,76 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
+}
+
+void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context)
+{
+	m_world = Matrix::Identity;
+
+	myEntity1 = std::make_shared<Entity>();
+	myEntity2 = std::make_shared<Entity>();
+	myEntity3 = std::make_shared<Entity>();
+
+	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	myEntity1->SetWorldMatrix(m_world);
+	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
+
+	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	myEntity2->SetWorldMatrix(m_world);
+	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
+
+	myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	myEntity3->SetWorldMatrix(m_world);
+	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
+
+	myEntity1->AddChild(myEntity3);
+
+	initialBoundingEntity1Size = XMFLOAT3(0.3f, 0.3f, 0.3f);
+	initialBoundingEntity2Size = XMFLOAT3(0.8f, 0.8f, 0.8f);
+	initialBounding1Radius = 0.3f;
+	initialBounding2Radius = 0.8f;
+
+	collisionSystem = std::make_shared<PhysicsSystem>();
+	colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
+	//colliderCup1 = std::make_shared<PhysicsComponent>(Sphere);
+	colliderCup1->SetParent(myEntity1);
+	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
+	//colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup1->ColliderBounding);
+	colliderBoundingCup1->Bounding.Extents = initialBoundingEntity1Size;
+	//colliderBoundingCup1->Bounding.Radius = initialBounding1Radius;
+	collisionSystem->InsertComponent(colliderCup1);
+
+	//colliderCup2 = std::make_shared<PhysicsComponent>(AABB);
+	colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
+	colliderCup2->SetParent(myEntity2);
+	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup2->ColliderBounding);
+	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
+	//colliderBoundingCup2->Bounding.Extents = initialBoundingEntity2Size;
+	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
+	collisionSystem->InsertComponent(colliderCup2);
+
+	m_room = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
+		false, true);
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"roomtexture.dds",
+			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
+
+	//skinned model
+	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
+
+
+	//billboarding
+	m_plane = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"cat.dds",
+			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
+	planeWorld = m_world;
+	planePos = Vector3(2.0f, 0.f, 4.0f);
+	planeWorld.CreateTranslation(planePos);
 }
 
 void Game::OnDeviceLost()

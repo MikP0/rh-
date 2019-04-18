@@ -4,11 +4,6 @@
 
 #pragma once
 
-#include <iostream>
-#include <cstdlib>
-#include <string>
-#include <cstring>
-
 #include "DeviceResources.h"
 #include "StepTimer.h"
 
@@ -33,47 +28,47 @@ class Game : public DX::IDeviceNotify
 {
 public:
 
-	Game() noexcept(false);
+    Game() noexcept(false);
 
-	// Initialization and management
-	void Initialize(HWND window, int width, int height);
-	void InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context);
+    // Initialization and management
+    void Initialize(HWND window, int width, int height);
 
-	// Basic game loop
-	void Tick();
+    // Basic game loop
+    void Tick();
 
-	// IDeviceNotify
-	virtual void OnDeviceLost() override;
-	virtual void OnDeviceRestored() override;
+    // IDeviceNotify
+    virtual void OnDeviceLost() override;
+    virtual void OnDeviceRestored() override;
 
-	// Messages
-	void OnActivated();
-	void OnDeactivated();
-	void OnSuspending();
-	void OnResuming();
-	void OnWindowMoved();
-	void OnWindowSizeChanged(int width, int height);
+    // Messages
+    void OnActivated();
+    void OnDeactivated();
+    void OnSuspending();
+    void OnResuming();
+    void OnWindowMoved();
+    void OnWindowSizeChanged(int width, int height);
 
-	// Properties
-	void GetDefaultSize(int& width, int& height) const;
+    // Properties
+    void GetDefaultSize( int& width, int& height ) const;
 
 private:
 
-	void Update(DX::StepTimer const& timer);
-	void UpdateObjects();
-	void Render();
+    void Update(DX::StepTimer const& timer);
+	void UpdateObjects(float elapsedTime);
+    void Render();
 	void RenderObjects(ID3D11DeviceContext1 *context);
 
-	void Clear();
+    void Clear();
 
-	void CreateDeviceDependentResources();
-	void CreateWindowSizeDependentResources();
+    void CreateDeviceDependentResources();
+    void CreateWindowSizeDependentResources();
+	void InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context);
 
-	// Device resources.
-	std::unique_ptr<DX::DeviceResources>    m_deviceResources;
+    // Device resources.
+    std::unique_ptr<DX::DeviceResources>    m_deviceResources;
 
-	// Rendering loop timer.
-	DX::StepTimer                           m_timer;
+    // Rendering loop timer.
+    DX::StepTimer                           m_timer;
 
 	// Matrix
 	DirectX::SimpleMath::Matrix m_world;
@@ -125,7 +120,7 @@ private:
 	std::shared_ptr<Entity> inputEntity;
 	std::shared_ptr<InputComponent> inputComponent;
 	std::shared_ptr<InputSystem> inputSystem;
-
+	
 	// primitives
 	std::unique_ptr<DirectX::GeometricPrimitive> m_room;
 	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity1;
@@ -137,7 +132,7 @@ private:
 	float m_yaw;
 
 	// skinned model
-	//std::shared_ptr<ModelSkinned> mSkinModel;
+	std::shared_ptr<ModelSkinned> mSkinModel;
 
 	// billboarding
 	std::shared_ptr<DirectX::GeometricPrimitive> m_plane;
