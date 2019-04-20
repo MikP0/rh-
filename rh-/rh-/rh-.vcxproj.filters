@@ -58,12 +58,6 @@
     <ClInclude Include="AudioComponent.h">
       <Filter>Inc</Filter>
     </ClInclude>
-    <ClInclude Include="InputComponent.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
-    <ClInclude Include="InputSystem.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
     <ClInclude Include="AudioSystem.h">
       <Filter>Inc</Filter>
     </ClInclude>
@@ -154,6 +148,9 @@
     <ClInclude Include="PhysicsSystem.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -181,12 +178,6 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="AudioComponent.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="InputComponent.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="InputSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="AudioSystem.cpp">
@@ -268,6 +259,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

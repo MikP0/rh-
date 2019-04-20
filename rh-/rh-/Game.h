@@ -10,12 +10,11 @@
 #include "Transform.h"
 #include "Entity.h"
 #include "Camera.h"
+#include "Input.h"
 #include "EntityManager.h"
 
-#include "InputComponent.h"
 #include "PhysicsComponent.h"
 
-#include "InputSystem.h"
 #include "PhysicsSystem.h"
 
 #include "ModelSkinned.h"
@@ -112,21 +111,17 @@ private:
 	Camera camera;
 
 	// input
-	/*std::unique_ptr<DirectX::Keyboard> m_keyboard;
-	std::unique_ptr<DirectX::Mouse> m_mouse;*/
 	std::map<availableKeys, actionList> actionKeysBindings = {
-		{esc, closeWindow},
-		{space, up},
-		{leftControl, down},
-		{a, left},
-		{d, right},
-		{w, forward},
-		{s, backward},
-		{lpm, anchorRotation}
+		{availableKeys::esc, actionList::closeWindow},
+		{availableKeys::space, actionList::up},
+		{availableKeys::leftControl, actionList::down},
+		{availableKeys::a, actionList::left},
+		{availableKeys::d, actionList::right},
+		{availableKeys::w, actionList::forward},
+		{availableKeys::s, actionList::backward},
+		{availableKeys::lpm, actionList::anchorRotation}
 	};
 	std::shared_ptr<Entity> inputEntity;
-	std::shared_ptr<InputComponent> inputComponent;
-	std::shared_ptr<InputSystem> inputSystem;
 	
 	// primitives
 	std::unique_ptr<DirectX::GeometricPrimitive> m_room;

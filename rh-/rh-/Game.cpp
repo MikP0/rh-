@@ -51,10 +51,8 @@ void Game::Initialize(HWND window, int width, int height)
 	m_mouse->SetWindow(window);*/
 
 	inputEntity = std::make_shared<Entity>();
-	inputComponent = std::make_shared<InputComponent>(actionKeysBindings);
-	inputSystem = std::make_shared<InputSystem>();
-	inputSystem->InsertComponent(inputComponent);
-	inputSystem->SetWindowForMouse(window);
+	Input::SetWindowForMouse(window);
+	Input::AvailableKeysActionsBinding = actionKeysBindings;
 }
 
 #pragma region Frame Update
@@ -79,7 +77,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 
 	// INPUT
-	auto mouse = inputSystem->GetMouseState();
+	auto mouse = Input::GetMouseState();
 	/*auto mouse = m_mouse->GetState();
 	auto keyboard = m_keyboard->GetState();*/
 	Vector3 tempCamera;
@@ -133,8 +131,8 @@ void Game::Update(DX::StepTimer const& timer)
 	if (keyboard.Down || keyboard.S)
 		move.z -= 1.f;*/
 
-	std::vector<actionList> pushedKeysActions = inputSystem->GetActions(inputComponent);
-	inputSystem->SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+	std::vector<actionList> pushedKeysActions = Input::GetActions();
+	Input::SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
@@ -150,19 +148,19 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == down)
 			move.y -= 1.f;*/
 
-		if (*iter == left)
+		if (*iter == actionList::left)
 			move.x += 1.f;
 
-		if (*iter == right)
+		if (*iter == actionList::right)
 			move.x -= 1.f;
 
-		if (*iter == forward)
+		if (*iter == actionList::forward)
 			move.z += 1.f;
 
-		if (*iter == backward)
+		if (*iter == actionList::backward)
 			move.z -= 1.f; 
 
-		if (*iter == up)
+		if (*iter == actionList::up)
 		{
 			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, 0.03f);
 			mSkinModel->SetInMove(true);
