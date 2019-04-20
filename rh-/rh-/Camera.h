@@ -22,11 +22,19 @@ public:
 	const XMVECTOR & GetRotationVector() const;
 	const XMFLOAT3 & GetRotationFloat3() const;
 
+	const int GetScreenWidth() const;
+	const int GetScreenHeight() const;
 	const float GetPitch() const;
 	const float GetYaw() const;
+	const float GetNearZ() const;
+	const float GetFarZ() const;
 
+	void SetScreenWidth(int width);
+	void SetScreenHeight(int height);
 	void SetPitch(float newPitch);
 	void SetYaw(float newYaw);
+	void SetNearZ(float nearZplane);
+	void SetFarZ(float farZplane);
 
 	void SetPosition(const XMVECTOR & pos);
 	void SetPosition(float x, float y, float z);
@@ -62,6 +70,8 @@ private:
 	XMVECTOR vec_right;
 	XMVECTOR vec_backward;
 	XMVECTOR vec_up;
+
+	int screenWidth, screenHeight;
 
 	float nearZ, farZ;
 	float pitch;
