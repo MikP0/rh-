@@ -12,6 +12,7 @@
 #include "EntityManager.h"
 #include "InputSystem.h"
 #include "Camera.h"
+#include "SceneManager.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -103,5 +104,5 @@ private:
 	float m_pitch;
 	float m_yaw;
 
-	EntityManager &em = EntityManager::GetInstance();
+	std::shared_ptr<SceneManager> sceneManager;
 };

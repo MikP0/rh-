@@ -11,14 +11,8 @@ class EntityManager
 {
 
 public:
-	static EntityManager& GetInstance()
-	{
-		static EntityManager instance;
-		
-		return instance;
-	}
 
-	//EntityManager();
+	EntityManager();
 	virtual ~EntityManager() {};
 
 	int CreateEntity(); //Returns EntityID
@@ -32,9 +26,6 @@ public:
 	void AddComponent(std::shared_ptr<Entity> entity, std::shared_ptr<Component> component);
 
 private:
-	EntityManager() {}                  
-	EntityManager(EntityManager const&);  // Don't Implement
-	void operator=(EntityManager const&); // Don't implement
 
 	std::vector<std::shared_ptr<Entity>> _entityPool;
 	std::unordered_map<int, std::shared_ptr<Component>> _entityComponentMap; //EntityId - Component pointer map

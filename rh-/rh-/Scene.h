@@ -1,5 +1,7 @@
 #pragma once
 #include "Entity.h"
+#include "EntityManager.h"
+#include "ComponentFactory.h"
 
 class Scene
 {
@@ -12,5 +14,6 @@ public:
 
 private:
 	std::shared_ptr<Entity> _sceneEntity;
+	std::shared_ptr<ComponentFactory> _componentFactory;
 };
 

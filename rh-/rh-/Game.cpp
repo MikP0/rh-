@@ -330,10 +330,6 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	myEntity1 = std::make_shared<Entity>();
 	myEntity2 = std::make_shared<Entity>();
-
-	auto l_id = em.CreateEntity("MojeEntity");
-	auto a_component = std::make_shared<AudioComponent>();
-	em.AddComponent(l_id, a_component);
 	
 
 

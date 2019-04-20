@@ -13,6 +13,6 @@ public:
 	void CreateComponent(std::shared_ptr<Entity> entity, std::shared_ptr<Component> component);
 
 private:
-	EntityManager& _entityManager = EntityManager::GetInstance();
+	std::shared_ptr<EntityManager> _entityManager;
 };
 

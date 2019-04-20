@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "EntityManager.h"
 
+EntityManager::EntityManager()
+{
+}
+
 int EntityManager::CreateEntity()
 {
 	auto newEntity = std::make_shared<Entity>();
