@@ -392,17 +392,23 @@ void Game::OnWindowSizeChanged(int width, int height)
 	if (!m_deviceResources->WindowSizeChanged(width, height))
 		return;
 
+	camera.SetScreenWidth(width);
+	camera.SetScreenHeight(height);
+
 	CreateWindowSizeDependentResources();
 
 	// TODO: Game window is being resized.
 }
 
 // Properties
-void Game::GetDefaultSize(int& width, int& height) const
+void Game::GetDefaultSize(int& width, int& height)
 {
 	// TODO: Change to desired default window size (note minimum size is 320x200).
-	width = 800;
-	height = 600;
+	int w = 800, h = 600;
+	camera.SetScreenWidth(w);
+	camera.SetScreenHeight(h);
+	width = w;
+	height = h;
 }
 #pragma endregion
 

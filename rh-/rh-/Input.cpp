@@ -5,15 +5,6 @@ unique_ptr<Keyboard> Input::_keyboard(new Keyboard());
 unique_ptr<Mouse> Input::_mouse(new Mouse());
 map<availableKeys, actionList> Input::AvailableKeysActionsBinding = {};
 
-Input::Input()
-{
-}
-
-
-Input::~Input()
-{
-}
-
 Keyboard::State Input::GetKeyboardState()
 {
 	return _keyboard->GetState();

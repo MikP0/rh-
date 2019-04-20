@@ -56,6 +56,16 @@ const XMFLOAT3 & Camera::GetRotationFloat3() const
 	return this->rot;
 }
 
+const int Camera::GetScreenWidth() const
+{
+	return this->screenWidth;
+}
+
+const int Camera::GetScreenHeight() const
+{
+	return this->screenHeight;
+}
+
 const float Camera::GetPitch() const
 {
 	return pitch;
@@ -66,6 +76,26 @@ const float Camera::GetYaw() const
 	return yaw;
 }
 
+const float Camera::GetNearZ() const
+{
+	return this->nearZ;
+}
+
+const float Camera::GetFarZ() const
+{
+	return this->farZ;
+}
+
+void Camera::SetScreenWidth(int width)
+{
+	this->screenWidth = width;
+}
+
+void Camera::SetScreenHeight(int height)
+{
+	this->screenHeight = height;
+}
+
 void Camera::SetPitch(float newPitch)
 {
 	pitch = newPitch;
@@ -74,6 +104,16 @@ void Camera::SetPitch(float newPitch)
 void Camera::SetYaw(float newYaw)
 {
 	yaw = newYaw;
+}
+
+void Camera::SetNearZ(float nearZplane)
+{
+	this->nearZ = nearZplane;
+}
+
+void Camera::SetFarZ(float farZplane)
+{
+	this->farZ = farZplane;
 }
 
 void Camera::SetPosition(const XMVECTOR & pos)

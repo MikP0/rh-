@@ -74,7 +74,7 @@ private:
 	static unique_ptr<Keyboard> _keyboard;
 	static unique_ptr<Mouse> _mouse;
 
-	Input();
-	~Input();
+	Input() {};
+	~Input() {};
 };
 

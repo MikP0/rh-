@@ -65,6 +65,12 @@ public:
 	XMVECTOR Direction;
 
 	ColliderRay() : Type(ColliderType::Ray) {};
+
+	ColliderRay(XMVECTOR origin, XMVECTOR direction) : Type(ColliderType::Ray)
+	{
+		Origin = origin;
+		Direction = direction;
+	};
 	~ColliderRay() {};
 };
 
