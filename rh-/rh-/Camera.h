@@ -12,7 +12,7 @@ class Camera
 public:
 	Camera();
 	virtual ~Camera();
-	void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
+	void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZplane, float farZplane);
 
 	const XMMATRIX & GetViewMatrix() const;
 	const XMMATRIX & GetProjectionMatrix() const;
@@ -63,6 +63,7 @@ private:
 	XMVECTOR vec_backward;
 	XMVECTOR vec_up;
 
+	float nearZ, farZ;
 	float pitch;
 	float yaw;
 };

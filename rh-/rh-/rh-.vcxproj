@@ -161,6 +161,7 @@
     <ClInclude Include="BoneAnimation.h" />
     <ClInclude Include="BufferContainer.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="DeviceResources.h" />
@@ -169,8 +170,6 @@
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameException.h" />
-    <ClInclude Include="InputComponent.h" />
-    <ClInclude Include="InputSystem.h" />
     <ClInclude Include="Keyframe.h" />
     <ClInclude Include="MaterialSK.h" />
     <ClInclude Include="MatrixHelper.h" />
@@ -216,6 +215,7 @@
     <ClCompile Include="Camera.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
@@ -228,8 +228,6 @@
     <ClCompile Include="GameException.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="InputComponent.cpp" />
-    <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Keyframe.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>

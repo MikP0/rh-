@@ -19,8 +19,10 @@ Camera::~Camera()
 {
 }
 
-void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
+void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZplane, float farZplane)
 {
+	this->nearZ = nearZplane;
+	this->farZ = farZplane;
 	this->projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(fovDegrees,aspectRatio, nearZ, farZ);
 }
 
