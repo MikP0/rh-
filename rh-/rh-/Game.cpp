@@ -136,7 +136,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
-		// zmiana MouseMode tutaj z udzia³em InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
+		// zmiana MouseMode tutaj z udziaï¿½em InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
 		//inputSystem->SetMouseMode(*iter == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		if (*iter == closeWindow)

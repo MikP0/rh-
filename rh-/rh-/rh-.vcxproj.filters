@@ -151,6 +151,15 @@
     <ClInclude Include="Input.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentFactory.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -262,6 +271,15 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentFactory.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

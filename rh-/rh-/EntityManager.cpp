@@ -12,6 +12,13 @@ int EntityManager::CreateEntity()
 	return newEntity->GetId();
 }
 
+int EntityManager::CreateEntity(std::string name)
+{
+	auto newEntity = std::make_shared<Entity>(name);
+	_entityPool.push_back(newEntity);
+	return newEntity->GetId();
+}
+
 void EntityManager::DestroyEntity(int entityId) //TODO: Check if it works
 {
 	_entityPool.erase(
@@ -39,7 +46,7 @@ std::shared_ptr<Entity> EntityManager::GetEntity(int entityId)
 	return nullptr;
 }
 
-std::shared_ptr<Entity> EntityManager::GetEntity(std::wstring entityName)
+std::shared_ptr<Entity> EntityManager::GetEntity(std::string entityName)
 {
 	for (auto entity : _entityPool) {
 		if (entity->GetName() == entityName) {
@@ -47,4 +54,14 @@ std::shared_ptr<Entity> EntityManager::GetEntity(std::wstring entityName)
 		}
 	}
 	return nullptr;
+}
+
+void EntityManager::AddComponent(int id, std::shared_ptr<Component> component)
+{
+	_entityComponentMap.insert(std::make_pair(id, component));
+}
+
+void EntityManager::AddComponent(std::shared_ptr<Entity> entity, std::shared_ptr<Component> component)
+{
+	_entityComponentMap.insert(std::make_pair(entity->GetId(), component));
 }
