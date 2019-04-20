@@ -141,4 +141,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_planeTex;
 	DirectX::SimpleMath::Matrix planeWorld;
 	DirectX::SimpleMath::Vector3 planePos;
+
+	std::shared_ptr<SceneManager> sceneManager;
 };

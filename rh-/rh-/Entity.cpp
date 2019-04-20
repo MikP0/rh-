@@ -12,6 +12,15 @@ Entity::Entity()
 	_transform = std::make_shared<Transform>();
 	_id = ++nextId;
 	_parent = nullptr;
+	_name = "Entity " + std::to_string(_id);
+}
+
+Entity::Entity(const std::string name)
+{
+	_transform = std::make_shared<Transform>();
+	_id = ++nextId;
+	_parent = nullptr;
+	_name = name;
 }
 
 Entity::Entity(const Entity & entity)
@@ -53,7 +62,7 @@ dxmath::Matrix Entity::GetWorldMatrix() const
 	return _worldMatrix;
 }
 
-std::wstring Entity::GetName() const
+std::string Entity::GetName() const
 {
 	return _name;
 }
@@ -71,6 +80,11 @@ void Entity::SetWorldMatrix(dxmath::Matrix matrix)
 void Entity::SetParent(Entity* parent)
 {
 	_parent = parent;
+}
+
+void Entity::SetName(std::string name)
+{
+	_name = name;
 }
 
 std::shared_ptr<Entity> Entity::GetChildById(int id)
