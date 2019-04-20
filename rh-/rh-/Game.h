@@ -12,7 +12,7 @@
 #include "Camera.h"
 #include "Input.h"
 #include "EntityManager.h"
-
+#include "SceneManager.h"
 #include "PhysicsComponent.h"
 
 #include "PhysicsSystem.h"
