@@ -25,7 +25,5 @@ AudioComponent::~AudioComponent()
 
 ComponentType AudioComponent::GetType(void)
 {
-	ComponentType componentType;
-	componentType.name = "Audio";
-	return componentType;
+	return ComponentType("Audio");
 }

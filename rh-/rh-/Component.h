@@ -4,7 +4,12 @@
 #include <string>
 
 struct ComponentType {
-	std::string name;
+	ComponentType(std::string name) 
+	{
+		_name = name;
+	}
+
+	std::string _name;
 };
 
 class Component
