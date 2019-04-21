@@ -5,15 +5,6 @@
 #include "pch.h"
 #include "Game.h"
 
-
-//To DELETE
-#include <iostream>
-#include <cstdlib>
-#include <string>
-#include <cstring>
-#include "Transform.h"
-//
-
 extern void ExitGame();
 
 using namespace DirectX;
@@ -58,10 +49,8 @@ void Game::Initialize(HWND window, int width, int height)
 	m_mouse->SetWindow(window);*/
 
 	inputEntity = std::make_shared<Entity>();
-	inputComponent = std::make_shared<InputComponent>(actionKeysBindings);
-	inputSystem = std::make_shared<InputSystem>();
-	inputSystem->InsertComponent(inputComponent);
-	inputSystem->SetWindowForMouse(window);
+	Input::SetWindowForMouse(window);
+	Input::AvailableKeysActionsBinding = actionKeysBindings;
 }
 
 #pragma region Frame Update
@@ -86,7 +75,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 
 	// INPUT
-	auto mouse = inputSystem->GetMouseState();
+	auto mouse = Input::GetMouseState();
 	/*auto mouse = m_mouse->GetState();
 	auto keyboard = m_keyboard->GetState();*/
 	Vector3 tempCamera;
@@ -140,14 +129,14 @@ void Game::Update(DX::StepTimer const& timer)
 	if (keyboard.Down || keyboard.S)
 		move.z -= 1.f;*/
 
-	std::vector<actionList> pushedKeysActions = inputSystem->GetActions(inputComponent);
-	inputSystem->SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+	std::vector<actionList> pushedKeysActions = Input::GetActions();
+	Input::SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 	float myDeg = 0;
 
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
-		// zmiana MouseMode tutaj z udzia³em InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
+		// zmiana MouseMode tutaj z udziaï¿½em InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
 		//inputSystem->SetMouseMode(*iter == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		if (*iter == closeWindow)
@@ -159,71 +148,20 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == down)
 			move.y -= 1.f;*/
 
-		if (*iter == left)
+		if (*iter == actionList::left)
 			move.x += 1.f;
 
-		if (*iter == right)
+		if (*iter == actionList::right)
 			move.x -= 1.f;
 
-		/*if (*iter == forward)
+
+		if (*iter == actionList::forward)
 			move.z += 1.f;
 
-		if (*iter == backward)
-			move.z -= 1.f;*/ 
+		if (*iter == actionList::backward)
+			move.z -= 1.f; 
 
-		if (*iter == forward)
-		{
-			//Matrix oldmat = myEntity1->GetWorldMatrix();
-			//Vector3 oldpos = myEntity1->GetTransform()->GetPosition();
-			//myEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
-			//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
-			//Matrix newmat = myEntity1->GetWorldMatrix();
-			//Vector3 newpos = myEntity1->GetTransform()->GetPosition();
-
-			//myEntity1->SetWorldMatrix(myEntity1->GetTransform()->RotateMy(Vector3(0, 1, 0), 0.1f));
-
-			//myEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
-			//myEntity1->SetWorldMatrix(oldmat*newmat);
-
-			//myEntity1->Update();
-			
-			//Matrix oldmat = mSkinModel->character_world;
-
-			//mSkinModel->character_world = mSkinModel->character_world * 
-
-			//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
-			//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
-			//myEntity1->GetTransform()->RotateAroundLocalYAxisDegrees(10.f);
-			//myEntity1->GetTransform()->SetRotation(Quaternion(Vector3(0, 1, 0), 0.1f));
-			//myEntity1->GetTransform()->RotateAroundPointAndAxis(Vector3(0, 1, 0), 0.1f, myEntity1->GetTransform()->GetPosition());
-			//myEntity1->GetTransform()->RotateAroundPointAndAxis(Vector3(0, 0, 0), 0.1f, myEntity1->GetTransform()->GetPosition());
-			
-			//myDeg += 90.f;
-
-			mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
-			//mSkintran->SetRotation(Quaternion(Vector3(0,1,0),0.5f));
-			mSkintran->Translate(Vector3(0.03f, 0.0f, 0.0f));
-			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.03f, 0.0f, 0.0f);
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		
-		}
-
-		if (*iter == backward)
-		{
-			//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), -0.1f);
-			//myEntity1->Update();
-			
-			//myDeg += -90.f;
-			mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
-			//mSkintran->SetRotation(Quaternion(Vector3(0, 1, 0), -0.5f));
-			mSkintran->Translate(Vector3(-0.03f, 0.0f, 0.0f));
-			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(-0.03f, 0.0f, 0.0f);
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
-		
-		if (*iter == up)
+		if (*iter == actionList::up)
 		{
 			//myDeg += 0.f;
 			mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
@@ -275,6 +213,45 @@ void Game::Update(DX::StepTimer const& timer)
 	camera.SetYaw(m_yaw);
 	////////
 
+	UpdateObjects(elapsedTime);
+
+
+	elapsedTime;
+}
+
+void Game::UpdateObjects(float elapsedTime)
+{
+	// check collisions
+	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
+	XMVECTORF32 collider1Color = DirectX::Colors::White;
+	XMVECTORF32 collider2Color = DirectX::Colors::White;
+
+	collisionSystem->UpdateCollidersPositions();
+	CollisionPtr collisionEntity1WithWall = collisionSystem->CheckCollision(colliderCup1, colliderSceneWall);
+	CollisionPtr collisionEntity2WithWall = collisionSystem->CheckCollision(colliderCup2, colliderSceneWall);
+	CollisionPtr collisionBetweenCups = collisionSystem->CheckCollision(colliderCup1, colliderCup2);
+
+	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f);
+	myEntity1->GetTransform()->SetScale(scaleEntity1);
+	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1);
+	myEntity1->Update();
+	myEntity2->GetTransform()->SetScale(scaleEntity2);
+	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2);
+	myEntity2->Update();
+	myEntity3->GetTransform()->SetScale(scaleEntity3);
+	myEntity3->Update();
+
+	if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
+		dir1.x = -1.0f;
+
+	if (colliderBoundingCup1->Bounding.Center.x <= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
+		dir1.x = 1.0f;
+
+	if (colliderBoundingCup2->Bounding.Center.x >= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
+		dir2.x = -1.0f;
+
+	if (colliderBoundingCup2->Bounding.Center.x <= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
+		dir2.x = 1.0f;
 
 	// skinned model
 	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
@@ -288,8 +265,12 @@ void Game::Update(DX::StepTimer const& timer)
 		mSkinModel->GetAnimatorPlayer()->PauseClip();
 	}
 
-	elapsedTime;
+
+
+	//billboarding
+	planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
 }
+
 #pragma endregion
 
 #pragma region Frame Render
@@ -317,29 +298,7 @@ void Game::Render()
 	//myEntity.GetTransform()->SetScale(Vector3(0.2f, 1.0f, 1.5f));
 	//
 
-	//myEntity1->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
-	//myEntity2->GetTransform()->Rotate(Vector3(0, 1, 0), 0.1f);
-	myEntity1->Update();
-
-
-	// room
-	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
-
-	// cup
-	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	
-	
-	//myEntity2->GetTransform()->SetPosition(Vector3(0.2f, 0.0f, 1.5f));
-
-	//myEntity1->GetTransform()->Translate(Vector3(0.0f, 0.1f, 0.0f));
-	//myEntity1->GetTransform()->SetScale(Vector3(0.2, 0.2, 0.2));
-	//myEntity2->GetTransform()->SetScale(Vector3(1.2, 1.2, 1.2));
-
-	
-	
-	// skinned model
-	mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	RenderObjects(context);
 
 	context;
 
@@ -347,6 +306,55 @@ void Game::Render()
 
 	// Show the new frame.
 	m_deviceResources->Present();
+}
+
+
+void Game::RenderObjects(ID3D11DeviceContext1 *context)
+{
+	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
+	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
+
+	// room
+	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
+
+	// cups
+	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(colliderBoundingCup1->Bounding.Extents.x * 2.0f,
+			colliderBoundingCup1->Bounding.Extents.y * 2.0f,
+			colliderBoundingCup1->Bounding.Extents.z * 2.0f),
+		false, true);
+
+	/*m_boundingEntity1 = GeometricPrimitive::CreateSphere(context,
+		colliderBoundingCup1->Bounding.Radius * 2.0f,
+		16, false, true);*/
+
+		/*m_boundingEntity2 = GeometricPrimitive::CreateBox(context,
+			XMFLOAT3(colliderBoundingCup2->Bounding.Extents.x * 2.0f,
+				colliderBoundingCup2->Bounding.Extents.y * 2.0f,
+				colliderBoundingCup2->Bounding.Extents.z * 2.0f),
+			false, true);*/
+
+	m_boundingEntity2 = GeometricPrimitive::CreateSphere(
+		context, colliderBoundingCup2->Bounding.Radius  * 2.0f,
+		16, false, true);
+
+	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->Bounding.Center);
+	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->Bounding.Center);
+
+
+	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
+	myEntity3->Model->Draw(context, *m_states, myEntity3->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
+	m_boundingEntity1->Draw(boundingMatrix1, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider1Color, nullptr, true);
+	m_boundingEntity2->Draw(boundingMatrix2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider2Color, nullptr, true);
+
+	// skinned model
+	mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
+	// billboarding
+	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 }
 
 // Helper method to clear the back buffers.
@@ -406,17 +414,23 @@ void Game::OnWindowSizeChanged(int width, int height)
 	if (!m_deviceResources->WindowSizeChanged(width, height))
 		return;
 
+	camera.SetScreenWidth(width);
+	camera.SetScreenHeight(height);
+
 	CreateWindowSizeDependentResources();
 
 	// TODO: Game window is being resized.
 }
 
 // Properties
-void Game::GetDefaultSize(int& width, int& height) const
+void Game::GetDefaultSize(int& width, int& height)
 {
 	// TODO: Change to desired default window size (note minimum size is 320x200).
-	width = 800;
-	height = 600;
+	int w = 800, h = 600;
+	camera.SetScreenWidth(w);
+	camera.SetScreenHeight(h);
+	width = w;
+	height = h;
 }
 #pragma endregion
 
@@ -433,35 +447,7 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	m_fxFactory = std::make_unique<EffectFactory>(device);
 
-	m_world = Matrix::Identity;
-
-	myEntity1 = std::make_shared<Entity>();
-	myEntity2 = std::make_shared<Entity>();
-
-	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity1->SetWorldMatrix(m_world);
-
-	myEntity1->GetTransform()->SetPosition(Vector3(1, 1, 1));
-	myEntity1->Update();
-
-	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity2->SetWorldMatrix(m_world);
-
-	myEntity1->AddChild(myEntity2);
-
-	m_room = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
-		false, true);
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(device, L"roomtexture.dds",
-			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
-
-	//skinned model
-	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
-	mSkintran = std::make_shared<Transform>();
-	mSkintran->SetPosition(Vector3(0, -3.f, 0));
-	mSkintran->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+	InitializeObjects(device, context);
 
 	device;
 }
@@ -477,6 +463,92 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
+}
+
+void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context)
+{
+	m_world = Matrix::Identity;
+
+	entityManager = std::make_unique<EntityManager>();
+
+	sceneWallEntity = entityManager->GetEntity(entityManager->CreateEntity());
+	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity());
+	myEntity2 = entityManager->GetEntity(entityManager->CreateEntity());
+	myEntity3 = entityManager->GetEntity(entityManager->CreateEntity());
+
+	sceneWallEntity->SetWorldMatrix(m_world);
+
+	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	myEntity1->SetWorldMatrix(m_world);
+	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
+
+	myEntity1->GetTransform()->SetPosition(Vector3(1, 1, 1));
+	myEntity1->Update();
+
+	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	myEntity2->SetWorldMatrix(m_world);
+	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
+
+	myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	myEntity3->SetWorldMatrix(m_world);
+	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
+
+	myEntity1->AddChild(myEntity3);
+
+	initialBoundingEntity1Size = XMFLOAT3(0.3f, 0.3f, 0.3f);
+	initialBoundingEntity2Size = XMFLOAT3(0.8f, 0.8f, 0.8f);
+	initialBounding1Radius = 0.3f;
+	initialBounding2Radius = 0.8f;
+
+	collisionSystem = std::make_shared<PhysicsSystem>();
+
+	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
+	colliderSceneWall->SetParent(sceneWallEntity);
+	colliderBoundingSceneWall = std::dynamic_pointer_cast<ColliderAABB>(colliderSceneWall->ColliderBounding);
+	colliderBoundingSceneWall->Bounding.Extents = XMFLOAT3(ROOM_BOUNDS[0] / 2.0f, ROOM_BOUNDS[1] / 2.0f, ROOM_BOUNDS[2] / 2.0f);
+	collisionSystem->InsertComponent(colliderSceneWall);
+
+	colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
+	//colliderCup1 = std::make_shared<PhysicsComponent>(Sphere);
+	colliderCup1->SetParent(myEntity1);
+	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
+	//colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup1->ColliderBounding);
+	colliderBoundingCup1->Bounding.Extents = initialBoundingEntity1Size;
+	//colliderBoundingCup1->Bounding.Radius = initialBounding1Radius;
+	collisionSystem->InsertComponent(colliderCup1);
+
+	//colliderCup2 = std::make_shared<PhysicsComponent>(AABB);
+	colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
+	colliderCup2->SetParent(myEntity2);
+	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup2->ColliderBounding);
+	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
+	//colliderBoundingCup2->Bounding.Extents = initialBoundingEntity2Size;
+	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
+	collisionSystem->InsertComponent(colliderCup2);
+
+	m_room = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
+		false, true);
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"roomtexture.dds",
+			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
+
+	//skinned model
+	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
+
+
+
+	//billboarding
+	m_plane = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"cat.dds",
+			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
+	planeWorld = m_world;
+	planePos = Vector3(2.0f, 0.f, 4.0f);
+	planeWorld.CreateTranslation(planePos);
 }
 
 void Game::OnDeviceLost()

@@ -58,12 +58,6 @@
     <ClInclude Include="AudioComponent.h">
       <Filter>Inc</Filter>
     </ClInclude>
-    <ClInclude Include="InputComponent.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
-    <ClInclude Include="InputSystem.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
     <ClInclude Include="AudioSystem.h">
       <Filter>Inc</Filter>
     </ClInclude>
@@ -145,6 +139,30 @@
     <ClInclude Include="MyGame.h">
       <Filter>Inc\Skinning</Filter>
     </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentFactory.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Raycast.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -172,12 +190,6 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="AudioComponent.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="InputComponent.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="InputSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="AudioSystem.cpp">
@@ -251,6 +263,30 @@
     </ClCompile>
     <ClCompile Include="MyGame.cpp">
       <Filter>Src\Skinning</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentFactory.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Raycast.cpp">
+      <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

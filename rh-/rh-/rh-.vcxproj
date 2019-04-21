@@ -161,15 +161,16 @@
     <ClInclude Include="BoneAnimation.h" />
     <ClInclude Include="BufferContainer.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="ComponentFactory.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="EffectSK.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameException.h" />
-    <ClInclude Include="InputComponent.h" />
-    <ClInclude Include="InputSystem.h" />
     <ClInclude Include="Keyframe.h" />
     <ClInclude Include="MaterialSK.h" />
     <ClInclude Include="MatrixHelper.h" />
@@ -181,9 +182,14 @@
     <ClInclude Include="Pass.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="AudioSystem.h" />
+    <ClInclude Include="PhysicsComponent.h" />
+    <ClInclude Include="PhysicsSystem.h" />
+    <ClInclude Include="Raycast.h" />
     <ClInclude Include="RTTI.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SkinnedModelMaterial.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Technique.h" />
@@ -213,7 +219,10 @@
     <ClCompile Include="Camera.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="ComponentFactory.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectSK.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -224,8 +233,6 @@
     <ClCompile Include="GameException.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="InputComponent.cpp" />
-    <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Keyframe.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -262,6 +269,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AudioSystem.cpp" />
+    <ClCompile Include="PhysicsComponent.cpp" />
+    <ClCompile Include="PhysicsSystem.cpp" />
+    <ClCompile Include="Raycast.cpp" />
     <ClCompile Include="SceneNode.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -271,6 +281,8 @@
     <ClCompile Include="Technique.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Transform.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
