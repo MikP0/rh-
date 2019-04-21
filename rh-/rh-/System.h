@@ -18,4 +18,6 @@ public:
 
 protected:
 	ComponentType _componentsType;
-	virtual void Iterate() = 0;};
+	virtual void Iterate() = 0;
+	virtual void Initialize() = 0;
+};

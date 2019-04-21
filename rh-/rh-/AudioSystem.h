@@ -28,6 +28,7 @@ public:
 	virtual void UpdateComponentsCollection() override;
 
 protected:
+	virtual void Initialize() override;
 	virtual void Iterate() override;
 
 private:
