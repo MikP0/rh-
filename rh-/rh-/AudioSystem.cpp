@@ -4,7 +4,7 @@
 
 AudioSystem::AudioSystem()
 {
-	_componentsType.name = "Audio";
+	_componentsType._name = "Audio";
 }
 
 AudioSystem::~AudioSystem()
@@ -69,7 +69,7 @@ std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType
 
 	for each (ComponentPtr component in allComponents)
 	{
-		if (std::dynamic_pointer_cast<AudioComponent>(component)->GetType().name.compare(componentType.name) == 0)
+		if (std::dynamic_pointer_cast<AudioComponent>(component)->GetType()._name.compare(componentType._name) == 0)
 		{
 			selectedComponents.push_back(component);
 		}

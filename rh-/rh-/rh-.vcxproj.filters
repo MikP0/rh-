@@ -163,6 +163,9 @@
     <ClInclude Include="Raycast.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="RenderableComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -286,6 +289,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="Raycast.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderableComponent.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

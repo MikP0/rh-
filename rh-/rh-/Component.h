@@ -4,6 +4,11 @@
 #include <string>
 
 struct ComponentType {
+	ComponentType() 
+	{
+		_name = "Unknown";
+	}
+
 	ComponentType(std::string name) 
 	{
 		_name = name;
