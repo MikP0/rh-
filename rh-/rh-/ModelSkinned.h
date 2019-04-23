@@ -25,7 +25,7 @@ using namespace DirectX;
 class ModelSkinned
 {
 public:
-	ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1* dev, ID3D11DeviceContext1* con, const std::string& filename);
+	ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1* dev, ID3D11DeviceContext1* con, const std::string& filename, DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f), float scale = 1.0f);
 	~ModelSkinned();
 
 	void DrawModel(ID3D11DeviceContext* deviceContext, const CommonStates& states, bool alpha, bool wireframe, DirectX::SimpleMath::Matrix viewMat, DirectX::SimpleMath::Matrix projMat);

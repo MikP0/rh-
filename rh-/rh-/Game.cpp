@@ -17,6 +17,8 @@ namespace
 	const XMVECTORF32 ROOM_BOUNDS = { 8.f, 6.f, 12.f, 0.f };
 	const float ROTATION_GAIN = 0.008f;
 	const float MOVEMENT_GAIN = 0.07f;
+
+	const XMVECTORF32 PLANE_BOUNDS = { 1.5f, 1.5f, 1.5f, 0.f };
 }
 
 
@@ -132,11 +134,9 @@ void Game::Update(DX::StepTimer const& timer)
 	std::vector<actionList> pushedKeysActions = Input::GetActions();
 	Input::SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
-	float myDeg = 0;
-
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
-		// zmiana MouseMode tutaj z udzia�em InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
+		// zmiana MouseMode tutaj z udzialem InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
 		//inputSystem->SetMouseMode(*iter == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		if (*iter == closeWindow)
@@ -154,22 +154,32 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == actionList::right)
 			move.x -= 1.f;
 
-
-		if (*iter == actionList::forward)
+		/*if (*iter == actionList::forward)
 			move.z += 1.f;
 
 		if (*iter == actionList::backward)
-			move.z -= 1.f; 
+			move.z -= 1.f; */
+
+		if (*iter == actionList::forward)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
+			mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+
+		if (*iter == actionList::backward)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
+			mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
 
 		if (*iter == actionList::up)
 		{
-			//myDeg += 0.f;
-			mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
-			//mSkintran->Rotate(Vector3(0,1,0),0.1f);
-			//mSkintran->SetRotation(Quaternion(Vector3(0, -1, 0), 0.0f));
-			//myEntity1->GetTransform()->Translate(Vector3(0, 0, 0.03f));
-			//myEntity1->Update();
-			mSkintran->Translate(Vector3(0.0f, 0.0f, 0.03f));
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
+			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, 0.03f));
 			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, 0.03f);
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
@@ -177,26 +187,17 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (*iter == down)
 		{
-			//myDeg += 0.f;
-			mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
-			//mSkintran->SetRotation(Quaternion(Vector3(0, -1, 0), 0.0f));
-			//myEntity1->GetTransform()->Translate(Vector3(0, 0, -0.03f));
-			//myEntity1->Update();
-			mSkintran->Translate(Vector3(0.0f, 0.0f, -0.03f));
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
+			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, -0.03f));
 			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, -0.03f);
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
 		}
 	}
 
-	//mSkintran->Rotate(Vector3(0, 1, 0), XMConvertToRadians(myDeg));
-
-	//myEntity1->Update();
-	mSkinModel->character_world = mSkintran->GetTransformMatrix();
-
 	if (pushedKeysActions.size() == 0)
 	{
-		mSkinModel->SetInMove(false);
+		mSkinModel->SetInMove(true);
 	}
 
 	move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
@@ -254,6 +255,7 @@ void Game::UpdateObjects(float elapsedTime)
 		dir2.x = 1.0f;
 
 	// skinned model
+	mSkinModel->character_world = mSkinModelTransform->GetTransformMatrix();
 	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
 
 	if (mSkinModel->GetInMove())
@@ -264,7 +266,6 @@ void Game::UpdateObjects(float elapsedTime)
 	{
 		mSkinModel->GetAnimatorPlayer()->PauseClip();
 	}
-
 
 
 	//billboarding
@@ -308,7 +309,6 @@ void Game::Render()
 	m_deviceResources->Present();
 }
 
-
 void Game::RenderObjects(ID3D11DeviceContext1 *context)
 {
 	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
@@ -344,7 +344,6 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-
 	myEntity3->Model->Draw(context, *m_states, myEntity3->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	m_boundingEntity1->Draw(boundingMatrix1, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider1Color, nullptr, true);
@@ -482,9 +481,6 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity1->SetWorldMatrix(m_world);
 	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
 
-	myEntity1->GetTransform()->SetPosition(Vector3(1, 1, 1));
-	myEntity1->Update();
-
 	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity2->SetWorldMatrix(m_world);
 	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
@@ -534,10 +530,13 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 		CreateDDSTextureFromFile(device, L"roomtexture.dds",
 			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
 
+
+	//
 	//skinned model
-	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
-
-
+	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "content\\Models\\MyCharMay.FBX", Vector3(-1.0f, -3.0f, 0.0f), 0.01f);
+	mSkinModelTransform = std::make_shared<Transform>();
+	mSkinModelTransform->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+	mSkinModelTransform->SetPosition(Vector3(-1.0f, -3.0f, 0.0f));
 
 	//billboarding
 	m_plane = GeometricPrimitive::CreateBox(context,
@@ -562,6 +561,10 @@ void Game::OnDeviceLost()
 
 	m_room.reset();
 	m_roomTex.Reset();
+
+
+	m_plane.reset();
+	m_planeTex.Reset();
 }
 
 void Game::OnDeviceRestored()

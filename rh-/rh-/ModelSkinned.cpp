@@ -1,6 +1,6 @@
 #include "ModelSkinned.h"
 
-ModelSkinned::ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1* dev, ID3D11DeviceContext1* con, const std::string& filename)
+ModelSkinned::ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1 * dev, ID3D11DeviceContext1 * con, const std::string & filename, DirectX::SimpleMath::Vector3 position, float scale)
 {
 	mAmbientColor.r = 1.0f;
 	mAmbientColor.g = 1.0f;
@@ -64,8 +64,8 @@ ModelSkinned::ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1* dev
 	}
 
 	character_world = DirectX::SimpleMath::Matrix::Identity;
-	character_world = DirectX::XMMatrixScaling(0.01f, 0.01f, 0.01f);
-	character_world = character_world * (DirectX::XMMatrixTranslation(0.0f, -3.0f, 0.0f));
+	character_world = DirectX::XMMatrixScaling(scale, scale, scale);
+	character_world = character_world * (DirectX::XMMatrixTranslation(position.x, position.y, position.z));
 
 	mAnimationPlayer = new AnimationPlayer(myGameTemp, *mSkinnedModel, false);
 	mAnimationPlayer->StartClip(*(mSkinnedModel->Animations().at(0)));
@@ -73,7 +73,6 @@ ModelSkinned::ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1* dev
 	mAnimationPlayer->SetInterpolationEnabled(!mAnimationPlayer->InterpolationEnabled());
 	inMove = false;
 }
-
 
 ModelSkinned::~ModelSkinned()
 {
