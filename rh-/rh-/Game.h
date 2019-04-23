@@ -10,6 +10,7 @@
 #include "Transform.h"
 #include "Entity.h"
 #include "Camera.h"
+#include "Raycast.h"
 #include "Input.h"
 #include "EntityManager.h"
 #include "SceneManager.h"
@@ -90,6 +91,7 @@ private:
 	std::shared_ptr<Entity> myEntity1;
 	std::shared_ptr<Entity> myEntity2;
 	std::shared_ptr<Entity> myEntity3;
+	std::shared_ptr<Entity> myEntity4;
 
 	// Collision boundings
 	std::shared_ptr<PhysicsSystem> collisionSystem;
