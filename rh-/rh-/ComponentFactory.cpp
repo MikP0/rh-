@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "ComponentFactory.h"
 
-ComponentFactory::ComponentFactory()
+ComponentFactory::ComponentFactory(std::shared_ptr<EntityManager> entityManager)
 {
-	_entityManager = std::make_shared<EntityManager>();
+	_entityManager = std::move(entityManager);
 }
 
 ComponentFactory::~ComponentFactory()

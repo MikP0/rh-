@@ -18,7 +18,7 @@ typedef std::vector<ContainmentType> ContainmentTypeVector;
 class PhysicsSystem : public System
 {
 public:
-	PhysicsSystem();
+	PhysicsSystem(std::shared_ptr<EntityManager> entityManager);
 	~PhysicsSystem();
 
 	ContainmentTypeVector Collide(ColliderAABBptr collider1, ColliderAABBptr collider2);
@@ -41,6 +41,7 @@ public:
 
 protected:
 	virtual void Iterate() override;
+	virtual void Initialize() override;
 
 private:
 	std::vector<PhysicsComponentPtr> _components;

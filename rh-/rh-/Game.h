@@ -79,7 +79,7 @@ private:
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
 
 	//Managers
-	std::unique_ptr<EntityManager> entityManager;
+	std::shared_ptr<EntityManager> entityManager;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;

@@ -2,7 +2,7 @@
 #include "AudioSystem.h"
 
 
-AudioSystem::AudioSystem()
+AudioSystem::AudioSystem(std::shared_ptr<EntityManager> entityManager) : System(entityManager)
 {
 	_componentsType._name = "Audio";
 }
@@ -87,6 +87,10 @@ void AudioSystem::UpdateComponentsCollection()
 		AudioComponentPtr audioComponent = std::dynamic_pointer_cast<AudioComponent>(component);
 		_components.push_back(audioComponent);
 	}
+}
+
+void AudioSystem::Initialize()
+{
 }
 
 void AudioSystem::Iterate()

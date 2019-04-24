@@ -166,6 +166,9 @@
     <ClInclude Include="RenderableComponent.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="RenderableSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -292,6 +295,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="RenderableComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderableSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,6 +4,7 @@
 
 #include "pch.h"
 #include "Game.h"
+#include "RenderableSystem.h"
 
 extern void ExitGame();
 
@@ -447,7 +448,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 {
 	m_world = Matrix::Identity;
 
-	entityManager = std::make_unique<EntityManager>();
+	entityManager = std::make_shared<EntityManager>();
+
+	RenderableSystem renderableSystem(entityManager);
 
 	sceneWallEntity = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity());
@@ -475,7 +478,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	initialBounding1Radius = 0.3f;
 	initialBounding2Radius = 0.8f;
 
-	collisionSystem = std::make_shared<PhysicsSystem>();
+	collisionSystem = std::make_shared<PhysicsSystem>(entityManager);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);

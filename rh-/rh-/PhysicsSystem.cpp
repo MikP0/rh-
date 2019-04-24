@@ -2,7 +2,7 @@
 #include "PhysicsSystem.h"
 
 
-PhysicsSystem::PhysicsSystem()
+PhysicsSystem::PhysicsSystem(std::shared_ptr<EntityManager> entityManager) : System(entityManager)
 {
 }
 
@@ -297,4 +297,8 @@ void PhysicsSystem::Iterate()
 	{
 
 	}
+}
+
+void PhysicsSystem::Initialize()
+{
 }

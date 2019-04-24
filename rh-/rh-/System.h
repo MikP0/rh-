@@ -5,19 +5,21 @@
 #pragma once
 #include "pch.h"
 #include "Component.h"
+#include "EntityManager.h"
 
 typedef std::shared_ptr<Component> ComponentPtr;
 
 class System
 {
 public:
-	System() {};
+	System(std::shared_ptr<EntityManager> entityManager) { _entityManager = std::move(entityManager); };
 	virtual ~System() {};
-	virtual std::vector<ComponentPtr> GetComponents(ComponentType componentType) = 0;
-	virtual void UpdateComponentsCollection() = 0;
+	virtual std::vector<ComponentPtr> GetComponents(ComponentType componentType) { return std::vector<ComponentPtr>(); };
+	virtual void UpdateComponentsCollection() {};
 
 protected:
 	ComponentType _componentsType;
+	std::shared_ptr<EntityManager> _entityManager;
 	virtual void Iterate() = 0;
 	virtual void Initialize() = 0;
 };
