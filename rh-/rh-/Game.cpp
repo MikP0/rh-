@@ -225,6 +225,9 @@ void Game::Update(DX::StepTimer const& timer)
 
 void Game::UpdateObjects(float elapsedTime)
 {
+	auto mouse = Input::GetMouseState();
+	static shared_ptr<Entity> selectedCollider;
+
 	// check collisions
 	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
 	XMVECTORF32 collider1Color = DirectX::Colors::White;
@@ -234,16 +237,32 @@ void Game::UpdateObjects(float elapsedTime)
 	CollisionPtr collisionEntity1WithWall = collisionSystem->CheckCollision(colliderCup1, colliderSceneWall);
 	CollisionPtr collisionEntity2WithWall = collisionSystem->CheckCollision(colliderCup2, colliderSceneWall);
 	CollisionPtr collisionBetweenCups = collisionSystem->CheckCollision(colliderCup1, colliderCup2);
+	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f);
-	myEntity1->GetTransform()->SetScale(scaleEntity1);
 	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1);
 	myEntity1->Update();
-	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2);
 	myEntity2->Update();
-	myEntity3->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->Update();
+
+	if (mouse.rightButton)
+	{
+		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
+		myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
+	}
+		
+	myEntity4->Update();
+
+	if (mouse.middleButton)
+	{
+		XMFLOAT3 cameraPos = camera.GetPositionFloat3();
+		XMVECTOR origin = Vector4(cameraPos.x, cameraPos.y, cameraPos.z, 0.0f);
+		XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
+		XMVECTOR direction = Vector4(dirFromMouse.x, dirFromMouse.y, dirFromMouse.z, 0.0f);
+		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(origin, direction));
+		collisionCup1WithRay = collisionSystem->CheckCollision(colliderCup1, *sharedRay);
+		collisionCup2WithRay = collisionSystem->CheckCollision(colliderCup2, *sharedRay);
+	}
 
 	if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
 		dir1.x = -1.0f;
@@ -338,6 +357,8 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity3->Model->Draw(context, *m_states, myEntity3->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	myEntity4->Model->Draw(context, *m_states, myEntity4->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
 
 	m_boundingEntity1->Draw(boundingMatrix1, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider1Color, nullptr, true);
 	m_boundingEntity2->Draw(boundingMatrix2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider2Color, nullptr, true);
@@ -466,20 +487,33 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity2 = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity3 = entityManager->GetEntity(entityManager->CreateEntity());
+	myEntity4 = entityManager->GetEntity(entityManager->CreateEntity());
 
 	sceneWallEntity->SetWorldMatrix(m_world);
 
+	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
+
 	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity1->SetWorldMatrix(m_world);
+	myEntity1->GetTransform()->SetScale(scaleEntity1);
 	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
 
 	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity2->SetWorldMatrix(m_world);
+	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
 
 	myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity3->SetWorldMatrix(m_world);
+	myEntity3->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
+
+	myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	myEntity4->SetWorldMatrix(m_world);
+	myEntity4->GetTransform()->SetScale(scaleEntity4);
+	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
+
+
 
 	myEntity1->AddChild(myEntity3);
 
@@ -553,6 +587,8 @@ void Game::OnDeviceLost()
 
 	myEntity1->Model.reset();
 	myEntity2->Model.reset();
+	myEntity3->Model.reset();
+	myEntity4->Model.reset();
 
 	m_room.reset();
 	m_roomTex.Reset();
