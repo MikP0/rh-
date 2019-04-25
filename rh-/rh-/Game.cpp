@@ -142,11 +142,11 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == closeWindow)
 			ExitGame();
 
-		/*if (*iter == up)
+		if (*iter == up)
 			move.y += 1.f;
 
 		if (*iter == down)
-			move.y -= 1.f;*/
+			move.y -= 1.f;
 
 		if (*iter == actionList::left)
 			move.x += 1.f;
@@ -154,31 +154,13 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == actionList::right)
 			move.x -= 1.f;
 
-		/*if (*iter == actionList::forward)
+		if (*iter == actionList::forward)
 			move.z += 1.f;
 
 		if (*iter == actionList::backward)
-			move.z -= 1.f; */
+			move.z -= 1.f;
 
-		if (*iter == actionList::forward)
-		{
-			//mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
-			//mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
-			mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
-
-		if (*iter == actionList::backward)
-		{
-			//mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
-			//mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
-			mSkinModel->GetAnimatorPlayer()->StartClip("Dance");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
-
-		if (*iter == actionList::up)
+		if (*iter == moveFor)
 		{
 			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
 			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, 0.03f));
@@ -187,13 +169,45 @@ void Game::Update(DX::StepTimer const& timer)
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
 
-		if (*iter == down)
+		if (*iter == moveBac)
 		{
 			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
 			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, -0.03f));
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
+		}
+
+		if (*iter == moveLeft)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
+			mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+
+		if (*iter == moveRight)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
+			mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+
+		if (*iter == special1)
+		{
+			mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+
+		if (*iter == special2)
+		{
+			mSkinModel->GetAnimatorPlayer()->StartClip("Dance");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
 	}
 
@@ -248,7 +262,8 @@ void Game::UpdateObjects(float elapsedTime)
 	if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
-		myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
+		//myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
+		myEntity4->GetTransform()->SetPosition(posOnGround);
 	}
 		
 	myEntity4->Update();

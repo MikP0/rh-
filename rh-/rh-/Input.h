@@ -27,7 +27,16 @@ enum actionList
 	right,
 	forward,
 	backward,
-	anchorRotation
+	anchorRotation,
+
+	moveFor,
+	moveBac,
+	moveLeft,
+	moveRight,
+	special1,
+	special2,
+	special3,
+	special4
 };
 
 enum availableKeys
