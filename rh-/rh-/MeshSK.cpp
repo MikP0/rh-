@@ -5,7 +5,6 @@
 #include "MyGame.h"
 #include "GameException.h"
 #include <assimp/scene.h>
-#include "pch.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;

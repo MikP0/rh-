@@ -25,9 +25,11 @@ public:
 	bool IsPlayingClip() const;
 	bool IsClipLooped() const;
 
-	void SetInterpolationEnabled(bool interpolationEnabled);
+	bool AddAnimationClip(AnimationClip* clip, std::string clipName);
 
-	void StartClip(AnimationClip& clip);
+	void SetInterpolationEnabled(bool interpolationEnabled);
+	void StartClip(std::string clipName);
+	
 	void PauseClip();
 	void ResumeClip();
 	void Update(float gameTime);
@@ -39,6 +41,8 @@ private:
 	AnimationPlayer(const AnimationPlayer& rhs);
 	AnimationPlayer& operator=(const AnimationPlayer& rhs);
 
+	void StartClip(AnimationClip& clip);
+
 	void GetBindPose(SceneNode& sceneNode);
 	void GetBindPoseBottomUp(SceneNode& sceneNode);
 	void GetPose(float time, SceneNode& sceneNode);
@@ -47,6 +51,8 @@ private:
 
 	ModelSK* mModel;
 	AnimationClip* mCurrentClip;
+	std::vector<AnimationClip*> animationClips;
+
 	float mCurrentTime;
 	UINT mCurrentKeyframe;
 	std::map<SceneNode*, DirectX::XMFLOAT4X4> mToRootTransforms;

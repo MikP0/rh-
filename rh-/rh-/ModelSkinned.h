@@ -7,6 +7,7 @@
 #include "MyGame.h"
 #include "ModelSK.h"
 #include "Utility.h"
+#include "AnimationClip.h"
 #include "SkinnedModelMaterial.h"
 #include <sstream>
 #include <iostream>
@@ -25,14 +26,16 @@ using namespace DirectX;
 class ModelSkinned
 {
 public:
-	ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1* dev, ID3D11DeviceContext1* con, const std::string& filename, DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f), float scale = 1.0f);
+	ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D11DeviceContext1* con);
 	~ModelSkinned();
 
-	void DrawModel(ID3D11DeviceContext* deviceContext, const CommonStates& states, bool alpha, bool wireframe, DirectX::SimpleMath::Matrix viewMat, DirectX::SimpleMath::Matrix projMat);
+	void DrawModel(ID3D11DeviceContext* deviceContext, const CommonStates& states, DirectX::XMMATRIX world, DirectX::SimpleMath::Matrix viewMat, DirectX::SimpleMath::Matrix projMat, bool wireframe = false, bool alpha = false);
 
 	AnimationPlayer* GetAnimatorPlayer();
 	bool GetInMove();
 	void SetInMove(bool set);
+
+	bool AddAnimationClip(std::string path, std::string clipName);
 
 	DirectX::SimpleMath::Matrix character_world;
 

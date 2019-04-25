@@ -1,13 +1,16 @@
 #include "ModelSkinned.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
-ModelSkinned::ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1 * dev, ID3D11DeviceContext1 * con, const std::string & filename, DirectX::SimpleMath::Vector3 position, float scale)
+ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D11DeviceContext1* con)
 {
 	mAmbientColor.r = 1.0f;
 	mAmbientColor.g = 1.0f;
 	mAmbientColor.b = 1.0f;
 	mAmbientColor.a = 1.0f;
 
-	character_world = world;
+	character_world = DirectX::SimpleMath::Matrix::Identity;
 	DDevice = dev;
 	DDeviceContext = con;
 	myGameTemp.mDirect3DDevice = dev;
@@ -63,12 +66,10 @@ ModelSkinned::ModelSkinned(DirectX::SimpleMath::Matrix world, ID3D11Device1 * de
 		mColorTextures[i] = colorTexture;
 	}
 
-	character_world = DirectX::SimpleMath::Matrix::Identity;
-	character_world = DirectX::XMMatrixScaling(scale, scale, scale);
-	character_world = character_world * (DirectX::XMMatrixTranslation(position.x, position.y, position.z));
-
 	mAnimationPlayer = new AnimationPlayer(myGameTemp, *mSkinnedModel, false);
-	mAnimationPlayer->StartClip(*(mSkinnedModel->Animations().at(0)));
+	mAnimationPlayer->AddAnimationClip(mSkinnedModel->Animations().at(0), "Idle");
+	mAnimationPlayer->StartClip("Idle");
+
 	mAnimationPlayer->PauseClip();
 	mAnimationPlayer->SetInterpolationEnabled(!mAnimationPlayer->InterpolationEnabled());
 	inMove = false;
@@ -128,8 +129,10 @@ void ModelSkinned::PrepareForRendering(ID3D11DeviceContext* deviceContext, const
 	deviceContext->PSSetSamplers(0, 2, samplers);
 }
 
-void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonStates& states, bool alpha, bool wireframe, DirectX::SimpleMath::Matrix viewMat, DirectX::SimpleMath::Matrix projMat)
+void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonStates& states, DirectX::XMMATRIX world, DirectX::SimpleMath::Matrix viewMat, DirectX::SimpleMath::Matrix projMat, bool wireframe, bool alpha)
 {
+	character_world = world;
+
 	PrepareForRendering(deviceContext, states, alpha, wireframe);
 
 	Pass* pass = mMaterial->CurrentTechnique()->Passes().at(0);
@@ -179,4 +182,25 @@ bool ModelSkinned::GetInMove()
 void ModelSkinned::SetInMove(bool set)
 {
 	inMove = set;
+}
+
+bool ModelSkinned::AddAnimationClip(std::string path, std::string clipName)
+{
+	Assimp::Importer importer;
+	UINT flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_FlipWindingOrder;
+
+	const aiScene* scene = importer.ReadFile(path, flags);
+	if (scene == nullptr)
+	{
+		throw GameException(importer.GetErrorString());
+	}
+
+	if (scene->HasAnimations())
+	{
+		AnimationClip* animationClip = new AnimationClip(*mSkinnedModel, *(scene->mAnimations[0]));
+		if (!(mAnimationPlayer->AddAnimationClip(animationClip, clipName)))
+			return false;
+	}
+
+	return true;
 }

@@ -20,7 +20,6 @@ ModelSK::ModelSK(MyGame& game, const std::string& filename, bool flipUVs)
 		flags |= aiProcess_FlipUVs;
 	}
 	
-
 	const aiScene* scene = importer.ReadFile(filename, flags);
 	if (scene == nullptr)
 	{
@@ -59,25 +58,9 @@ ModelSK::ModelSK(MyGame& game, const std::string& filename, bool flipUVs)
 	}
 
 
-
-
-	
-
-
 #if defined( DEBUG ) || defined( _DEBUG )
 	ValidateModel();
 #endif
-
-
-
-
-
-
-
-
-
-
-
 }
 
 ModelSK::~ModelSK()

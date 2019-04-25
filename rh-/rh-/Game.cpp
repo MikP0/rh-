@@ -162,16 +162,18 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (*iter == actionList::forward)
 		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
-			mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
+			//mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
+			//mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
 
 		if (*iter == actionList::backward)
 		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
-			mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
+			//mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
+			//mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("Dance");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
@@ -180,7 +182,7 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
 			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, 0.03f));
-			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, 0.03f);
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
@@ -189,7 +191,7 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
 			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, -0.03f));
-			//mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, -0.03f);
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
 		}
@@ -197,6 +199,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 	if (pushedKeysActions.size() == 0)
 	{
+		mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
 		mSkinModel->SetInMove(true);
 	}
 
@@ -255,9 +258,7 @@ void Game::UpdateObjects(float elapsedTime)
 		dir2.x = 1.0f;
 
 	// skinned model
-	mSkinModel->character_world = mSkinModelTransform->GetTransformMatrix();
 	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
-
 	if (mSkinModel->GetInMove())
 	{
 		mSkinModel->GetAnimatorPlayer()->ResumeClip();
@@ -290,14 +291,6 @@ void Game::Render()
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// TODO: Add your rendering code here.
-
-	//
-	//camera.AdjustPosition(0.0f, 0.01f, 0.0f);
-	//camera.SetLookAtPos(myEntity.GetTransform()->GetPosition());
-	//
-	//myEntity.GetTransform()->SetPosition(Vector3(0.2f, 1.0f, 1.5f));
-	//myEntity.GetTransform()->SetScale(Vector3(0.2f, 1.0f, 1.5f));
-	//
 
 	RenderObjects(context);
 
@@ -350,7 +343,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	m_boundingEntity2->Draw(boundingMatrix2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider2Color, nullptr, true);
 
 	// skinned model
-	mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	// billboarding
 	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
@@ -458,7 +451,6 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	// TODO: Initialize windows-size dependent objects here.
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f);
-	//camera.SetProjectionValues(XM_PI / 4.f, float(size.right) / float(size.bottom), 0.1f, 100.f);
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
@@ -531,9 +523,12 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
 
 
-	//
 	//skinned model
-	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "content\\Models\\MyCharMay.FBX", Vector3(-1.0f, -3.0f, 0.0f), 0.01f);
+	mSkinModel = std::make_shared<ModelSkinned>(device, "content\\Models\\Hero.fbx", context);
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
+
 	mSkinModelTransform = std::make_shared<Transform>();
 	mSkinModelTransform->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	mSkinModelTransform->SetPosition(Vector3(-1.0f, -3.0f, 0.0f));
