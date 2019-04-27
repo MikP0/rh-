@@ -22,7 +22,7 @@ namespace
 }
 
 
-Game::Game() noexcept(false) : m_pitch(0), m_yaw(0)
+Game::Game() noexcept(false) : m_pitch(-0.5f), m_yaw(0)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -72,7 +72,7 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 	float time = float(timer.GetTotalSeconds());
-
+	
 	// TODO: Add your game logic here.
 
 
@@ -162,8 +162,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (*iter == moveFor)
 		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
-			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, 0.03f));
+			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, 1.0f))*elapsedTime * 0.001f ,elapsedTime);
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
@@ -171,14 +170,26 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (*iter == moveBac)
 		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
-			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, -0.03f));
+			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, -1.0f))*elapsedTime * 0.001f,-elapsedTime);
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
 		}
 
+
 		if (*iter == moveLeft)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(150.f * elapsedTime));
+		}
+
+		if (*iter == moveRight)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-150.f * elapsedTime));
+		}
+
+
+
+		/*if (*iter == moveLeft)
 		{
 			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
 			mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
@@ -194,7 +205,7 @@ void Game::Update(DX::StepTimer const& timer)
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
+		}*/
 
 		if (*iter == special1)
 		{
@@ -253,9 +264,9 @@ void Game::UpdateObjects(float elapsedTime)
 	CollisionPtr collisionBetweenCups = collisionSystem->CheckCollision(colliderCup1, colliderCup2);
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1);
+	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1,1);
 	myEntity1->Update();
-	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2);
+	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2,1);
 	myEntity2->Update();
 	myEntity3->Update();
 
