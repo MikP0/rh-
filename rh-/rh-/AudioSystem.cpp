@@ -9,7 +9,7 @@ AudioSystem::AudioSystem()
 	#ifdef _DEBUG
 	eflags = eflags | AudioEngine_Debug;
 	#endif
-	_audioEngine = std::make_unique<AudioEngine>(eflags);
+	_audioEngine = make_unique<AudioEngine>(eflags);
 	_retryAudio = false;
 }
 
@@ -41,16 +41,6 @@ void AudioSystem::SetComponentMute(AudioComponentPtr audioComponent, bool muteSt
 	audioComponent->Mute = muteState;
 }
 
-bool AudioSystem::GetComponentPlayOnAwake(AudioComponentPtr audioComponent)
-{
-	return audioComponent->PlayOnAwake;
-}
-
-void AudioSystem::SetComponentPlayOnAwake(AudioComponentPtr audioComponent, bool playOnAwakeState)
-{
-	audioComponent->PlayOnAwake = playOnAwakeState;
-}
-
 bool AudioSystem::GetComponentLoop(AudioComponentPtr audioComponent)
 {
 	return audioComponent->Loop;
@@ -71,23 +61,16 @@ void AudioSystem::SetComponentVolume(AudioComponentPtr audioComponent, float vol
 	audioComponent->Volume = volume;
 }
 
-void AudioSystem::Update()
+void AudioSystem::SetComponentAudioFile(AudioComponentPtr audioComponent)
 {
-	if (_retryAudio)
-	{
-		_retryAudio = false;
-		if (_audioEngine->Reset())
-		{
-			// TODO: restart any looped sounds here
-		}
-	}
-	else if (!_audioEngine->Update())
-	{
-		if (_audioEngine->IsCriticalError())
-		{
-			_retryAudio = true;
-		}
-	}
+	wstring wide_string = wstring(audioComponent->Path.begin(), audioComponent->Path.end());
+	const wchar_t* result = wide_string.c_str();
+	audioComponent->AudioFile = make_unique<SoundEffect>(_audioEngine.get(), result);
+}
+
+void AudioSystem::UpdateTime(float time)
+{
+	_elapsedTime = time;
 }
 
 void AudioSystem::Suspend()
@@ -103,6 +86,13 @@ void AudioSystem::Resume()
 void AudioSystem::RetryAudio()
 {
 	_retryAudio = true;
+}
+
+void AudioSystem::PlayAudio(AudioComponentPtr audioComponent)
+{
+	audioComponent->AudioFile->Play(audioComponent->Volume, audioComponent->Pitch, audioComponent->Pan);
+	audioComponent->RemainingDelayTime = audioComponent->DelayTimeLimit;
+
 }
 
 std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType)
@@ -133,10 +123,40 @@ void AudioSystem::UpdateComponentsCollection()
 	}
 }
 
+void AudioSystem::InsertComponent(AudioComponentPtr component)
+{
+	_components.push_back(component);
+	SetComponentAudioFile(component);
+}
+
 void AudioSystem::Iterate()
 {
+	if (_retryAudio)
+	{
+		_retryAudio = false;
+		if (_audioEngine->Reset())
+		{
+			// TODO: restart any looped sounds here
+		}
+	}
+	else if (!_audioEngine->Update())
+	{
+		if (_audioEngine->IsCriticalError())
+		{
+			_retryAudio = true;
+		}
+	}
+
 	for each (AudioComponentPtr component in _components)
 	{
-		
+		component->RemainingDelayTime -= _elapsedTime;
+		if (!component->Mute && !component->AudioFile->IsInUse() && component->RemainingDelayTime <= 0.f)
+		{
+			PlayAudio(component);
+		}
+		else
+		{
+			component->Mute = true;
+		}
 	}
 }

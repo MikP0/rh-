@@ -132,7 +132,9 @@ private:
 		{availableKeys::one, actionList::special1},
 		{availableKeys::two, actionList::special2},
 		{availableKeys::three, actionList::special3},
-		{availableKeys::four, actionList::special4}
+		{availableKeys::four, actionList::special4},
+		{availableKeys::z, actionList::playBackground},
+		{availableKeys::x, actionList::playSound1},
 	};
 	std::shared_ptr<Entity> inputEntity;
 	
@@ -160,4 +162,6 @@ private:
 
 	//Audio
 	std::shared_ptr<AudioSystem> audioSystem;
+	std::shared_ptr<AudioComponent> audioBackgroundSound;
+	std::shared_ptr<AudioComponent> audioSound1;
 };

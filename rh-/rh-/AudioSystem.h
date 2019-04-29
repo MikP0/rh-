@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include "StepTimer.h"
 #include "Audio.h"
 #include "System.h"
 #include "AudioComponent.h"
@@ -21,26 +22,29 @@ public:
 	void SetComponentPath(AudioComponentPtr audioComponent, string path);
 	bool GetComponentMute(AudioComponentPtr audioComponent);
 	void SetComponentMute(AudioComponentPtr audioComponent, bool muteState);
-	bool GetComponentPlayOnAwake(AudioComponentPtr audioComponent);
-	void SetComponentPlayOnAwake(AudioComponentPtr audioComponent, bool playOnAwakeState);
 	void SetComponentLoop(AudioComponentPtr audioComponent, bool loopState);
 	bool GetComponentLoop(AudioComponentPtr audioComponent);
 	float GetComponentVolume(AudioComponentPtr audioComponent);
 	void SetComponentVolume(AudioComponentPtr audioComponent, float volume);
-	void Update();
+	void SetComponentAudioFile(AudioComponentPtr audioComponent);
+	void UpdateTime(float time);
 	void Suspend();
 	void Resume();
 	void RetryAudio();
+	void PlayAudio(AudioComponentPtr audioComponent);
 
 	virtual vector<ComponentPtr> GetComponents(ComponentType componentType) override;
 	virtual void UpdateComponentsCollection() override;
 
-protected:
+	void InsertComponent(AudioComponentPtr component); // temporary function for tests
+	
 	virtual void Iterate() override;
 
 private:
 	vector<AudioComponentPtr> _components;
+	float _elapsedTime;
 	unique_ptr<DirectX::AudioEngine> _audioEngine;
 	bool _retryAudio;
+
 };
 

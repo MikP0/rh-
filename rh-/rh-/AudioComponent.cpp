@@ -2,21 +2,17 @@
 #include "AudioComponent.h"
 
 
-AudioComponent::AudioComponent()
-{
-	SetIsEnabled(true);
-	Mute = false;
-	PlayOnAwake = true;
-	Loop = true;
-}
-
-AudioComponent::AudioComponent(string path)
+AudioComponent::AudioComponent(string path, float delayTime) : DelayTimeLimit(delayTime)
 {
 	SetIsEnabled(true);
 	Path = path;
-	Mute = false;
-	PlayOnAwake = true;
+	Mute = true;
 	Loop = true;
+	Volume = 1.0f;
+	Pitch = 0.0f;
+	Pan = 0.0f;
+	RemainingDelayTime = 0.0f;
+	AudioFile = nullptr;
 }
 
 AudioComponent::~AudioComponent()

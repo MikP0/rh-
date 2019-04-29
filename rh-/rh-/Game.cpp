@@ -209,6 +209,16 @@ void Game::Update(DX::StepTimer const& timer)
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
+
+		if (*iter == playBackground)
+		{
+			audioBackgroundSound->Mute = false;
+		}
+
+		if (*iter == playSound1)
+		{
+			audioSound1->Mute = false;
+		}
 	}
 
 	if (pushedKeysActions.size() == 0)
@@ -230,6 +240,10 @@ void Game::Update(DX::StepTimer const& timer)
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
 	////////
+
+	//Audio
+	audioSystem->UpdateTime(elapsedTime);
+	audioSystem->Iterate();
 
 	UpdateObjects(elapsedTime);
 
@@ -306,8 +320,6 @@ void Game::UpdateObjects(float elapsedTime)
 	//billboarding
 	planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
 
-	//Audio
-	audioSystem->Update();
 }
 
 #pragma endregion
@@ -607,7 +619,12 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planePos = Vector3(2.0f, 0.f, 4.0f);
 	planeWorld.CreateTranslation(planePos);
 
+	//Audio
 	audioSystem = std::make_shared<AudioSystem>();
+	audioBackgroundSound = std::make_shared<AudioComponent>("Resources\\Audio\\Happyrock.wav", 0.0f);
+	audioSound1 = std::make_shared<AudioComponent>("Resources\\Audio\\Explo1.wav", 0.0f);
+	audioSystem->InsertComponent(audioBackgroundSound);
+	audioSystem->InsertComponent(audioSound1);
 }
 
 void Game::OnDeviceLost()

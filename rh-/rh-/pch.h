@@ -86,6 +86,7 @@
 #include "VectorHelper.h"
 #include "BufferContainer.h"
 #include <d3dx11Effect.h>
+#include <random>
 
 #define DeleteObject(object) if((object) != NULL) { delete object; object = NULL; }
 #define DeleteObjects(objects) if((objects) != NULL) { delete[] objects; objects = NULL; }

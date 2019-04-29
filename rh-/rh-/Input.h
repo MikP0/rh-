@@ -36,7 +36,10 @@ enum actionList
 	special1,
 	special2,
 	special3,
-	special4
+	special4,
+
+	playBackground,
+	playSound1
 };
 
 enum availableKeys
@@ -53,6 +56,8 @@ enum availableKeys
 	a,
 	s,
 	d,
+	z,
+	x,
 	upperArrow,
 	leftArrow,
 	lowerArrow,
@@ -61,7 +66,7 @@ enum availableKeys
 	leftControl,
 	lpm,
 	rpm,
-	scrollPush
+	scrollPush,
 };
 
 class Input
