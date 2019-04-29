@@ -14,6 +14,7 @@
 #include "EntityManager.h"
 #include "SceneManager.h"
 #include "PhysicsComponent.h"
+#include "RenderableSystem.h"
 
 #include "PhysicsSystem.h"
 
@@ -80,6 +81,7 @@ private:
 
 	//Managers
 	std::shared_ptr<EntityManager> entityManager;
+	std::shared_ptr<ComponentFactory> componentFactory;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;
@@ -143,4 +145,6 @@ private:
 	DirectX::SimpleMath::Vector3 planePos;
 
 	std::shared_ptr<SceneManager> sceneManager;
+
+	std::shared_ptr<RenderableSystem> renderableSystem;
 };

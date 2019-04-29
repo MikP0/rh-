@@ -9,7 +9,7 @@ class RenderableSystem :
 {
 public:
 	
-	RenderableSystem(std::shared_ptr<EntityManager> entityManager);
+	RenderableSystem(std::shared_ptr<EntityManager> entityManager, ID3D11Device1* device, ID3D11DeviceContext1* context);
 	~RenderableSystem();
 
 	// IDeviceNotify

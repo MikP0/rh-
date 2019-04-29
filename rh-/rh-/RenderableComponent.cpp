@@ -13,8 +13,10 @@
 //	_modelPath = "";
 //}
 
-RenderableComponent::RenderableComponent(std::string path)
+RenderableComponent::RenderableComponent(std::wstring path , Camera& camera)
 {
+	_modelPath = path;
+	_camera = &camera;
 }
 
 RenderableComponent::~RenderableComponent()

@@ -2,13 +2,14 @@
 
 #include "Component.h"
 #include "DeviceResources.h"
+#include "Camera.h"
 
 class RenderableComponent : public Component
 {
 public:
 	//Methods
 	RenderableComponent();
-	RenderableComponent(std::string path);
+	RenderableComponent(std::wstring path, Camera& camera);
 	virtual ~RenderableComponent();
 
 	virtual ComponentType GetType(void) override;
@@ -16,6 +17,7 @@ public:
 	//Fields
 	std::unique_ptr<DirectX::Model>	_model;
 	std::wstring _modelPath;
+	Camera* _camera;
 
 };
 
