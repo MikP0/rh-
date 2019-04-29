@@ -10,7 +10,7 @@ AudioComponent::AudioComponent()
 	Loop = true;
 }
 
-AudioComponent::AudioComponent(std::string path)
+AudioComponent::AudioComponent(string path)
 {
 	SetIsEnabled(true);
 	Path = path;

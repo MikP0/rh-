@@ -5,10 +5,20 @@
 AudioSystem::AudioSystem()
 {
 	_componentsType.name = "Audio";
+	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
+	#ifdef _DEBUG
+	eflags = eflags | AudioEngine_Debug;
+	#endif
+	_audioEngine = std::make_unique<AudioEngine>(eflags);
+	_retryAudio = false;
 }
 
 AudioSystem::~AudioSystem()
 {
+	if (_audioEngine)
+	{
+		_audioEngine->Suspend();
+	}
 }
 
 std::string AudioSystem::GetComponentPath(AudioComponentPtr audioComponent)
@@ -16,7 +26,7 @@ std::string AudioSystem::GetComponentPath(AudioComponentPtr audioComponent)
 	return audioComponent->Path;
 }
 
-void AudioSystem::SetComponentPath(AudioComponentPtr audioComponent, std::string path)
+void AudioSystem::SetComponentPath(AudioComponentPtr audioComponent, string path)
 {
 	audioComponent->Path = path;
 }
@@ -61,15 +71,49 @@ void AudioSystem::SetComponentVolume(AudioComponentPtr audioComponent, float vol
 	audioComponent->Volume = volume;
 }
 
+void AudioSystem::Update()
+{
+	if (_retryAudio)
+	{
+		_retryAudio = false;
+		if (_audioEngine->Reset())
+		{
+			// TODO: restart any looped sounds here
+		}
+	}
+	else if (!_audioEngine->Update())
+	{
+		if (_audioEngine->IsCriticalError())
+		{
+			_retryAudio = true;
+		}
+	}
+}
+
+void AudioSystem::Suspend()
+{
+	_audioEngine->Suspend();
+}
+
+void AudioSystem::Resume()
+{
+	_audioEngine->Resume();
+}
+
+void AudioSystem::RetryAudio()
+{
+	_retryAudio = true;
+}
+
 std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType)
 {
-	std::vector<ComponentPtr> allComponents;
-	std::vector<ComponentPtr> selectedComponents;
+	vector<ComponentPtr> allComponents;
+	vector<ComponentPtr> selectedComponents;
 	//allComponents = componentManager.GetAllComponents();
 
 	for each (ComponentPtr component in allComponents)
 	{
-		if (std::dynamic_pointer_cast<AudioComponent>(component)->GetType().name.compare(componentType.name) == 0)
+		if (dynamic_pointer_cast<AudioComponent>(component)->GetType().name.compare(componentType.name) == 0)
 		{
 			selectedComponents.push_back(component);
 		}
@@ -81,10 +125,10 @@ std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType
 void AudioSystem::UpdateComponentsCollection()
 {
 	_components.clear();
-	std::vector<ComponentPtr> selectedComponents = GetComponents(_componentsType);
+	vector<ComponentPtr> selectedComponents = GetComponents(_componentsType);
 	for each (ComponentPtr component in selectedComponents)
 	{
-		AudioComponentPtr audioComponent = std::dynamic_pointer_cast<AudioComponent>(component);
+		AudioComponentPtr audioComponent = dynamic_pointer_cast<AudioComponent>(component);
 		_components.push_back(audioComponent);
 	}
 }

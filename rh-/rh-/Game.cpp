@@ -305,6 +305,9 @@ void Game::UpdateObjects(float elapsedTime)
 
 	//billboarding
 	planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
+
+	//Audio
+	audioSystem->Update();
 }
 
 #pragma endregion
@@ -422,6 +425,9 @@ void Game::OnDeactivated()
 void Game::OnSuspending()
 {
 	// TODO: Game is being power-suspended (or minimized).
+
+	//Audio
+	audioSystem->Suspend();
 }
 
 void Game::OnResuming()
@@ -429,6 +435,9 @@ void Game::OnResuming()
 	m_timer.ResetElapsedTime();
 
 	// TODO: Game is being power-resumed (or returning from minimize).
+
+	//Audio
+	audioSystem->Resume();
 }
 
 void Game::OnWindowMoved()
@@ -448,6 +457,11 @@ void Game::OnWindowSizeChanged(int width, int height)
 	CreateWindowSizeDependentResources();
 
 	// TODO: Game window is being resized.
+}
+
+void Game::OnNewAudioDevice()
+{
+	audioSystem->RetryAudio();
 }
 
 // Properties
@@ -592,6 +606,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld = m_world;
 	planePos = Vector3(2.0f, 0.f, 4.0f);
 	planeWorld.CreateTranslation(planePos);
+
+	audioSystem = std::make_shared<AudioSystem>();
 }
 
 void Game::OnDeviceLost()
