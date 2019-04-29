@@ -11,15 +11,9 @@ MyGame::MyGame(ID3D11Device1 * dev, ID3D11DeviceContext1* con)
 	mDirect3DDeviceContext = con;
 }
 
-
 MyGame::~MyGame()
 {
 }
-
-//ID3D11Device1 * MyGame::Direct3DDevice()
-//{
-//	return myDevice;
-//}
 
 ID3D11Device1* MyGame::Direct3DDevice() const
 {

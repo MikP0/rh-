@@ -47,6 +47,11 @@ const std::string& AnimationClip::Name() const
 	return mName;
 }
 
+void AnimationClip::SetName(std::string name)
+{
+	mName = name;
+}
+
 float AnimationClip::Duration() const
 {
 	return mDuration;

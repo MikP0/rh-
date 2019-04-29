@@ -14,14 +14,12 @@ ModelSK::ModelSK(MyGame& game, const std::string& filename, bool flipUVs)
 	: mGame(game), mMeshes(), mMaterials(), mAnimations(), mBones(), mBoneIndexMapping(), mRootNode(nullptr)
 {
 	Assimp::Importer importer;
-
 	UINT flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_FlipWindingOrder;
 	if (flipUVs)
 	{
 		flags |= aiProcess_FlipUVs;
 	}
-
-
+	
 	const aiScene* scene = importer.ReadFile(filename, flags);
 	if (scene == nullptr)
 	{
@@ -58,6 +56,7 @@ ModelSK::ModelSK(MyGame& game, const std::string& filename, bool flipUVs)
 			mAnimationsByName.insert(std::pair<std::string, AnimationClip*>(animationClip->Name(), animationClip));
 		}
 	}
+
 
 #if defined( DEBUG ) || defined( _DEBUG )
 	ValidateModel();

@@ -1,15 +1,10 @@
 #include "AnimationPlayer.h"
-//#include "GameTime.h"
 #include "ModelSK.h"
 #include "Bone.h"
 #include "AnimationClip.h"
 #include "BoneAnimation.h"
 #include "Keyframe.h"
 #include "MatrixHelper.h"
-
-
-
-//RTTI_DEFINITIONS(AnimationPlayer)
 
 AnimationPlayer::AnimationPlayer(MyGame& game, ModelSK& model, bool interpolationEnabled)
 	:
@@ -64,6 +59,33 @@ bool AnimationPlayer::IsClipLooped() const
 void AnimationPlayer::SetInterpolationEnabled(bool interpolationEnabled)
 {
 	mInterpolationEnabled = interpolationEnabled;
+}
+
+void AnimationPlayer::StartClip(std::string clipName)
+{
+	if (mCurrentClip != nullptr)
+	{
+		if (mCurrentClip->Name() != clipName)
+		{
+			for (int i = 0; i < animationClips.size(); i++)
+			{
+				if (animationClips[i]->Name() == clipName)
+				{
+					StartClip(*animationClips[i]);
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < animationClips.size(); i++)
+		{
+			if (animationClips[i]->Name() == clipName)
+			{
+				StartClip(*animationClips[i]);
+			}
+		}
+	}
 }
 
 void AnimationPlayer::StartClip(AnimationClip& clip)
@@ -130,7 +152,6 @@ void AnimationPlayer::Update(float gameTime)
 			}
 		}
 
-
 		if (mInterpolationEnabled)
 		{
 			GetInterpolatedPose(mCurrentTime, *(mModel->RootNode()));
@@ -151,6 +172,29 @@ void AnimationPlayer::SetCurrentKeyFrame(UINT keyframe)
 void AnimationPlayer::SetDirection(bool isForward)
 {
 	mIsMovingForward = isForward;
+}
+
+bool AnimationPlayer::AddAnimationClip(AnimationClip * clip, std::string clipName)
+{
+	bool isNameInVector = false;
+
+	for (int i = 0; i < animationClips.size(); i++)
+	{
+		if (animationClips[i]->Name() == clipName)
+			isNameInVector = true;
+	}
+
+	if (!isNameInVector)
+	{
+		animationClips.push_back(clip);
+		clip->SetName(clipName);
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void AnimationPlayer::GetBindPoseBottomUp(SceneNode& sceneNode)

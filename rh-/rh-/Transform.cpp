@@ -55,7 +55,14 @@ dxmath::Vector3 Transform::GetScale(void) const
 
 dxmath::Matrix Transform::GetTransformMatrix(void) const
 {
-	return dxmath::Matrix::CreateTranslation(_position) * dxmath::Matrix::CreateFromQuaternion(_rotation) * dxmath::Matrix::CreateScale(_scale);
+	DirectX::XMVECTOR scale = _scale;
+	DirectX::XMVECTOR translation = _position;
+
+	dxmath::Quaternion Q = _rotation;
+	DirectX::XMVECTOR rotation = DirectX::XMVectorSet(Q.x, Q.y, Q.z, Q.w);
+	DirectX::XMVECTOR rotOrigin = DirectX::XMVectorZero();
+	return DirectX::XMMatrixAffineTransformation(scale, rotOrigin, rotation, translation);
+	//return dxmath::Matrix::CreateTranslation(_position) * dxmath::Matrix::CreateFromQuaternion(_rotation) * dxmath::Matrix::CreateScale(_scale);
 }
 
 std::shared_ptr<Transform> Transform::SetPosition(const dxmath::Vector3 position)

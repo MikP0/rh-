@@ -37,8 +37,6 @@ public:
 	bool HasCachedIndexBuffer() const;
 
 	void CreateIndexBuffer(ID3D11Buffer** indexBuffer);
-	//void CreateCachedVertexAndIndexBuffers(ID3D11Device& device, const MaterialSK& material);
-
 
 	void CreateCachedVertexAndIndexBuffers(ID3D11Device & device, const MaterialSK & material)
 	{

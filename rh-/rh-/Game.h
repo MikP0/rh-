@@ -121,7 +121,15 @@ private:
 		{availableKeys::d, actionList::right},
 		{availableKeys::w, actionList::forward},
 		{availableKeys::s, actionList::backward},
-		{availableKeys::lpm, actionList::anchorRotation}
+		{availableKeys::lpm, actionList::anchorRotation},
+		{availableKeys::upperArrow, actionList::moveFor},
+		{availableKeys::lowerArrow, actionList::moveBac},
+		{availableKeys::leftArrow, actionList::moveLeft},
+		{availableKeys::rightArrow, actionList::moveRight},
+		{availableKeys::one, actionList::special1},
+		{availableKeys::two, actionList::special2},
+		{availableKeys::three, actionList::special3},
+		{availableKeys::four, actionList::special4}
 	};
 	std::shared_ptr<Entity> inputEntity;
 	
@@ -137,6 +145,7 @@ private:
 
 	// skinned model
 	std::shared_ptr<ModelSkinned> mSkinModel;
+	std::shared_ptr<Transform> mSkinModelTransform;
 
 	// billboarding
 	std::shared_ptr<DirectX::GeometricPrimitive> m_plane;

@@ -136,17 +136,17 @@ void Game::Update(DX::StepTimer const& timer)
 
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
-		// zmiana MouseMode tutaj z udzia�em InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
+		// zmiana MouseMode tutaj z udzialem InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
 		//inputSystem->SetMouseMode(*iter == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		if (*iter == closeWindow)
 			ExitGame();
 
-		/*if (*iter == up)
+		if (*iter == up)
 			move.y += 1.f;
 
 		if (*iter == down)
-			move.y -= 1.f;*/
+			move.y -= 1.f;
 
 		if (*iter == actionList::left)
 			move.x += 1.f;
@@ -158,26 +158,63 @@ void Game::Update(DX::StepTimer const& timer)
 			move.z += 1.f;
 
 		if (*iter == actionList::backward)
-			move.z -= 1.f; 
+			move.z -= 1.f;
 
-		if (*iter == actionList::up)
+		if (*iter == moveFor)
 		{
-			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, 0.03f);
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
+			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, 0.03f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
 
-		if (*iter == down)
+		if (*iter == moveBac)
 		{
-			mSkinModel->character_world = mSkinModel->character_world * XMMatrixTranslation(0.0f, 0.0f, -0.03f);
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
+			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, -0.03f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
+		}
+
+		if (*iter == moveLeft)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
+			mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+
+		if (*iter == moveRight)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
+			mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+
+		if (*iter == special1)
+		{
+			mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+
+		if (*iter == special2)
+		{
+			mSkinModel->GetAnimatorPlayer()->StartClip("Dance");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
 	}
 
 	if (pushedKeysActions.size() == 0)
 	{
-		mSkinModel->SetInMove(false);
+		mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
+		mSkinModel->SetInMove(true);
 	}
 
 	move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
@@ -225,7 +262,8 @@ void Game::UpdateObjects(float elapsedTime)
 	if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
-		myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
+		//myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
+		myEntity4->GetTransform()->SetPosition(posOnGround);
 	}
 		
 	myEntity4->Update();
@@ -255,7 +293,6 @@ void Game::UpdateObjects(float elapsedTime)
 
 	// skinned model
 	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
-
 	if (mSkinModel->GetInMove())
 	{
 		mSkinModel->GetAnimatorPlayer()->ResumeClip();
@@ -288,14 +325,6 @@ void Game::Render()
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// TODO: Add your rendering code here.
-
-	//
-	//camera.AdjustPosition(0.0f, 0.01f, 0.0f);
-	//camera.SetLookAtPos(myEntity.GetTransform()->GetPosition());
-	//
-	//myEntity.GetTransform()->SetPosition(Vector3(0.2f, 1.0f, 1.5f));
-	//myEntity.GetTransform()->SetScale(Vector3(0.2f, 1.0f, 1.5f));
-	//
 
 	RenderObjects(context);
 
@@ -350,7 +379,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	m_boundingEntity2->Draw(boundingMatrix2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider2Color, nullptr, true);
 
 	// skinned model
-	mSkinModel->DrawModel(context, *m_states, false, false, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	// billboarding
 	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
@@ -458,7 +487,6 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	// TODO: Initialize windows-size dependent objects here.
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f);
-	//camera.SetProjectionValues(XM_PI / 4.f, float(size.right) / float(size.bottom), 0.1f, 100.f);
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
@@ -543,9 +571,16 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 		CreateDDSTextureFromFile(device, L"roomtexture.dds",
 			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
 
-	//skinned model
-	mSkinModel = std::make_shared<ModelSkinned>(m_world, device, context, "Content\\Models\\theHeroF.dae");
 
+	//skinned model
+	mSkinModel = std::make_shared<ModelSkinned>(device, "content\\Models\\Hero.fbx", context);
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
+
+	mSkinModelTransform = std::make_shared<Transform>();
+	mSkinModelTransform->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+	mSkinModelTransform->SetPosition(Vector3(-1.0f, -3.0f, 0.0f));
 
 	//billboarding
 	m_plane = GeometricPrimitive::CreateBox(context,

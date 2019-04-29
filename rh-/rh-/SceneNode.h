@@ -1,9 +1,6 @@
 #pragma once
 
 #include "pch.h"
-//#include "Bone.h"
-
-
 #include <string>
 
 class SceneNode : public RTTI

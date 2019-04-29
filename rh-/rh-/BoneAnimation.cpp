@@ -11,6 +11,8 @@ BoneAnimation::BoneAnimation(ModelSK& model, aiNodeAnim& nodeAnim)
 	: mModel(&model), mBone(nullptr), mKeyframes()
 {
 	UINT boneIndex = model.BoneIndexMapping().at(nodeAnim.mNodeName.C_Str());
+
+
 	mBone = model.Bones().at(boneIndex);
 
 	assert(nodeAnim.mNumPositionKeys == nodeAnim.mNumRotationKeys);

@@ -16,6 +16,8 @@ public:
 	~AnimationClip();
 
 	const std::string& Name() const;
+	void SetName(std::string name);
+
 	float Duration() const;
 	float TicksPerSecond() const;
 	const std::vector<BoneAnimation*>& BoneAnimations() const;
@@ -31,9 +33,9 @@ public:
 	void GetInteropolatedTransform(float time, Bone& bone, DirectX::XMFLOAT4X4& transform) const;
 	void GetInteropolatedTransforms(float time, std::vector<DirectX::XMFLOAT4X4>& boneTransforms) const;
 
-private:
 	AnimationClip(ModelSK& model, aiAnimation& animation);
 
+private:
 	AnimationClip();
 	AnimationClip(const AnimationClip& rhs);
 	AnimationClip& operator=(const AnimationClip& rhs);
