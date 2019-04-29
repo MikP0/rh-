@@ -10,7 +10,7 @@ typedef std::shared_ptr<AudioComponent> AudioComponentPtr;
 class AudioSystem : public System
 {
 public:
-	//AudioSystem();
+
 	AudioSystem(std::shared_ptr<EntityManager> entityManager);
 	~AudioSystem();
 

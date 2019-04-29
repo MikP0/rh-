@@ -2,27 +2,19 @@
 #include "RenderableComponent.h"
 
 
-RenderableComponent::RenderableComponent()
-{
-	auto device = _deviceResources->GetD3DDevice();
-	auto context = _deviceResources->GetD3DDeviceContext();
-
-	_states = std::make_unique<DirectX::CommonStates>(device);
-
-	_fxFactory = std::make_unique<DirectX::EffectFactory>(device);
-	_modelPath = "";
-}
+//RenderableComponent::RenderableComponent()
+//{
+//	_device = _deviceResources->GetD3DDevice();
+//	_context = _deviceResources->GetD3DDeviceContext();
+//
+//	_states = std::make_unique<DirectX::CommonStates>(_device);
+//
+//	_fxFactory = std::make_unique<DirectX::EffectFactory>(_device);
+//	_modelPath = "";
+//}
 
 RenderableComponent::RenderableComponent(std::string path)
 {
-	auto device = _deviceResources->GetD3DDevice();
-	auto context = _deviceResources->GetD3DDeviceContext();
-
-	_states = std::make_unique<DirectX::CommonStates>(device);
-
-	_fxFactory = std::make_unique<DirectX::EffectFactory>(device);
-
-	_modelPath = path;
 }
 
 RenderableComponent::~RenderableComponent()

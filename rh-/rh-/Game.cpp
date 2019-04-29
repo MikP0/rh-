@@ -450,7 +450,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	entityManager = std::make_shared<EntityManager>();
 
-	RenderableSystem renderableSystem(entityManager);
+	std::shared_ptr<RenderableSystem> renderableSystem = std::make_shared<RenderableSystem>(entityManager);
 
 	sceneWallEntity = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity());
