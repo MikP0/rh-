@@ -100,23 +100,25 @@ void AudioSystem::PlayAudio(AudioComponentPtr audioComponent)
 
 void AudioSystem::StopAudio(AudioComponentPtr audioComponent)
 {
-	audioComponent->AudioLoopInstance->Stop(false);
 	audioComponent->Mute = true;
+	audioComponent->AudioLoopInstance->Stop(false);
 }
 
 void AudioSystem::StopAudioImmediately(AudioComponentPtr audioComponent)
 {
-	audioComponent->AudioLoopInstance->Stop(true);
 	audioComponent->Mute = true;
+	audioComponent->AudioLoopInstance->Stop(true);
 }
 
 void AudioSystem::PauseAudio(AudioComponentPtr audioComponent)
 {
+	audioComponent->Mute = true;
 	audioComponent->AudioLoopInstance->Pause();
 }
 
 void AudioSystem::ResumeAudio(AudioComponentPtr audioComponent)
 {
+	audioComponent->Mute = false;
 	audioComponent->AudioLoopInstance->Resume();
 }
 
@@ -179,38 +181,69 @@ void AudioSystem::Iterate()
 	for each (AudioComponentPtr component in _components)
 	{
 		SoundState soundState = component->AudioLoopInstance->GetState();
-
-		if (component->Mute && soundState == STOPPED)
+		
+		/*if (shouldResetAudio)
 		{
 			PlayAudio(component);
 			continue;
-		}
+		}*/
 
 		if (component->Loop)
 		{
-			if (shouldResetAudio && component->AudioLoopInstance)
+			if (soundState == STOPPED)
 			{
-				component->AudioLoopInstance->Play(true);
-				continue;
-			}
+				if (!component->Mute)
+				{
+					PlayAudio(component);
+					component->Mute = true;
+					continue;
+				}
 
-			if (component->Mute && soundState == PLAYING)
-			{
-				PauseAudio(component);
+				component->Mute = true;
 				continue;
 			}
+			
+			/*if (soundState == PLAYING)
+			{
+				if (!component->Mute)
+				{
+					PauseAudio(component);
+					continue;
+				}
+				
+				component->Mute = true;
+				continue;
+			}*/
 
-			if (!component->Mute && soundState == PAUSED)
+			/*if (soundState == PAUSED)
 			{
-				ResumeAudio(component);
+				if (!component->Mute)
+				{
+					ResumeAudio(component);
+					continue;
+				}
+				
+				component->Mute = true;
 				continue;
-			}
+			}*/
 		}
 		else
 		{
-			if (component->Mute && soundState == PLAYING)
+			if (soundState == STOPPED)
 			{
-				StopAudioImmediately(component);
+				if (!component->Mute)
+				{
+					PlayAudio(component);
+					continue;
+				}
+
+				component->Mute = true;
+				continue;
+			}
+			
+			if (soundState == PLAYING)
+			{
+				component->Mute = true;
 				continue;
 			}
 		}
