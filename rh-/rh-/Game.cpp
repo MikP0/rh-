@@ -212,12 +212,31 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (*iter == playBackground)
 		{
-			audioBackgroundSound->Mute = false;
+			static float delay = 0.0f;
+			if (delay <= 0.0f)
+			{
+				delay = 0.05f;
+				audioBackgroundSound->Mute = !audioBackgroundSound->Mute;
+			}
+			else
+			{
+				delay -= elapsedTime;
+			}
+			
 		}
 
 		if (*iter == playSound1)
 		{
-			audioSound1->Mute = false;
+			static float delay = 0.0f;
+			if (delay <= 0.0f)
+			{
+				delay = 0.05f;
+				audioSound1->Mute = !audioSound1->Mute;
+			}
+			else
+			{
+				delay -= elapsedTime;
+			}			
 		}
 	}
 
@@ -622,6 +641,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//Audio
 	audioSystem = std::make_shared<AudioSystem>();
 	audioBackgroundSound = std::make_shared<AudioComponent>("Resources\\Audio\\Happyrock.wav", 0.0f);
+	audioBackgroundSound->Loop = true;
 	audioSound1 = std::make_shared<AudioComponent>("Resources\\Audio\\Explo1.wav", 0.0f);
 	audioSystem->InsertComponent(audioBackgroundSound);
 	audioSystem->InsertComponent(audioSound1);

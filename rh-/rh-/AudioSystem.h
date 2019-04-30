@@ -32,6 +32,10 @@ public:
 	void Resume();
 	void RetryAudio();
 	void PlayAudio(AudioComponentPtr audioComponent);
+	void StopAudio(AudioComponentPtr audioComponent);
+	void StopAudioImmediately(AudioComponentPtr audioComponent);
+	void PauseAudio(AudioComponentPtr audioComponent);
+	void ResumeAudio(AudioComponentPtr audioComponent);
 
 	virtual vector<ComponentPtr> GetComponents(ComponentType componentType) override;
 	virtual void UpdateComponentsCollection() override;
@@ -42,7 +46,7 @@ public:
 
 private:
 	vector<AudioComponentPtr> _components;
-	float _elapsedTime;
+	float _elapsedTime, _delayTime;
 	unique_ptr<DirectX::AudioEngine> _audioEngine;
 	bool _retryAudio;
 

@@ -66,11 +66,13 @@ void AudioSystem::SetComponentAudioFile(AudioComponentPtr audioComponent)
 	wstring wide_string = wstring(audioComponent->Path.begin(), audioComponent->Path.end());
 	const wchar_t* result = wide_string.c_str();
 	audioComponent->AudioFile = make_unique<SoundEffect>(_audioEngine.get(), result);
+	audioComponent->AudioLoopInstance = audioComponent->AudioFile->CreateInstance();
 }
 
 void AudioSystem::UpdateTime(float time)
 {
 	_elapsedTime = time;
+	_delayTime -= _elapsedTime;
 }
 
 void AudioSystem::Suspend()
@@ -90,9 +92,32 @@ void AudioSystem::RetryAudio()
 
 void AudioSystem::PlayAudio(AudioComponentPtr audioComponent)
 {
-	audioComponent->AudioFile->Play(audioComponent->Volume, audioComponent->Pitch, audioComponent->Pan);
-	audioComponent->RemainingDelayTime = audioComponent->DelayTimeLimit;
+	audioComponent->AudioLoopInstance->SetVolume(audioComponent->Volume);
+	audioComponent->AudioLoopInstance->SetPitch(audioComponent->Pitch);
+	audioComponent->AudioLoopInstance->SetPan(audioComponent->Pan);
+	audioComponent->AudioLoopInstance->Play(audioComponent->Loop);
+}
 
+void AudioSystem::StopAudio(AudioComponentPtr audioComponent)
+{
+	audioComponent->AudioLoopInstance->Stop(false);
+	audioComponent->Mute = true;
+}
+
+void AudioSystem::StopAudioImmediately(AudioComponentPtr audioComponent)
+{
+	audioComponent->AudioLoopInstance->Stop(true);
+	audioComponent->Mute = true;
+}
+
+void AudioSystem::PauseAudio(AudioComponentPtr audioComponent)
+{
+	audioComponent->AudioLoopInstance->Pause();
+}
+
+void AudioSystem::ResumeAudio(AudioComponentPtr audioComponent)
+{
+	audioComponent->AudioLoopInstance->Resume();
 }
 
 std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType)
@@ -131,12 +156,16 @@ void AudioSystem::InsertComponent(AudioComponentPtr component)
 
 void AudioSystem::Iterate()
 {
+	bool shouldResetAudio = false;
+
 	if (_retryAudio)
 	{
 		_retryAudio = false;
+
 		if (_audioEngine->Reset())
 		{
 			// TODO: restart any looped sounds here
+			shouldResetAudio = true;
 		}
 	}
 	else if (!_audioEngine->Update())
@@ -149,14 +178,43 @@ void AudioSystem::Iterate()
 
 	for each (AudioComponentPtr component in _components)
 	{
-		component->RemainingDelayTime -= _elapsedTime;
-		if (!component->Mute && !component->AudioFile->IsInUse() && component->RemainingDelayTime <= 0.f)
+		SoundState soundState = component->AudioLoopInstance->GetState();
+
+		if (component->Mute && soundState == STOPPED)
 		{
 			PlayAudio(component);
+			continue;
+		}
+
+		if (component->Loop)
+		{
+			if (shouldResetAudio && component->AudioLoopInstance)
+			{
+				component->AudioLoopInstance->Play(true);
+				continue;
+			}
+
+			if (component->Mute && soundState == PLAYING)
+			{
+				PauseAudio(component);
+				continue;
+			}
+
+			if (!component->Mute && soundState == PAUSED)
+			{
+				ResumeAudio(component);
+				continue;
+			}
 		}
 		else
 		{
-			component->Mute = true;
+			if (component->Mute && soundState == PLAYING)
+			{
+				StopAudioImmediately(component);
+				continue;
+			}
 		}
 	}
+
+	
 }

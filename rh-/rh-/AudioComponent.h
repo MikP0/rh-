@@ -10,9 +10,9 @@ class AudioComponent : public Component
 public:
 	string Path;
 	bool Mute, Loop;
-	float Volume, Pitch, Pan, RemainingDelayTime;
-	float DelayTimeLimit;
+	float Volume, Pitch, Pan;
 	unique_ptr<DirectX::SoundEffect> AudioFile;
+	unique_ptr<DirectX::SoundEffectInstance> AudioLoopInstance;
 
 	AudioComponent(string path, float delayTime);
 	~AudioComponent();
