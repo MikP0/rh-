@@ -6,7 +6,7 @@
 #pragma once
 
 #include <WinSDKVer.h>
-#define _WIN32_WINNT 0x0601
+#define _WIN32_WINNT 0x0602
 #include <SDKDDKVer.h>
 
 // Use the C++ standard templated min/max
@@ -86,6 +86,7 @@
 #include "VectorHelper.h"
 #include "BufferContainer.h"
 #include <d3dx11Effect.h>
+#include <random>
 
 #define DeleteObject(object) if((object) != NULL) { delete object; object = NULL; }
 #define DeleteObjects(objects) if((objects) != NULL) { delete[] objects; objects = NULL; }

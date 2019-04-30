@@ -325,4 +325,12 @@
       <Filter>Inc\Skinning\Content</Filter>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\Audio\Explo1.wav">
+      <Filter>Assets</Filter>
+    </Media>
+    <Media Include="Resources\Audio\Happyrock.wav">
+      <Filter>Assets</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

@@ -15,7 +15,8 @@ public:
 	virtual ~System() {};
 	virtual std::vector<ComponentPtr> GetComponents(ComponentType componentType) = 0;
 	virtual void UpdateComponentsCollection() = 0;
+	virtual void Iterate() = 0;
 
 protected:
 	ComponentType _componentsType;
-	virtual void Iterate() = 0;};
+};

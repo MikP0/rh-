@@ -6,6 +6,7 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
+#include "Audio.h"
 
 #include "Transform.h"
 #include "Entity.h"
@@ -17,6 +18,7 @@
 #include "PhysicsComponent.h"
 
 #include "PhysicsSystem.h"
+#include "AudioSystem.h"
 
 #include "ModelSkinned.h"
 
@@ -48,6 +50,7 @@ public:
     void OnResuming();
     void OnWindowMoved();
     void OnWindowSizeChanged(int width, int height);
+	void OnNewAudioDevice();
 
     // Properties
     void GetDefaultSize( int& width, int& height );
@@ -129,7 +132,9 @@ private:
 		{availableKeys::one, actionList::special1},
 		{availableKeys::two, actionList::special2},
 		{availableKeys::three, actionList::special3},
-		{availableKeys::four, actionList::special4}
+		{availableKeys::four, actionList::special4},
+		{availableKeys::z, actionList::playBackground},
+		{availableKeys::x, actionList::playSound1},
 	};
 	std::shared_ptr<Entity> inputEntity;
 	
@@ -154,4 +159,9 @@ private:
 	DirectX::SimpleMath::Vector3 planePos;
 
 	std::shared_ptr<SceneManager> sceneManager;
+
+	//Audio
+	std::shared_ptr<AudioSystem> audioSystem;
+	std::shared_ptr<AudioComponent> audioBackgroundSound;
+	std::shared_ptr<AudioComponent> audioSound1;
 };

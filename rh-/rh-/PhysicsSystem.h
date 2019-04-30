@@ -39,7 +39,6 @@ public:
 
 	void InsertComponent(PhysicsComponentPtr component); // temporary function for tests
 
-protected:
 	virtual void Iterate() override;
 
 private:
