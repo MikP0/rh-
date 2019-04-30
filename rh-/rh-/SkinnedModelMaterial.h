@@ -19,6 +19,8 @@ class SkinnedModelMaterial : public MaterialSK
 		MATERIAL_VARIABLE_DECLARATION(CameraPosition)
 		MATERIAL_VARIABLE_DECLARATION(BoneTransforms)
 		MATERIAL_VARIABLE_DECLARATION(ColorTexture)
+		MATERIAL_VARIABLE_DECLARATION(View)
+		MATERIAL_VARIABLE_DECLARATION(Projection)
 
 public:
 	SkinnedModelMaterial();

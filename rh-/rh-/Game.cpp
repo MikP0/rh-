@@ -290,7 +290,7 @@ void Game::UpdateObjects(float elapsedTime)
 		collisionCup2WithRay = collisionSystem->CheckCollision(colliderCup2, *sharedRay);
 	}
 
-	if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
+	/*if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
 		dir1.x = -1.0f;
 
 	if (colliderBoundingCup1->Bounding.Center.x <= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
@@ -300,7 +300,7 @@ void Game::UpdateObjects(float elapsedTime)
 		dir2.x = -1.0f;
 
 	if (colliderBoundingCup2->Bounding.Center.x <= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
-		dir2.x = 1.0f;
+		dir2.x = 1.0f;*/
 
 	// skinned model
 	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);

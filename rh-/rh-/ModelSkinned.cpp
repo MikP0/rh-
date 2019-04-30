@@ -136,6 +136,7 @@ void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonSta
 	PrepareForRendering(deviceContext, states, alpha, wireframe);
 
 	Pass* pass = mMaterial->CurrentTechnique()->Passes().at(0);
+	Pass* pass2 = mMaterial->CurrentTechnique()->Passes().at(1);
 	ID3D11InputLayout* inputLayout = mMaterial->InputLayouts().at(pass);
 	deviceContext->IASetInputLayout(inputLayout);
 
@@ -162,8 +163,11 @@ void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonSta
 		mMaterial->AmbientColor() << ambientColor;
 		mMaterial->ColorTexture() << colorTexture;
 		mMaterial->BoneTransforms() << mAnimationPlayer->BoneTransforms();
+		mMaterial->View() << viewMat;
+		mMaterial->Projection() << projMat;
 
 		pass->Apply(0, deviceContext);
+		pass2->Apply(0, deviceContext);
 
 		deviceContext->DrawIndexed(indexCount, 0, 0);
 	}

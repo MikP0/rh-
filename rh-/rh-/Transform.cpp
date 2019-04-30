@@ -10,7 +10,10 @@ Transform::Transform()
 	_position = dxmath::Vector3::Zero;
 	_scale = dxmath::Vector3::One;
 	_rotation = dxmath::Quaternion::Identity;
-	_localRotation = dxmath::Vector3::Zero;
+	//_localRotation = dxmath::Vector3::Zero;
+
+	_localRotation = dxmath::Matrix::CreateFromQuaternion(_rotation).Backward();
+	_localRotation.Normalize();
 }
 
 Transform::~Transform()
@@ -19,7 +22,7 @@ Transform::~Transform()
 
 std::shared_ptr<Transform> Transform::Translate(const dxmath::Vector3 & position, float time)
 {
-	return SetPosition((_position + position) + _localRotation * time);
+	return SetPosition((_position + position) +_localRotation * time);
 }
 
 std::shared_ptr<Transform> Transform::Scale(const dxmath::Vector3 & scale)
@@ -36,14 +39,8 @@ std::shared_ptr<Transform> Transform::Rotate(const dxmath::Vector3 & axis, float
 {
 	_rotation *= dxmath::Quaternion::CreateFromAxisAngle(axis, angle);
 	
-	
-	dxmath::Matrix matTemp;
 
-
-	matTemp = dxmath::Matrix::CreateFromQuaternion(_rotation);
-
-
-	_localRotation = matTemp.Backward();
+	_localRotation = dxmath::Matrix::CreateFromQuaternion(_rotation).Backward();
 
 
 	_localRotation.Normalize();
