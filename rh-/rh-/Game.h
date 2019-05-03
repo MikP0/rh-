@@ -16,6 +16,7 @@
 #include "EntityManager.h"
 #include "SceneManager.h"
 #include "PhysicsComponent.h"
+#include "RenderableSystem.h"
 
 #include "PhysicsSystem.h"
 #include "AudioSystem.h"
@@ -83,7 +84,8 @@ private:
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
 
 	//Managers
-	std::unique_ptr<EntityManager> entityManager;
+	std::shared_ptr<EntityManager> entityManager;
+	std::shared_ptr<ComponentFactory> componentFactory;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;
@@ -164,4 +166,6 @@ private:
 	std::shared_ptr<AudioSystem> audioSystem;
 	std::shared_ptr<AudioComponent> audioBackgroundSound;
 	std::shared_ptr<AudioComponent> audioSound1;
+
+	std::shared_ptr<RenderableSystem> renderableSystem;
 };

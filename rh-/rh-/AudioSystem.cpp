@@ -2,7 +2,7 @@
 #include "AudioSystem.h"
 
 
-AudioSystem::AudioSystem()
+AudioSystem::AudioSystem(std::shared_ptr<EntityManager> entityManager) : System(entityManager)
 {
 	_componentsType.name = "Audio";
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
@@ -154,6 +154,10 @@ void AudioSystem::InsertComponent(AudioComponentPtr component)
 {
 	_components.push_back(component);
 	SetComponentAudioFile(component);
+}
+
+void AudioSystem::Initialize()
+{
 }
 
 void AudioSystem::Iterate()
