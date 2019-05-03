@@ -4,7 +4,7 @@
 
 AudioSystem::AudioSystem(std::shared_ptr<EntityManager> entityManager) : System(entityManager)
 {
-	_componentsType.name = "Audio";
+	_componentsType._name = "Audio";
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
 	#ifdef _DEBUG
 	eflags = eflags | AudioEngine_Debug;
@@ -130,7 +130,7 @@ std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType
 
 	for each (ComponentPtr component in allComponents)
 	{
-		if (dynamic_pointer_cast<AudioComponent>(component)->GetType().name.compare(componentType.name) == 0)
+		if (dynamic_pointer_cast<AudioComponent>(component)->GetType()._name.compare(componentType._name) == 0)
 		{
 			selectedComponents.push_back(component);
 		}

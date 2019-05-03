@@ -407,9 +407,9 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->Bounding.Center);
 	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->Bounding.Center);
 
-	renderableSystem->Iterate();
+	//renderableSystem->Iterate();
 
-	//myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity3->Model->Draw(context, *m_states, myEntity3->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity4->Model->Draw(context, *m_states, myEntity4->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
@@ -656,7 +656,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld.CreateTranslation(planePos);
 
 	//Audio
-	audioSystem = std::make_shared<AudioSystem>();
+	audioSystem = std::make_shared<AudioSystem>(entityManager);
 	audioBackgroundSound = std::make_shared<AudioComponent>("Resources\\Audio\\Happyrock.wav", 0.0f);
 	audioBackgroundSound->Loop = true;
 	audioSound1 = std::make_shared<AudioComponent>("Resources\\Audio\\Explo1.wav", 0.0f);
