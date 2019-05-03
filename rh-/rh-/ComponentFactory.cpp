@@ -12,6 +12,7 @@ ComponentFactory::~ComponentFactory()
 
 void ComponentFactory::CreateComponent(int entityId, std::shared_ptr<Component> component)
 {
+	//component->SetParent(entity);
 	_entityManager->AddComponent(entityId, component);
 }
 

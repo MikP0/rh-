@@ -459,7 +459,6 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	componentFactory = std::make_shared<ComponentFactory>(entityManager);
 
-
 	renderableSystem = std::make_shared<RenderableSystem>(entityManager, device, context);
 
 

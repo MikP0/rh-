@@ -5,17 +5,12 @@
 #include "StepTimer.h"
 
 class RenderableSystem :
-	public System, DX::IDeviceNotify
+	public System
 {
 public:
 	
 	RenderableSystem(std::shared_ptr<EntityManager> entityManager, ID3D11Device1* device, ID3D11DeviceContext1* context);
 	~RenderableSystem();
-
-	// IDeviceNotify
-	virtual void OnDeviceLost() override;
-	virtual void OnDeviceRestored() override;
-
 
 	virtual void Iterate() override;
 	virtual void Initialize() override;

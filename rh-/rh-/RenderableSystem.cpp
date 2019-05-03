@@ -19,19 +19,6 @@ RenderableSystem::~RenderableSystem()
 {
 }
 
-void RenderableSystem::OnDeviceLost()
-{
-	for (auto renderableComponent : _entityManager->GetComponents(_componentsType))
-	{
-		std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model.reset();
-	}
-}
-
-void RenderableSystem::OnDeviceRestored()
-{
-	Initialize();
-}
-
 void RenderableSystem::Iterate()
 {
 	//std::shared_ptr<RenderableComponent> temporaryComponent;
