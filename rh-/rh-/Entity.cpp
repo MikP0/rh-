@@ -13,6 +13,7 @@ Entity::Entity()
 	_id = ++nextId;
 	_parent = nullptr;
 	_name = "Entity " + std::to_string(_id);
+	_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 }
 
 Entity::Entity(const std::string name)
@@ -21,6 +22,7 @@ Entity::Entity(const std::string name)
 	_id = ++nextId;
 	_parent = nullptr;
 	_name = name;
+	_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 }
 
 Entity::Entity(const Entity & entity)
