@@ -169,6 +169,9 @@
     <ClInclude Include="RenderableSystem.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="OctTree.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -298,6 +301,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="RenderableSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="OctTree.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

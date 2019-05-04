@@ -179,6 +179,7 @@
     <ClInclude Include="ModelSK.h" />
     <ClInclude Include="ModelSkinned.h" />
     <ClInclude Include="MyGame.h" />
+    <ClInclude Include="OctTree.h" />
     <ClInclude Include="Pass.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="AudioSystem.h" />
@@ -261,6 +262,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="OctTree.cpp" />
     <ClCompile Include="Pass.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
