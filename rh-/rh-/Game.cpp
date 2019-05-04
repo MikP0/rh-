@@ -4,6 +4,9 @@
 
 #include "pch.h"
 #include "Game.h"
+#include "System.h"
+#include "RenderableSystem.h"
+#include "RenderableComponent.h"
 
 extern void ExitGame();
 
@@ -23,7 +26,7 @@ namespace
 
 
 Game::Game() noexcept(false) : m_pitch(0), m_yaw(0)
-{
+{	
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
 }
@@ -31,6 +34,7 @@ Game::Game() noexcept(false) : m_pitch(0), m_yaw(0)
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
+
 	m_deviceResources->SetWindow(window, width, height);
 
 	m_deviceResources->CreateDeviceResources();
@@ -38,6 +42,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 	m_deviceResources->CreateWindowSizeDependentResources();
 	CreateWindowSizeDependentResources();
+
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
 	// e.g. for 60 FPS fixed timestep update logic, call:
@@ -402,6 +407,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->Bounding.Center);
 	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->Bounding.Center);
 
+	//renderableSystem->Iterate();
 
 	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
@@ -516,6 +522,7 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	// TODO: Initialize device dependent objects here (independent of window size).
 
+
 	m_states = std::make_unique<CommonStates>(device);
 
 	m_fxFactory = std::make_unique<EffectFactory>(device);
@@ -530,6 +537,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 {
 	auto size = m_deviceResources->GetOutputSize();										// backBufferWidth/backBufferHeight - > size
 	// TODO: Initialize windows-size dependent objects here.
+	
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f);
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
@@ -541,13 +549,22 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 {
 	m_world = Matrix::Identity;
 
-	entityManager = std::make_unique<EntityManager>();
+	entityManager = std::make_shared<EntityManager>();
+
+	componentFactory = std::make_shared<ComponentFactory>(entityManager);
+
+	renderableSystem = std::make_shared<RenderableSystem>(entityManager, device, context);
+
 
 	sceneWallEntity = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity2 = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity3 = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity4 = entityManager->GetEntity(entityManager->CreateEntity());
+
+	std::shared_ptr<RenderableComponent> renderableComponent = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+
+	componentFactory->CreateComponent(myEntity1, renderableComponent);
 
 	sceneWallEntity->SetWorldMatrix(m_world);
 
@@ -582,7 +599,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	initialBounding1Radius = 0.3f;
 	initialBounding2Radius = 0.8f;
 
-	collisionSystem = std::make_shared<PhysicsSystem>();
+	collisionSystem = std::make_shared<PhysicsSystem>(entityManager);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);
@@ -639,7 +656,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld.CreateTranslation(planePos);
 
 	//Audio
-	audioSystem = std::make_shared<AudioSystem>();
+	audioSystem = std::make_shared<AudioSystem>(entityManager);
 	audioBackgroundSound = std::make_shared<AudioComponent>("Resources\\Audio\\Happyrock.wav", 0.0f);
 	audioBackgroundSound->Loop = true;
 	audioSound1 = std::make_shared<AudioComponent>("Resources\\Audio\\Explo1.wav", 0.0f);

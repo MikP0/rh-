@@ -15,7 +15,8 @@ typedef shared_ptr<AudioComponent> AudioComponentPtr;
 class AudioSystem : public System
 {
 public:
-	AudioSystem();
+
+	AudioSystem(std::shared_ptr<EntityManager> entityManager);
 	~AudioSystem();
 
 	string GetComponentPath(AudioComponentPtr audioComponent);
@@ -41,7 +42,8 @@ public:
 	virtual void UpdateComponentsCollection() override;
 
 	void InsertComponent(AudioComponentPtr component); // temporary function for tests
-	
+
+	virtual void Initialize() override;
 	virtual void Iterate() override;
 
 private:
