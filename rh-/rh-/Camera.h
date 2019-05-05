@@ -28,6 +28,7 @@ public:
 	const float GetYaw() const;
 	const float GetNearZ() const;
 	const float GetFarZ() const;
+	const XMFLOAT3 GetZoom() const;
 
 	void SetScreenWidth(int width);
 	void SetScreenHeight(int height);
@@ -35,6 +36,9 @@ public:
 	void SetYaw(float newYaw);
 	void SetNearZ(float nearZplane);
 	void SetFarZ(float farZplane);
+	void SetZoom(XMFLOAT3 zoom);
+	void ZoomIn();
+	void ZoomOut();
 
 	void SetPosition(const XMVECTOR & pos);
 	void SetPosition(float x, float y, float z);
@@ -76,4 +80,5 @@ private:
 	float nearZ, farZ;
 	float pitch;
 	float yaw;
+	XMFLOAT3 zoom;
 };

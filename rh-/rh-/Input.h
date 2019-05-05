@@ -78,6 +78,7 @@ public:
 	static SimpleMath::Vector2 GetMousePosition();
 	static void SetWindowForMouse(HWND window);
 	static void SetMouseMode(DirectX::Mouse::Mode mode);
+	static void ResetWheel();
 
 private:
 	static unique_ptr<Keyboard> _keyboard;

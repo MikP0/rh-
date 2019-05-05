@@ -11,12 +11,10 @@ class Transform : public std::enable_shared_from_this<Transform>
 {
 public:
 	Transform(void);
-	//TODO: Check if constructor with parameters is needed
-
 
 	virtual ~Transform();
 
-	std::shared_ptr<Transform> Translate(const dxmath::Vector3 &position);
+	std::shared_ptr<Transform> Translate(const dxmath::Vector3 &position, float time);
 	std::shared_ptr<Transform> Scale(const dxmath::Vector3 &scale);
 	std::shared_ptr<Transform> Scale(float &scale);
 	std::shared_ptr<Transform> Rotate(const dxmath::Vector3 &axis, float angle);
@@ -36,5 +34,5 @@ private:
 	dxmath::Vector3 _position;
 	dxmath::Quaternion _rotation;
 	dxmath::Vector3 _scale;
-
+	dxmath::Vector3 _localRotation;
 };

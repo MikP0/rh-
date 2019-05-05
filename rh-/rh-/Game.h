@@ -130,6 +130,7 @@ private:
 		{availableKeys::two, actionList::special2},
 		{availableKeys::three, actionList::special3},
 		{availableKeys::four, actionList::special4}
+
 	};
 	std::shared_ptr<Entity> inputEntity;
 	

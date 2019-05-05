@@ -14,7 +14,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace
 {
-	const XMVECTORF32 ROOM_BOUNDS = { 8.f, 6.f, 12.f, 0.f };
+	const XMVECTORF32 ROOM_BOUNDS = { 15.f, 6.f, 12.f, 0.f };
 	const float ROTATION_GAIN = 0.008f;
 	const float MOVEMENT_GAIN = 0.07f;
 
@@ -22,7 +22,15 @@ namespace
 }
 
 
-Game::Game() noexcept(false) : m_pitch(0), m_yaw(0)
+/*
+	Tymczasowa zmienna !!!!!!
+*/
+bool angel = true;
+Mouse::ButtonStateTracker tracker;
+Vector3 destination = Vector3::Zero;
+Vector3 step = Vector3::Zero;
+
+Game::Game() noexcept(false) : m_pitch(0.f), m_yaw(0.f)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -83,7 +91,7 @@ void Game::Update(DX::StepTimer const& timer)
 	Vector3 tempCamera;
 	Vector3 move = Vector3::Zero;
 
-	if (mouse.positionMode == Mouse::MODE_RELATIVE)
+	/*if (mouse.positionMode == Mouse::MODE_RELATIVE)
 	{
 		Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f)
 			* ROTATION_GAIN;
@@ -106,30 +114,18 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			m_yaw += XM_PI * 2.0f;
 		}
+	}*/
+
+	if (mouse.scrollWheelValue > 0) {
+		camera.ZoomIn();
+		Input::ResetWheel();
+
+	}
+	if (mouse.scrollWheelValue < 0) {
+		camera.ZoomOut();
+		Input::ResetWheel();
 	}
 
-	/*m_mouse->SetMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-
-	if (keyboard.Escape)
-		ExitGame();
-
-	if (keyboard.PageUp || keyboard.Space)
-		move.y += 1.f;
-
-	if (keyboard.PageDown || keyboard.LeftControl)
-		move.y -= 1.f;
-
-	if (keyboard.Left || keyboard.A)
-		move.x += 1.f;
-
-	if (keyboard.Right || keyboard.D)
-		move.x -= 1.f;
-
-	if (keyboard.Up || keyboard.W)
-		move.z += 1.f;
-
-	if (keyboard.Down || keyboard.S)
-		move.z -= 1.f;*/
 
 	std::vector<actionList> pushedKeysActions = Input::GetActions();
 	Input::SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
@@ -154,16 +150,18 @@ void Game::Update(DX::StepTimer const& timer)
 		if (*iter == actionList::right)
 			move.x -= 1.f;
 
-		if (*iter == actionList::forward)
+		if (*iter == actionList::forward) {
 			move.z += 1.f;
+		}
 
-		if (*iter == actionList::backward)
+		if (*iter == actionList::backward) {
 			move.z -= 1.f;
+		}
 
 		if (*iter == moveFor)
 		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
-			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, 0.03f));
+			
+			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, 1.0f))*elapsedTime * 0.001f, elapsedTime);
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
@@ -171,8 +169,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (*iter == moveBac)
 		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(0.f));
-			mSkinModelTransform->Translate(Vector3(0.0f, 0.0f, -0.03f));
+			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, -1.0f))*elapsedTime * 0.001f, -elapsedTime);
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
@@ -180,20 +177,12 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (*iter == moveLeft)
 		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
-			mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(150.f * elapsedTime));
 		}
 
 		if (*iter == moveRight)
 		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
-			mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-150.f * elapsedTime));
 		}
 
 		if (*iter == special1)
@@ -211,24 +200,43 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 	}
 
-	if (pushedKeysActions.size() == 0)
+	if (pushedKeysActions.size() == 0 && step == Vector3(0.f, 0.f, 0.f))
 	{
 		mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
 		mSkinModel->SetInMove(true);
 	}
 
-	move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
-	move *= MOVEMENT_GAIN;
-	tempCamera = camera.GetPositionVector();
-	tempCamera += move;
-	camera.SetPosition(tempCamera);
+	tracker.Update(mouse);
+	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED) {
+		destination = Raycast::GetPointOnGround(camera);
+		//destination.y = mSkinModelTransform->GetPosition().y;
+		step = destination - mSkinModelTransform->GetPosition();
+		step = step / 100;
+
+		
+		float dot = mSkinModelTransform->GetTransformMatrix().Forward().x * (destination - mSkinModelTransform->GetPosition()).x + mSkinModelTransform->GetTransformMatrix().Forward().z * (destination - mSkinModelTransform->GetPosition()).z;
+		float cross = mSkinModelTransform->GetTransformMatrix().Forward().x * (destination - mSkinModelTransform->GetPosition()).z - mSkinModelTransform->GetTransformMatrix().Forward().z * (destination - mSkinModelTransform->GetPosition()).x;
+		float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
+		mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+	
+	}
+
+	//move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
+	//move *= MOVEMENT_GAIN;
+	//tempCamera = camera.GetPositionVector();
+	//tempCamera += move;
+	//camera.SetPosition(tempCamera);
 
 	Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f)) - Vector3(0.1f, 0.1f, 0.1f);
 
-	camera.SetPosition(Vector3::Min(camera.GetPositionVector(), halfBound));
-	camera.SetPosition(Vector3::Max(camera.GetPositionVector(), -halfBound));
+	//camera.SetPosition(Vector3::Min(camera.GetPositionVector(), halfBound));
+	//camera.SetPosition(Vector3::Max(camera.GetPositionVector(), -halfBound));
+	//tempCamera = camera.GetPositionVector();
+	//tempCamera = tempCamera * zoom;
+	camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom()));
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
+	camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
 	////////
 
 	UpdateObjects(elapsedTime);
@@ -242,6 +250,18 @@ void Game::UpdateObjects(float elapsedTime)
 	auto mouse = Input::GetMouseState();
 	static shared_ptr<Entity> selectedCollider;
 
+	if (destination != Vector3::Zero) {
+		if (!XMVector3NearEqual(destination, mSkinModelTransform->GetPosition(), Vector3(.001f, .001f, .001f))){												
+			mSkinModelTransform->SetPosition(mSkinModelTransform->GetPosition() + step);
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+		else {
+			step = Vector3(0.f, 0.f, 0.f);
+		}
+	}
+
 	// check collisions
 	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
 	XMVECTORF32 collider1Color = DirectX::Colors::White;
@@ -253,11 +273,12 @@ void Game::UpdateObjects(float elapsedTime)
 	CollisionPtr collisionBetweenCups = collisionSystem->CheckCollision(colliderCup1, colliderCup2);
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1);
+	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity1->Update();
-	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2);
+	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 	myEntity2->Update();
 	myEntity3->Update();
+
 
 	if (mouse.rightButton)
 	{
@@ -265,7 +286,7 @@ void Game::UpdateObjects(float elapsedTime)
 		//myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
 		myEntity4->GetTransform()->SetPosition(posOnGround);
 	}
-		
+
 	myEntity4->Update();
 
 	if (mouse.middleButton)
@@ -490,6 +511,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
+	camera.SetZoom(XMFLOAT3(0.f, 0.f, 0.f));
 }
 
 void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context)
