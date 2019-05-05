@@ -4,6 +4,9 @@
 
 #include "pch.h"
 #include "Game.h"
+#include "System.h"
+#include "RenderableSystem.h"
+#include "RenderableComponent.h"
 
 extern void ExitGame();
 
@@ -39,6 +42,7 @@ Game::Game() noexcept(false) : m_pitch(0.f), m_yaw(0.f)
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
+
 	m_deviceResources->SetWindow(window, width, height);
 
 	m_deviceResources->CreateDeviceResources();
@@ -46,6 +50,7 @@ void Game::Initialize(HWND window, int width, int height)
 
 	m_deviceResources->CreateWindowSizeDependentResources();
 	CreateWindowSizeDependentResources();
+
 
 	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
 	// e.g. for 60 FPS fixed timestep update logic, call:
@@ -198,6 +203,35 @@ void Game::Update(DX::StepTimer const& timer)
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
+
+		static float delayAudio = 0.0f;
+		/*if (*iter == playBackground)
+		{
+			if (delayAudio <= 0.0f)
+			{
+				audioBackgroundSound->Mute = false;
+			}
+			else
+			{
+				audioBackgroundSound->Mute = true;
+			}
+			
+		}*/
+
+		if (*iter == playBackground)
+		{
+			audioBackgroundSound->Mute = false;
+		}
+
+		if (*iter == playSound1)
+		{
+			audioSound1->Mute = false;
+		}
+
+		/*if (delayAudio <= 0.0f)
+			delayAudio = 0.05f;
+		else
+			delayAudio -= elapsedTime;*/
 	}
 
 	if (pushedKeysActions.size() == 0 && step == Vector3(0.f, 0.f, 0.f))
@@ -238,6 +272,10 @@ void Game::Update(DX::StepTimer const& timer)
 	camera.SetYaw(m_yaw);
 	camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
 	////////
+
+	//Audio
+	audioSystem->UpdateTime(elapsedTime);
+	audioSystem->Iterate();
 
 	UpdateObjects(elapsedTime);
 
@@ -326,6 +364,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 	//billboarding
 	planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
+
 }
 
 #pragma endregion
@@ -389,6 +428,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->Bounding.Center);
 	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->Bounding.Center);
 
+	//renderableSystem->Iterate();
 
 	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
@@ -443,6 +483,9 @@ void Game::OnDeactivated()
 void Game::OnSuspending()
 {
 	// TODO: Game is being power-suspended (or minimized).
+
+	//Audio
+	audioSystem->Suspend();
 }
 
 void Game::OnResuming()
@@ -450,6 +493,9 @@ void Game::OnResuming()
 	m_timer.ResetElapsedTime();
 
 	// TODO: Game is being power-resumed (or returning from minimize).
+
+	//Audio
+	audioSystem->Resume();
 }
 
 void Game::OnWindowMoved()
@@ -469,6 +515,11 @@ void Game::OnWindowSizeChanged(int width, int height)
 	CreateWindowSizeDependentResources();
 
 	// TODO: Game window is being resized.
+}
+
+void Game::OnNewAudioDevice()
+{
+	audioSystem->RetryAudio();
 }
 
 // Properties
@@ -492,6 +543,7 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	// TODO: Initialize device dependent objects here (independent of window size).
 
+
 	m_states = std::make_unique<CommonStates>(device);
 
 	m_fxFactory = std::make_unique<EffectFactory>(device);
@@ -506,6 +558,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 {
 	auto size = m_deviceResources->GetOutputSize();										// backBufferWidth/backBufferHeight - > size
 	// TODO: Initialize windows-size dependent objects here.
+	
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f);
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
@@ -518,13 +571,22 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 {
 	m_world = Matrix::Identity;
 
-	entityManager = std::make_unique<EntityManager>();
+	entityManager = std::make_shared<EntityManager>();
+
+	componentFactory = std::make_shared<ComponentFactory>(entityManager);
+
+	renderableSystem = std::make_shared<RenderableSystem>(entityManager, device, context);
+
 
 	sceneWallEntity = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity2 = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity3 = entityManager->GetEntity(entityManager->CreateEntity());
 	myEntity4 = entityManager->GetEntity(entityManager->CreateEntity());
+
+	std::shared_ptr<RenderableComponent> renderableComponent = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+
+	componentFactory->CreateComponent(myEntity1, renderableComponent);
 
 	sceneWallEntity->SetWorldMatrix(m_world);
 
@@ -559,7 +621,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	initialBounding1Radius = 0.3f;
 	initialBounding2Radius = 0.8f;
 
-	collisionSystem = std::make_shared<PhysicsSystem>();
+	collisionSystem = std::make_shared<PhysicsSystem>(entityManager);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);
@@ -614,6 +676,14 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld = m_world;
 	planePos = Vector3(2.0f, 0.f, 4.0f);
 	planeWorld.CreateTranslation(planePos);
+
+	//Audio
+	audioSystem = std::make_shared<AudioSystem>(entityManager);
+	audioBackgroundSound = std::make_shared<AudioComponent>("Resources\\Audio\\Happyrock.wav", 0.0f);
+	audioBackgroundSound->Loop = true;
+	audioSound1 = std::make_shared<AudioComponent>("Resources\\Audio\\Explo1.wav", 0.0f);
+	audioSystem->InsertComponent(audioBackgroundSound);
+	audioSystem->InsertComponent(audioSound1);
 }
 
 void Game::OnDeviceLost()

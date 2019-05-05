@@ -163,6 +163,12 @@
     <ClInclude Include="Raycast.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="RenderableComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderableSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -288,6 +294,12 @@
     <ClCompile Include="Raycast.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="RenderableComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderableSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -324,5 +336,13 @@
     <FxCompile Include="content\Effects\SkinnedModel.fx">
       <Filter>Inc\Skinning\Content</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\Audio\Explo1.wav">
+      <Filter>Assets</Filter>
+    </Media>
+    <Media Include="Resources\Audio\Happyrock.wav">
+      <Filter>Assets</Filter>
+    </Media>
   </ItemGroup>
 </Project>

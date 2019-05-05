@@ -23,7 +23,5 @@ PhysicsComponent::~PhysicsComponent()
 
 ComponentType PhysicsComponent::GetType(void)
 {
-	ComponentType componentType;
-	componentType.name = "Physics";
-	return componentType;
+	return ComponentType("Physics");
 }

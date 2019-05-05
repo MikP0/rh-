@@ -6,13 +6,13 @@
 
 Camera::Camera()
 {
-	this->pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	this->posVector = XMLoadFloat3(&this->pos);
-	this->rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	this->rotVector = XMLoadFloat3(&this->rot);
-	this->UpdateViewMatrix();
-	this->pitch = 0.0f;
-	this->yaw = 0.0f;
+	pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	posVector = XMLoadFloat3(&pos);
+	rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	rotVector = XMLoadFloat3(&rot);
+	UpdateViewMatrix();
+	pitch = 0.0f;
+	yaw = 0.0f;
 }
 
 Camera::~Camera()
