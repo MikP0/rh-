@@ -5,6 +5,7 @@
 class PhysicsComponent : public Component
 {
 public:
+	bool isTrigger;
 	std::shared_ptr<ColliderBase> ColliderBounding;
 
 	PhysicsComponent();
