@@ -9,16 +9,35 @@ using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
-class OctTree
+struct MyBoundingBox
+{
+	BoundingBox Box;
+	Vector3 Min, Max;
+
+	MyBoundingBox() {};
+
+	MyBoundingBox(BoundingBox box) : Box(box) 
+	{
+		Min = Vector3(box.Center - box.Extents);
+		Max = Vector3(box.Center + box.Extents);
+	};
+
+	MyBoundingBox(Vector3 min, Vector3 max) : Min(min), Max(max)
+	{
+		Vector3 half = Vector3(Max - Min) / 2.0f;
+		Vector3 center = Min + half;
+
+		Box.Center = center;
+		Box.Extents = half;
+	};
+
+	~MyBoundingBox() {};
+};
+
+class OctTree : public enable_shared_from_this<OctTree>
 {
 public:
-	OctTree();
-	OctTree(BoundingBox region);
-	~OctTree();
-	void UpdateTree();
-
-private:
-	BoundingBox _region;
+	MyBoundingBox _region;
 	list<shared_ptr<PhysicsComponent>> _objects;
 
 	/*These are items which we're waiting to insert into the data structure. 
@@ -54,6 +73,14 @@ private:
 	/*there is no pre - existing tree yet*/
 	static bool _treeBuilt;
 
-	OctTree(BoundingBox region, list<shared_ptr<PhysicsComponent>> objList);
+	OctTree();
+	OctTree(MyBoundingBox region);
+	OctTree(MyBoundingBox region, list<shared_ptr<PhysicsComponent>> objList);
+	~OctTree();
+	
+	void UpdateTree();
+	void BuildTree();
+	shared_ptr<OctTree> CreateNode(MyBoundingBox region, list<shared_ptr<PhysicsComponent>> objList);
+	shared_ptr<OctTree> CreateNode(MyBoundingBox region, shared_ptr<PhysicsComponent> Item);
 };
 
