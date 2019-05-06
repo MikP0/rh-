@@ -15,6 +15,7 @@ public:
 	OctTree();
 	OctTree(BoundingBox region);
 	~OctTree();
+	void UpdateTree();
 
 private:
 	BoundingBox _region;

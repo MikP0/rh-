@@ -7,6 +7,7 @@ there can be lots of nodes.*/
 #include "pch.h"
 #include "OctTree.h"
 
+queue<shared_ptr<PhysicsComponent>> OctTree::_pendingInsertion;
 bool OctTree::_treeReady = false;
 bool OctTree::_treeBuilt = false;
 
@@ -44,4 +45,30 @@ OctTree::OctTree(BoundingBox region)
 
 OctTree::~OctTree()
 {
+}
+
+void OctTree::UpdateTree() //complete & tested 
+{
+	if (!_treeBuilt)
+	{
+		while (_pendingInsertion.size() != 0)
+		{
+			shared_ptr<PhysicsComponent> element = _pendingInsertion.front();
+			_pendingInsertion.pop();
+			_objects.push_back(element);
+		}
+			
+		//BuildTree();
+	}
+	else
+	{
+		while (_pendingInsertion.size() != 0)
+		{
+			shared_ptr<PhysicsComponent> element = _pendingInsertion.front();
+			_pendingInsertion.pop();
+			//Insert(element);
+		}
+	}
+
+	_treeReady = true;
 }
