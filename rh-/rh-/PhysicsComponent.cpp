@@ -3,11 +3,13 @@
 
 PhysicsComponent::PhysicsComponent()
 {
+	isTrigger = false;
 	ColliderBounding = std::make_shared<ColliderAABB>();
 }
 
 PhysicsComponent::PhysicsComponent(ColliderType colliderType)
 {
+	isTrigger = false;
 	if (colliderType == AABB)
 		ColliderBounding = std::make_shared<ColliderAABB>();
 	else

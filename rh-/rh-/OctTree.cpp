@@ -99,10 +99,10 @@ void OctTree::BuildTree() //complete & tested
 	octant[1] = make_shared<MyBoundingBox>(Vector3(center.x, _region.Min.y, _region.Min.z), Vector3(_region.Max.x, center.y, center.z));
 	octant[2] = make_shared<MyBoundingBox>(Vector3(center.x, _region.Min.y, center.z), Vector3(_region.Max.x, center.y, _region.Max.z));
 	octant[3] = make_shared<MyBoundingBox>(Vector3(_region.Min.x, _region.Min.y, center.z), Vector3(center.x, center.y, _region.Max.z));
-	octant[4] = make_shared<MyBoundingBox>(Vector3(_region.Min.x, center.y, _region.Min.z), new Vector3(center.x, _region.Max.y, center.z));
+	octant[4] = make_shared<MyBoundingBox>(Vector3(_region.Min.x, center.y, _region.Min.z), Vector3(center.x, _region.Max.y, center.z));
 	octant[5] = make_shared<MyBoundingBox>(Vector3(center.x, center.y, _region.Min.z), Vector3(_region.Max.x, _region.Max.y, center.z));
 	octant[6] = make_shared<MyBoundingBox>(center, _region.Max);
-	octant[7] = make_shared<MyBoundingBox>(Vector3(_region.Min.x, center.y, center.z), new Vector3(center.x, _region.Max.y, _region.Max.z));
+	octant[7] = make_shared<MyBoundingBox>(Vector3(_region.Min.x, center.y, center.z), Vector3(center.x, _region.Max.y, _region.Max.z));
 
 }
 

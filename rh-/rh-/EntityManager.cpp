@@ -84,6 +84,20 @@ std::vector<std::shared_ptr<Component>> EntityManager::GetComponents(ComponentTy
 	return components;
 }
 
+std::vector<std::shared_ptr<Component>> EntityManager::GetEntityComponentsOfType(int entityId, ComponentType componentType)
+{
+	std::vector<std::shared_ptr<Component>> components;
+
+	for (auto pair : _entityComponentMap)
+	{
+		if (pair.first == entityId && pair.second->GetType()._name == componentType._name) {
+			components.emplace_back(pair.second);
+		}
+	}
+	
+	return components;
+}
+
 void EntityManager::AddComponent(int id, std::shared_ptr<Component> component)
 {
 	_entityComponentMap.insert(std::make_pair(id, component));
