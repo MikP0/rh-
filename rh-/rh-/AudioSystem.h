@@ -28,7 +28,6 @@ public:
 	float GetComponentVolume(AudioComponentPtr audioComponent);
 	void SetComponentVolume(AudioComponentPtr audioComponent, float volume);
 	void SetComponentAudioFile(AudioComponentPtr audioComponent);
-	void UpdateTime(float time);
 	void Suspend();
 	void Resume();
 	void RetryAudio();
@@ -48,9 +47,9 @@ public:
 
 private:
 	vector<AudioComponentPtr> _components;
-	float _elapsedTime, _delayTime;
 	unique_ptr<DirectX::AudioEngine> _audioEngine;
 	bool _retryAudio;
-
+	const float LOOP_DELAY_TIME = 0.2;
+	const float LOOP_DELAY_STEP = 0.02;
 };
 

@@ -2,7 +2,7 @@
 #include "AudioSystem.h"
 
 
-AudioSystem::AudioSystem(std::shared_ptr<EntityManager> entityManager) : System(entityManager)
+AudioSystem::AudioSystem(shared_ptr<EntityManager> entityManager) : System(entityManager)
 {
 	_componentsType._name = "Audio";
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
@@ -69,12 +69,6 @@ void AudioSystem::SetComponentAudioFile(AudioComponentPtr audioComponent)
 	audioComponent->AudioLoopInstance = audioComponent->AudioFile->CreateInstance();
 }
 
-void AudioSystem::UpdateTime(float time)
-{
-	_elapsedTime = time;
-	_delayTime -= _elapsedTime;
-}
-
 void AudioSystem::Suspend()
 {
 	_audioEngine->Suspend();
@@ -100,43 +94,44 @@ void AudioSystem::PlayAudio(AudioComponentPtr audioComponent)
 
 void AudioSystem::StopAudio(AudioComponentPtr audioComponent)
 {
-	audioComponent->Mute = true;
 	audioComponent->AudioLoopInstance->Stop(false);
 }
 
 void AudioSystem::StopAudioImmediately(AudioComponentPtr audioComponent)
 {
-	audioComponent->Mute = true;
 	audioComponent->AudioLoopInstance->Stop(true);
 }
 
 void AudioSystem::PauseAudio(AudioComponentPtr audioComponent)
 {
-	audioComponent->Mute = true;
 	audioComponent->AudioLoopInstance->Pause();
 }
 
 void AudioSystem::ResumeAudio(AudioComponentPtr audioComponent)
 {
-	audioComponent->Mute = false;
 	audioComponent->AudioLoopInstance->Resume();
 }
 
+// zastanowic sie czy ta funkcja nie jest do usuniecia z System
 std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType)
 {
-	vector<ComponentPtr> allComponents;
-	vector<ComponentPtr> selectedComponents;
-	//allComponents = componentManager.GetAllComponents();
+	//vector<ComponentPtr> allComponents;
+	//vector<ComponentPtr> selectedComponents;
+	////allComponents = componentManager.GetAllComponents();
 
-	for each (ComponentPtr component in allComponents)
-	{
-		if (dynamic_pointer_cast<AudioComponent>(component)->GetType()._name.compare(componentType._name) == 0)
-		{
-			selectedComponents.push_back(component);
-		}
-	}
+	//for each (ComponentPtr component in allComponents)
+	//{
+	//	if (dynamic_pointer_cast<AudioComponent>(component)->GetType()._name.compare(componentType._name) == 0)
+	//	{
+	//		selectedComponents.push_back(component);
+	//	}
+	//}
 
-	return selectedComponents;
+	//return selectedComponents;
+
+	vector<ComponentPtr> result = _entityManager->GetComponents(_componentsType);
+
+	return result;
 }
 
 void AudioSystem::UpdateComponentsCollection()
@@ -158,6 +153,25 @@ void AudioSystem::InsertComponent(AudioComponentPtr component)
 
 void AudioSystem::Initialize()
 {
+	int backgroundAudioEntityID = _entityManager->CreateEntity("BackgroundAudioEntity");
+	int sound1AudioEntityID = _entityManager->CreateEntity("Sound1AudioEntity");
+
+	shared_ptr<AudioComponent> backgroundAudioComponent = std::make_shared<AudioComponent>("Resources\\Audio\\In The End.wav");
+	backgroundAudioComponent->Loop = true;
+	SetComponentAudioFile(backgroundAudioComponent);
+	shared_ptr<AudioComponent> sound1AudioComponent = make_shared<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+	SetComponentAudioFile(sound1AudioComponent);
+
+	_entityManager->AddComponent(backgroundAudioEntityID, backgroundAudioComponent);
+	_entityManager->AddComponent(sound1AudioEntityID, sound1AudioComponent);
+
+	vector<shared_ptr<Component>> components = _entityManager->GetComponents(ComponentType("Audio"));
+
+	for each (shared_ptr<Component> component in components)
+	{
+		_components.push_back(dynamic_pointer_cast<AudioComponent>(component));
+	}
+	auto test = _components;
 }
 
 void AudioSystem::Iterate()
@@ -186,11 +200,11 @@ void AudioSystem::Iterate()
 	{
 		SoundState soundState = component->AudioLoopInstance->GetState();
 		
-		/*if (shouldResetAudio)
+		if (shouldResetAudio)
 		{
 			PlayAudio(component);
 			continue;
-		}*/
+		}
 
 		if (component->Loop)
 		{
@@ -199,37 +213,47 @@ void AudioSystem::Iterate()
 				if (!component->Mute)
 				{
 					PlayAudio(component);
-					component->Mute = true;
-					continue;
+					component->Delay = LOOP_DELAY_TIME;
 				}
 
 				component->Mute = true;
 				continue;
 			}
 			
-			/*if (soundState == PLAYING)
+			if (soundState == PLAYING)
 			{
-				if (!component->Mute)
+				if (component->Delay > 0)
+				{
+					component->Delay -= LOOP_DELAY_STEP;
+				}
+
+				if (!component->Mute && component->Delay <= 0)
 				{
 					PauseAudio(component);
-					continue;
+					component->Delay = LOOP_DELAY_TIME;
 				}
 				
 				component->Mute = true;
 				continue;
-			}*/
+			}
 
-			/*if (soundState == PAUSED)
+			if (soundState == PAUSED)
 			{
-				if (!component->Mute)
+				if (component->Delay > 0)
+				{
+					component->Delay -= LOOP_DELAY_STEP;
+				}
+
+				if (!component->Mute && component->Delay <= 0)
 				{
 					ResumeAudio(component);
+					component->Delay = LOOP_DELAY_TIME;
 					continue;
 				}
 				
 				component->Mute = true;
 				continue;
-			}*/
+			}
 		}
 		else
 		{
@@ -238,7 +262,6 @@ void AudioSystem::Iterate()
 				if (!component->Mute)
 				{
 					PlayAudio(component);
-					continue;
 				}
 
 				component->Mute = true;

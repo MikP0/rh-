@@ -274,7 +274,6 @@ void Game::Update(DX::StepTimer const& timer)
 	////////
 
 	//Audio
-	audioSystem->UpdateTime(elapsedTime);
 	audioSystem->Iterate();
 
 	UpdateObjects(elapsedTime);
@@ -683,11 +682,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	//Audio
 	audioSystem = std::make_shared<AudioSystem>(entityManager);
-	audioBackgroundSound = std::make_shared<AudioComponent>("Resources\\Audio\\Happyrock.wav", 0.0f);
-	audioBackgroundSound->Loop = true;
-	audioSound1 = std::make_shared<AudioComponent>("Resources\\Audio\\Explo1.wav", 0.0f);
-	audioSystem->InsertComponent(audioBackgroundSound);
-	audioSystem->InsertComponent(audioSound1);
+	audioSystem->Initialize();
+	audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
+	audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
 }
 
 void Game::OnDeviceLost()
