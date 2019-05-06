@@ -101,6 +101,10 @@ void Input::SetMouseMode(Mouse::Mode mode)
 	_mouse->SetMode(mode);
 }
 
+void Input::ResetWheel() {
+	_mouse->ResetScrollWheelValue();
+}
+
 vector<actionList> Input::GetActions()
 {
 	vector<actionList> pushedBindedKeys;
