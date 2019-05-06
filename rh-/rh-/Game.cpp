@@ -428,12 +428,12 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->Bounding.Center);
 	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->Bounding.Center);
 
-	//renderableSystem->Iterate();
+	renderableSystem->Iterate();
 
-	myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	myEntity3->Model->Draw(context, *m_states, myEntity3->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	myEntity4->Model->Draw(context, *m_states, myEntity4->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	//myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	//myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	//myEntity3->Model->Draw(context, *m_states, myEntity3->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	//myEntity4->Model->Draw(context, *m_states, myEntity4->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 
 	m_boundingEntity1->Draw(boundingMatrix1, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider1Color, nullptr, true);
@@ -585,30 +585,34 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity4 = entityManager->GetEntity(entityManager->CreateEntity());
 
 	std::shared_ptr<RenderableComponent> renderableComponent = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+	std::shared_ptr<RenderableComponent> renderableComponent2 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+	std::shared_ptr<RenderableComponent> renderableComponent3 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+	std::shared_ptr<RenderableComponent> renderableComponent4 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
 
 	componentFactory->CreateComponent(myEntity1, renderableComponent);
+	componentFactory->CreateComponent(myEntity2, renderableComponent2);
+	componentFactory->CreateComponent(myEntity3, renderableComponent3);
+	componentFactory->CreateComponent(myEntity4, renderableComponent4);
 
-	sceneWallEntity->SetWorldMatrix(m_world);
 
 	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
 
-	myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity1->SetWorldMatrix(m_world);
+	renderableSystem->Initialize();
+
+	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
 	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
 
-	myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity2->SetWorldMatrix(m_world);
+	//myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
 
-	myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity3->SetWorldMatrix(m_world);
+	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity3->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
-	myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	myEntity4->SetWorldMatrix(m_world);
+	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	myEntity4->GetTransform()->SetScale(scaleEntity4);
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
 
