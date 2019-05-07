@@ -13,6 +13,7 @@ Transform::Transform()
 	_localRotation = dxmath::Vector3::Zero;
 	//_localRotation = dxmath::Matrix::CreateFromQuaternion(_rotation).Backward();
 	//_localRotation.Normalize();
+	_updatedMoveFlag = false;
 }
 
 Transform::~Transform()
@@ -62,6 +63,11 @@ dxmath::Vector3 Transform::GetScale(void) const
 	return _scale;
 }
 
+bool Transform::GetUpdatedMoveFlag() const
+{
+	return _updatedMoveFlag;
+}
+
 dxmath::Matrix Transform::GetTransformMatrix(void) const
 {
 	DirectX::XMVECTOR rotation = DirectX::XMVectorSet(_rotation.x, _rotation.y, _rotation.z, _rotation.w);
@@ -73,6 +79,7 @@ dxmath::Matrix Transform::GetTransformMatrix(void) const
 std::shared_ptr<Transform> Transform::SetPosition(const dxmath::Vector3 position)
 {
 	_position = position;
+	_updatedMoveFlag = true;
 	return shared_from_this();
 }
 
@@ -86,6 +93,11 @@ std::shared_ptr<Transform> Transform::SetScale(const dxmath::Vector3 scale)
 {
 	this->_scale = scale;
 	return shared_from_this();
+}
+
+void Transform::SetUpdatedMoveFlag(bool state)
+{
+	_updatedMoveFlag = state;
 }
 
 dxmath::Vector3 Multiply(dxmath::Matrix mat, dxmath::Vector3 vec)

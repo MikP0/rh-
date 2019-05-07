@@ -4,6 +4,7 @@
 #include "Entity.h"
 
 using namespace DirectX;
+using namespace DirectX::SimpleMath;
 
 typedef std::shared_ptr<Entity> EntityPtr;
 
@@ -39,6 +40,7 @@ public:
 		Bounding.Center = center;
 		Bounding.Radius = radius;
 	};
+
 	~ColliderSphere() {};
 };
 
@@ -46,6 +48,7 @@ class ColliderAABB : public ColliderBase
 {
 public:
 	BoundingBox Bounding;
+	Vector3 Min, Max;
 
 	ColliderAABB() : ColliderBase(AABB) {};
 
@@ -53,7 +56,19 @@ public:
 	{
 		Bounding.Center = center;
 		Bounding.Extents = extents;
+		Min = Vector3(Bounding.Center - Bounding.Extents);
+		Max = Vector3(Bounding.Center + Bounding.Extents);
 	};
+
+	ColliderAABB(Vector3 min, Vector3 max, bool flagMinMax) : ColliderBase(AABB), Min(min), Max(max)
+	{
+		Vector3 half = Vector3(Max - Min) / 2.0f;
+		Vector3 center = Min + half;
+
+		Bounding.Center = center;
+		Bounding.Extents = half;
+	};
+
 	~ColliderAABB() {};
 };
 
@@ -71,6 +86,7 @@ public:
 		Origin = origin;
 		Direction = direction;
 	};
+
 	~ColliderRay() {};
 };
 

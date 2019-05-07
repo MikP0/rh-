@@ -204,20 +204,6 @@ void Game::Update(DX::StepTimer const& timer)
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
 
-		static float delayAudio = 0.0f;
-		/*if (*iter == playBackground)
-		{
-			if (delayAudio <= 0.0f)
-			{
-				audioBackgroundSound->Mute = false;
-			}
-			else
-			{
-				audioBackgroundSound->Mute = true;
-			}
-			
-		}*/
-
 		if (*iter == playBackground)
 		{
 			audioBackgroundSound->Mute = false;
@@ -227,11 +213,6 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			audioSound1->Mute = false;
 		}
-
-		/*if (delayAudio <= 0.0f)
-			delayAudio = 0.05f;
-		else
-			delayAudio -= elapsedTime;*/
 	}
 
 	if (pushedKeysActions.size() == 0 && step == Vector3(0.f, 0.f, 0.f))

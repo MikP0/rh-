@@ -286,6 +286,14 @@ void PhysicsSystem::UpdateComponentsCollection()
 	}
 }
 
+void PhysicsSystem::ResetAllUpdatePositionFlags()
+{
+	for each(PhysicsComponentPtr component in _components)
+	{
+		component->GetParent()->GetTransform()->SetUpdatedMoveFlag(false);
+	}
+}
+
 void PhysicsSystem::InsertComponent(PhysicsComponentPtr component)
 {
 	_components.push_back(component);
@@ -296,6 +304,7 @@ void PhysicsSystem::Iterate()
 	for each (PhysicsComponentPtr component in _components)
 	{
 
+		ResetAllUpdatePositionFlags();
 	}
 }
 
