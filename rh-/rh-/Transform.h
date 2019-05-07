@@ -22,17 +22,20 @@ public:
 	dxmath::Vector3 GetPosition(void) const;
 	dxmath::Quaternion GetRotation(void) const;
 	dxmath::Vector3 GetScale(void) const;
+	bool GetUpdatedMoveFlag(void) const;
 
 	dxmath::Matrix GetTransformMatrix(void) const;
 
 	std::shared_ptr<Transform> SetPosition(const dxmath::Vector3 position);
 	std::shared_ptr<Transform> SetRotation(const dxmath::Quaternion rotation);
 	std::shared_ptr<Transform> SetScale(const dxmath::Vector3 scale);
-
+	void SetUpdatedMoveFlag(bool state);
+	
 
 private:
 	dxmath::Vector3 _position;
 	dxmath::Quaternion _rotation;
 	dxmath::Vector3 _scale;
 	dxmath::Vector3 _localRotation;
+	bool _updatedMoveFlag;
 };

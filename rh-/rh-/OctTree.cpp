@@ -186,3 +186,89 @@ shared_ptr<OctTree> OctTree::CreateNode(shared_ptr<ColliderAABB> region, shared_
 	ret->_parent = shared_from_this();
 	return ret;
 }
+
+bool OctTree::HasChildren()
+{
+	bool hasChildren = false;
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (_childNode[i] != nullptr)
+		{
+			hasChildren = true;
+			break;
+		}
+	}
+
+	return hasChildren;
+}
+
+void OctTree::Update(float time)
+{
+	if (_treeBuilt == true && _treeReady == true)
+	{
+		//Start a count down death timer for any leaf nodes which don't have objects or children.
+		//when the timer reaches zero, we delete the leaf. If the node is reused before death, we double its lifespan.
+		//this gives us a "frequency" usage score and lets us avoid allocating and deallocating memory unnecessarily
+		if (_objects.size() == 0)
+		{
+			bool hasChildren;
+			int childrenAmount = 0;
+
+			for (int i = 0; i < 8; i++)
+			{
+				if (_childNode != nullptr)
+					childrenAmount++;
+			}
+
+			if (HasChildren() == false)
+			{
+				if (_curLife == -1)
+					_curLife = _maxLifespan;
+				else if (_curLife > 0)
+				{
+					_curLife--;
+				}
+			}
+		}
+		else
+		{
+			if (_curLife != -1)
+			{
+				if (_maxLifespan <= 64)
+					_maxLifespan *= 2;
+				_curLife = -1;
+			}
+		}
+
+		list<shared_ptr<PhysicsComponent>> movedObjects(_objects.size());
+		
+		//go through and update every object in the current tree node
+		for each(shared_ptr<PhysicsComponent> gameObj in _objects)
+		{
+			//we should figure out if an object actually moved so that we know whether we need to update this node in the tree.
+			if (gameObj->GetParent()->GetTransform()->GetUpdatedMoveFlag() == true)
+			{
+				movedObjects.push_back(gameObj);
+			}
+		}
+
+		//prune any dead objects from the tree.
+		for each(shared_ptr<PhysicsComponent> object in _objects)
+		{
+			if (!object->CheckIfEnabled() == false)
+			{
+				list<shared_ptr<PhysicsComponent>>::iterator it;
+				it = std::find(movedObjects.begin(), movedObjects.end(), object);
+
+				if (it != movedObjects.end())
+					movedObjects.erase(it);
+
+				_objects.remove(object);
+			}
+		}
+		
+		// DOKONCZYC ! 
+
+	}
+}
