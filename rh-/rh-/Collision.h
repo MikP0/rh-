@@ -4,6 +4,7 @@
 #include "Entity.h"
 
 using namespace DirectX;
+using namespace DirectX::SimpleMath;
 
 typedef std::shared_ptr<Entity> EntityPtr;
 

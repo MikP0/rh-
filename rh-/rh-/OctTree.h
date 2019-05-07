@@ -13,7 +13,7 @@ using namespace DirectX::SimpleMath;
 class OctTree : public enable_shared_from_this<OctTree>
 {
 public:
-	ColliderAABB _region;
+	shared_ptr<ColliderAABB> _region;
 	list<shared_ptr<PhysicsComponent>> _objects;
 
 	/*These are items which we're waiting to insert into the data structure. 
@@ -50,13 +50,13 @@ public:
 	static bool _treeBuilt;
 
 	OctTree();
-	OctTree(ColliderAABB region);
-	OctTree(ColliderAABB region, list<shared_ptr<PhysicsComponent>> objList);
+	OctTree(shared_ptr<ColliderAABB> region);
+	OctTree(shared_ptr<ColliderAABB> region, list<shared_ptr<PhysicsComponent>> objList);
 	~OctTree();
 	
 	void UpdateTree();
 	void BuildTree();
-	shared_ptr<OctTree> CreateNode(ColliderAABB region, list<shared_ptr<PhysicsComponent>> objList);
-	shared_ptr<OctTree> CreateNode(ColliderAABB region, shared_ptr<PhysicsComponent> Item);
+	shared_ptr<OctTree> CreateNode(shared_ptr<ColliderAABB> region, list<shared_ptr<PhysicsComponent>> objList);
+	shared_ptr<OctTree> CreateNode(shared_ptr<ColliderAABB> region, shared_ptr<PhysicsComponent> Item);
 };
 
