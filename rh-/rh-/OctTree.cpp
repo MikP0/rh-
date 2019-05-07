@@ -13,7 +13,7 @@ bool OctTree::_treeBuilt = false;
 
 //The bounding region for the oct tree. 
 //The list of objects contained within the bounding region 
-OctTree::OctTree(MyBoundingBox region, list<shared_ptr<PhysicsComponent>> objList)
+OctTree::OctTree(ColliderAABB region, list<shared_ptr<PhysicsComponent>> objList)
 {
 	_region = region;
 	_objects = objList;
@@ -22,11 +22,11 @@ OctTree::OctTree(MyBoundingBox region, list<shared_ptr<PhysicsComponent>> objLis
 
 OctTree::OctTree()
 {
-	for (int i = 0; i < 8; i++)
-		_childNode[i] = make_shared<OctTree>();
+	//for (int i = 0; i < 8; i++)
+	//	_childNode[i] = make_shared<OctTree>();
 
 	_objects = list<shared_ptr<PhysicsComponent>>();
-	_region = MyBoundingBox(Vector3::Zero, Vector3::Zero);
+	_region = ColliderAABB(Vector3::Zero, Vector3::Zero);
 	_curLife = -1;
 }
 
@@ -36,7 +36,7 @@ OctTree::OctTree()
 
 ///The suggested dimensions for the bounding region. 
 ///Note: if items are outside this region, the region will be automatically resized. 
-OctTree::OctTree(MyBoundingBox region)
+OctTree::OctTree(ColliderAABB region)
 {
 	_region = region;
 	_objects = list<shared_ptr<PhysicsComponent>>();
@@ -90,23 +90,66 @@ void OctTree::BuildTree() //complete & tested
 		return;
 	}
 
-	Vector3 center = _region.Box.Center;
+	Vector3 center = _region.Bounding.Center;
 
 	//Create subdivided regions for each octant
-	shared_ptr<MyBoundingBox> octant[8];
+	shared_ptr<ColliderAABB> octant[8];
 
-	octant[0] = make_shared<MyBoundingBox>(_region.Min, center);
-	octant[1] = make_shared<MyBoundingBox>(Vector3(center.x, _region.Min.y, _region.Min.z), Vector3(_region.Max.x, center.y, center.z));
-	octant[2] = make_shared<MyBoundingBox>(Vector3(center.x, _region.Min.y, center.z), Vector3(_region.Max.x, center.y, _region.Max.z));
-	octant[3] = make_shared<MyBoundingBox>(Vector3(_region.Min.x, _region.Min.y, center.z), Vector3(center.x, center.y, _region.Max.z));
-	octant[4] = make_shared<MyBoundingBox>(Vector3(_region.Min.x, center.y, _region.Min.z), Vector3(center.x, _region.Max.y, center.z));
-	octant[5] = make_shared<MyBoundingBox>(Vector3(center.x, center.y, _region.Min.z), Vector3(_region.Max.x, _region.Max.y, center.z));
-	octant[6] = make_shared<MyBoundingBox>(center, _region.Max);
-	octant[7] = make_shared<MyBoundingBox>(Vector3(_region.Min.x, center.y, center.z), Vector3(center.x, _region.Max.y, _region.Max.z));
+	octant[0] = make_shared<ColliderAABB>(_region.Min, center, true);
+	octant[1] = make_shared<ColliderAABB>(Vector3(center.x, _region.Min.y, _region.Min.z), Vector3(_region.Max.x, center.y, center.z), true);
+	octant[2] = make_shared<ColliderAABB>(Vector3(center.x, _region.Min.y, center.z), Vector3(_region.Max.x, center.y, _region.Max.z), true);
+	octant[3] = make_shared<ColliderAABB>(Vector3(_region.Min.x, _region.Min.y, center.z), Vector3(center.x, center.y, _region.Max.z), true);
+	octant[4] = make_shared<ColliderAABB>(Vector3(_region.Min.x, center.y, _region.Min.z), Vector3(center.x, _region.Max.y, center.z), true);
+	octant[5] = make_shared<ColliderAABB>(Vector3(center.x, center.y, _region.Min.z), Vector3(_region.Max.x, _region.Max.y, center.z), true);
+	octant[6] = make_shared<ColliderAABB>(center, _region.Max, true);
+	octant[7] = make_shared<ColliderAABB>(Vector3(_region.Min.x, center.y, center.z), Vector3(center.x, _region.Max.y, _region.Max.z), true);
+
+	//This will contain all of our objects which fit within each respective octant.
+	list<shared_ptr<PhysicsComponent>> octList[8];
+
+	for (int i = 0; i < 8; i++)
+		octList[i] = list<shared_ptr<PhysicsComponent>>();
+
+	//this list contains all of the objects which got moved down the tree and can be delisted from this node.
+	list<shared_ptr<PhysicsComponent>> delist;
+
+	for each(shared_ptr<PhysicsComponent> obj in _objects)
+	{
+		ColliderType ColliderType = obj->ColliderBounding->Type;
+
+		if (ColliderType == ColliderType::AABB)
+		{
+			shared_ptr<ColliderAABB> objBoundingBox = dynamic_pointer_cast<ColliderAABB>(obj->ColliderBounding);
+
+			for (int a = 0; a < 8; a++)
+			{
+				if (octant[a]->Bounding.Contains(objBoundingBox->Bounding) == ContainmentType::CONTAINS)
+				{
+					octList[a].push_back(obj);
+					delist.push_back(obj);
+					break;
+				}
+			}
+		}
+		else if (ColliderType == ColliderType::Sphere)
+		{
+			shared_ptr<ColliderSphere> objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(obj->ColliderBounding);
+
+			for (int a = 0; a < 8; a++)
+			{
+				if (octant[a]->Bounding.Contains(objBoundingSphere->Bounding) == ContainmentType::CONTAINS)
+				{
+					octList[a].push_back(obj);
+					delist.push_back(obj);
+					break;
+				}
+			}
+		}
+	}
 
 }
 
-shared_ptr<OctTree> OctTree::CreateNode(MyBoundingBox region, list<shared_ptr<PhysicsComponent>> objList) //complete & tested
+shared_ptr<OctTree> OctTree::CreateNode(ColliderAABB region, list<shared_ptr<PhysicsComponent>> objList) //complete & tested
 {
 	if (objList.size() == 0)
 		return nullptr;
@@ -115,7 +158,7 @@ shared_ptr<OctTree> OctTree::CreateNode(MyBoundingBox region, list<shared_ptr<Ph
 	return ret;
 }
 
-shared_ptr<OctTree> OctTree::CreateNode(MyBoundingBox region, shared_ptr<PhysicsComponent> Item)
+shared_ptr<OctTree> OctTree::CreateNode(ColliderAABB region, shared_ptr<PhysicsComponent> Item)
 {
 	list<shared_ptr<PhysicsComponent>> objList(1); //sacrifice potential CPU time for a smaller memory footprint
 	objList.push_back(Item);
