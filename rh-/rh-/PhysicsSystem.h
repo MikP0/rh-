@@ -37,6 +37,8 @@ public:
 	virtual std::vector<ComponentPtr> GetComponents(ComponentType componentType) override;
 	virtual void UpdateComponentsCollection() override;
 
+	void ResetAllUpdatePositionFlags();
+
 	void InsertComponent(PhysicsComponentPtr component); // temporary function for tests
 
 	virtual void Iterate() override;

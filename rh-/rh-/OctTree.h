@@ -58,5 +58,8 @@ public:
 	void BuildTree();
 	shared_ptr<OctTree> CreateNode(shared_ptr<ColliderAABB> region, list<shared_ptr<PhysicsComponent>> objList);
 	shared_ptr<OctTree> CreateNode(shared_ptr<ColliderAABB> region, shared_ptr<PhysicsComponent> Item);
+	bool HasChildren();
+	void Update(float time);
+
 };
 
