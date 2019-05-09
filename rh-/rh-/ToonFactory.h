@@ -31,13 +31,10 @@ public:
 
 	void __cdecl SetDirectory(_In_opt_z_ const wchar_t* path);
 
-
-	// for Effects
-	void __cdecl SetWorld(DirectX::FXMMATRIX value);
-	//void __cdecl SetView(DirectX::FXMMATRIX value);
-	//void __cdecl SetProjection(DirectX::FXMMATRIX value);
-	//void __cdecl SetMatrices(DirectX::FXMMATRIX world, DirectX::CXMMATRIX view, DirectX::CXMMATRIX projection);
-	//void __cdecl SetCameraPosition(DirectX::XMFLOAT3 value);
+	// Lights
+	void AddPointLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Position, float Radius);
+	void AddDirectLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction);
+	void AddSpotLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction, float OuterAngle, DirectX::XMFLOAT3 Position, float InnerAngle, float Radius);
 
 private:
 	// Private implementation.

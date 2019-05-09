@@ -242,6 +242,7 @@ void Game::Update(DX::StepTimer const& timer)
 	tracker.Update(mouse);
 	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED) {
 		destination = Raycast::GetPointOnGround(camera);
+		//destination.y = -3.f;	// FLOOR LEVEL
 		//destination.y = mSkinModelTransform->GetPosition().y;
 		step = destination - mSkinModelTransform->GetPosition();
 		step = step / 100;
@@ -603,24 +604,27 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	renderableSystem->Initialize();
 
-	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	renderableSystem->_fxFactory->AddPointLight(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(-2.0f, 0.0f, -2.0f), 3.0f);
+	renderableSystem->_fxFactory->AddPointLight(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(-2.0f, 0.0f, 2.0f), 3.0f);
+	renderableSystem->_fxFactory->AddPointLight(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -1.0f, 1.0f), 3.0f);
+	renderableSystem->_fxFactory->AddSpotLight(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, XMFLOAT3(0.0f, 2.0f, 0.0f), 0.75f, 10.0f);
 
+
+	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
 	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
 
-	//myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	//myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
 
-	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity3->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
-	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity4->GetTransform()->SetScale(scaleEntity4);
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
-
-
 
 	myEntity1->AddChild(myEntity3);
 
@@ -712,7 +716,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld = planeWorld * XMMatrixTranslation(-2.0f, 0.0f, -2.0f);
 	planeWorld2 = planeWorld2 * XMMatrixTranslation(-2.0f, 0.0f, 2.0f);
 	planeWorld3 = planeWorld3 * XMMatrixTranslation(2.0f, -1.0f, 1.0f);
-	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 3.0f, 0.0f);
+	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
 	//Audio
 	audioSystem = std::make_shared<AudioSystem>(entityManager);

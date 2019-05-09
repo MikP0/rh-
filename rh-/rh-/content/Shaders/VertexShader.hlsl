@@ -1,5 +1,7 @@
 #include "Include\\Common.fxh"
 
+#define MAX_NUMBER_OF_LIGHT 10
+
 cbuffer StaticBuffer : register(b0)
 {
 	//For Tex and Mat
@@ -11,9 +13,11 @@ cbuffer StaticBuffer : register(b0)
 	float4 SpecularColor;
 
 	//Lights
-	POINT_LIGHT PointLight[3];
-	DIRECTIONAL_LIGHT DirectionalLight[3];
-	SPOT_LIGHT SpotLight[3];
+	POINT_LIGHT PointLight[MAX_NUMBER_OF_LIGHT];
+	DIRECTIONAL_LIGHT DirectionalLight[MAX_NUMBER_OF_LIGHT];
+	SPOT_LIGHT SpotLight[MAX_NUMBER_OF_LIGHT];
+
+	float4 NumOfLights;	//x - point, y - dir, z - spot
 };
 
 //------------------------------------------------------------------------------

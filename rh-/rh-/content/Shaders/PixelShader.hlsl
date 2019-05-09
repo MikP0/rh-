@@ -1,9 +1,6 @@
 #include "Include\\Common.fxh"
 
-#define NUM_POINT_LIGHTS 3
-#define NUM_DIRECT_LIGHTS 0
-#define NUM_REF_LIGHTS 1
-
+#define MAX_NUMBER_OF_LIGHT 10
 
 cbuffer StaticBuffer : register(b0)
 {
@@ -16,9 +13,11 @@ cbuffer StaticBuffer : register(b0)
 	float4 SpecularColor;
 
 	//Lights
-	POINT_LIGHT PointLight[3];
-	DIRECTIONAL_LIGHT DirectionalLight[3];
-	SPOT_LIGHT SpotLight[3];
+	POINT_LIGHT PointLight[MAX_NUMBER_OF_LIGHT];
+	DIRECTIONAL_LIGHT DirectionalLight[MAX_NUMBER_OF_LIGHT];
+	SPOT_LIGHT SpotLight[MAX_NUMBER_OF_LIGHT];
+
+	float4 NumOfLights;		//x - point, y - dir, z - spot
 };
 
 //------------------------------------------------------------------------------
@@ -77,6 +76,26 @@ float4 main(PixelShaderInput input) : SV_TARGET
 		color = ColorMap.Sample(ColorSampler, input.texCoord);
 	}
 
+	//// TOON
+	//float intensity = dot(normalize(lightDirection), input.normal);
+	//if (intensity < 0)
+	//	intensity = 0;
+
+	//color.a = 1;
+	//if (intensity > 0.95)
+	//	color = float4(1.0, 1.0, 1.0, 1.0) * color;
+	//else if (intensity > 0.8)
+	//	color = float4(0.8, 0.8, 0.8, 1.0) * color;
+	//else if (intensity > 0.6)
+	//	color = float4(0.6, 0.6, 0.6, 1.0) * color;
+	//else if (intensity > 0.4)
+	//	color = float4(0.4, 0.4, 0.4, 1.0) * color;
+	//else if (intensity > 0.2)
+	//	color = float4(0.2, 0.2, 0.2, 1.0) * color;
+	//else
+	//	color = float4(0.1, 0.1, 0.1, 1.0) * color;
+
+
 
 	// POINT LIGHTS
 	LIGHT_CONTRIBUTION_DATA lightContributionData;
@@ -89,7 +108,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 totalLightContribution = (float3)0;
 
 	[unroll]
-	for (int i = 0; i < NUM_POINT_LIGHTS; i++)
+	for (int i = 0; i < NumOfLights.x; i++)
 	{
 		lightContributionData.LightDirection = get_light_data(PointLight[i].Position, input.worldPosition, PointLight[i].Radius);
 		lightContributionData.LightColor = PointLight[i].Color;
@@ -102,7 +121,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float n_dot_l;
 	float3 diffuse;
 
-	for (int i = 0; i < NUM_DIRECT_LIGHTS; i++)
+	for (int i = 0; i < NumOfLights.y; i++)
 	{
 		lightDirection = normalize(-DirectionalLight[i].Direction);
 		n_dot_l = dot(lightDirection, normal);
@@ -117,7 +136,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 
 	// SPOT LIGHTS
 	float3 result;
-	for (int i = 0; i < NUM_REF_LIGHTS; i++)
+	for (int i = 0; i < NumOfLights.z; i++)
 	{
 		result = get_spot_light(SpotLight[i], color, normal, input.worldPosition, viewDirection, SpecularColor, SpecularPower);
 		totalLightContribution += result;

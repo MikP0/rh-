@@ -38,6 +38,11 @@ public:
 	void SetEmissiveColor(DirectX::XMFLOAT3 value);
 	void SetAlpha(float value);
 
+	// Lights
+	void AddPointLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Position, float Radius);
+	void AddDirectLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction);
+	void AddSpotLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction, float OuterAngle, DirectX::XMFLOAT3 Position, float InnerAngle, float Radius);
+
 private:
 	// Private implementation.
 	class Impl;

@@ -30,7 +30,7 @@ public:
 	bool mUseNormalMapEffect;
 	bool mForceSRGB;
 
-	typedef std::map< std::wstring, std::shared_ptr<IEffect> > EffectCache;
+	typedef std::map< std::wstring, std::shared_ptr<ToonEffect> > EffectCache;
 	EffectCache  mEffectCache;
 
 private:
@@ -240,48 +240,26 @@ void ToonFactory::SetDirectory(_In_opt_z_ const wchar_t* path)
 		*pImpl->mPath = 0;
 }
 
-void __cdecl ToonFactory::SetWorld(DirectX::FXMMATRIX value)
+void ToonFactory::AddPointLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Position, float Radius)
 {
-	// auto fxFactoryDGSL = dynamic_cast<DGSLEffectFactory*>(&fxFactory);
-
-	//auto toonEffect = dynamic_cast<ToonEffect*>
-
-	//for (std::map< std::wstring, std::shared_ptr<IEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
-	//{
-	//	auto toonEffect = static_cast<ToonEffect>(it->second);
-
-	//	//it->second->SetWorld(value);
-	//}
+	for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->AddPointLight(Color, Position, Radius);
+	}
 }
 
-//void __cdecl ToonFactory::SetView(DirectX::FXMMATRIX value)
-//{
-//	/*for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
-//	{
-//		it->second->SetView(value);
-//	}*/
-//}
-//
-//void __cdecl ToonFactory::SetProjection(DirectX::FXMMATRIX value)
-//{
-//	/*for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
-//	{
-//		it->second->SetProjection(value);
-//	}*/
-//}
-//
-//void __cdecl ToonFactory::SetMatrices(DirectX::FXMMATRIX world, DirectX::CXMMATRIX view, DirectX::CXMMATRIX projection)
-//{
-//	/*for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
-//	{
-//		it->second->SetMatrices(world, view, projection);
-//	}*/
-//}
-//
-//void __cdecl ToonFactory::SetCameraPosition(DirectX::XMFLOAT3 value)
-//{
-//	/*for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
-//	{
-//		it->second->SetCameraPosition(value);
-//	}*/
-//}
+void ToonFactory::AddDirectLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction)
+{
+	for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->AddDirectLight(Color, Direction);
+	}
+}
+
+void ToonFactory::AddSpotLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction, float OuterAngle, DirectX::XMFLOAT3 Position, float InnerAngle, float Radius)
+{
+	for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->AddSpotLight(Color, Direction, OuterAngle, Position, InnerAngle, Radius);
+	}
+}

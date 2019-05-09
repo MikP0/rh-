@@ -127,7 +127,7 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
 
 
 
-	if (intensity > 0.95)
+	/*if (intensity > 0.95)
 		color = float4(1.0, 1.0, 1.0, 1.0) * color;
 	else if (intensity > 0.8)
 		color = float4(0.8, 0.8, 0.8, 1.0) * color;
@@ -138,7 +138,7 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
 	else if (intensity > 0.2)
 		color = float4(0.2, 0.2, 0.2, 1.0) * color;
 	else
-		color = float4(0.1, 0.1, 0.1, 1.0) * color;
+		color = float4(0.1, 0.1, 0.1, 1.0) * color;*/
 
 
 

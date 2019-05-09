@@ -2,6 +2,9 @@
 
 using namespace DirectX;
 
+#define MAX_NUMBER_OF_LIGHT 10
+
+
 struct POINT_LIGHT
 {
 	DirectX::XMFLOAT3 Position;
@@ -35,9 +38,11 @@ struct StaticConstantBuffer
 	DirectX::XMFLOAT4 AmbientColor;
 	DirectX::XMFLOAT4 SpecularColor;
 
-	POINT_LIGHT PointLight[3];
-	DIRECTIONAL_LIGHT DirectionalLight[3];
-	SPOT_LIGHT SpotLight[3];
+	POINT_LIGHT PointLight[MAX_NUMBER_OF_LIGHT];
+	DIRECTIONAL_LIGHT DirectionalLight[MAX_NUMBER_OF_LIGHT];
+	SPOT_LIGHT SpotLight[MAX_NUMBER_OF_LIGHT];
+
+	DirectX::XMFLOAT4 NumOfLights;	//x - point, y - dir, z - spot
 };
 
 struct DynamicConstantBuffer
@@ -49,8 +54,6 @@ struct DynamicConstantBuffer
 	DirectX::XMFLOAT3 CameraPosition;
 	float IsTextured;
 };
-
-
 
 
 class ToonEffect::Impl
@@ -72,9 +75,16 @@ public:
 	XMVECTOR IsTextured;
 
 
+	POINT_LIGHT PointLights[MAX_NUMBER_OF_LIGHT];
+	DIRECTIONAL_LIGHT DirectionalLights[MAX_NUMBER_OF_LIGHT];
+	SPOT_LIGHT SpotLights[MAX_NUMBER_OF_LIGHT];
+	int NumOfPL = 0;
+	int NumOfDL = 0;
+	int NumOfSL = 0;
+	XMFLOAT4 NumOfLights;
 
-	XMVECTOR FillTo16 = { 0.0f };
-	XMVECTOR Fill3To16 = { 0.0f, 0.0f, 0.0f };
+	float FillTo16 = 0.0f;
+	XMFLOAT3 Fill3To16 = { 0.0f, 0.0f, 0.0f };
 
 	bool isSent = false;
 
@@ -122,101 +132,6 @@ ToonEffect::Impl::Impl(_In_ ID3D11Device* device)
 	AmbientColor = { 1.0f, 1.0f, 1.0f, 0.0f };
 	SpecularColor = { 1.0f, 1.0f, 1.0f, 0.0f };
 	SpecularPower = { 0.0 };
-
-	static const DirectX::XMVECTOR temp = { 0.0f };
-	static const DirectX::XMVECTOR temptemp = { 0.0f, 0.0f, 0.0f };
-	static const DirectX::XMVECTOR temptemptemp = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-
-	XMStoreFloat4(&m_staticData.DiffuseColor, temptemptemp);
-	XMStoreFloat3(&m_staticData.EmissiveColor, temptemp);
-	XMStoreFloat(&m_staticData.SpecularPower, SpecularPower);
-	XMStoreFloat4(&m_staticData.AmbientColor, AmbientColor);
-	XMStoreFloat4(&m_staticData.SpecularColor, SpecularColor);
-
-
-	static const DirectX::XMVECTOR lightData1Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightData1Pos = { -2.0f, 0.0f, -2.0f };
-	static const DirectX::XMVECTOR lightData1Ros = { 3.0f };
-	static const DirectX::XMVECTOR lightData2Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightData2Pos = { -2.0f, 0.0f, 2.0f };
-	static const DirectX::XMVECTOR lightData2Ros = { 3.0f };
-	static const DirectX::XMVECTOR lightData3Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightData3Pos = { 2.0f, -1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightData3Ros = { 3.0f };
-	XMStoreFloat4(&m_staticData.PointLight[0].Color, lightData1Col);
-	XMStoreFloat3(&m_staticData.PointLight[0].Position, lightData1Pos);
-	XMStoreFloat(&m_staticData.PointLight[0].Radius, lightData1Ros);
-	XMStoreFloat4(&m_staticData.PointLight[1].Color, lightData2Col);
-	XMStoreFloat3(&m_staticData.PointLight[1].Position, lightData2Pos);
-	XMStoreFloat(&m_staticData.PointLight[1].Radius, lightData2Ros);
-	XMStoreFloat4(&m_staticData.PointLight[2].Color, lightData3Col);
-	XMStoreFloat3(&m_staticData.PointLight[2].Position, lightData3Pos);
-	XMStoreFloat(&m_staticData.PointLight[2].Radius, lightData3Ros);
-
-
-	static const DirectX::XMVECTOR lightSun1Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightSun1Dir = { 0.0f, -1.0f, -3.0f };
-	static const DirectX::XMVECTOR lightSun2Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightSun2Dir = { -2.0f, 0.0f, -2.0f };
-	static const DirectX::XMVECTOR lightSun3Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightSun3Dir = { 2.0f, 0.0f, 2.0f };
-	XMStoreFloat4(&m_staticData.DirectionalLight[0].Color, lightSun1Col);
-	XMStoreFloat3(&m_staticData.DirectionalLight[0].Direction, lightSun1Dir);
-	XMStoreFloat4(&m_staticData.DirectionalLight[1].Color, lightSun2Col);
-	XMStoreFloat3(&m_staticData.DirectionalLight[1].Direction, lightSun2Dir);
-	XMStoreFloat4(&m_staticData.DirectionalLight[2].Color, lightSun3Col);
-	XMStoreFloat3(&m_staticData.DirectionalLight[2].Direction, lightSun3Dir);
-	XMStoreFloat(&m_staticData.DirectionalLight[0].EmptyTo16B, FillTo16);
-	XMStoreFloat(&m_staticData.DirectionalLight[1].EmptyTo16B, FillTo16);
-	XMStoreFloat(&m_staticData.DirectionalLight[2].EmptyTo16B, FillTo16);
-
-
-	static const DirectX::XMVECTOR lightRef1Dir = { 0.0f, 0.0f, 1.0f };
-	static const DirectX::XMVECTOR lightRef1Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightRef1Pos = { 0.0f, 3.0f, 0.0f };
-	static const DirectX::XMVECTOR lightRef1OuterAngle = { 0.25f };
-	static const DirectX::XMVECTOR lightRef1InnerAngle = { 0.75f };
-	static const DirectX::XMVECTOR lightRef1LightRadius = { 10.0f };
-	static const DirectX::XMVECTOR lightRef2Dir = { 0.0f, 0.0f, -2.0f };
-	static const DirectX::XMVECTOR lightRef2Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightRef2Pos = { 0.0f, 2.0f, 0.0f };
-	static const DirectX::XMVECTOR lightRef2OuterAngle = { 0.25f };
-	static const DirectX::XMVECTOR lightRef2InnerAngle = { 0.75f };
-	static const DirectX::XMVECTOR lightRef2LightRadius = { 10.0f };
-	static const DirectX::XMVECTOR lightRef3Dir = { 0.0f, 0.0f, -2.0f };
-	static const DirectX::XMVECTOR lightRef3Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-	static const DirectX::XMVECTOR lightRef3Pos = { 0.0f, 2.0f, 0.0f };
-	static const DirectX::XMVECTOR lightRef3OuterAngle = { 0.25f };
-	static const DirectX::XMVECTOR lightRef3InnerAngle = { 0.75f };
-	static const DirectX::XMVECTOR lightRef3LightRadius = { 10.0f };
-
-
-	XMStoreFloat3(&m_staticData.SpotLight[0].Direction, lightRef1Dir);
-	XMStoreFloat4(&m_staticData.SpotLight[0].Color, lightRef1Col);
-	XMStoreFloat3(&m_staticData.SpotLight[0].Position, lightRef1Pos);
-	XMStoreFloat(&m_staticData.SpotLight[0].OuterAngle, lightRef1OuterAngle);
-	XMStoreFloat(&m_staticData.SpotLight[0].InnerAngle, lightRef1InnerAngle);
-	XMStoreFloat(&m_staticData.SpotLight[0].Radius, lightRef1LightRadius);
-
-	XMStoreFloat3(&m_staticData.SpotLight[1].Direction, lightRef2Dir);
-	XMStoreFloat4(&m_staticData.SpotLight[1].Color, lightRef2Col);
-	XMStoreFloat3(&m_staticData.SpotLight[1].Position, lightRef2Pos);
-	XMStoreFloat(&m_staticData.SpotLight[1].OuterAngle, lightRef2OuterAngle);
-	XMStoreFloat(&m_staticData.SpotLight[1].InnerAngle, lightRef2InnerAngle);
-	XMStoreFloat(&m_staticData.SpotLight[1].Radius, lightRef2LightRadius);
-
-	XMStoreFloat3(&m_staticData.SpotLight[2].Direction, lightRef3Dir);
-	XMStoreFloat4(&m_staticData.SpotLight[2].Color, lightData3Col);
-	XMStoreFloat3(&m_staticData.SpotLight[2].Position, lightData3Pos);
-	XMStoreFloat(&m_staticData.SpotLight[2].OuterAngle, lightRef3OuterAngle);
-	XMStoreFloat(&m_staticData.SpotLight[2].InnerAngle, lightRef3InnerAngle);
-	XMStoreFloat(&m_staticData.SpotLight[2].Radius, lightRef3LightRadius);
-
-	XMStoreFloat3(&m_staticData.SpotLight[0].SpaceTo16B, Fill3To16);
-	XMStoreFloat3(&m_staticData.SpotLight[1].SpaceTo16B, Fill3To16);
-	XMStoreFloat3(&m_staticData.SpotLight[2].SpaceTo16B, Fill3To16);
-
 
 	m_camera.x = 0;
 	m_camera.y = 0;
@@ -278,93 +193,62 @@ void ToonEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 			XMStoreFloat4(&m_staticData.AmbientColor, AmbientColor);
 			XMStoreFloat4(&m_staticData.SpecularColor, SpecularColor);
 
+			for (int i = 0; i < NumOfPL; i++)
+			{
+				m_staticData.PointLight[i] = PointLights[i];
+			}
 
+			for (int i = 0; i < NumOfDL; i++)
+			{
+				m_staticData.DirectionalLight[i] = DirectionalLights[i];
+			}
 
+			for (int i = 0; i < NumOfSL; i++)
+			{
+				m_staticData.SpotLight[i] = SpotLights[i];
+			}
 
-			static const DirectX::XMVECTOR lightData1Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightData1Pos = { -2.0f, 0.0f, -2.0f };
-			static const DirectX::XMVECTOR lightData1Ros = { 3.0f };
-			static const DirectX::XMVECTOR lightData2Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightData2Pos = { -2.0f, 0.0f, 2.0f };
-			static const DirectX::XMVECTOR lightData2Ros = { 3.0f };
-			static const DirectX::XMVECTOR lightData3Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightData3Pos = { 2.0f, -1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightData3Ros = { 3.0f };
-			XMStoreFloat4(&m_staticData.PointLight[0].Color, lightData1Col);
-			XMStoreFloat3(&m_staticData.PointLight[0].Position, lightData1Pos);
-			XMStoreFloat(&m_staticData.PointLight[0].Radius, lightData1Ros);
-			XMStoreFloat4(&m_staticData.PointLight[1].Color, lightData2Col);
-			XMStoreFloat3(&m_staticData.PointLight[1].Position, lightData2Pos);
-			XMStoreFloat(&m_staticData.PointLight[1].Radius, lightData2Ros);
-			XMStoreFloat4(&m_staticData.PointLight[2].Color, lightData3Col);
-			XMStoreFloat3(&m_staticData.PointLight[2].Position, lightData3Pos);
-			XMStoreFloat(&m_staticData.PointLight[2].Radius, lightData3Ros);
+			NumOfLights.x = NumOfPL;
+			NumOfLights.y = NumOfDL;
+			NumOfLights.z = NumOfSL;
+			NumOfLights.w = 0.0f;
 
-			static const DirectX::XMVECTOR lightSun1Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightSun1Dir = { 0.0f, -1.0f, -3.0f };
-			static const DirectX::XMVECTOR lightSun2Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightSun2Dir = { -2.0f, 0.0f, -2.0f };
-			static const DirectX::XMVECTOR lightSun3Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightSun3Dir = { 2.0f, 0.0f, 2.0f };
-			XMStoreFloat4(&m_staticData.DirectionalLight[0].Color, lightSun1Col);
-			XMStoreFloat3(&m_staticData.DirectionalLight[0].Direction, lightSun1Dir);
-			XMStoreFloat4(&m_staticData.DirectionalLight[1].Color, lightSun2Col);
-			XMStoreFloat3(&m_staticData.DirectionalLight[1].Direction, lightSun2Dir);
-			XMStoreFloat4(&m_staticData.DirectionalLight[2].Color, lightSun3Col);
-			XMStoreFloat3(&m_staticData.DirectionalLight[2].Direction, lightSun3Dir);
-			XMStoreFloat(&m_staticData.DirectionalLight[0].EmptyTo16B, FillTo16);
-			XMStoreFloat(&m_staticData.DirectionalLight[1].EmptyTo16B, FillTo16);
-			XMStoreFloat(&m_staticData.DirectionalLight[2].EmptyTo16B, FillTo16);
-
-
-			static const DirectX::XMVECTOR lightRef1Dir = { 0.0f, 0.0f, 1.0f };
-			static const DirectX::XMVECTOR lightRef1Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightRef1Pos = { 0.0f, 3.0f, 0.0f };
-			static const DirectX::XMVECTOR lightRef1OuterAngle = { 0.25f };
-			static const DirectX::XMVECTOR lightRef1InnerAngle = { 0.75f };
-			static const DirectX::XMVECTOR lightRef1LightRadius = { 10.0f };
-			static const DirectX::XMVECTOR lightRef2Dir = { 0.0f, 0.0f, -2.0f };
-			static const DirectX::XMVECTOR lightRef2Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightRef2Pos = { 0.0f, 2.0f, 0.0f };
-			static const DirectX::XMVECTOR lightRef2OuterAngle = { 0.25f };
-			static const DirectX::XMVECTOR lightRef2InnerAngle = { 0.75f };
-			static const DirectX::XMVECTOR lightRef2LightRadius = { 10.0f };
-			static const DirectX::XMVECTOR lightRef3Dir = { 0.0f, 0.0f, -2.0f };
-			static const DirectX::XMVECTOR lightRef3Col = { 1.0f, 1.0f, 1.0f, 1.0f };
-			static const DirectX::XMVECTOR lightRef3Pos = { 0.0f, 2.0f, 0.0f };
-			static const DirectX::XMVECTOR lightRef3OuterAngle = { 0.25f };
-			static const DirectX::XMVECTOR lightRef3InnerAngle = { 0.75f };
-			static const DirectX::XMVECTOR lightRef3LightRadius = { 10.0f };
-
-
-			XMStoreFloat3(&m_staticData.SpotLight[0].Direction, lightRef1Dir);
-			XMStoreFloat4(&m_staticData.SpotLight[0].Color, lightRef1Col);
-			XMStoreFloat3(&m_staticData.SpotLight[0].Position, lightRef1Pos);
-			XMStoreFloat(&m_staticData.SpotLight[0].OuterAngle, lightRef1OuterAngle);
-			XMStoreFloat(&m_staticData.SpotLight[0].InnerAngle, lightRef1InnerAngle);
-			XMStoreFloat(&m_staticData.SpotLight[0].Radius, lightRef1LightRadius);
-
-			XMStoreFloat3(&m_staticData.SpotLight[1].Direction, lightRef2Dir);
-			XMStoreFloat4(&m_staticData.SpotLight[1].Color, lightRef2Col);
-			XMStoreFloat3(&m_staticData.SpotLight[1].Position, lightRef2Pos);
-			XMStoreFloat(&m_staticData.SpotLight[1].OuterAngle, lightRef2OuterAngle);
-			XMStoreFloat(&m_staticData.SpotLight[1].InnerAngle, lightRef2InnerAngle);
-			XMStoreFloat(&m_staticData.SpotLight[1].Radius, lightRef2LightRadius);
-
-			XMStoreFloat3(&m_staticData.SpotLight[2].Direction, lightRef3Dir);
-			XMStoreFloat4(&m_staticData.SpotLight[2].Color, lightData3Col);
-			XMStoreFloat3(&m_staticData.SpotLight[2].Position, lightData3Pos);
-			XMStoreFloat(&m_staticData.SpotLight[2].OuterAngle, lightRef3OuterAngle);
-			XMStoreFloat(&m_staticData.SpotLight[2].InnerAngle, lightRef3InnerAngle);
-			XMStoreFloat(&m_staticData.SpotLight[2].Radius, lightRef3LightRadius);
-
-			XMStoreFloat3(&m_staticData.SpotLight[0].SpaceTo16B, Fill3To16);
-			XMStoreFloat3(&m_staticData.SpotLight[1].SpaceTo16B, Fill3To16);
-			XMStoreFloat3(&m_staticData.SpotLight[2].SpaceTo16B, Fill3To16);
+			m_staticData.NumOfLights = NumOfLights;		
 		}
 		else
 		{
+			static const DirectX::XMVECTOR EmissiveColorTemp = { 0.0f, 0.0f, 0.0f };
+			static const DirectX::XMVECTOR DiffuseColorTemp = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+			XMStoreFloat4(&m_staticData.DiffuseColor, DiffuseColorTemp);
+			XMStoreFloat3(&m_staticData.EmissiveColor, EmissiveColorTemp);
+			XMStoreFloat(&m_staticData.SpecularPower, SpecularPower);
+			XMStoreFloat4(&m_staticData.AmbientColor, AmbientColor);
+			XMStoreFloat4(&m_staticData.SpecularColor, SpecularColor);
+
+			for (int i = 0; i < NumOfPL; i++)
+			{
+				m_staticData.PointLight[i] = PointLights[i];
+			}
+
+			for (int i = 0; i < NumOfDL; i++)
+			{
+				m_staticData.DirectionalLight[i] = DirectionalLights[i];
+			}
+
+			for (int i = 0; i < NumOfSL; i++)
+			{
+				m_staticData.SpotLight[i] = SpotLights[i];
+			}
+
 			IsTextured = { 1.0f };
+
+			NumOfLights.x = NumOfPL;
+			NumOfLights.y = NumOfDL;
+			NumOfLights.z = NumOfSL;
+			NumOfLights.w = 0.0f;
+
+			m_staticData.NumOfLights = NumOfLights;
 		}
 
 		isSent = true;
@@ -547,4 +431,41 @@ void ToonEffect::SetEmissiveColor(DirectX::XMFLOAT3 value)
 void ToonEffect::SetAlpha(float value)
 {
 	m_pImpl->alpha = value;
+}
+
+void ToonEffect::AddPointLight(XMFLOAT4 Color, XMFLOAT3 Position, float Radius)
+{
+	if (m_pImpl->NumOfPL < MAX_NUMBER_OF_LIGHT)
+	{
+		m_pImpl->PointLights[m_pImpl->NumOfPL].Color = Color;
+		m_pImpl->PointLights[m_pImpl->NumOfPL].Position = Position;
+		m_pImpl->PointLights[m_pImpl->NumOfPL].Radius = Radius;
+		m_pImpl->NumOfPL++;
+	}
+}
+
+void ToonEffect::AddDirectLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction)
+{
+	if (m_pImpl->NumOfDL < MAX_NUMBER_OF_LIGHT)
+	{
+		m_pImpl->DirectionalLights[m_pImpl->NumOfDL].Color = Color;
+		m_pImpl->DirectionalLights[m_pImpl->NumOfDL].Direction = Direction;
+		m_pImpl->DirectionalLights[m_pImpl->NumOfDL].EmptyTo16B = m_pImpl->FillTo16;
+		m_pImpl->NumOfDL++;
+	}
+}
+
+void ToonEffect::AddSpotLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction, float OuterAngle, DirectX::XMFLOAT3 Position, float InnerAngle, float Radius)
+{
+	if (m_pImpl->NumOfSL < MAX_NUMBER_OF_LIGHT)
+	{
+		m_pImpl->SpotLights[m_pImpl->NumOfSL].Color = Color;
+		m_pImpl->SpotLights[m_pImpl->NumOfSL].Direction = Direction;
+		m_pImpl->SpotLights[m_pImpl->NumOfSL].Position = Position;
+		m_pImpl->SpotLights[m_pImpl->NumOfSL].OuterAngle = OuterAngle;
+		m_pImpl->SpotLights[m_pImpl->NumOfSL].InnerAngle = InnerAngle;
+		m_pImpl->SpotLights[m_pImpl->NumOfSL].Radius = Radius;
+		m_pImpl->SpotLights[m_pImpl->NumOfSL].SpaceTo16B = m_pImpl->Fill3To16;
+		m_pImpl->NumOfSL++;
+	}
 }
