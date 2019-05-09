@@ -185,6 +185,9 @@
     <ClInclude Include="OctTree.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="ColliderTypes.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">

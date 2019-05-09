@@ -10,16 +10,25 @@ using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
+typedef shared_ptr<PhysicsComponent> PhysicsComponentPtr;
+typedef shared_ptr<ColliderSphere> ColliderSpherePtr;
+typedef shared_ptr<ColliderAABB> ColliderAABBptr;
+typedef shared_ptr<ColliderRay> ColliderRayPtr;
+typedef std::shared_ptr<Collision> CollisionPtr;
+typedef vector<ContainmentType> ContainmentTypeVector;
+
 class OctTree : public enable_shared_from_this<OctTree>
 {
 public:
-	shared_ptr<ColliderAABB> _region;
-	list<shared_ptr<PhysicsComponent>> _objects;
+	ColliderAABBptr Region;
+	static shared_ptr<OctTree> Root;
+	static list<PhysicsComponentPtr> AllTreeObjects;
+	list<PhysicsComponentPtr> _objects;
 
 	/*These are items which we're waiting to insert into the data structure. 
 	We want to accrue as many objects in here as possible before we inject them 
 	into the tree. This is slightly more cache friendly. */
-	static queue<shared_ptr<PhysicsComponent>> _pendingInsertion;
+	static queue<PhysicsComponentPtr> _pendingInsertion;
 
 	/*These are all of the possible child octants for this node in the tree.*/
 	shared_ptr<OctTree> _childNode[8];
@@ -50,16 +59,20 @@ public:
 	static bool _treeBuilt;
 
 	OctTree();
-	OctTree(shared_ptr<ColliderAABB> region);
-	OctTree(shared_ptr<ColliderAABB> region, list<shared_ptr<PhysicsComponent>> objList);
+	OctTree(ColliderAABBptr region);
+	OctTree(ColliderAABBptr region, list<shared_ptr<PhysicsComponent>> objList);
 	~OctTree();
 	
+	void UnloadContent();
+	void Enqueue(list<PhysicsComponentPtr> objects);
 	void UpdateTree();
 	void BuildTree();
-	shared_ptr<OctTree> CreateNode(shared_ptr<ColliderAABB> region, list<shared_ptr<PhysicsComponent>> objList);
-	shared_ptr<OctTree> CreateNode(shared_ptr<ColliderAABB> region, shared_ptr<PhysicsComponent> Item);
+	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, list<PhysicsComponentPtr> objList);
+	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, PhysicsComponentPtr Item);
 	bool HasChildren();
+	bool IsRoot();
 	void Update(float time);
+	bool Insert(PhysicsComponentPtr Item);
 
 };
 

@@ -115,20 +115,6 @@ void AudioSystem::ResumeAudio(AudioComponentPtr audioComponent)
 // zastanowic sie czy ta funkcja nie jest do usuniecia z System
 std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType)
 {
-	//vector<ComponentPtr> allComponents;
-	//vector<ComponentPtr> selectedComponents;
-	////allComponents = componentManager.GetAllComponents();
-
-	//for each (ComponentPtr component in allComponents)
-	//{
-	//	if (dynamic_pointer_cast<AudioComponent>(component)->GetType()._name.compare(componentType._name) == 0)
-	//	{
-	//		selectedComponents.push_back(component);
-	//	}
-	//}
-
-	//return selectedComponents;
-
 	vector<ComponentPtr> result = _entityManager->GetComponents(_componentsType);
 
 	return result;
@@ -165,13 +151,12 @@ void AudioSystem::Initialize()
 	_entityManager->AddComponent(backgroundAudioEntityID, backgroundAudioComponent);
 	_entityManager->AddComponent(sound1AudioEntityID, sound1AudioComponent);
 
-	vector<shared_ptr<Component>> components = _entityManager->GetComponents(ComponentType("Audio"));
+	vector<shared_ptr<Component>> components = GetComponents(ComponentType("Audio"));
 
 	for each (shared_ptr<Component> component in components)
 	{
 		_components.push_back(dynamic_pointer_cast<AudioComponent>(component));
 	}
-	auto test = _components;
 }
 
 void AudioSystem::Iterate()

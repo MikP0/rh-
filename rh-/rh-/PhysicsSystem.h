@@ -1,35 +1,24 @@
 #pragma once
 
 #include <vector>
-#include <DirectXColors.h>
 #include "System.h"
 #include "PhysicsComponent.h"
-#include "Collision.h"
+#include "OctTree.h"
 
-typedef std::shared_ptr<Entity> EntityPtr;
-typedef std::shared_ptr<PhysicsComponent> PhysicsComponentPtr;
-typedef std::shared_ptr<Collision> CollisionPtr;
-typedef std::shared_ptr<ColliderBase> ColliderBasePtr;
-typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
-typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
-typedef std::shared_ptr<ColliderRay> ColliderRayPtr;
-typedef std::vector<ContainmentType> ContainmentTypeVector;
+using namespace std;
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
+
+typedef shared_ptr<Entity> EntityPtr;
+typedef shared_ptr<PhysicsComponent> PhysicsComponentPtr;
+typedef shared_ptr<Collision> CollisionPtr;
+typedef vector<ContainmentType> ContainmentTypeVector;
 
 class PhysicsSystem : public System
 {
 public:
 	PhysicsSystem(std::shared_ptr<EntityManager> entityManager);
 	~PhysicsSystem();
-
-	ContainmentTypeVector Collide(ColliderAABBptr collider1, ColliderAABBptr collider2);
-	ContainmentTypeVector Collide(ColliderSpherePtr collider1, ColliderSpherePtr collider2);
-	ContainmentTypeVector Collide(ColliderAABBptr collider1, ColliderSpherePtr collider2);
-	ContainmentTypeVector Collide(ColliderSpherePtr collider1, ColliderAABBptr collider2);
-	float Collide(ColliderAABBptr collider, ColliderRay ray);
-	float Collide(ColliderSpherePtr collider, ColliderRay ray);
-
-	CollisionPtr CheckCollision(PhysicsComponentPtr component1, PhysicsComponentPtr component2);
-	CollisionPtr CheckCollision(PhysicsComponentPtr component, ColliderRay ray);
 
 	void UpdateCollidersPositions();
 	void UpdateColliderPosition(PhysicsComponentPtr component);
@@ -41,8 +30,8 @@ public:
 
 	void InsertComponent(PhysicsComponentPtr component); // temporary function for tests
 
-	virtual void Iterate() override;
 	virtual void Initialize() override;
+	virtual void Iterate() override;
 
 private:
 	std::vector<PhysicsComponentPtr> _components;
