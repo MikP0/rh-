@@ -161,6 +161,7 @@
     <ClInclude Include="BoneAnimation.h" />
     <ClInclude Include="BufferContainer.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ColliderTypes.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Component.h" />

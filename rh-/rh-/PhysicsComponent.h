@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
-#include "Collision.h"
+#include "ColliderTypes.h"
+
 
 class PhysicsComponent : public Component
 {

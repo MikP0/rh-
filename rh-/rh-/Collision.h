@@ -1,100 +1,29 @@
 #pragma once
 
-#include <DirectXCollision.h>
+#include <vector>
+#include <DirectXColors.h>
+#include "ColliderTypes.h"
 #include "Entity.h"
+#include "PhysicsComponent.h"
 
+
+using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 typedef std::shared_ptr<Entity> EntityPtr;
-
-enum ColliderType
-{
-	None = 0,
-	Sphere = 1,
-	AABB = 2,
-	OOBB = 3,
-	Ray = 4
-};
-
-class ColliderBase
-{
-public:
-	ColliderBase() : Type(None), CollisionKind(DISJOINT) {};
-	ColliderBase(ColliderType type) : Type(type), CollisionKind(DISJOINT) {};
-	virtual ~ColliderBase() {};
-
-	ColliderType Type;
-	ContainmentType CollisionKind;
-};
-
-class ColliderSphere : public ColliderBase
-{
-public:
-	BoundingSphere Bounding;
-
-	ColliderSphere() : ColliderBase(Sphere) {};
-
-	ColliderSphere(XMFLOAT3 center, float radius) : ColliderBase(Sphere) 
-	{
-		Bounding.Center = center;
-		Bounding.Radius = radius;
-	};
-
-	~ColliderSphere() {};
-};
-
-class ColliderAABB : public ColliderBase
-{
-public:
-	BoundingBox Bounding;
-	Vector3 Min, Max;
-
-	ColliderAABB() : ColliderBase(AABB) {};
-
-	ColliderAABB(XMFLOAT3 center, XMFLOAT3 extents) : ColliderBase(AABB)
-	{
-		Bounding.Center = center;
-		Bounding.Extents = extents;
-		Min = Vector3(Bounding.Center - Bounding.Extents);
-		Max = Vector3(Bounding.Center + Bounding.Extents);
-	};
-
-	ColliderAABB(Vector3 min, Vector3 max, bool flagMinMax) : ColliderBase(AABB), Min(min), Max(max)
-	{
-		Vector3 half = Vector3(Max - Min) / 2.0f;
-		Vector3 center = Min + half;
-
-		Bounding.Center = center;
-		Bounding.Extents = half;
-	};
-
-	~ColliderAABB() {};
-};
-
-class ColliderRay
-{
-public:
-	ColliderType Type;
-	XMVECTOR Origin;
-	XMVECTOR Direction;
-
-	ColliderRay() : Type(ColliderType::Ray) {};
-
-	ColliderRay(XMVECTOR origin, XMVECTOR direction) : Type(ColliderType::Ray)
-	{
-		Origin = origin;
-		Direction = direction;
-	};
-
-	~ColliderRay() {};
-};
+typedef std::shared_ptr<PhysicsComponent> PhysicsComponentPtr;
+typedef std::shared_ptr<ColliderBase> ColliderBasePtr;
+typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
+typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
+typedef std::shared_ptr<ColliderRay> ColliderRayPtr;
+typedef std::vector<ContainmentType> ContainmentTypeVector;
 
 class Collision
 {
 public:
-	EntityPtr OriginComponent;
-	EntityPtr ColliderComponent;
+	EntityPtr OriginObject;
+	EntityPtr CollidingObject;
 	ContainmentType CollisionKind;
 	float RayIntersectDist;
 
@@ -103,5 +32,14 @@ public:
 	~Collision();
 
 	static XMVECTORF32 Collision::GetCollisionColor(ContainmentType collisionKind);
+
+	static ContainmentTypeVector Collide(ColliderAABBptr collider1, ColliderAABBptr collider2);
+	static ContainmentTypeVector Collide(ColliderSpherePtr collider1, ColliderSpherePtr collider2);
+	static ContainmentTypeVector Collide(ColliderAABBptr collider1, ColliderSpherePtr collider2);
+	static ContainmentTypeVector Collide(ColliderSpherePtr collider1, ColliderAABBptr collider2);
+	static float Collide(ColliderAABBptr collider, ColliderRay ray);
+	static float Collide(ColliderSpherePtr collider, ColliderRay ray);
+	static shared_ptr<Collision> CheckCollision(PhysicsComponentPtr component1, PhysicsComponentPtr component2);
+	static shared_ptr<Collision> CheckCollision(PhysicsComponentPtr component, ColliderRay ray);
 };
 
