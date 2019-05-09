@@ -19,6 +19,8 @@
 #include "PhysicsSystem.h"
 
 #include "ModelSkinned.h"
+#include "ToonEffect.h"
+#include "ToonFactory.h"
 
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
@@ -77,7 +79,15 @@ private:
 	DirectX::SimpleMath::Matrix m_proj;
 
 	std::unique_ptr<DirectX::CommonStates> m_states;
+
+	//Shaders
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
+
+
+	std::unique_ptr<ToonFactory> m_ToonFactory;
+	//std::shared_ptr<ToonEffect> m_ToonEffect;
+	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_toonTex;
+
 
 	//Managers
 	std::unique_ptr<EntityManager> entityManager;
@@ -149,9 +159,16 @@ private:
 
 	// billboarding
 	std::shared_ptr<DirectX::GeometricPrimitive> m_plane;
+	std::shared_ptr<DirectX::GeometricPrimitive> m_plane2;
+	std::shared_ptr<DirectX::GeometricPrimitive> m_plane3;
+	std::shared_ptr<DirectX::GeometricPrimitive> m_plane4;
+
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_planeTex;
 	DirectX::SimpleMath::Matrix planeWorld;
 	DirectX::SimpleMath::Vector3 planePos;
+	DirectX::SimpleMath::Matrix planeWorld2;
+	DirectX::SimpleMath::Matrix planeWorld3;
+	DirectX::SimpleMath::Matrix planeWorld4;
 
 	std::shared_ptr<SceneManager> sceneManager;
 };

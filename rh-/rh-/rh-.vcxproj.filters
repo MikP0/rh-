@@ -20,14 +20,17 @@
     <Filter Include="Inc\Skinning\Effect">
       <UniqueIdentifier>{5933949f-cf22-452a-9c7b-ff1795cad033}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Inc\Skinning\Content">
-      <UniqueIdentifier>{b4fd39d1-e2b3-4134-b022-c7e0fc157df6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Skinning">
       <UniqueIdentifier>{09e5d1c6-b932-4def-a53f-89af61c0521c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Src\Skinning\Effect">
       <UniqueIdentifier>{645dbfad-b890-4e51-96ad-d19562e84c1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\Shaders">
+      <UniqueIdentifier>{e6d15a7b-4b27-4859-a748-f7522f24dd5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inc\Shaders\Include">
+      <UniqueIdentifier>{8c9db079-1554-4176-98c1-3d10fe01f62a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +166,16 @@
     <ClInclude Include="Raycast.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="ToonFactory.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ToonEffect.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadData.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="LightSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -288,6 +301,13 @@
     <ClCompile Include="Raycast.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="ToonFactory.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="ToonEffect.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -316,13 +336,19 @@
     <None Include="cup.cmo">
       <Filter>Assets</Filter>
     </None>
+    <None Include="content\Shaders\Include\Common.fxh">
+      <Filter>Inc\Shaders\Include</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="content\Effects\BasicEffect.fx">
-      <Filter>Inc\Skinning\Content</Filter>
+    <FxCompile Include="content\Shaders\PixelShader.hlsl">
+      <Filter>Inc\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="content\Effects\SkinnedModel.fx">
-      <Filter>Inc\Skinning\Content</Filter>
+    <FxCompile Include="content\Shaders\VertexShader.hlsl">
+      <Filter>Inc\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Shaders\SkinnedModel.fx">
+      <Filter>Inc\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
