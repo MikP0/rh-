@@ -6,6 +6,7 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
+#include "Audio.h"
 
 #include "Transform.h"
 #include "Entity.h"
@@ -15,8 +16,10 @@
 #include "EntityManager.h"
 #include "SceneManager.h"
 #include "PhysicsComponent.h"
+#include "RenderableSystem.h"
 
 #include "PhysicsSystem.h"
+#include "AudioSystem.h"
 
 #include "ModelSkinned.h"
 #include "ToonEffect.h"
@@ -50,6 +53,7 @@ public:
     void OnResuming();
     void OnWindowMoved();
     void OnWindowSizeChanged(int width, int height);
+	void OnNewAudioDevice();
 
     // Properties
     void GetDefaultSize( int& width, int& height );
@@ -90,7 +94,8 @@ private:
 
 
 	//Managers
-	std::unique_ptr<EntityManager> entityManager;
+	std::shared_ptr<EntityManager> entityManager;
+	std::shared_ptr<ComponentFactory> componentFactory;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;
@@ -139,7 +144,9 @@ private:
 		{availableKeys::one, actionList::special1},
 		{availableKeys::two, actionList::special2},
 		{availableKeys::three, actionList::special3},
-		{availableKeys::four, actionList::special4}
+		{availableKeys::four, actionList::special4},
+		{availableKeys::z, actionList::playBackground},
+		{availableKeys::x, actionList::playSound1},
 	};
 	std::shared_ptr<Entity> inputEntity;
 	
@@ -171,4 +178,11 @@ private:
 	DirectX::SimpleMath::Matrix planeWorld4;
 
 	std::shared_ptr<SceneManager> sceneManager;
+
+	//Audio
+	std::shared_ptr<AudioSystem> audioSystem;
+	std::shared_ptr<AudioComponent> audioBackgroundSound;
+	std::shared_ptr<AudioComponent> audioSound1;
+
+	std::shared_ptr<RenderableSystem> renderableSystem;
 };

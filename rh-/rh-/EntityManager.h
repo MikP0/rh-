@@ -6,7 +6,7 @@
 
 #include <unordered_map>
 
-//Singleton Class for EntityManager
+// Class for EntityManager
 class EntityManager
 {
 
@@ -21,6 +21,9 @@ public:
 
 	std::shared_ptr<Entity> GetEntity(int entityId);
 	std::shared_ptr<Entity> GetEntity(std::string entityName);
+	std::vector<std::shared_ptr<Entity>> GetEntitiesWithComponent(ComponentType componentType);
+	std::vector<std::shared_ptr<Component>> GetComponents(ComponentType componentType);
+	std::vector<std::shared_ptr<Component>> GetEntityComponentsOfType(int entityId, ComponentType componentType);
 
 	void AddComponent(int id, std::shared_ptr<Component> component);
 	void AddComponent(std::shared_ptr<Entity> entity, std::shared_ptr<Component> component);

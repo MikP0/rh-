@@ -180,6 +180,7 @@
     <ClInclude Include="ModelSK.h" />
     <ClInclude Include="ModelSkinned.h" />
     <ClInclude Include="MyGame.h" />
+    <ClInclude Include="OctTree.h" />
     <ClInclude Include="Pass.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="AudioSystem.h" />
@@ -187,6 +188,8 @@
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="Raycast.h" />
     <ClInclude Include="ReadData.h" />
+    <ClInclude Include="RenderableComponent.h" />
+    <ClInclude Include="RenderableSystem.h" />
     <ClInclude Include="RTTI.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SkinnedModelMaterial.h" />
@@ -266,6 +269,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="OctTree.cpp" />
     <ClCompile Include="Pass.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -279,6 +283,8 @@
     <ClCompile Include="PhysicsComponent.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="Raycast.cpp" />
+    <ClCompile Include="RenderableComponent.cpp" />
+    <ClCompile Include="RenderableSystem.cpp" />
     <ClCompile Include="SceneNode.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -344,6 +350,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\Audio\Explo1.wav" />
+    <Media Include="Resources\Audio\Happyrock.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

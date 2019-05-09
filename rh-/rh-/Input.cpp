@@ -75,6 +75,12 @@ std::map<availableKeys, bool> Input::GetPushedKeys()
 	if (KeyboardState.D4)
 		pushedKeys[four] = true;
 
+	if (KeyboardState.Z)
+		pushedKeys[z] = true;
+
+	if (KeyboardState.X)
+		pushedKeys[x] = true;
+
 	return pushedKeys;
 }
 
@@ -93,6 +99,10 @@ void Input::SetWindowForMouse(HWND window)
 void Input::SetMouseMode(Mouse::Mode mode)
 {
 	_mouse->SetMode(mode);
+}
+
+void Input::ResetWheel() {
+	_mouse->ResetScrollWheelValue();
 }
 
 vector<actionList> Input::GetActions()

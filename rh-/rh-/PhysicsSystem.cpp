@@ -2,7 +2,7 @@
 #include "PhysicsSystem.h"
 
 
-PhysicsSystem::PhysicsSystem()
+PhysicsSystem::PhysicsSystem(std::shared_ptr<EntityManager> entityManager) : System(entityManager)
 {
 }
 
@@ -266,7 +266,7 @@ std::vector<ComponentPtr> PhysicsSystem::GetComponents(ComponentType componentTy
 
 	for each (ComponentPtr component in allComponents)
 	{
-		if (std::dynamic_pointer_cast<PhysicsComponent>(component)->GetType().name.compare(componentType.name) == 0)
+		if (std::dynamic_pointer_cast<PhysicsComponent>(component)->GetType()._name.compare(componentType._name) == 0)
 		{
 			selectedComponents.push_back(component);
 		}
@@ -286,6 +286,14 @@ void PhysicsSystem::UpdateComponentsCollection()
 	}
 }
 
+void PhysicsSystem::ResetAllUpdatePositionFlags()
+{
+	for each(PhysicsComponentPtr component in _components)
+	{
+		component->GetParent()->GetTransform()->SetUpdatedMoveFlag(false);
+	}
+}
+
 void PhysicsSystem::InsertComponent(PhysicsComponentPtr component)
 {
 	_components.push_back(component);
@@ -296,5 +304,10 @@ void PhysicsSystem::Iterate()
 	for each (PhysicsComponentPtr component in _components)
 	{
 
+		ResetAllUpdatePositionFlags();
 	}
+}
+
+void PhysicsSystem::Initialize()
+{
 }

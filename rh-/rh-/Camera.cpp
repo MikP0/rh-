@@ -6,13 +6,13 @@
 
 Camera::Camera()
 {
-	this->pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	this->posVector = XMLoadFloat3(&this->pos);
-	this->rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	this->rotVector = XMLoadFloat3(&this->rot);
-	this->UpdateViewMatrix();
-	this->pitch = 0.0f;
-	this->yaw = 0.0f;
+	pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	posVector = XMLoadFloat3(&pos);
+	rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	rotVector = XMLoadFloat3(&rot);
+	UpdateViewMatrix();
+	pitch = 0.0f;
+	yaw = 0.0f;
 }
 
 Camera::~Camera()
@@ -23,7 +23,7 @@ void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float near
 {
 	this->nearZ = nearZplane;
 	this->farZ = farZplane;
-	this->projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(fovDegrees,aspectRatio, nearZ, farZ);
+	this->projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(fovDegrees, aspectRatio, nearZ, farZ);
 }
 
 const XMMATRIX & Camera::GetViewMatrix() const
@@ -86,6 +86,11 @@ const float Camera::GetFarZ() const
 	return this->farZ;
 }
 
+const XMFLOAT3 Camera::GetZoom() const
+{
+	return this->zoom;
+}
+
 void Camera::SetScreenWidth(int width)
 {
 	this->screenWidth = width;
@@ -114,6 +119,25 @@ void Camera::SetNearZ(float nearZplane)
 void Camera::SetFarZ(float farZplane)
 {
 	this->farZ = farZplane;
+}
+
+void Camera::SetZoom(XMFLOAT3 zoom)
+{
+	this->zoom = zoom;
+}
+
+void Camera::ZoomIn() {
+	if (zoom.y != 2) {
+		zoom.y += 0.5f;
+		zoom.z += -0.5f;
+	}
+}
+
+void Camera::ZoomOut() {
+	if (zoom.y != 0) {
+		zoom.y += -0.5f;
+		zoom.z += 0.5f;
+	}
 }
 
 void Camera::SetPosition(const XMVECTOR & pos)

@@ -176,6 +176,15 @@
       <Filter>Inc</Filter>
     </ClInclude>
     <ClInclude Include="LightSystem.h" />
+    <ClInclude Include="RenderableComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderableSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="OctTree.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -308,6 +317,15 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="LightSystem.cpp" />
+    <ClCompile Include="RenderableComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderableSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="OctTree.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -350,5 +368,13 @@
     <FxCompile Include="content\Shaders\SkinnedModel.fx">
       <Filter>Inc\Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\Audio\Explo1.wav">
+      <Filter>Assets</Filter>
+    </Media>
+    <Media Include="Resources\Audio\Happyrock.wav">
+      <Filter>Assets</Filter>
+    </Media>
   </ItemGroup>
 </Project>
