@@ -4,6 +4,7 @@
 
 PhysicsSystem::PhysicsSystem(std::shared_ptr<EntityManager> entityManager) : System(entityManager)
 {
+	_componentsType._name = "Physics";
 }
 
 
@@ -86,29 +87,21 @@ void PhysicsSystem::InsertComponent(PhysicsComponentPtr component)
 
 void PhysicsSystem::Initialize()
 {
-	/*vector<shared_ptr<Component>> components = _entityManager->GetComponents(ComponentType("Physics"));
-
-	for each (shared_ptr<Component> component in components)
-	{
-		_components.push_back(dynamic_pointer_cast<PhysicsComponent>(component));
-	}*/
-
-	/*int sceneWall = _entityManager->CreateEntity("SceneWall");
-	int cup1 = _entityManager->CreateEntity("Cup1");
-	int cup2 = _entityManager->CreateEntity("Cup2");
-
-	shared_ptr<PhysicsComponent> colliderSceneWall = make_shared<PhysicsComponent>(AABB);
+	/*shared_ptr<PhysicsComponent> colliderSceneWall = make_shared<PhysicsComponent>(AABB);
 	shared_ptr<PhysicsComponent> colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
 	shared_ptr<PhysicsComponent> colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
 
-	_entityManager->AddComponent(sceneWall, colliderSceneWall);
-	_entityManager->AddComponent(cup1, colliderCup1);
-	_entityManager->AddComponent(cup2, colliderCup2);*/
+	_entityManager->AddComponent(_entityManager->GetEntity("SceneWall"), colliderSceneWall);
+	_entityManager->AddComponent(_entityManager->GetEntity("Cup1")->GetId(), colliderCup1);
+	_entityManager->AddComponent(_entityManager->GetEntity("Cup2")->GetId(), colliderCup2);
+
+	*/
 
 	vector<shared_ptr<Component>> components = GetComponents(ComponentType("Physics"));
 
 	for each (shared_ptr<Component> component in components)
 	{
+		auto test = component->GetParent()->GetName();
 		_components.push_back(dynamic_pointer_cast<PhysicsComponent>(component));
 	}
 }

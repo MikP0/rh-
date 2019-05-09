@@ -558,11 +558,11 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	renderableSystem = std::make_shared<RenderableSystem>(entityManager, device, context);
 
 
-	sceneWallEntity = entityManager->GetEntity(entityManager->CreateEntity());
-	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity());
-	myEntity2 = entityManager->GetEntity(entityManager->CreateEntity());
-	myEntity3 = entityManager->GetEntity(entityManager->CreateEntity());
-	myEntity4 = entityManager->GetEntity(entityManager->CreateEntity());
+	sceneWallEntity = entityManager->GetEntity(entityManager->CreateEntity("SceneWall"));
+	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity("Cup1"));
+	myEntity2 = entityManager->GetEntity(entityManager->CreateEntity("Cup2"));
+	myEntity3 = entityManager->GetEntity(entityManager->CreateEntity("Cup3"));
+	myEntity4 = entityManager->GetEntity(entityManager->CreateEntity("Cup4"));
 
 	std::shared_ptr<RenderableComponent> renderableComponent = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
 	std::shared_ptr<RenderableComponent> renderableComponent2 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
@@ -614,20 +614,14 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	collisionSystem->InsertComponent(colliderSceneWall);
 
 	colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
-	//colliderCup1 = std::make_shared<PhysicsComponent>(Sphere);
 	colliderCup1->SetParent(myEntity1);
 	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
-	//colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup1->ColliderBounding);
 	colliderBoundingCup1->Bounding.Extents = initialBoundingEntity1Size;
-	//colliderBoundingCup1->Bounding.Radius = initialBounding1Radius;
 	collisionSystem->InsertComponent(colliderCup1);
 
-	//colliderCup2 = std::make_shared<PhysicsComponent>(AABB);
 	colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
 	colliderCup2->SetParent(myEntity2);
-	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup2->ColliderBounding);
 	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
-	//colliderBoundingCup2->Bounding.Extents = initialBoundingEntity2Size;
 	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
 	collisionSystem->InsertComponent(colliderCup2);
 

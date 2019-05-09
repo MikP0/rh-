@@ -106,8 +106,6 @@ private:
 	std::shared_ptr<PhysicsComponent> colliderCup2;
 	ColliderAABBptr colliderBoundingSceneWall;
 	ColliderAABBptr colliderBoundingCup1;
-	//ColliderSpherePtr colliderBoundingCup1;
-	// ColliderAABBptr colliderBoundingCup2;
 	ColliderSpherePtr colliderBoundingCup2;
 
 	XMFLOAT3 initialBoundingEntity1Size;
