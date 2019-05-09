@@ -14,14 +14,15 @@ typedef shared_ptr<PhysicsComponent> PhysicsComponentPtr;
 typedef shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef shared_ptr<ColliderAABB> ColliderAABBptr;
 typedef shared_ptr<ColliderRay> ColliderRayPtr;
+typedef std::shared_ptr<Collision> CollisionPtr;
+typedef vector<ContainmentType> ContainmentTypeVector;
 
 class OctTree : public enable_shared_from_this<OctTree>
 {
 public:
-	ColliderAABBptr _region;
-	static shared_ptr<OctTree> _root;
-	static bool _isRootLevel;
-	static list<PhysicsComponentPtr> _allObjects;
+	ColliderAABBptr Region;
+	static shared_ptr<OctTree> Root;
+	static list<PhysicsComponentPtr> AllTreeObjects;
 	list<PhysicsComponentPtr> _objects;
 
 	/*These are items which we're waiting to insert into the data structure. 
@@ -62,7 +63,6 @@ public:
 	OctTree(ColliderAABBptr region, list<shared_ptr<PhysicsComponent>> objList);
 	~OctTree();
 	
-	list<PhysicsComponentPtr> GetAllObjects();
 	void UnloadContent();
 	void Enqueue(list<PhysicsComponentPtr> objects);
 	void UpdateTree();
@@ -70,7 +70,9 @@ public:
 	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, list<PhysicsComponentPtr> objList);
 	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, PhysicsComponentPtr Item);
 	bool HasChildren();
+	bool IsRoot();
 	void Update(float time);
+	bool Insert(PhysicsComponentPtr Item);
 
 };
 

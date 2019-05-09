@@ -13,6 +13,7 @@
 #include "Camera.h"
 #include "Raycast.h"
 #include "Input.h"
+#include "Collision.h"
 #include "EntityManager.h"
 #include "SceneManager.h"
 #include "PhysicsComponent.h"

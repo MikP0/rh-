@@ -7,18 +7,17 @@ there can be lots of nodes.*/
 #include "pch.h"
 #include "OctTree.h"
 
-shared_ptr<OctTree> OctTree::_root = nullptr;
-list<PhysicsComponentPtr> OctTree::_allObjects = list<PhysicsComponentPtr>();
+shared_ptr<OctTree> OctTree::Root = nullptr;
+list<PhysicsComponentPtr> OctTree::AllTreeObjects = list<PhysicsComponentPtr>();
 queue<PhysicsComponentPtr> OctTree::_pendingInsertion;
 bool OctTree::_treeReady = false;
 bool OctTree::_treeBuilt = false;
-bool OctTree::_isRootLevel = true;
 
 //The bounding region for the oct tree. 
 //The list of objects contained within the bounding region 
 OctTree::OctTree(ColliderAABBptr region, list<PhysicsComponentPtr> objList)
 {
-	_region = region;
+	Region = region;
 	_objects = objList;
 	_curLife = -1;
 }
@@ -29,7 +28,7 @@ OctTree::OctTree()
 	//	_childNode[i] = make_shared<OctTree>();
 
 	_objects = list<PhysicsComponentPtr>();
-	_region = make_shared<ColliderAABB>(Vector3::Zero, Vector3::Zero);
+	Region = make_shared<ColliderAABB>(Vector3::Zero, Vector3::Zero);
 	_curLife = -1;
 }
 
@@ -41,18 +40,13 @@ OctTree::OctTree()
 ///Note: if items are outside this region, the region will be automatically resized. 
 OctTree::OctTree(ColliderAABBptr region)
 {
-	_region = region;
+	Region = region;
 	_objects = list<PhysicsComponentPtr>();
 	_curLife = -1;
 }
 
 OctTree::~OctTree()
 {
-}
-
-list<PhysicsComponentPtr> OctTree::GetAllObjects()
-{
-	return _allObjects;
 }
 
 void OctTree::UnloadContent()
@@ -100,18 +94,16 @@ void OctTree::UpdateTree() //complete & tested
 /// 
 void OctTree::BuildTree() //complete & tested
 {
-	if (_isRootLevel)
+	if (IsRoot())
 	{
-		_root = shared_from_this();
-		_allObjects = _objects;
-		_isRootLevel = false;
+		Root = shared_from_this();
 	}
 
 	//terminate the recursion if we're a leaf node
 	if (_objects.size() <= 1)
 		return;
 
-	Vector3 dimensions = _region->Max - _region->Min;
+	Vector3 dimensions = Region->Max - Region->Min;
 
 	//Check to see if the dimensions of the box are greater than the minimum dimensions
 	if (dimensions.x <= MIN_SIZE && dimensions.y <= MIN_SIZE && dimensions.z <= MIN_SIZE)
@@ -119,19 +111,19 @@ void OctTree::BuildTree() //complete & tested
 		return;
 	}
 
-	Vector3 center = _region->Bounding.Center;
+	Vector3 center = Region->Bounding.Center;
 
 	//Create subdivided regions for each octant
 	ColliderAABBptr octant[8];
 
-	octant[0] = make_shared<ColliderAABB>(_region->Min, center, true);
-	octant[1] = make_shared<ColliderAABB>(Vector3(center.x, _region->Min.y, _region->Min.z), Vector3(_region->Max.x, center.y, center.z), true);
-	octant[2] = make_shared<ColliderAABB>(Vector3(center.x, _region->Min.y, center.z), Vector3(_region->Max.x, center.y, _region->Max.z), true);
-	octant[3] = make_shared<ColliderAABB>(Vector3(_region->Min.x, _region->Min.y, center.z), Vector3(center.x, center.y, _region->Max.z), true);
-	octant[4] = make_shared<ColliderAABB>(Vector3(_region->Min.x, center.y, _region->Min.z), Vector3(center.x, _region->Max.y, center.z), true);
-	octant[5] = make_shared<ColliderAABB>(Vector3(center.x, center.y, _region->Min.z), Vector3(_region->Max.x, _region->Max.y, center.z), true);
-	octant[6] = make_shared<ColliderAABB>(center, _region->Max, true);
-	octant[7] = make_shared<ColliderAABB>(Vector3(_region->Min.x, center.y, center.z), Vector3(center.x, _region->Max.y, _region->Max.z), true);
+	octant[0] = make_shared<ColliderAABB>(Region->Min, center, true);
+	octant[1] = make_shared<ColliderAABB>(Vector3(center.x, Region->Min.y, Region->Min.z), Vector3(Region->Max.x, center.y, center.z), true);
+	octant[2] = make_shared<ColliderAABB>(Vector3(center.x, Region->Min.y, center.z), Vector3(Region->Max.x, center.y, Region->Max.z), true);
+	octant[3] = make_shared<ColliderAABB>(Vector3(Region->Min.x, Region->Min.y, center.z), Vector3(center.x, center.y, Region->Max.z), true);
+	octant[4] = make_shared<ColliderAABB>(Vector3(Region->Min.x, center.y, Region->Min.z), Vector3(center.x, Region->Max.y, center.z), true);
+	octant[5] = make_shared<ColliderAABB>(Vector3(center.x, center.y, Region->Min.z), Vector3(Region->Max.x, Region->Max.y, center.z), true);
+	octant[6] = make_shared<ColliderAABB>(center, Region->Max, true);
+	octant[7] = make_shared<ColliderAABB>(Vector3(Region->Min.x, center.y, center.z), Vector3(center.x, Region->Max.y, Region->Max.z), true);
 
 	//This will contain all of our objects which fit within each respective octant.
 	list<PhysicsComponentPtr> octList[8];
@@ -230,6 +222,14 @@ bool OctTree::HasChildren()
 	}
 
 	return hasChildren;
+}
+
+bool OctTree::IsRoot()
+{
+	if (_parent == nullptr)
+		return true;
+	else
+		return false;
 }
 
 void OctTree::Update(float time)
@@ -337,7 +337,7 @@ void OctTree::Update(float time)
 			{
 				ColliderAABBptr objBoundingBox = dynamic_pointer_cast<ColliderAABB>(movedObj->ColliderBounding);
 
-				while (current->_region->Bounding.Contains(objBoundingBox->Bounding) != ContainmentType::CONTAINS)
+				while (current->Region->Bounding.Contains(objBoundingBox->Bounding) != ContainmentType::CONTAINS)
 					if (current->_parent != nullptr) 
 						current = current->_parent;
 					else
@@ -348,7 +348,7 @@ void OctTree::Update(float time)
 			else
 			{
 				ColliderSpherePtr objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(movedObj->ColliderBounding);
-				ContainmentType ct = current->_region->Bounding.Contains(objBoundingSphere->Bounding);
+				ContainmentType ct = current->Region->Bounding.Contains(objBoundingSphere->Bounding);
 				
 				while (ct != ContainmentType::CONTAINS)//we must be using a bounding sphere, so check for its containment.
 				{
@@ -360,15 +360,15 @@ void OctTree::Update(float time)
 					{
 						//the root region cannot contain the object, so we need to completely rebuild the whole tree.
 						//The rarity of this event is rare enough where we can afford to take all objects out of the existing tree and rebuild the entire thing.
-						list<PhysicsComponentPtr> tmp = _root->GetAllObjects();
-						_root->UnloadContent();
+						list<PhysicsComponentPtr> tmp = Root->AllTreeObjects;
+						Root->UnloadContent();
 						Enqueue(tmp);//add to pending queue
 
 
 						return;
 					}
 
-					ct = current->_region->Bounding.Contains(objBoundingSphere->Bounding);
+					ct = current->Region->Bounding.Contains(objBoundingSphere->Bounding);
 				}
 			}
 
@@ -379,6 +379,42 @@ void OctTree::Update(float time)
 
 		}
 
-		// DOKONCZYC
+		if (IsRoot())
+		{
+			//This will recursively gather up all collisions and create a list of them.
+			//this is simply a matter of comparing all objects in the current root node with all objects in all child nodes.
+			//note: we can assume that every collision will only be between objects which have moved.
+			//note 2: An explosion can be centered on a point but grow in size over time. In this case, you'll have to override the update method for the explosion.
+			/*list<IntersectionRecord> irList = GetIntersection(list<PhysicsComponentPtr>());
+
+			for each(IntersectionRecord ir in irList)
+			{
+				if (ir.PhysicalObject != nullptr)
+					ir.PhysicalObject.HandleIntersection(ir);
+				if (ir.OtherPhysicalObject != nullptr)
+					ir.OtherPhysicalObject.HandleIntersection(ir);
+			}*/
+		}
+	}//end if tree built
+	else
+	{
+		if (_pendingInsertion.size() > 0)
+		{
+			UpdateTree();
+			Update(time);   //try this again...
+		}
 	}
 }
+
+/// <summary>
+/// A tree has already been created, so we're going to try to insert an item into the tree without rebuilding the whole thing
+/// </summary>
+/// <param name="Item">The physical object to insert into the tree</param>
+bool OctTree::Insert(PhysicsComponentPtr Item)
+{
+
+
+
+	return true;
+}
+

@@ -11,211 +11,6 @@ PhysicsSystem::~PhysicsSystem()
 {
 }
 
-ContainmentTypeVector PhysicsSystem::Collide(ColliderAABBptr collider1, ColliderAABBptr collider2)
-{
-	collider1->CollisionKind = DISJOINT;
-	collider2->CollisionKind = DISJOINT;
-
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
-
-	collider1->CollisionKind = collider1Result;
-	collider2->CollisionKind = collider2Result;
-
-	ContainmentTypeVector result { collider1->CollisionKind, collider2->CollisionKind };
-
-	return result;
-}
-
-ContainmentTypeVector PhysicsSystem::Collide(ColliderSpherePtr collider1, ColliderSpherePtr collider2)
-{
-	collider1->CollisionKind = DISJOINT;
-	collider2->CollisionKind = DISJOINT;
-
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
-
-	collider1->CollisionKind = collider1Result;
-	collider2->CollisionKind = collider2Result;
-
-	ContainmentTypeVector result { collider1->CollisionKind, collider2->CollisionKind };
-
-	return result;
-}
-
-ContainmentTypeVector PhysicsSystem::Collide(ColliderAABBptr collider1, ColliderSpherePtr collider2)
-{
-	collider1->CollisionKind = DISJOINT;
-	collider2->CollisionKind = DISJOINT;
-
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
-
-	collider1->CollisionKind = collider1Result;
-	collider2->CollisionKind = collider2Result;
-
-	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
-
-	return result;
-}
-
-ContainmentTypeVector PhysicsSystem::Collide(ColliderSpherePtr collider1, ColliderAABBptr collider2)
-{
-	collider1->CollisionKind = DISJOINT;
-	collider2->CollisionKind = DISJOINT;
-
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
-
-	collider1->CollisionKind = collider1Result;
-	collider2->CollisionKind = collider2Result;
-
-	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
-
-	return result;
-}
-
-float PhysicsSystem::Collide(ColliderAABBptr collider, ColliderRay ray)
-{
-	float distance = 0.0f;
-
-	float dist;
-	if (collider->Bounding.Intersects(ray.Origin, ray.Direction, dist))
-	{
-		distance = dist;
-		collider->CollisionKind = INTERSECTS;
-	}
-	else
-		collider->CollisionKind = DISJOINT;
-
-	return distance;
-}
-
-float PhysicsSystem::Collide(ColliderSpherePtr collider, ColliderRay ray)
-{
-	float distance = 0.0f;
-
-	float dist;
-	if (collider->Bounding.Intersects(ray.Origin, ray.Direction, dist))
-	{
-		distance = dist;
-		collider->CollisionKind = INTERSECTS;
-	}
-	else
-		collider->CollisionKind = DISJOINT;
-
-	return distance;
-}
-
-CollisionPtr PhysicsSystem::CheckCollision(PhysicsComponentPtr component1, PhysicsComponentPtr component2)
-{
-	ColliderType colliderType1 = component1->ColliderBounding->Type;
-	ColliderType colliderType2 = component2->ColliderBounding->Type;
-
-	if (colliderType1 == AABB && colliderType2 == AABB)
-	{
-		ContainmentTypeVector collisionResult = Collide(std::dynamic_pointer_cast<ColliderAABB>(component1->ColliderBounding), std::dynamic_pointer_cast<ColliderAABB>(component2->ColliderBounding));
-
-		if (collisionResult[0] == INTERSECTS && collisionResult[1] == INTERSECTS)
-		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), INTERSECTS));
-		}
-
-		if (collisionResult[0] == CONTAINS)
-		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), CONTAINS));
-		}
-
-		if (collisionResult[1] == CONTAINS)
-		{
-			return (std::make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
-		}
-	}
-
-	if (colliderType1 == Sphere && colliderType2 == Sphere)
-	{
-		ContainmentTypeVector collisionResult = Collide(std::dynamic_pointer_cast<ColliderSphere>(component1->ColliderBounding), std::dynamic_pointer_cast<ColliderSphere>(component2->ColliderBounding));
-
-		if (collisionResult[0] == INTERSECTS && collisionResult[1] == INTERSECTS)
-		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), INTERSECTS));
-		}
-
-		if (collisionResult[0] == CONTAINS)
-		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), CONTAINS));
-		}
-
-		if (collisionResult[1] == CONTAINS)
-		{
-			return (std::make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
-		}
-	}
-
-	if (colliderType1 == AABB && colliderType2 == Sphere)
-	{
-		ContainmentTypeVector collisionResult = Collide(std::dynamic_pointer_cast<ColliderAABB>(component1->ColliderBounding), std::dynamic_pointer_cast<ColliderSphere>(component2->ColliderBounding));
-
-		if (collisionResult[0] == INTERSECTS && collisionResult[1] == INTERSECTS)
-		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), INTERSECTS));
-		}
-
-		if (collisionResult[0] == CONTAINS)
-		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), CONTAINS));
-		}
-
-		if (collisionResult[1] == CONTAINS)
-		{
-			return (std::make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
-		}
-	}
-
-	if (colliderType1 == Sphere && colliderType2 == AABB)
-	{
-		ContainmentTypeVector collisionResult = Collide(std::dynamic_pointer_cast<ColliderSphere>(component1->ColliderBounding), std::dynamic_pointer_cast<ColliderAABB>(component2->ColliderBounding));
-
-		if (collisionResult[0] == INTERSECTS && collisionResult[1] == INTERSECTS)
-		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), INTERSECTS));
-		}
-
-		if (collisionResult[0] == CONTAINS)
-		{
-			return (std::make_shared<Collision>(component1->GetParent(), component2->GetParent(), CONTAINS));
-		}
-
-		if (collisionResult[1] == CONTAINS)
-		{
-			return (std::make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
-		}
-	}
-
-	return nullptr;
-}
-
-CollisionPtr PhysicsSystem::CheckCollision(PhysicsComponentPtr component, ColliderRay ray)
-{
-	ColliderType colliderType = component->ColliderBounding->Type;
-
-	float resultDistance;
-
-	if (colliderType == AABB)
-	{
-		resultDistance = Collide(std::dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding), ray);
-		return std::make_shared<Collision>(component->GetParent(), component->ColliderBounding->CollisionKind, resultDistance);
-	}
-	else
-		if (colliderType == Sphere)
-		{
-			resultDistance = Collide(std::dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding), ray);
-			return std::make_shared<Collision>(component->GetParent(), component->ColliderBounding->CollisionKind, resultDistance);
-		}
-
-	return nullptr;
-}
-
 void PhysicsSystem::UpdateCollidersPositions()
 {
 	for each (PhysicsComponentPtr component in _components)
@@ -260,19 +55,9 @@ void PhysicsSystem::UpdateColliderPosition(PhysicsComponentPtr component)
 
 std::vector<ComponentPtr> PhysicsSystem::GetComponents(ComponentType componentType)
 {
-	std::vector<ComponentPtr> allComponents;
-	std::vector<ComponentPtr> selectedComponents;
-	//allComponents = componentManager.GetAllComponents();
+	vector<ComponentPtr> result = _entityManager->GetComponents(_componentsType);
 
-	for each (ComponentPtr component in allComponents)
-	{
-		if (std::dynamic_pointer_cast<PhysicsComponent>(component)->GetType()._name.compare(componentType._name) == 0)
-		{
-			selectedComponents.push_back(component);
-		}
-	}
-
-	return selectedComponents;
+	return result;
 }
 
 void PhysicsSystem::UpdateComponentsCollection()
@@ -299,6 +84,35 @@ void PhysicsSystem::InsertComponent(PhysicsComponentPtr component)
 	_components.push_back(component);
 }
 
+void PhysicsSystem::Initialize()
+{
+	/*vector<shared_ptr<Component>> components = _entityManager->GetComponents(ComponentType("Physics"));
+
+	for each (shared_ptr<Component> component in components)
+	{
+		_components.push_back(dynamic_pointer_cast<PhysicsComponent>(component));
+	}*/
+
+	/*int sceneWall = _entityManager->CreateEntity("SceneWall");
+	int cup1 = _entityManager->CreateEntity("Cup1");
+	int cup2 = _entityManager->CreateEntity("Cup2");
+
+	shared_ptr<PhysicsComponent> colliderSceneWall = make_shared<PhysicsComponent>(AABB);
+	shared_ptr<PhysicsComponent> colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
+	shared_ptr<PhysicsComponent> colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
+
+	_entityManager->AddComponent(sceneWall, colliderSceneWall);
+	_entityManager->AddComponent(cup1, colliderCup1);
+	_entityManager->AddComponent(cup2, colliderCup2);*/
+
+	vector<shared_ptr<Component>> components = GetComponents(ComponentType("Physics"));
+
+	for each (shared_ptr<Component> component in components)
+	{
+		_components.push_back(dynamic_pointer_cast<PhysicsComponent>(component));
+	}
+}
+
 void PhysicsSystem::Iterate()
 {
 	for each (PhysicsComponentPtr component in _components)
@@ -308,6 +122,3 @@ void PhysicsSystem::Iterate()
 	}
 }
 
-void PhysicsSystem::Initialize()
-{
-}

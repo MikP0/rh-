@@ -286,9 +286,9 @@ void Game::UpdateObjects(float elapsedTime)
 	XMVECTORF32 collider2Color = DirectX::Colors::White;
 
 	collisionSystem->UpdateCollidersPositions();
-	CollisionPtr collisionEntity1WithWall = collisionSystem->CheckCollision(colliderCup1, colliderSceneWall);
-	CollisionPtr collisionEntity2WithWall = collisionSystem->CheckCollision(colliderCup2, colliderSceneWall);
-	CollisionPtr collisionBetweenCups = collisionSystem->CheckCollision(colliderCup1, colliderCup2);
+	CollisionPtr collisionEntity1WithWall = Collision::CheckCollision(colliderCup1, colliderSceneWall);
+	CollisionPtr collisionEntity2WithWall = Collision::CheckCollision(colliderCup2, colliderSceneWall);
+	CollisionPtr collisionBetweenCups = Collision::CheckCollision(colliderCup1, colliderCup2);
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
 	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
@@ -314,8 +314,8 @@ void Game::UpdateObjects(float elapsedTime)
 		XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
 		XMVECTOR direction = Vector4(dirFromMouse.x, dirFromMouse.y, dirFromMouse.z, 0.0f);
 		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(origin, direction));
-		collisionCup1WithRay = collisionSystem->CheckCollision(colliderCup1, *sharedRay);
-		collisionCup2WithRay = collisionSystem->CheckCollision(colliderCup2, *sharedRay);
+		collisionCup1WithRay = Collision::CheckCollision(colliderCup1, *sharedRay);
+		collisionCup2WithRay = Collision::CheckCollision(colliderCup2, *sharedRay);
 	}
 
 	if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
