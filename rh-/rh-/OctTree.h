@@ -20,9 +20,10 @@ typedef vector<ContainmentType> ContainmentTypeVector;
 class OctTree : public enable_shared_from_this<OctTree>
 {
 public:
-	ColliderAABBptr Region;
 	static shared_ptr<OctTree> Root;
 	static list<PhysicsComponentPtr> AllTreeObjects;
+
+	ColliderAABBptr Region;
 	list<PhysicsComponentPtr> _objects;
 
 	/*These are items which we're waiting to insert into the data structure. 
@@ -65,6 +66,7 @@ public:
 	
 	void UnloadContent();
 	void Enqueue(list<PhysicsComponentPtr> objects);
+	PhysicsComponentPtr Dequeue();
 	void UpdateTree();
 	void BuildTree();
 	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, list<PhysicsComponentPtr> objList);
