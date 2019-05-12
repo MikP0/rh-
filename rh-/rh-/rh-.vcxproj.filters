@@ -190,6 +190,12 @@
     <ClInclude Include="ColliderTypes.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="NavMesh.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="MapTile.h" />
+    <ClInclude Include="MapEdge.h" />
+    <ClInclude Include="Terrain.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -333,6 +339,12 @@
     <ClCompile Include="LightSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="NavMesh.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="MapTile.cpp" />
+    <ClCompile Include="MapEdge.cpp" />
+    <ClCompile Include="Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
