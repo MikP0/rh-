@@ -13,6 +13,7 @@ using namespace DirectX::SimpleMath;
 typedef shared_ptr<PhysicsComponent> PhysicsComponentPtr;
 typedef shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef shared_ptr<ColliderAABB> ColliderAABBptr;
+typedef shared_ptr<ColliderFrustum> ColliderFrustumPtr;
 typedef shared_ptr<ColliderRay> ColliderRayPtr;
 typedef std::shared_ptr<Collision> CollisionPtr;
 typedef vector<ContainmentType> ContainmentTypeVector;
@@ -75,6 +76,7 @@ public:
 	bool IsRoot();
 	void Update(float time);
 	bool Insert(PhysicsComponentPtr Item);
-
+	list<CollisionPtr> GetIntersection(ColliderFrustumPtr colliderFrustum);
+	list<CollisionPtr> GetIntersection(ColliderRayPtr intersectRay);
 };
 

@@ -556,3 +556,80 @@ bool OctTree::Insert(PhysicsComponentPtr Item)
 	return false;
 }
 
+list<CollisionPtr> OctTree::GetIntersection(ColliderFrustumPtr colliderFrustum)
+{
+	DirectX::BoundingFrustum frustum = colliderFrustum->Bounding;
+
+	if (!_treeBuilt) 
+		return list<CollisionPtr>();
+
+	if (_objects.size() == 0 && HasChildren() == false)   //terminator for any recursion
+		return list<CollisionPtr>();
+
+	list<CollisionPtr> ret = list<CollisionPtr>();
+
+	//test each object in the list for intersection
+	for each(PhysicsComponentPtr obj in _objects)
+	{
+		//test for intersection
+		CollisionPtr ir = Collision::CheckCollision(make_shared<PhysicsComponent>(colliderFrustum), obj);
+		if (ir != nullptr)
+			ret.push_back(ir);
+	}
+
+	//test each object in the list for intersection
+	for (int a = 0; a < 8; a++)
+	{
+		if (_childNode[a] != nullptr && (frustum.Contains(_childNode[a]->Region->Bounding) == ContainmentType::INTERSECTS || frustum.Contains(_childNode[a]->Region->Bounding) == ContainmentType::CONTAINS))
+		{
+			list<CollisionPtr> hitList = _childNode[a]->GetIntersection(colliderFrustum);
+
+			if (!hitList.empty()) 
+				ret.merge(hitList);
+		}
+	}
+	return ret;
+}
+
+/// <summary>
+/// Gives you a list of intersection records for all objects which intersect with the given ray
+/// </summary>
+/// <param name="intersectRay">The ray to intersect objects against</param>
+/// <returns>A list of all intersections</returns>
+list<CollisionPtr> OctTree::GetIntersection(ColliderRayPtr intersectRay)
+{
+	if (!_treeBuilt)
+		return list<CollisionPtr>();
+
+	if (_objects.size() == 0 && HasChildren() == false)   //terminator for any recursion
+		return list<CollisionPtr>();
+
+	list<CollisionPtr> ret = list<CollisionPtr>();
+
+	//the ray is intersecting this region, so we have to check for intersection with all of our contained objects and child regions.
+
+	//test each object in the list for intersection
+	for each(PhysicsComponentPtr obj in _objects)
+	{
+		CollisionPtr ir = Collision::CheckCollision(obj, intersectRay);
+		if (ir != nullptr)
+			ret.push_back(ir);
+	}
+
+	// test each child octant for intersection
+	for (int a = 0; a < 8; a++)
+	{
+		if (_childNode[a] != nullptr && Collision::CheckCollision(make_shared<PhysicsComponent>(_childNode[a]->Region), intersectRay) != nullptr)
+		{
+			list<CollisionPtr> hits = _childNode[a]->GetIntersection(intersectRay);
+
+			if (!hits.empty())
+			{
+				ret.merge(hits);
+			}
+		}
+	}
+
+	return ret;
+}
+
