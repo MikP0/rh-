@@ -190,6 +190,9 @@
     <ClInclude Include="ColliderTypes.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="LightComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -331,6 +334,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="LightSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="LightComponent.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

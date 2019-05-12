@@ -263,3 +263,19 @@ void ToonFactory::AddSpotLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direct
 		it->second->AddSpotLight(Color, Direction, OuterAngle, Position, InnerAngle, Radius);
 	}
 }
+
+void ToonFactory::UpdatePointLight(int id, DirectX::XMFLOAT3 Position)
+{
+	for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->UpdatePointLight(id, Position);
+	}
+}
+
+void ToonFactory::UpdateSpotLight(int id, DirectX::XMFLOAT3 Position)
+{
+	for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->UpdateSpotLight(id, Position);
+	}
+}

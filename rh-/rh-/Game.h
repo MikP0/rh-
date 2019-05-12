@@ -25,6 +25,8 @@
 #include "ModelSkinned.h"
 #include "ToonEffect.h"
 #include "ToonFactory.h"
+#include "LightSystem.h"
+#include "LightComponent.h"
 
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
@@ -88,12 +90,6 @@ private:
 	//Shaders
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
 
-
-	std::unique_ptr<ToonFactory> m_ToonFactory;
-	//std::shared_ptr<ToonEffect> m_ToonEffect;
-	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_toonTex;
-
-
 	//Managers
 	std::shared_ptr<EntityManager> entityManager;
 	std::shared_ptr<ComponentFactory> componentFactory;
@@ -108,6 +104,12 @@ private:
 	std::shared_ptr<Entity> myEntity2;
 	std::shared_ptr<Entity> myEntity3;
 	std::shared_ptr<Entity> myEntity4;
+
+	// lights
+	std::shared_ptr<Entity> pointLightEntity1;
+	std::shared_ptr<Entity> pointLightEntity2;
+	std::shared_ptr<Entity> pointLightEntity3;
+	std::shared_ptr<Entity> spotLightEntity1;
 
 	// Collision boundings
 	std::shared_ptr<PhysicsSystem> collisionSystem;
@@ -184,4 +186,6 @@ private:
 	std::shared_ptr<AudioComponent> audioSound1;
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
+
+	std::shared_ptr<LightSystem> lightSystem;
 };

@@ -3,16 +3,17 @@
 #include "pch.h"
 #include "System.h"
 #include "ToonFactory.h"
+#include "LightComponent.h"
 
-class LightSystem// : public System
+class LightSystem : public System
 {
 public:
-	LightSystem();
+	LightSystem(std::shared_ptr<EntityManager> entityManager, std::shared_ptr<ToonFactory> fxFactory);
 	~LightSystem();
 
-	/*virtual void Iterate() override;
+	virtual void Iterate() override;
 	virtual void Initialize() override;
 
-	std::unique_ptr<ToonFactory> _fxFactory;*/
+	std::shared_ptr<ToonFactory> _fxFactory;
 };
 
