@@ -11,7 +11,8 @@ enum ColliderType
 	Sphere = 1,
 	AABB = 2,
 	OOBB = 3,
-	Ray = 4
+	Frustum = 4,
+	Ray = 5
 };
 
 class ColliderBase
@@ -69,16 +70,27 @@ public:
 	~ColliderAABB() {};
 };
 
-class ColliderRay
+class ColliderFrustum : public ColliderBase
 {
 public:
-	ColliderType Type;
+	BoundingFrustum Bounding;
+
+	ColliderFrustum() : ColliderBase(Frustum) {};
+	ColliderFrustum(XMMATRIX xmProj)
+	{
+		BoundingFrustum::CreateFromMatrix(Bounding, xmProj);
+	};
+};
+
+class ColliderRay : public ColliderBase
+{
+public:
 	XMVECTOR Origin;
 	XMVECTOR Direction;
 
-	ColliderRay() : Type(ColliderType::Ray) {};
+	ColliderRay() : ColliderBase(ColliderType::Ray) {};
 
-	ColliderRay(XMVECTOR origin, XMVECTOR direction) : Type(ColliderType::Ray)
+	ColliderRay(XMVECTOR origin, XMVECTOR direction) : ColliderBase(ColliderType::Ray)
 	{
 		Origin = origin;
 		Direction = direction;

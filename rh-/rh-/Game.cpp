@@ -339,8 +339,8 @@ void Game::UpdateObjects(float elapsedTime)
 		XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
 		XMVECTOR direction = Vector4(dirFromMouse.x, dirFromMouse.y, dirFromMouse.z, 0.0f);
 		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(origin, direction));
-		collisionCup1WithRay = Collision::CheckCollision(colliderCup1, *sharedRay);
-		collisionCup2WithRay = Collision::CheckCollision(colliderCup2, *sharedRay);
+		collisionCup1WithRay = Collision::CheckCollision(colliderCup1, sharedRay);
+		collisionCup2WithRay = Collision::CheckCollision(colliderCup2, sharedRay);
 	}
 
 	if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)

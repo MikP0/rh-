@@ -13,6 +13,7 @@ using namespace DirectX::SimpleMath;
 typedef shared_ptr<PhysicsComponent> PhysicsComponentPtr;
 typedef shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef shared_ptr<ColliderAABB> ColliderAABBptr;
+typedef shared_ptr<ColliderFrustum> ColliderFrustumPtr;
 typedef shared_ptr<ColliderRay> ColliderRayPtr;
 typedef std::shared_ptr<Collision> CollisionPtr;
 typedef vector<ContainmentType> ContainmentTypeVector;
@@ -20,9 +21,10 @@ typedef vector<ContainmentType> ContainmentTypeVector;
 class OctTree : public enable_shared_from_this<OctTree>
 {
 public:
-	ColliderAABBptr Region;
 	static shared_ptr<OctTree> Root;
 	static list<PhysicsComponentPtr> AllTreeObjects;
+
+	ColliderAABBptr Region;
 	list<PhysicsComponentPtr> _objects;
 
 	/*These are items which we're waiting to insert into the data structure. 
@@ -65,6 +67,7 @@ public:
 	
 	void UnloadContent();
 	void Enqueue(list<PhysicsComponentPtr> objects);
+	PhysicsComponentPtr Dequeue();
 	void UpdateTree();
 	void BuildTree();
 	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, list<PhysicsComponentPtr> objList);
@@ -73,6 +76,7 @@ public:
 	bool IsRoot();
 	void Update(float time);
 	bool Insert(PhysicsComponentPtr Item);
-
+	list<CollisionPtr> GetIntersection(ColliderFrustumPtr colliderFrustum);
+	list<CollisionPtr> GetIntersection(ColliderRayPtr intersectRay);
 };
 

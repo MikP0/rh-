@@ -63,15 +63,23 @@ void OctTree::Enqueue(list<PhysicsComponentPtr> objects)
 		_pendingInsertion.push(object);
 }
 
+PhysicsComponentPtr OctTree::Dequeue()
+{
+	PhysicsComponentPtr element = _pendingInsertion.front();
+	_pendingInsertion.pop();
+
+	return element;
+}
+
 void OctTree::UpdateTree() //complete & tested 
 {
 	if (!_treeBuilt)
 	{
 		while (_pendingInsertion.size() != 0)
 		{
-			PhysicsComponentPtr element = _pendingInsertion.front();
-			_pendingInsertion.pop();
+			PhysicsComponentPtr element = Dequeue();
 			_objects.push_back(element);
+			AllTreeObjects.push_back(element);
 		}
 			
 		BuildTree();
@@ -80,9 +88,9 @@ void OctTree::UpdateTree() //complete & tested
 	{
 		while (_pendingInsertion.size() != 0)
 		{
-			PhysicsComponentPtr element = _pendingInsertion.front();
-			_pendingInsertion.pop();
-			//Insert(element);
+			PhysicsComponentPtr element = Dequeue();
+			Insert(element);
+			AllTreeObjects.push_back(element);
 		}
 	}
 
@@ -294,6 +302,7 @@ void OctTree::Update(float time)
 					movedObjects.erase(it);
 
 				_objects.remove(object);
+				AllTreeObjects.remove(object);
 			}
 		}
 		
@@ -346,36 +355,36 @@ void OctTree::Update(float time)
 					}
 			}
 			else
-			{
-				ColliderSpherePtr objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(movedObj->ColliderBounding);
-				ContainmentType ct = current->Region->Bounding.Contains(objBoundingSphere->Bounding);
-				
-				while (ct != ContainmentType::CONTAINS)//we must be using a bounding sphere, so check for its containment.
+				if (colliderType == ColliderType::Sphere)
 				{
-					if (current->_parent != nullptr)
+					ColliderSpherePtr objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(movedObj->ColliderBounding);
+					ContainmentType ct = current->Region->Bounding.Contains(objBoundingSphere->Bounding);
+
+					while (ct != ContainmentType::CONTAINS)//we must be using a bounding sphere, so check for its containment.
 					{
-						current = current->_parent;
+						if (current->_parent != nullptr)
+						{
+							current = current->_parent;
+						}
+						else
+						{
+							//the root region cannot contain the object, so we need to completely rebuild the whole tree.
+							//The rarity of this event is rare enough where we can afford to take all objects out of the existing tree and rebuild the entire thing.
+							list<PhysicsComponentPtr> tmp = Root->AllTreeObjects;
+							Root->UnloadContent();
+							Enqueue(tmp);//add to pending queue
+
+
+							return;
+						}
+
+						ct = current->Region->Bounding.Contains(objBoundingSphere->Bounding);
 					}
-					else
-					{
-						//the root region cannot contain the object, so we need to completely rebuild the whole tree.
-						//The rarity of this event is rare enough where we can afford to take all objects out of the existing tree and rebuild the entire thing.
-						list<PhysicsComponentPtr> tmp = Root->AllTreeObjects;
-						Root->UnloadContent();
-						Enqueue(tmp);//add to pending queue
-
-
-						return;
-					}
-
-					ct = current->Region->Bounding.Contains(objBoundingSphere->Bounding);
 				}
-			}
 
 				//now, remove the object from the current node and insert it into the current containing node.
 				_objects.remove(movedObj);
-				//current.Insert(movedObj);   //this will try to insert the object as deep into the tree as we can go.
-				// ODKOMENTOWAC POTEM !
+				current->Insert(movedObj);   //this will try to insert the object as deep into the tree as we can go.
 
 		}
 
@@ -410,11 +419,217 @@ void OctTree::Update(float time)
 /// A tree has already been created, so we're going to try to insert an item into the tree without rebuilding the whole thing
 /// </summary>
 /// <param name="Item">The physical object to insert into the tree</param>
+
 bool OctTree::Insert(PhysicsComponentPtr Item)
 {
+	/*if the current node is an empty leaf node, just insert and leave it.*/
+	//if (m_objects.Count == 0 && m_activeNodes == 0)
+	if (AllTreeObjects.size() == 0)
+	{
+		_objects.push_back(Item);
+		return true;
+	}
 
+	//Check to see if the dimensions of the box are greater than the minimum dimensions.
+	//If we're at the smallest size, just insert the item here. We can't go any lower!
+	Vector3 dimensions = Region->Max - Region->Min;
+	if (dimensions.x <= MIN_SIZE && dimensions.y <= MIN_SIZE && dimensions.z <= MIN_SIZE)
+	{
+		_objects.push_back(Item);
+		return true;
+	}
 
+	//The object won't fit into the current region, so it won't fit into any child regions.
+	//therefore, try to push it up the tree. If we're at the root node, we need to resize the whole tree.
+	ColliderType colliderType = Item->ColliderBounding->Type;
+	ColliderAABBptr objBoundingBox;
+	ColliderSpherePtr objBoundingSphere;
 
-	return true;
+	if (colliderType == ColliderType::AABB)
+	{
+		objBoundingBox = dynamic_pointer_cast<ColliderAABB>(Item->ColliderBounding);
+	}
+	else
+	{
+		objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(Item->ColliderBounding);
+	}
+	
+	if (objBoundingBox != nullptr && Region->Bounding.Contains(objBoundingBox->Bounding) != ContainmentType::CONTAINS)
+	{
+		if (_parent != nullptr)
+			return _parent->Insert(Item);
+		else
+			return false;
+	}
+	else
+	{
+		if (objBoundingSphere != nullptr && Region->Bounding.Contains(objBoundingSphere->Bounding) != ContainmentType::CONTAINS)
+		{
+			if (_parent != nullptr)
+				return _parent->Insert(Item);
+			else
+				return false;
+		}
+	}
+
+	//At this point, we at least know this region can contain the object but there are child nodes. Let's try to see if the object will fit
+	//within a subregion of this region.
+
+	Vector3 center = Region->Bounding.Center;
+
+	//Find or create subdivided regions for each octant in the current region
+	ColliderAABBptr childOctant[8];
+	childOctant[0] = (_childNode[0] != nullptr) ? _childNode[0]->Region : make_shared<ColliderAABB>(Region->Min, center, true);
+	childOctant[1] = (_childNode[1] != nullptr) ? _childNode[1]->Region : make_shared<ColliderAABB>(Vector3(center.x, Region->Min.y, Region->Min.z), Vector3(Region->Max.x, center.y, center.z));
+	childOctant[2] = (_childNode[2] != nullptr) ? _childNode[2]->Region : make_shared<ColliderAABB>(Vector3(center.x, Region->Min.y, center.z), Vector3(Region->Max.x, center.y, Region->Max.z));
+	childOctant[3] = (_childNode[3] != nullptr) ? _childNode[3]->Region : make_shared<ColliderAABB>(Vector3(Region->Min.x, Region->Min.y, center.z), Vector3(center.x, center.y, Region->Max.z));
+	childOctant[4] = (_childNode[4] != nullptr) ? _childNode[4]->Region : make_shared<ColliderAABB>(Vector3(Region->Min.x, center.y, Region->Min.z), Vector3(center.x, Region->Max.y, center.z));
+	childOctant[5] = (_childNode[5] != nullptr) ? _childNode[5]->Region : make_shared<ColliderAABB>(Vector3(center.x, center.y, Region->Min.z), Vector3(Region->Max.x, Region->Max.y, center.z));
+	childOctant[6] = (_childNode[6] != nullptr) ? _childNode[6]->Region : make_shared<ColliderAABB>(center, Region->Max);
+	childOctant[7] = (_childNode[7] != nullptr) ? _childNode[7]->Region : make_shared<ColliderAABB>(Vector3(Region->Min.x, center.y, center.z), Vector3(center.x, Region->Max.y, Region->Max.z));
+
+	//First, is the item completely contained within the root bounding box?
+	//note2: I shouldn't actually have to compensate for this. If an object is out of our predefined bounds, then we have a problem/error.
+	//Wrong. Our initial bounding box for the terrain is constricting its height to the highest peak. Flying units will be above that.
+	//Fix: I resized the enclosing box to 256x256x256. This should be sufficient.
+	if (colliderType == ColliderType::AABB && Region->Bounding.Contains(objBoundingBox->Bounding) == ContainmentType::CONTAINS)
+	{
+		bool found = false;
+		//we will try to place the object into a child node. If we can't fit it in a child node, then we insert it into the current node object list.
+		for (int a = 0; a < 8; a++)
+		{
+			//is the object fully contained within a quadrant?
+			if (childOctant[a]->Bounding.Contains(objBoundingBox->Bounding) == ContainmentType::CONTAINS)
+			{
+				if (_childNode[a] != nullptr)
+				{
+					return _childNode[a]->Insert(Item);   //Add the item into that tree and let the child tree figure out what to do with it
+				}
+				else
+				{
+					_childNode[a] = CreateNode(childOctant[a], Item);   //create a new tree node with the item
+					_activeNodes |= (byte)(1 << a);
+				}
+				found = true;
+			}
+		}
+
+		//we couldn't fit the item into a smaller box, so we'll have to insert it in this region
+		if (!found)
+		{
+			_objects.push_back(Item);
+			return true;
+		}
+	} else
+		if (colliderType == ColliderType::Sphere && Region->Bounding.Contains(objBoundingSphere->Bounding) == ContainmentType::CONTAINS)
+		{
+			bool found = false;
+			//we will try to place the object into a child node. If we can't fit it in a child node, then we insert it into the current node object list.
+			for (int a = 0; a < 8; a++)
+			{
+				//is the object contained within a child quadrant?
+				if (childOctant[a]->Bounding.Contains(objBoundingSphere->Bounding) == ContainmentType::CONTAINS)
+				{
+					if (_childNode[a] != nullptr)
+					{
+						return _childNode[a]->Insert(Item);   //Add the item into that tree and let the child tree figure out what to do with it
+					}
+					else
+					{
+						_childNode[a] = CreateNode(childOctant[a], Item);   //create a new tree node with the item
+						_activeNodes |= (byte)(1 << a);
+					}
+					found = true;
+				}
+			}
+
+			//we couldn't fit the item into a smaller box, so we'll have to insert it in this region
+			if (!found)
+			{
+				_objects.push_back(Item);
+				return true;
+			}
+		}
+
+	//either the item lies outside of the enclosed bounding box or it is intersecting it. Either way, we need to rebuild
+	//the entire tree by enlarging the containing bounding box
+	return false;
+}
+
+list<CollisionPtr> OctTree::GetIntersection(ColliderFrustumPtr colliderFrustum)
+{
+	DirectX::BoundingFrustum frustum = colliderFrustum->Bounding;
+
+	if (!_treeBuilt) 
+		return list<CollisionPtr>();
+
+	if (_objects.size() == 0 && HasChildren() == false)   //terminator for any recursion
+		return list<CollisionPtr>();
+
+	list<CollisionPtr> ret = list<CollisionPtr>();
+
+	//test each object in the list for intersection
+	for each(PhysicsComponentPtr obj in _objects)
+	{
+		//test for intersection
+		CollisionPtr ir = Collision::CheckCollision(make_shared<PhysicsComponent>(colliderFrustum), obj);
+		if (ir != nullptr)
+			ret.push_back(ir);
+	}
+
+	//test each object in the list for intersection
+	for (int a = 0; a < 8; a++)
+	{
+		if (_childNode[a] != nullptr && (frustum.Contains(_childNode[a]->Region->Bounding) == ContainmentType::INTERSECTS || frustum.Contains(_childNode[a]->Region->Bounding) == ContainmentType::CONTAINS))
+		{
+			list<CollisionPtr> hitList = _childNode[a]->GetIntersection(colliderFrustum);
+
+			if (!hitList.empty()) 
+				ret.merge(hitList);
+		}
+	}
+	return ret;
+}
+
+/// <summary>
+/// Gives you a list of intersection records for all objects which intersect with the given ray
+/// </summary>
+/// <param name="intersectRay">The ray to intersect objects against</param>
+/// <returns>A list of all intersections</returns>
+list<CollisionPtr> OctTree::GetIntersection(ColliderRayPtr intersectRay)
+{
+	if (!_treeBuilt)
+		return list<CollisionPtr>();
+
+	if (_objects.size() == 0 && HasChildren() == false)   //terminator for any recursion
+		return list<CollisionPtr>();
+
+	list<CollisionPtr> ret = list<CollisionPtr>();
+
+	//the ray is intersecting this region, so we have to check for intersection with all of our contained objects and child regions.
+
+	//test each object in the list for intersection
+	for each(PhysicsComponentPtr obj in _objects)
+	{
+		CollisionPtr ir = Collision::CheckCollision(obj, intersectRay);
+		if (ir != nullptr)
+			ret.push_back(ir);
+	}
+
+	// test each child octant for intersection
+	for (int a = 0; a < 8; a++)
+	{
+		if (_childNode[a] != nullptr && Collision::CheckCollision(make_shared<PhysicsComponent>(_childNode[a]->Region), intersectRay) != nullptr)
+		{
+			list<CollisionPtr> hits = _childNode[a]->GetIntersection(intersectRay);
+
+			if (!hits.empty())
+			{
+				ret.merge(hits);
+			}
+		}
+	}
+
+	return ret;
 }
 
