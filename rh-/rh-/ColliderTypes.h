@@ -68,6 +68,43 @@ public:
 	};
 
 	~ColliderAABB() {};
+
+	void CalculateBounding() 
+	{
+		Vector3 dimensions = Max - Min;
+
+		if (dimensions == Vector3::Zero)
+		{
+			Min = Vector3(Bounding.Center - Bounding.Extents);
+			Max = Vector3(Bounding.Center + Bounding.Extents);
+		}
+		else
+			if (Vector3(Bounding.Center) == Vector3::Zero || Vector3(Bounding.Extents) == Vector3::Zero)
+			{
+				Vector3 half = Vector3(Max - Min) / 2.0f;
+				Vector3 center = Min + half;
+
+				Bounding.Center = center;
+				Bounding.Extents = half;
+			}
+	};
+
+	void ChangeToCube()
+	{
+		Vector3 dimensions = Max - Min;
+
+		/*float min;
+
+		if (dimensions.x > dimensions.y)
+		{
+			if (dimensions.y > dimensions.z)
+			{
+				min = dimensions.x;
+			}
+			else
+				
+		}*/
+	};
 };
 
 class ColliderFrustum : public ColliderBase

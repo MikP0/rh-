@@ -13,8 +13,12 @@ queue<PhysicsComponentPtr> OctTree::_pendingInsertion;
 bool OctTree::_treeReady = false;
 bool OctTree::_treeBuilt = false;
 
-//The bounding region for the oct tree. 
-//The list of objects contained within the bounding region 
+/*Note: we want to avoid allocating memory for as long as possible since there can be lots of nodes.*/
+/// <summary>
+/// Creates an oct tree which encloses the given region and contains the provided objects.
+/// </summary>
+/// <param name="region">The bounding region for the oct tree.</param>
+/// <param name="objList">The list of objects contained within the bounding region</param>
 OctTree::OctTree(ColliderAABBptr region, list<PhysicsComponentPtr> objList)
 {
 	Region = region;
@@ -22,6 +26,9 @@ OctTree::OctTree(ColliderAABBptr region, list<PhysicsComponentPtr> objList)
 	_curLife = -1;
 }
 
+/// <summary>
+/// Creates an Octree which is ready for object insertion. The dimensions of the octree will scale to enclose all inserted objects.
+/// </summary>
 OctTree::OctTree()
 {
 	//for (int i = 0; i < 8; i++)
@@ -32,12 +39,11 @@ OctTree::OctTree()
 	_curLife = -1;
 }
 
-/// 
-/// Creates an octTree with a suggestion for the bounding region containing the items. 
-/// 
-
-///The suggested dimensions for the bounding region. 
-///Note: if items are outside this region, the region will be automatically resized. 
+/// <summary>
+/// Creates an octTree with a suggestion for the bounding region containing the items.
+/// </summary>
+/// <param name="region">The suggested dimensions for the bounding region. 
+/// Note: if items are outside this region, the region will be automatically resized.</param>
 OctTree::OctTree(ColliderAABBptr region)
 {
 	Region = region;
@@ -55,12 +61,105 @@ void OctTree::UnloadContent()
 
 	for (int i = 0; i < 8; i++)
 		_childNode[i].reset();
+
+	queue<PhysicsComponentPtr> emptyQueue;
+	swap(_pendingInsertion, emptyQueue);
+	UnloadHelper(shared_from_this());
+	_treeBuilt = false;
+	_treeReady = false;
 }
 
-void OctTree::Enqueue(list<PhysicsComponentPtr> objects)
+/// <summary>
+/// Recursive helper function for removing all nodes in the tree
+/// </summary>
+/// <param name="root">The root node to start deleting from</param>
+void OctTree::UnloadHelper(shared_ptr<OctTree> root)
 {
-	for each(PhysicsComponentPtr object in objects)
-		_pendingInsertion.push(object);
+	if (root == nullptr) 
+		return;
+
+	if (!root->_objects.empty())
+	{
+		root->_objects.clear();
+		//root.m_objects = null;
+	}
+
+	if (Region != nullptr)
+	{
+		root->Region->Max = Vector3::Zero;
+		root->Region->Min = Vector3::Zero;
+	}
+
+	if (root->_childNode != nullptr && root->_activeNodes != 0)
+	{
+		for (int a = 0; a < 8; a++)
+		{
+			if (root->_childNode[a] != nullptr)
+			{
+				root->UnloadHelper(root->_childNode[a]);
+				root->_childNode[a] = nullptr;
+			}
+		}
+	}
+
+	_activeNodes = 0;
+	//root.m_childNode = null;
+	root->_parent = nullptr;
+}
+
+/// <summary>
+/// Inserts a bunch of items into the oct tree.
+/// </summary>
+/// <param name="ItemList">A list of physical objects to add</param>
+/// <remarks>The OctTree will be rebuilt JIT</remarks>
+void OctTree::Enqueue(list<PhysicsComponentPtr> items)
+{
+	for each(PhysicsComponentPtr item in items)
+	{
+		_pendingInsertion.push(item);
+		_treeReady = false;
+	}
+}
+
+void OctTree::Enqueue(PhysicsComponentPtr item)
+{
+	//are we trying to add at the root node? If so, we can assume that the user doesn't know where in the tree it needs to go.
+	if (_parent == nullptr)
+	{
+		_pendingInsertion.push(item);
+		_treeReady = false;    //mark the tree as needing an update
+	}
+	else
+	{
+		//the user is giving us a hint on where in the tree they think the object should go. Let's try to insert as close to the hint as possible.
+		shared_ptr<OctTree> current = shared_from_this();
+
+		//push the object up the tree until we find a region which contains it
+		ColliderType colliderType = item->ColliderBounding->Type;
+		if (colliderType == ColliderType::AABB)
+		{
+			ColliderAABBptr objBoundingBox = dynamic_pointer_cast<ColliderAABB>(item->ColliderBounding);
+
+			while (current->Region->Bounding.Contains(objBoundingBox->Bounding) != ContainmentType::CONTAINS)
+				if (current->_parent != nullptr) 
+					current = current->_parent;
+				else 
+					break; //prevent infinite loops when we go out of bounds of the root node region
+		}
+		else
+			if (colliderType == ColliderType::Sphere)
+			{
+				ColliderSpherePtr objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(item->ColliderBounding);
+
+				while (current->Region->Bounding.Contains(objBoundingSphere->Bounding) != ContainmentType::CONTAINS)//we must be using a bounding sphere, so check for its containment.
+					if (current->_parent != nullptr) 
+						current = current->_parent;
+					else break;
+			}
+
+		//push the object down the tree if we can.
+		current->Insert(item);
+	}
 }
 
 PhysicsComponentPtr OctTree::Dequeue()
@@ -112,6 +211,13 @@ void OctTree::BuildTree() //complete & tested
 		return;
 
 	Vector3 dimensions = Region->Max - Region->Min;
+
+	if (dimensions == Vector3::Zero)
+	{
+		//FindEnclosingCube();
+		Region->CalculateBounding();
+		dimensions = Region->Max - Region->Min;
+	}
 
 	//Check to see if the dimensions of the box are greater than the minimum dimensions
 	if (dimensions.x <= MIN_SIZE && dimensions.y <= MIN_SIZE && dimensions.z <= MIN_SIZE)
@@ -584,8 +690,11 @@ list<CollisionPtr> OctTree::GetIntersection(ColliderFrustumPtr colliderFrustum)
 		{
 			list<CollisionPtr> hitList = _childNode[a]->GetIntersection(colliderFrustum);
 
-			if (!hitList.empty()) 
-				ret.merge(hitList);
+			if (!hitList.empty())
+			{
+				copy(hitList.begin(), hitList.end(),
+					back_insert_iterator<list<CollisionPtr> >(ret));
+			}
 		}
 	}
 	return ret;
@@ -625,11 +734,78 @@ list<CollisionPtr> OctTree::GetIntersection(ColliderRayPtr intersectRay)
 
 			if (!hits.empty())
 			{
-				ret.merge(hits);
+				copy(hits.begin(), hits.end(),
+					back_insert_iterator<list<CollisionPtr> >(ret));
 			}
 		}
 	}
 
 	return ret;
+}
+
+list<CollisionPtr> OctTree::GetIntersection(list<PhysicsComponentPtr> parentObjs)
+{
+	list<CollisionPtr> intersections = list<CollisionPtr>();
+	//assume all parent objects have already been processed for collisions against each other.
+	//check all parent objects against all objects in our local node
+	for each(PhysicsComponentPtr pObj in parentObjs)
+	{
+		for each(PhysicsComponentPtr lObj in _objects)
+		{
+			//We let the two objects check for collision against each other. They can figure out how to do the coarse and granular checks.
+			//all we're concerned about is whether or not a collision actually happened.
+			CollisionPtr ir = Collision::CheckCollision(pObj, lObj);
+			if (ir != nullptr)
+			{
+				//ir.m_treeNode = this;
+				intersections.push_back(ir);
+			}
+		}
+	}
+
+	//now, check all our local objects against all other local objects in the node
+	if (!_objects.empty() && _objects.size() > 1)
+	{
+		/*
+			* This is a rather brilliant section of code. Normally, you'd just have two foreach loops, like so:
+			* foreach(Physical lObj1 in m_objects)
+			* {
+			*      foreach(Physical lObj2 in m_objects)
+			*      {
+			*           //intersection check code
+			*      }
+			* }
+			*
+			* The problem is that this runs in O(N*N) time and that we're checking for collisions with objects which have already been checked.
+			* Imagine you have a set of four items: {1,2,3,4}
+			* You'd first check: {1} vs {1,2,3,4}
+			* Next, you'd check {2} vs {1,2,3,4}
+			* but we already checked {1} vs {2}, so it's a waste to check {2} vs. {1}. What if we could skip this check by removing {1}?
+			* We'd have a total of 4+3+2+1 collision checks, which equates to O(N(N+1)/2) time. If N is 10, we are already doing half as many collision checks as necessary.
+			* Now, we can't just remove an item at the end of the 2nd for loop since that would break the iterator in the first foreach loop, so we'd have to use a
+			* regular for(int i=0;i<size;i++) style loop for the first loop and reduce size each iteration. This works...but look at the for loop: we're allocating memory for
+			* two additional variables: i and size. What if we could figure out some way to eliminate those variables?
+			* So, who says that we have to start from the front of a list? We can start from the back end and still get the same end results. With this in mind,
+			* we can completely get rid of a for loop and use a while loop which has a conditional on the capacity of a temporary list being greater than 0.
+			* since we can poll the list capacity for free, we can use the capacity as an indexer into the list items. Now we don't have to increment an indexer either!
+			* The result is below.
+			*/
+
+		list<PhysicsComponentPtr> tmp = list<PhysicsComponentPtr>(_objects.size());
+		copy(_objects.begin(), _objects.end(),
+			back_insert_iterator<list<PhysicsComponentPtr> >(tmp));
+		
+		while (tmp.size() > 0)
+		{
+			for each(PhysicsComponentPtr lObj2 in tmp)
+			{
+				/*if (tmp[tmp.size() - 1] == lObj2 || (tmp[tmp.Count - 1].IsStationary && lObj2.IsStationary))
+					continue;*/
+			}
+		}
+
+	}
+
+	return list<CollisionPtr>();
 }
 
