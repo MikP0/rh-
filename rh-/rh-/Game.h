@@ -23,6 +23,10 @@
 #include "AudioSystem.h"
 
 #include "ModelSkinned.h"
+#include "ToonEffect.h"
+#include "ToonFactory.h"
+#include "LightSystem.h"
+#include "LightComponent.h"
 
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
@@ -82,6 +86,8 @@ private:
 	DirectX::SimpleMath::Matrix m_proj;
 
 	std::unique_ptr<DirectX::CommonStates> m_states;
+
+	//Shaders
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
 
 	//Managers
@@ -98,6 +104,12 @@ private:
 	std::shared_ptr<Entity> myEntity2;
 	std::shared_ptr<Entity> myEntity3;
 	std::shared_ptr<Entity> myEntity4;
+
+	// lights
+	std::shared_ptr<Entity> pointLightEntity1;
+	std::shared_ptr<Entity> pointLightEntity2;
+	std::shared_ptr<Entity> pointLightEntity3;
+	std::shared_ptr<Entity> spotLightEntity1;
 
 	// Collision boundings
 	std::shared_ptr<PhysicsSystem> collisionSystem;
@@ -155,9 +167,16 @@ private:
 
 	// billboarding
 	std::shared_ptr<DirectX::GeometricPrimitive> m_plane;
+	std::shared_ptr<DirectX::GeometricPrimitive> m_plane2;
+	std::shared_ptr<DirectX::GeometricPrimitive> m_plane3;
+	std::shared_ptr<DirectX::GeometricPrimitive> m_plane4;
+
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_planeTex;
 	DirectX::SimpleMath::Matrix planeWorld;
 	DirectX::SimpleMath::Vector3 planePos;
+	DirectX::SimpleMath::Matrix planeWorld2;
+	DirectX::SimpleMath::Matrix planeWorld3;
+	DirectX::SimpleMath::Matrix planeWorld4;
 
 	std::shared_ptr<SceneManager> sceneManager;
 
@@ -167,4 +186,6 @@ private:
 	std::shared_ptr<AudioComponent> audioSound1;
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
+
+	std::shared_ptr<LightSystem> lightSystem;
 };

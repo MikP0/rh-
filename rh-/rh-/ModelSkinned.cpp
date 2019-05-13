@@ -18,12 +18,10 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 
 	mSkinnedModel = new ModelSK(myGameTemp, filename, true);
 
-
 	mEffect = new EffectSK(myGameTemp);
-	mEffect->LoadCompiledEffect(L"Content\\Effects\\SkinnedModel.cso");
+	mEffect->LoadCompiledEffect(L"Content\\Shaders\\SkinnedModel.cso");
 	mMaterial = new SkinnedModelMaterial();
 	mMaterial->Initialize(*mEffect);
-
 
 	mVertexBuffers.clear();
 	mIndexBuffers.clear();
@@ -136,6 +134,7 @@ void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonSta
 	PrepareForRendering(deviceContext, states, alpha, wireframe);
 
 	Pass* pass = mMaterial->CurrentTechnique()->Passes().at(0);
+	//Pass* pass2 = mMaterial->CurrentTechnique()->Passes().at(1);
 	ID3D11InputLayout* inputLayout = mMaterial->InputLayouts().at(pass);
 	deviceContext->IASetInputLayout(inputLayout);
 
@@ -145,7 +144,6 @@ void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonSta
 
 	UINT stride = mMaterial->VertexSize();
 	UINT offset = 0;
-
 
 	for (UINT i = 0; i < mVertexBuffers.size(); i++)
 	{
@@ -162,8 +160,11 @@ void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonSta
 		mMaterial->AmbientColor() << ambientColor;
 		mMaterial->ColorTexture() << colorTexture;
 		mMaterial->BoneTransforms() << mAnimationPlayer->BoneTransforms();
+		mMaterial->View() << viewMat;
+		mMaterial->Projection() << projMat;
 
 		pass->Apply(0, deviceContext);
+		//pass2->Apply(1, deviceContext);
 
 		deviceContext->DrawIndexed(indexCount, 0, 0);
 	}

@@ -24,7 +24,6 @@ namespace
 	const XMVECTORF32 PLANE_BOUNDS = { 1.5f, 1.5f, 1.5f, 0.f };
 }
 
-
 /*
 	Tymczasowa zmienna !!!!!!
 */
@@ -85,7 +84,7 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 	float time = float(timer.GetTotalSeconds());
-
+	
 	// TODO: Add your game logic here.
 
 
@@ -164,8 +163,7 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 
 		if (*iter == moveFor)
-		{
-			
+		{		
 			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, 1.0f))*elapsedTime * 0.001f, elapsedTime);
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
@@ -189,6 +187,26 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-150.f * elapsedTime));
 		}
+
+
+		/*if (*iter == moveLeft)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
+			mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
+
+		if (*iter == moveRight)
+		{
+			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
+			mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}*/
+
 
 		if (*iter == special1)
 		{
@@ -224,6 +242,7 @@ void Game::Update(DX::StepTimer const& timer)
 	tracker.Update(mouse);
 	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED) {
 		destination = Raycast::GetPointOnGround(camera);
+		//destination.y = -3.f;	// FLOOR LEVEL
 		//destination.y = mSkinModelTransform->GetPosition().y;
 		step = destination - mSkinModelTransform->GetPosition();
 		step = step / 100;
@@ -271,6 +290,11 @@ void Game::UpdateObjects(float elapsedTime)
 	if (destination != Vector3::Zero) {
 		if (!XMVector3NearEqual(destination, mSkinModelTransform->GetPosition(), Vector3(.001f, .001f, .001f))){												
 			mSkinModelTransform->SetPosition(mSkinModelTransform->GetPosition() + step);
+
+			// RED light follow player
+			Vector3 temppos = pointLightEntity1->GetTransform()->GetPosition() + step;
+			pointLightEntity1->GetTransform()->SetPosition(Vector3(temppos.x, 0.0f, temppos.z));
+
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
@@ -290,6 +314,7 @@ void Game::UpdateObjects(float elapsedTime)
 	CollisionPtr collisionEntity2WithWall = Collision::CheckCollision(colliderCup2, colliderSceneWall);
 	CollisionPtr collisionBetweenCups = Collision::CheckCollision(colliderCup1, colliderCup2);
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
+
 
 	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity1->Update();
@@ -341,10 +366,11 @@ void Game::UpdateObjects(float elapsedTime)
 		mSkinModel->GetAnimatorPlayer()->PauseClip();
 	}
 
+	lightSystem->Iterate();
+
 
 	//billboarding
-	planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
-
+	//planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
 }
 
 #pragma endregion
@@ -365,6 +391,7 @@ void Game::Render()
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// TODO: Add your rendering code here.
+
 
 	RenderObjects(context);
 
@@ -421,9 +448,12 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	// skinned model
 	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-
+	
 	// billboarding
-	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	//m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	m_plane3->Draw(planeWorld3, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	m_plane4->Draw(planeWorld4, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 }
 
 // Helper method to clear the back buffers.
@@ -557,6 +587,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	renderableSystem = std::make_shared<RenderableSystem>(entityManager, device, context);
 
+	lightSystem = std::make_shared<LightSystem>(entityManager, renderableSystem->_fxFactory);
+
 
 	sceneWallEntity = entityManager->GetEntity(entityManager->CreateEntity("SceneWall"));
 	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity("Cup1"));
@@ -579,24 +611,46 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	renderableSystem->Initialize();
 
-	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	// pointLightEntity1 - RED light follow player
+	pointLightEntity1 = entityManager->GetEntity(entityManager->CreateEntity("PointLight1"));
+	pointLightEntity2 = entityManager->GetEntity(entityManager->CreateEntity("PointLight2"));
+	pointLightEntity3 = entityManager->GetEntity(entityManager->CreateEntity("PointLight3"));
+	spotLightEntity1 = entityManager->GetEntity(entityManager->CreateEntity("SpotLight1"));
 
+	pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
+	pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 0.0f, 2.0f));
+	pointLightEntity3->GetTransform()->SetPosition(Vector3(2.0f, -1.0f, 1.0f));
+	spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
+
+	// lightComponent - RED light follow player
+	std::shared_ptr<LightComponent> lightComponent = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
+	std::shared_ptr<LightComponent> lightComponent2 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
+	std::shared_ptr<LightComponent> lightComponent3 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
+	std::shared_ptr<LightComponent> lightComponent4 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
+
+	componentFactory->CreateComponent(pointLightEntity1, lightComponent);
+	componentFactory->CreateComponent(pointLightEntity2, lightComponent2);
+	componentFactory->CreateComponent(pointLightEntity3, lightComponent3);
+	componentFactory->CreateComponent(spotLightEntity1, lightComponent4);
+
+	lightSystem->Initialize();
+
+
+	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
 	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
 
-	//myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	//myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
 
-	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity3->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
-	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity4->GetTransform()->SetScale(scaleEntity4);
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
-
-
 
 	myEntity1->AddChild(myEntity3);
 
@@ -642,7 +696,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	mSkinModelTransform = std::make_shared<Transform>();
 	mSkinModelTransform->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-	mSkinModelTransform->SetPosition(Vector3(-1.0f, -3.0f, 0.0f));
+	mSkinModelTransform->SetPosition(Vector3(1.0f, -3.0f, 0.0f));
 
 	//billboarding
 	m_plane = GeometricPrimitive::CreateBox(context,
@@ -652,8 +706,37 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 		CreateDDSTextureFromFile(device, L"cat.dds",
 			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
 	planeWorld = m_world;
-	planePos = Vector3(2.0f, 0.f, 4.0f);
-	planeWorld.CreateTranslation(planePos);
+	
+
+	m_plane2 = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	planeWorld2 = m_world;
+
+
+	m_plane3 = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	planeWorld3 = m_world;
+
+	m_plane4 = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	planeWorld4 = m_world;
+
+
+	//planeWorld = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	planeWorld2 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	planeWorld3 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	planeWorld4 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+
+	//planePos = Vector3(-2.0f, 0.0f, -2.0f);
+	//planeWorld.CreateTranslation(planePos);
+
+	//planeWorld = planeWorld * XMMatrixTranslation(-2.0f, 0.0f, -2.0f);
+	planeWorld2 = planeWorld2 * XMMatrixTranslation(-2.0f, 0.0f, 2.0f);
+	planeWorld3 = planeWorld3 * XMMatrixTranslation(2.0f, -1.0f, 1.0f);
+	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
 	//Audio
 	audioSystem = std::make_shared<AudioSystem>(entityManager);

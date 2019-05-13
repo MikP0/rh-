@@ -29,9 +29,9 @@ public:
 	std::shared_ptr<Transform> SetPosition(const dxmath::Vector3 position);
 	std::shared_ptr<Transform> SetRotation(const dxmath::Quaternion rotation);
 	std::shared_ptr<Transform> SetScale(const dxmath::Vector3 scale);
+
 	void SetUpdatedMoveFlag(bool state);
 	
-
 private:
 	dxmath::Vector3 _position;
 	dxmath::Quaternion _rotation;

@@ -9,25 +9,27 @@
 
 struct DIRECTIONAL_LIGHT
 {
-	float3 Direction;
-    float4 Color;
+	float4 Color;
+	float3 Direction;   
+	float EmptyTo16B;
 };
 
 struct POINT_LIGHT
 {
 	float3 Position : POSITION;
-	float LightRadius;
+	float Radius;
 	float4 Color : COLOR;
 };
 
 struct SPOT_LIGHT
 {
-	float3 Position;
-	float4 Direction;
-	float OuterAngle;
-	float InnerAngle;
-	float LightRadius;
 	float4 Color;
+	float3 Direction;
+	float OuterAngle;
+	float3 Position;	
+	float InnerAngle;
+	float Radius;
+	float3 SpaceTo16B;
 };
 
 struct LIGHT_CONTRIBUTION_DATA
@@ -88,6 +90,37 @@ float3 get_light_contribution(LIGHT_CONTRIBUTION_DATA IN)
 	
 	return (diffuse + specular);
 }
+
+float3 get_spot_light(SPOT_LIGHT SP, float4 color, float3 normal, float3 WorldPos, float3 view, float4 SpecularColor, float SpecularPower)
+{
+	float3 LightLookAt = normalize(-SP.Direction);
+	float3 lightDirection = (SP.Position - WorldPos);
+	float attenuation = saturate(1.0f - (length(lightDirection) / SP.Radius));
+
+	lightDirection = normalize(SP.Position - WorldPos);
+
+	float n_dot_l = dot(normal, lightDirection);
+	float3 halfVector = normalize(lightDirection + view);
+	float n_dot_h = dot(normal, halfVector);
+	float3 lightLookAt = normalize(LightLookAt);
+
+	float spotFactor = 0.0f;
+	float lightAngle = dot(lightLookAt, lightDirection);
+	if (lightAngle > 0.0f)
+	{
+		spotFactor = smoothstep(SP.OuterAngle, SP.InnerAngle, lightAngle);
+	}
+
+	float4 lightCoefficients = lit(n_dot_l, n_dot_h, SpecularPower);
+
+	float3 diffuse = get_vector_color_contribution(SP.Color, lightCoefficients.y * color.rgb) * attenuation;
+	float3 specular = get_scalar_color_contribution(SpecularColor, min(lightCoefficients.z, color.w)) * attenuation;
+
+	float3 result = (spotFactor * (diffuse + specular));
+
+	return result;
+}
+
 
 float get_fog_amount(float3 eyePosition, float3 worldPosition, float fogStart, float fogRange)
 {
