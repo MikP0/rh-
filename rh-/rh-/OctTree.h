@@ -34,7 +34,7 @@ public:
 	/*These are items which we're waiting to insert into the data structure. 
 	We want to accrue as many objects in here as possible before we inject them 
 	into the tree. This is slightly more cache friendly. */
-	static queue<PhysicsComponentPtr> _pendingInsertion;
+	static deque<PhysicsComponentPtr> _pendingInsertion;
 
 	/// <summary>
 	/// This is a global list of all the objects within the octree, for easy reference.
@@ -76,6 +76,8 @@ public:
 	/// </summary>
 	static shared_ptr<OctTree> Root;
 
+	static list<CollisionPtr> DetectedCollisions;
+
 	OctTree(ColliderAABBptr region, list<shared_ptr<PhysicsComponent>> objList);
 	OctTree();
 	OctTree(ColliderAABBptr region);
@@ -86,6 +88,7 @@ public:
 	void Enqueue(list<PhysicsComponentPtr> item);
 	void Enqueue(PhysicsComponentPtr item);
 	PhysicsComponentPtr Dequeue();
+	void ProcessPendingItems();
 	void UpdateTree();
 	void BuildTree();
 	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, list<PhysicsComponentPtr> objList);

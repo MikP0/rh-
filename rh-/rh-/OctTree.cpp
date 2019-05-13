@@ -9,9 +9,10 @@ there can be lots of nodes.*/
 
 shared_ptr<OctTree> OctTree::Root = nullptr;
 list<PhysicsComponentPtr> OctTree::AllTreeObjects = list<PhysicsComponentPtr>();
-queue<PhysicsComponentPtr> OctTree::_pendingInsertion;
+deque<PhysicsComponentPtr> OctTree::_pendingInsertion;
 bool OctTree::_treeReady = false;
 bool OctTree::_treeBuilt = false;
+list<CollisionPtr> OctTree::DetectedCollisions = list<CollisionPtr>();
 
 /*Note: we want to avoid allocating memory for as long as possible since there can be lots of nodes.*/
 /// <summary>
@@ -62,8 +63,7 @@ void OctTree::UnloadContent()
 	for (int i = 0; i < 8; i++)
 		_childNode[i].reset();
 
-	queue<PhysicsComponentPtr> emptyQueue;
-	swap(_pendingInsertion, emptyQueue);
+	_pendingInsertion.clear();
 	UnloadHelper(shared_from_this());
 	_treeBuilt = false;
 	_treeReady = false;
@@ -116,7 +116,7 @@ void OctTree::Enqueue(list<PhysicsComponentPtr> items)
 {
 	for each(PhysicsComponentPtr item in items)
 	{
-		_pendingInsertion.push(item);
+		_pendingInsertion.push_back(item);
 		_treeReady = false;
 	}
 }
@@ -126,7 +126,7 @@ void OctTree::Enqueue(PhysicsComponentPtr item)
 	//are we trying to add at the root node? If so, we can assume that the user doesn't know where in the tree it needs to go.
 	if (_parent == nullptr)
 	{
-		_pendingInsertion.push(item);
+		_pendingInsertion.push_back(item);
 		_treeReady = false;    //mark the tree as needing an update
 	}
 	else
@@ -165,9 +165,57 @@ void OctTree::Enqueue(PhysicsComponentPtr item)
 PhysicsComponentPtr OctTree::Dequeue()
 {
 	PhysicsComponentPtr element = _pendingInsertion.front();
-	_pendingInsertion.pop();
+	_pendingInsertion.pop_front();
 
 	return element;
+}
+
+/// <summary>
+/// Processes all pending insertions by inserting them into the tree.
+/// </summary>
+/// <remarks>Consider deprecating this?</remarks>
+void OctTree::ProcessPendingItems()   //complete & tested
+{
+	if (_parent == nullptr)
+		Root = shared_from_this();
+
+	if (_objects.empty())
+		_objects = list<PhysicsComponentPtr>();
+
+	AllTreeObjects.clear();
+	
+	for each(PhysicsComponentPtr obj in _pendingInsertion)
+	{
+		AllTreeObjects.push_back(obj);
+	}
+
+
+	/*I think I can just directly insert items into the tree instead of using a queue.*/
+	if (!_treeBuilt)
+	{
+		for each(PhysicsComponentPtr obj in _pendingInsertion)
+		{
+			AllTreeObjects.push_back(obj);
+		}
+
+		_pendingInsertion.clear();
+
+		//trim out any objects which have the exact same bounding areas
+
+		BuildTree();
+
+		_treeBuilt = true;
+		_treeReady = true;     //we know that since no tree existed, this is the first time we're ever here.
+	}
+	else
+	{
+		//A tree structure exists already, so we just want to try to insert into the existing structure.
+		//bug test: what if the pending item doesn't fit into the bounding region of the existing tree?
+		while (_pendingInsertion.size() != 0)
+		{
+			Insert(Dequeue());
+		}
+	}
 }
 
 void OctTree::UpdateTree() //complete & tested 
@@ -266,20 +314,21 @@ void OctTree::BuildTree() //complete & tested
 				}
 			}
 		}
-		else if (colliderType == ColliderType::Sphere)
-		{
-			ColliderSpherePtr objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(obj->ColliderBounding);
-
-			for (int a = 0; a < 8; a++)
+		else 
+			if (colliderType == ColliderType::Sphere)
 			{
-				if (octant[a]->Bounding.Contains(objBoundingSphere->Bounding) == ContainmentType::CONTAINS)
+				ColliderSpherePtr objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(obj->ColliderBounding);
+
+				for (int a = 0; a < 8; a++)
 				{
-					octList[a].push_back(obj);
-					delist.push_back(obj);
-					break;
+					if (octant[a]->Bounding.Contains(objBoundingSphere->Bounding) == ContainmentType::CONTAINS)
+					{
+						octList[a].push_back(obj);
+						delist.push_back(obj);
+						break;
+					}
 				}
 			}
-		}
 	}
 
 	//delist every moved object from this node.
@@ -308,6 +357,7 @@ shared_ptr<OctTree> OctTree::CreateNode(ColliderAABBptr region, list<PhysicsComp
 {
 	if (objList.size() == 0)
 		return nullptr;
+
 	shared_ptr<OctTree> ret = make_shared<OctTree>(region, objList);
 	ret->_parent = shared_from_this();
 	return ret;
@@ -348,6 +398,8 @@ bool OctTree::IsRoot()
 
 void OctTree::Update(float time)
 {
+	DetectedCollisions.clear();
+
 	if (_treeBuilt == true && _treeReady == true)
 	{
 		//Start a count down death timer for any leaf nodes which don't have objects or children.
@@ -355,15 +407,6 @@ void OctTree::Update(float time)
 		//this gives us a "frequency" usage score and lets us avoid allocating and deallocating memory unnecessarily
 		if (_objects.size() == 0)
 		{
-			bool hasChildren;
-			int childrenAmount = 0;
-
-			for (int i = 0; i < 8; i++)
-			{
-				if (_childNode != nullptr)
-					childrenAmount++;
-			}
-
 			if (HasChildren() == false)
 			{
 				if (_curLife == -1)
@@ -399,7 +442,7 @@ void OctTree::Update(float time)
 		//prune any dead objects from the tree.
 		for each(PhysicsComponentPtr object in _objects)
 		{
-			if (!object->CheckIfEnabled() == false)
+			if (object->CheckIfEnabled() == false)
 			{
 				list<PhysicsComponentPtr>::iterator it;
 				it = std::find(movedObjects.begin(), movedObjects.end(), object);
@@ -480,7 +523,6 @@ void OctTree::Update(float time)
 							Root->UnloadContent();
 							Enqueue(tmp);//add to pending queue
 
-
 							return;
 						}
 
@@ -500,22 +542,24 @@ void OctTree::Update(float time)
 			//this is simply a matter of comparing all objects in the current root node with all objects in all child nodes.
 			//note: we can assume that every collision will only be between objects which have moved.
 			//note 2: An explosion can be centered on a point but grow in size over time. In this case, you'll have to override the update method for the explosion.
-			/*list<IntersectionRecord> irList = GetIntersection(list<PhysicsComponentPtr>());
+			list<CollisionPtr> irList = GetIntersection(list<PhysicsComponentPtr>());
 
-			for each(IntersectionRecord ir in irList)
+			/*for each(CollisionPtr ir in irList)
 			{
-				if (ir.PhysicalObject != nullptr)
-					ir.PhysicalObject.HandleIntersection(ir);
-				if (ir.OtherPhysicalObject != nullptr)
-					ir.OtherPhysicalObject.HandleIntersection(ir);
+				if (ir->OriginObject != nullptr)
+					ir->OriginObject.HandleIntersection(ir);
+				if (ir->CollidingObject != nullptr)
+					ir->CollidingObject.HandleIntersection(ir);
 			}*/
+
+			DetectedCollisions = irList;
 		}
 	}//end if tree built
 	else
 	{
 		if (_pendingInsertion.size() > 0)
 		{
-			UpdateTree();
+			ProcessPendingItems();
 			Update(time);   //try this again...
 		}
 	}
@@ -799,13 +843,42 @@ list<CollisionPtr> OctTree::GetIntersection(list<PhysicsComponentPtr> parentObjs
 		{
 			for each(PhysicsComponentPtr lObj2 in tmp)
 			{
-				/*if (tmp[tmp.size() - 1] == lObj2 || (tmp[tmp.Count - 1].IsStationary && lObj2.IsStationary))
-					continue;*/
+				if (tmp.back == lObj2)
+					continue;
+
+				CollisionPtr ir = Collision::CheckCollision(tmp.back(), lObj2);
+				
+				if (ir != nullptr)
+				{
+					//ir.m_treeNode = this;
+					intersections.push_back(ir);
+				}
 			}
+
+			//remove this object from the temp list so that we can run in O(N(N+1)/2) time instead of O(N*N)
+			tmp.remove(tmp.back());
 		}
 
 	}
 
-	return list<CollisionPtr>();
+	//now, merge our local objects list with the parent objects list, then pass it down to all children.
+	copy(_objects.begin(), _objects.end(),
+		back_insert_iterator<list<PhysicsComponentPtr> >(parentObjs));
+
+	//each child node will give us a list of intersection records, which we then merge with our own intersection records.
+	for (int flags = _activeNodes, index = 0; flags > 0; flags >>= 1, index++)
+	{
+		if ((flags & 1) == 1)
+		{
+			if (_childNode != nullptr && _childNode[index] != nullptr)
+			{
+				list<CollisionPtr> collisionList = _childNode[index]->GetIntersection(parentObjs);
+				copy(collisionList.begin(), collisionList.end(),
+					back_insert_iterator<list<CollisionPtr> >(intersections));
+			}
+		}
+	}
+
+	return intersections;
 }
 
