@@ -333,7 +333,6 @@
     <ClCompile Include="OctTree.cpp">
       <Filter>Src</Filter>
     </ClCompile>
-    <ClCompile Include="ColliderTypes.cpp">
     <ClCompile Include="LightSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>

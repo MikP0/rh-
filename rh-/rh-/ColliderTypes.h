@@ -18,12 +18,12 @@ enum ColliderType
 class ColliderBase
 {
 public:
+	ColliderBase() : Type(None), CollisionKind(DISJOINT) {};
+	ColliderBase(ColliderType type) : Type(type), CollisionKind(DISJOINT) {};
+	virtual ~ColliderBase() {};
+
 	ColliderType Type;
 	ContainmentType CollisionKind;
-
-	ColliderBase();
-	ColliderBase(ColliderType type);
-	virtual ~ColliderBase();
 };
 
 class ColliderSphere : public ColliderBase
@@ -31,9 +31,15 @@ class ColliderSphere : public ColliderBase
 public:
 	BoundingSphere Bounding;
 
-	ColliderSphere();
-	ColliderSphere(XMFLOAT3 center, float radius);
-	~ColliderSphere();
+	ColliderSphere() : ColliderBase(Sphere) {};
+
+	ColliderSphere(XMFLOAT3 center, float radius) : ColliderBase(Sphere)
+	{
+		Bounding.Center = center;
+		Bounding.Radius = radius;
+	};
+
+	~ColliderSphere() {};
 };
 
 class ColliderAABB : public ColliderBase
@@ -42,14 +48,26 @@ public:
 	BoundingBox Bounding;
 	Vector3 Min, Max;
 
-	ColliderAABB();
+	ColliderAABB() : ColliderBase(AABB) {};
 
-	ColliderAABB(XMFLOAT3 center, XMFLOAT3 extents);
-	ColliderAABB(Vector3 min, Vector3 max, bool flagMinMax);
-	~ColliderAABB();
+	ColliderAABB(XMFLOAT3 center, XMFLOAT3 extents) : ColliderBase(AABB)
+	{
+		Bounding.Center = center;
+		Bounding.Extents = extents;
+		Min = Vector3(Bounding.Center - Bounding.Extents);
+		Max = Vector3(Bounding.Center + Bounding.Extents);
+	};
 
-	void CalculateBounding();
-	void ChangeToCube();
+	ColliderAABB(Vector3 min, Vector3 max, bool flagMinMax) : ColliderBase(AABB), Min(min), Max(max)
+	{
+		Vector3 half = Vector3(Max - Min) / 2.0f;
+		Vector3 center = Min + half;
+
+		Bounding.Center = center;
+		Bounding.Extents = half;
+	};
+
+	~ColliderAABB() {};
 };
 
 class ColliderFrustum : public ColliderBase
@@ -57,8 +75,11 @@ class ColliderFrustum : public ColliderBase
 public:
 	BoundingFrustum Bounding;
 
-	ColliderFrustum();
-	ColliderFrustum(XMMATRIX xmProj);
+	ColliderFrustum() : ColliderBase(Frustum) {};
+	ColliderFrustum(XMMATRIX xmProj)
+	{
+		BoundingFrustum::CreateFromMatrix(Bounding, xmProj);
+	};
 };
 
 class ColliderRay : public ColliderBase
@@ -67,8 +88,14 @@ public:
 	XMVECTOR Origin;
 	XMVECTOR Direction;
 
-	ColliderRay();
-	ColliderRay(XMVECTOR origin, XMVECTOR direction);
-	~ColliderRay();
+	ColliderRay() : ColliderBase(ColliderType::Ray) {};
+
+	ColliderRay(XMVECTOR origin, XMVECTOR direction) : ColliderBase(ColliderType::Ray)
+	{
+		Origin = origin;
+		Direction = direction;
+	};
+
+	~ColliderRay() {};
 };
 

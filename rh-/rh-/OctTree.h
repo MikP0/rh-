@@ -21,27 +21,16 @@ typedef vector<ContainmentType> ContainmentTypeVector;
 class OctTree : public enable_shared_from_this<OctTree>
 {
 public:
-	/// <summary>
-	/// This is the bounding box region which contains all objects within the tree node.
-	/// </summary>
-	ColliderAABBptr Region;
+	static shared_ptr<OctTree> Root;
+	static list<PhysicsComponentPtr> AllTreeObjects;
 
-	/// <summary>
-	/// This is a list of all objects within the current node of the octree.
-	/// </summary>
+	ColliderAABBptr Region;
 	list<PhysicsComponentPtr> _objects;
 
 	/*These are items which we're waiting to insert into the data structure. 
 	We want to accrue as many objects in here as possible before we inject them 
 	into the tree. This is slightly more cache friendly. */
-	static deque<PhysicsComponentPtr> _pendingInsertion;
-
-	/// <summary>
-	/// This is a global list of all the objects within the octree, for easy reference.
-	/// </summary>
-	static list<PhysicsComponentPtr> AllTreeObjects;
-
-	static list<PhysicsComponentPtr> DeadObjects;
+	static queue<PhysicsComponentPtr> _pendingInsertion;
 
 	/*These are all of the possible child octants for this node in the tree.*/
 	shared_ptr<OctTree> _childNode[8];
@@ -71,24 +60,14 @@ public:
 	/*there is no pre - existing tree yet*/
 	static bool _treeBuilt;
 
-	/// <summary>
-	/// This is a reference to the root node of the octree.
-	/// </summary>
-	static shared_ptr<OctTree> Root;
-
-	static list<CollisionPtr> DetectedCollisions;
-
-	OctTree(ColliderAABBptr region, list<shared_ptr<PhysicsComponent>> objList);
 	OctTree();
 	OctTree(ColliderAABBptr region);
+	OctTree(ColliderAABBptr region, list<shared_ptr<PhysicsComponent>> objList);
 	~OctTree();
 	
 	void UnloadContent();
-	void UnloadHelper(shared_ptr<OctTree> root);
-	void Enqueue(list<PhysicsComponentPtr> item);
-	void Enqueue(PhysicsComponentPtr item);
+	void Enqueue(list<PhysicsComponentPtr> objects);
 	PhysicsComponentPtr Dequeue();
-	void ProcessPendingItems();
 	void UpdateTree();
 	void BuildTree();
 	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, list<PhysicsComponentPtr> objList);
@@ -99,6 +78,5 @@ public:
 	bool Insert(PhysicsComponentPtr Item);
 	list<CollisionPtr> GetIntersection(ColliderFrustumPtr colliderFrustum);
 	list<CollisionPtr> GetIntersection(ColliderRayPtr intersectRay);
-	list<CollisionPtr> GetIntersection(list<PhysicsComponentPtr> parentObjs);
 };
 

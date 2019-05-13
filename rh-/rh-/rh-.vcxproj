@@ -228,7 +228,6 @@
     <ClCompile Include="Camera.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ColliderTypes.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Component.cpp" />
