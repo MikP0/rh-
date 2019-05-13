@@ -14,79 +14,108 @@ Terrain::~Terrain()
 
 void Terrain::InitTileMap(ID3D11DeviceContext1* context)
 {
+	this->context = context;
 	ResetTileMap();
-	//SetTilePositionsAndTypes();
-	//CalculateWalkability();
-	//ConnectNeighboringTiles();
-	//CreateTileSets();
-	//tiles[0]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(1.f, 0.f, 1.f), false, true);
+	SetTilePositionsAndTypes();
+	ConnectNeighboringTiles();
 }
 
 void Terrain::ResetTileMap()
 {
-	//widthInTiles = 360 / tileSize;
-	//heightInTiles = 360 / tileSize;
-	//for (int i = 0; i < widthInTiles*heightInTiles; i++) {
-		//tiles.push_back(std::shared_ptr<MapTile>(new MapTile()));
-	//}
+	widthInTiles = 15;
+	heightInTiles = 15;
+	for (int i = 0; i < widthInTiles*heightInTiles; i++) {
+		tiles.push_back(std::shared_ptr<MapTile>(new MapTile()));
+			tiles[i]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize), false, true);
+	}
 }
 
 void Terrain::SetTilePositionsAndTypes()
 {
-	//for (int y = 0; y < heightInTiles; y++) {
-	//	for (int x = 0; x < widthInTiles; x++) {
-	//		std::shared_ptr<MapTile> tile = this->GetTile(x, y);
-	//		tile->mapPosition = Vector2(x, y);
-	//		// Calculate world position of tile center
-	//		float worldX = (x * 0.01f * tileSize) + (0.01f * tileSize / 2) - (100.f / 2);
-	//		float worldZ = (-y * 0.01f * tileSize) - (0.01f * tileSize / 2) + (100.f / 2);
-	//		float height = Height(worldX, worldZ);
-	//		tile->worldPosition = Vector3(worldX, height, worldZ);
-
-	//		// Set tile type
-	//		if (tile->height < HeightMap.MaxHeight*(0.05f)) {
-	//			tile->type = fire;
-	//		}
-	//		else if (tile->height < HeightMap.MaxHeight*(0.4f)) {
-	//			tile->type = grass;
-	//		}
-	//		else {
-	//			tile->type = snow;
-	//		}
-	//	}
-	//}
-}
-
-void Terrain::CalculateWalkability()
-{
+	for (int i = 0; i < widthInTiles; i++) {
+		for (int j = 0; j < heightInTiles; j++) {
+			tiles[i *heightInTiles + j]->worldPosition = Vector3(i*1.f, 0.f, j*1.f);
+			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
+			if (i*j % 3 < 2) {
+				tiles[i *heightInTiles + j]->type = TileType::grass;
+				tiles[i *heightInTiles + j]->walkable = true;
+			}
+			else {
+				tiles[i *heightInTiles + j]->type = TileType::fire;
+				tiles[i *heightInTiles + j]->walkable = false;
+				tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 3.f, tileSize));
+			}
+		}
+	}
 }
 
 void Terrain::ConnectNeighboringTiles()
 {
+	for each (std::shared_ptr<MapTile> tile in tiles)
+	{
+		Vector3 base = tile->worldPosition;
+		int k = 0;
+		for (int i = 1; i >= -1; i--) {
+			for (int j = 1; j >= -1; j--) {
+				std::shared_ptr<MapTile> temp = this->GetTileWithPosition(base + Vector3(i, 0, j));
+				if (temp != nullptr) {
+					if (temp->walkable) {
+						tile->edges.push_back(std::shared_ptr<MapEdge>(new MapEdge(tile, temp, 0.f)));
+					}
+					else {
+						tile->edges.push_back(std::shared_ptr<MapEdge>(new MapEdge(tile, temp, 1.f)));
+					}
+				}
+				else {
+					tile->edges.push_back(nullptr);
+				}
+				k++;
+			}
+		}
+	}
 }
 
-void Terrain::CreateTileSets()
+void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roomTex)
 {
+	for each (std::shared_ptr<MapTile> tile in tiles)
+	{
+		if (tile->walkable) {
+			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::Green, roomTex.Get());
+		}
+		else {
+			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::Red, roomTex.Get());
+		}
+	}
 }
 
-void Terrain::Draw(Camera camera, ID3D11Device1* device)
+bool Terrain::CanWalk(dxmath::Vector3 position)
 {
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roomTex;
-	DX::ThrowIfFailed(CreateDDSTextureFromFile(device, L"roomtexture.dds", nullptr, m_roomTex.ReleaseAndGetAddressOf()));
-	//tiles[0]->block->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
-}
+	if ((position.x > (tiles.front()->worldPosition.x - (tileSize / 2.f))) && (position.x < (tiles.back()->worldPosition.x + (tileSize / 2.f)))
+		&& (position.z > (tiles.front()->worldPosition.z - (tileSize / 2.f))) && (position.z < (tiles.back()->worldPosition.z + (tileSize / 2.f)))) {
 
-std::shared_ptr<MapTile> Terrain::GetTile(int x, int y)
-{
-	if (tiles.empty()) {
-		return nullptr;
+		std::shared_ptr<MapTile> tempPtr = this->GetTileWithPosition(position);
+		if (tempPtr != nullptr) {
+			return tempPtr->walkable;
+		}
+		else {
+			return false;
+		}
 	}
 	else {
-		return tiles[x + y * heightInTiles];
+		return false;
 	}
 }
 
-bool Terrain::Within(dxmath::Vector2 point)
+std::shared_ptr<MapTile> Terrain::GetTileWithPosition(dxmath::Vector3 position)
 {
-	return point.x >= 0 && point.x < widthInTiles && point.y >= 0 && point.y < heightInTiles;
+	float x = position.x;
+	float z = position.z;
+	for each (std::shared_ptr<MapTile> tile in tiles)
+	{
+		if (x < (tile->worldPosition.x + (tileSize / 2.f)) && x >(tile->worldPosition.x - (tileSize / 2.f))
+			&& z < (tile->worldPosition.z + (tileSize / 2.f)) && z >(tile->worldPosition.z - (tileSize / 2.f))) {
+			return tile;
+		}
+	}
+	return nullptr;
 }

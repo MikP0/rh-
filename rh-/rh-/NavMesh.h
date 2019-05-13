@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Transform.h"
+#include "Terrain.h"
 
 namespace dxmath = DirectX::SimpleMath;
 
@@ -15,7 +16,7 @@ public:
 
 	bool isMoving;
 
-private:
+	std::shared_ptr<Terrain> terrain;
 	std::shared_ptr<Transform> transform;
 	dxmath::Vector3 destination;
 	float speed;	

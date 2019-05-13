@@ -27,7 +27,7 @@
 #include "ToonFactory.h"
 
 #include "NavMesh.h"
-#include "MapTile.h"
+#include "Terrain.h"
 
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
@@ -190,5 +190,5 @@ private:
 
 	//NavMesh
 	std::shared_ptr<NavMesh> navMesh;
-	std::shared_ptr<MapTile> terrain;
+	std::shared_ptr<Terrain> terrain;
 };

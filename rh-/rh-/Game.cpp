@@ -81,7 +81,7 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 	float time = float(timer.GetTotalSeconds());
-	
+
 	// TODO: Add your game logic here.
 
 
@@ -160,7 +160,7 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 
 		if (*iter == moveFor)
-		{		
+		{
 			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, 1.0f))*elapsedTime * 0.001f, elapsedTime);
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
@@ -240,7 +240,7 @@ void Game::Update(DX::StepTimer const& timer)
 	tracker.Update(mouse);
 	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED) {
 		Vector3 destination = Raycast::GetPointOnGround(camera);
-		navMesh->SetDestination(destination);	
+		navMesh->SetDestination(destination);
 		mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 		mSkinModel->SetInMove(true);
 		mSkinModel->GetAnimatorPlayer()->SetDirection(true);
@@ -276,7 +276,7 @@ void Game::UpdateObjects(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
 	static shared_ptr<Entity> selectedCollider;
-	
+
 	//NavMesh
 	navMesh->Move();
 
@@ -329,7 +329,7 @@ void Game::UpdateObjects(float elapsedTime)
 	if (colliderBoundingCup2->Bounding.Center.x <= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
 		dir2.x = 1.0f;*/
 
-	// skinned model
+		// skinned model
 	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
 	if (mSkinModel->GetInMove())
 	{
@@ -381,9 +381,10 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	// room
 	//m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
-	//terrain->block->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
-	// cups
+	terrain->Draw(camera, m_roomTex);
+
+
 	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(colliderBoundingCup1->Bounding.Extents.x * 2.0f,
 			colliderBoundingCup1->Bounding.Extents.y * 2.0f,
@@ -420,7 +421,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	// skinned model
 	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	
+
 	// billboarding
 	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
@@ -543,7 +544,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 {
 	auto size = m_deviceResources->GetOutputSize();										// backBufferWidth/backBufferHeight - > size
 	// TODO: Initialize windows-size dependent objects here.
-	
+
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f);
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
@@ -555,6 +556,8 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context)
 {
 	m_world = Matrix::Identity;
+
+	terrain = std::make_shared<Terrain>();
 
 	entityManager = std::make_shared<EntityManager>();
 
@@ -637,18 +640,11 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//	XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
 	//	false, true);
 
-	/*std::unique_ptr<GeometricPrimitive> box = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
-		false, true);*/
 
-	//terrain->block = std::make_shared<GeometricPrimitive>(box);
-
-	//terrain->block = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
-
-	//terrain->Create(context);
+	terrain->InitTileMap(context);
 
 	DX::ThrowIfFailed(
-	CreateDDSTextureFromFile(device, L"roomtexture.dds",
+		CreateDDSTextureFromFile(device, L"roomtexture.dds",
 			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
 
 
@@ -671,7 +667,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 		CreateDDSTextureFromFile(device, L"cat.dds",
 			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
 	planeWorld = m_world;
-	
+
 
 	m_plane2 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
@@ -710,8 +706,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
 
 	//NavMesh
-	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);	
-	//navMesh = std::make_shared<NavMesh>();
+	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);
+	navMesh->terrain = this->terrain;
 }
 
 void Game::OnDeviceLost()

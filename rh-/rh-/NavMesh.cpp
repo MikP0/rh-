@@ -12,7 +12,7 @@ NavMesh::NavMesh(std::shared_ptr<Transform> transform)
 {
 	this->transform = transform;
 	destination = dxmath::Vector3::Zero;
-	speed = 0.001;
+	speed = 30.f;
 	isMoving = false;
 	step = dxmath::Vector3::Zero;
 }
@@ -30,8 +30,8 @@ void NavMesh::SetDestination(dxmath::Vector3 dest) {
 		float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 		transform->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-		step = destination - transform->GetPosition();
-		step = step / 100;
+		step = destination - transform->GetPosition();		
+		step = step / step.Length()/speed;
 		this->Move();
 }
 }
@@ -39,8 +39,16 @@ void NavMesh::SetDestination(dxmath::Vector3 dest) {
 
 void NavMesh::Move() {
 	//while (isMoving) {
-		if (isMoving && !XMVector3NearEqual(destination, transform->GetPosition(), Vector3(.001f, .001f, .001f))) {
-			transform->SetPosition(transform->GetPosition() + step);
+		if (isMoving && !XMVector3NearEqual(destination, transform->GetPosition(), Vector3(.01f, .01f, .01f))) {
+			
+			if (terrain->CanWalk(transform->GetPosition() + step)) {
+				transform->SetPosition(transform->GetPosition() + step);
+			}
+			else
+			{
+				isMoving = false;
+			}
+			//transform->SetPosition(transform->GetPosition() + step);
 			//mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			//mSkinModel->SetInMove(true);
 			//mSkinModel->GetAnimatorPlayer()->SetDirection(true);

@@ -12,18 +12,17 @@ public:
 	void InitTileMap(ID3D11DeviceContext1*);
 	void ResetTileMap();
 	void SetTilePositionsAndTypes();
-	void CalculateWalkability();
 	void ConnectNeighboringTiles();
-	void CreateTileSets();
 
-	void Draw(Camera, ID3D11Device1*);
+	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
 
-	std::shared_ptr<MapTile> GetTile(int, int);
-	bool Within(dxmath::Vector2);
+	bool CanWalk(dxmath::Vector3);
+	std::shared_ptr<MapTile> GetTileWithPosition(dxmath::Vector3);
 
+	ID3D11DeviceContext1* context;
 	std::vector<std::shared_ptr<MapTile>> tiles;
 	int widthInTiles;
 	int heightInTiles;
-	const int tileSize = 2;
+	const int tileSize = 1.f;
 };
 
