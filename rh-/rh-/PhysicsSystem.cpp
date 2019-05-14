@@ -2,9 +2,13 @@
 #include "PhysicsSystem.h"
 
 
-PhysicsSystem::PhysicsSystem(std::shared_ptr<EntityManager> entityManager) : System(entityManager)
+PhysicsSystem::PhysicsSystem(shared_ptr<EntityManager> entityManager, Vector3 sceneCenter, float cubeDimension) : System(entityManager)
 {
 	_componentsType._name = "Physics";
+	_sceneCenter = sceneCenter;
+	_sceneCubeDimension = cubeDimension;
+	ColliderAABBptr region = make_shared<ColliderAABB>();
+	_octTree = make_shared<OctTree>(region);
 }
 
 
@@ -21,14 +25,14 @@ void PhysicsSystem::UpdateCollidersPositions()
 
 		if (component->ColliderBounding->Type == AABB)
 		{
-			ColliderAABBptr collider = std::dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
+			ColliderAABBptr collider = dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
 			collider->Bounding.Center = objectPosition;
 			continue;
 		}
 
 		if (component->ColliderBounding->Type == Sphere)
 		{
-			ColliderSpherePtr collider = std::dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
+			ColliderSpherePtr collider = dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
 			collider->Bounding.Center = objectPosition;
 			continue;
 		}	
@@ -42,19 +46,19 @@ void PhysicsSystem::UpdateColliderPosition(PhysicsComponentPtr component)
 
 	if (component->ColliderBounding->Type == AABB)
 	{
-		ColliderAABBptr collider = std::dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
+		ColliderAABBptr collider = dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
 		collider->Bounding.Center = objectPosition;
 	}
 	else
 		if (component->ColliderBounding->Type == Sphere)
 		{
-			ColliderSpherePtr collider = std::dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
+			ColliderSpherePtr collider = dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
 			collider->Bounding.Center = objectPosition;
 		}
 }
 
 
-std::vector<ComponentPtr> PhysicsSystem::GetComponents(ComponentType componentType)
+vector<ComponentPtr> PhysicsSystem::GetComponents(ComponentType componentType)
 {
 	vector<ComponentPtr> result = _entityManager->GetComponents(_componentsType);
 
@@ -64,10 +68,10 @@ std::vector<ComponentPtr> PhysicsSystem::GetComponents(ComponentType componentTy
 void PhysicsSystem::UpdateComponentsCollection()
 {
 	_components.clear();
-	std::vector<ComponentPtr> selectedComponents = GetComponents(_componentsType);
+	vector<ComponentPtr> selectedComponents = GetComponents(_componentsType);
 	for each (ComponentPtr component in selectedComponents)
 	{
-		PhysicsComponentPtr physicsComponent = std::dynamic_pointer_cast<PhysicsComponent>(component);
+		PhysicsComponentPtr physicsComponent = dynamic_pointer_cast<PhysicsComponent>(component);
 		_components.push_back(physicsComponent);
 	}
 }
@@ -88,8 +92,8 @@ void PhysicsSystem::InsertComponent(PhysicsComponentPtr component)
 void PhysicsSystem::Initialize()
 {
 	/*shared_ptr<PhysicsComponent> colliderSceneWall = make_shared<PhysicsComponent>(AABB);
-	shared_ptr<PhysicsComponent> colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
-	shared_ptr<PhysicsComponent> colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
+	shared_ptr<PhysicsComponent> colliderCup1 = make_shared<PhysicsComponent>(AABB);
+	shared_ptr<PhysicsComponent> colliderCup2 = make_shared<PhysicsComponent>(Sphere);
 
 	_entityManager->AddComponent(_entityManager->GetEntity("SceneWall"), colliderSceneWall);
 	_entityManager->AddComponent(_entityManager->GetEntity("Cup1")->GetId(), colliderCup1);
@@ -97,20 +101,40 @@ void PhysicsSystem::Initialize()
 
 	*/
 
-	vector<shared_ptr<Component>> components = GetComponents(ComponentType("Physics"));
+	/*vector<shared_ptr<Component>> components = GetComponents(ComponentType("Physics"));
 
 	for each (shared_ptr<Component> component in components)
 	{
 		auto test = component->GetParent()->GetName();
 		_components.push_back(dynamic_pointer_cast<PhysicsComponent>(component));
+	}*/
+
+	_octTree->Region->Bounding = BoundingBox(_sceneCenter, Vector3(_sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f));
+	_octTree->Region->CalculateBounding();
+
+	
+	for each(PhysicsComponentPtr component in _components)
+	{
+		_octTree->PendingInsertion.push_back(component);
 	}
+	/*auto test1 = _octTree->PendingInsertion.size();
+	auto test2 = _octTree->AllTreeObjects.size();*/
+	//_octTree->UpdateTree();
+	/*auto test3 = _octTree->PendingInsertion.size();
+	auto test4 = _octTree->AllTreeObjects.size();*/
 }
 
 void PhysicsSystem::Iterate()
 {
 	for each (PhysicsComponentPtr component in _components)
 	{
-
+		UpdateCollidersPositions();
+		/*auto test1 = _octTree->PendingInsertion.size();
+		auto test2 = _octTree->AllTreeObjects.size();*/
+		//_octTree->UpdateTree();
+		/*auto test3 = _octTree->PendingInsertion.size();
+		auto test4 = _octTree->AllTreeObjects.size();*/
+		_octTree->Update();
 		ResetAllUpdatePositionFlags();
 	}
 }

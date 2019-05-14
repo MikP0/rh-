@@ -15,7 +15,7 @@ typedef shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef shared_ptr<ColliderAABB> ColliderAABBptr;
 typedef shared_ptr<ColliderFrustum> ColliderFrustumPtr;
 typedef shared_ptr<ColliderRay> ColliderRayPtr;
-typedef std::shared_ptr<Collision> CollisionPtr;
+typedef shared_ptr<Collision> CollisionPtr;
 typedef vector<ContainmentType> ContainmentTypeVector;
 
 class OctTree : public enable_shared_from_this<OctTree>
@@ -93,7 +93,7 @@ public:
 	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, PhysicsComponentPtr Item);
 	bool HasChildren();
 	bool IsRoot();
-	void Update(float time);
+	void Update();
 	bool Insert(PhysicsComponentPtr Item);
 	list<CollisionPtr> GetIntersection(ColliderFrustumPtr colliderFrustum);
 	list<CollisionPtr> GetIntersection(ColliderRayPtr intersectRay);
