@@ -21,24 +21,33 @@ typedef vector<ContainmentType> ContainmentTypeVector;
 class OctTree : public enable_shared_from_this<OctTree>
 {
 public:
-	static shared_ptr<OctTree> Root;
-	static list<PhysicsComponentPtr> AllTreeObjects;
-
+	/// <summary>
+	/// This is the bounding box region which contains all objects within the tree node.
+	/// </summary>
 	ColliderAABBptr Region;
-	list<PhysicsComponentPtr> _objects;
+
+	/// <summary>
+	/// This is a list of all objects within the current node of the octree.
+	/// </summary>
+	list<PhysicsComponentPtr> NodeObjects;
 
 	/*These are items which we're waiting to insert into the data structure. 
 	We want to accrue as many objects in here as possible before we inject them 
 	into the tree. This is slightly more cache friendly. */
-	static queue<PhysicsComponentPtr> _pendingInsertion;
+	static deque<PhysicsComponentPtr> PendingInsertion;
+
+	/// <summary>
+	/// This is a global list of all the objects within the octree, for easy reference.
+	/// </summary>
+	static list<PhysicsComponentPtr> AllTreeObjects;
 
 	/*These are all of the possible child octants for this node in the tree.*/
-	shared_ptr<OctTree> _childNode[8];
+	shared_ptr<OctTree> ChildrenNodes[8];
 
 	/*This is a bitmask indicating which child nodes are actively being used. 
 	It adds slightly more complexity, but is faster for performance since there 
 	is only one comparison instead of 8. */
-	byte _activeNodes = 0;
+	byte ActiveNodes = 0;
 
 	/*The minumum size for enclosing region is a 1x1x1 cube.*/
 	const int MIN_SIZE = 1;
@@ -46,28 +55,38 @@ public:
 	/*this is how many frames we'll wait before deleting an empty tree branch. 
 	Note that this is not a constant. The maximum lifespan doubles
 	every time a node is reused, until it hits a hard coded constant of 64 */
-	int _maxLifespan = 8;
+	int MaxLifespan = 8;
 
 	/*this is a countdown time showing how much time we have left to live*/
-	int _curLife = -1;
+	int CurLife = -1;
 
 	/*A pointer to the parent node is nice to have when we're trying to do a tree update.*/ 
-	shared_ptr<OctTree> _parent;
+	shared_ptr<OctTree> ParentNode;
 
 	/*the tree has a few objects which need to be inserted*/
-	static bool _treeReady;
+	static bool TreeReady;
 
 	/*there is no pre - existing tree yet*/
-	static bool _treeBuilt;
+	static bool TreeBuilt;
 
+	/// <summary>
+	/// This is a reference to the root node of the octree.
+	/// </summary>
+	static shared_ptr<OctTree> Root;
+
+	static list<CollisionPtr> DetectedCollisions;
+
+	OctTree(ColliderAABBptr region, list<shared_ptr<PhysicsComponent>> objList);
 	OctTree();
 	OctTree(ColliderAABBptr region);
-	OctTree(ColliderAABBptr region, list<shared_ptr<PhysicsComponent>> objList);
 	~OctTree();
 	
 	void UnloadContent();
-	void Enqueue(list<PhysicsComponentPtr> objects);
+	void UnloadHelper(shared_ptr<OctTree> root);
+	void Enqueue(list<PhysicsComponentPtr> item);
+	void Enqueue(PhysicsComponentPtr item);
 	PhysicsComponentPtr Dequeue();
+	void ProcessPendingItems();
 	void UpdateTree();
 	void BuildTree();
 	shared_ptr<OctTree> CreateNode(ColliderAABBptr region, list<PhysicsComponentPtr> objList);
@@ -78,5 +97,6 @@ public:
 	bool Insert(PhysicsComponentPtr Item);
 	list<CollisionPtr> GetIntersection(ColliderFrustumPtr colliderFrustum);
 	list<CollisionPtr> GetIntersection(ColliderRayPtr intersectRay);
+	list<CollisionPtr> GetIntersection(list<PhysicsComponentPtr> parentObjs);
 };
 
