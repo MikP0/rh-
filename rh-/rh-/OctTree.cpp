@@ -843,11 +843,14 @@ list<CollisionPtr> OctTree::GetIntersection(list<PhysicsComponentPtr> parentObjs
 		{
 			for each(PhysicsComponentPtr lObj2 in tmp)
 			{
-				if (tmp.back == lObj2)
+				list<PhysicsComponentPtr>::iterator i = tmp.end();
+				--i;
+
+				if (*i == lObj2)
 					continue;
 
 				CollisionPtr ir = Collision::CheckCollision(tmp.back(), lObj2);
-				
+
 				if (ir != nullptr)
 				{
 					//ir.m_treeNode = this;
