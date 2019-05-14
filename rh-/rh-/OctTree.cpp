@@ -253,7 +253,7 @@ void OctTree::BuildTree() //complete & tested
 	{
 		Root = shared_from_this();
 	}
-
+	//auto test = NodeObjects.size();
 	//terminate the recursion if we're a leaf node
 	if (NodeObjects.size() <= 1)
 		return;
@@ -295,7 +295,7 @@ void OctTree::BuildTree() //complete & tested
 
 	//this list contains all of the objects which got moved down the tree and can be delisted from this node.
 	list<PhysicsComponentPtr> delist;
-
+	auto testNodeObj = NodeObjects.size();
 	for each(PhysicsComponentPtr obj in NodeObjects)
 	{
 		ColliderType colliderType = obj->ColliderBounding->Type;
@@ -329,6 +329,13 @@ void OctTree::BuildTree() //complete & tested
 					}
 				}
 			}
+		auto testOctList1 = octList[0].size();
+		auto testOctList2 = octList[1].size();
+		auto testOctList3 = octList[2].size();
+		auto testOctList4 = octList[3].size();
+		auto testOctList5 = octList[4].size();
+		auto testOctList6 = octList[5].size();
+		auto testOctList7 = octList[6].size();
 	}
 
 	//delist every moved object from this node.
@@ -396,7 +403,7 @@ bool OctTree::IsRoot()
 		return false;
 }
 
-void OctTree::Update(float time)
+void OctTree::Update()
 {
 	DetectedCollisions.clear();
 
@@ -428,7 +435,8 @@ void OctTree::Update(float time)
 		}
 
 		list<PhysicsComponentPtr> movedObjects(NodeObjects.size());
-		
+		auto testNodeObj = NodeObjects.size();
+
 		//go through and update every object in the current tree node
 		for each(PhysicsComponentPtr gameObj in NodeObjects)
 		{
@@ -438,7 +446,7 @@ void OctTree::Update(float time)
 				movedObjects.push_back(gameObj);
 			}
 		}
-
+		auto testMove = movedObjects.size();
 		//prune any dead objects from the tree.
 		for each(PhysicsComponentPtr object in NodeObjects)
 		{
@@ -470,14 +478,15 @@ void OctTree::Update(float time)
 					ActiveNodes ^= (byte)(1 << index);       //remove the node from the active nodes flag list
 				}
 			}
-
+		auto testFlag = ActiveNodes;
 		//recursively update any child nodes.
 		for (int flags = ActiveNodes, index = 0; flags > 0; flags >>= 1, index++)
 		{
+			auto test1 = true;
 			if ((flags & 1) == 1)
 			{
 				if (ChildrenNodes != nullptr && ChildrenNodes[index] != nullptr)
-					ChildrenNodes[index]->Update(time);
+					ChildrenNodes[index]->Update();
 			}
 		}
 
@@ -560,7 +569,7 @@ void OctTree::Update(float time)
 		if (PendingInsertion.size() > 0)
 		{
 			ProcessPendingItems();
-			Update(time);   //try this again...
+			Update();   //try this again...
 		}
 	}
 }
