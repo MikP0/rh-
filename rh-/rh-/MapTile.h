@@ -21,10 +21,10 @@ public:
 	//float height;	
 	TileType type;
 	bool walkable;
-	/*int set;
+	//int set;
 	float f;
 	float g;
-	std::shared_ptr<MapTile> parent;*/
+	std::shared_ptr<MapTile> parent;
 	/*0 - NW, 1 - N, 2 - NE, 3 - W, 4 - E, 5 - SW, 6 - S, 7 - SE */
 	std::vector<std::shared_ptr<MapEdge>> edges;
 	std::shared_ptr<DirectX::GeometricPrimitive> block;

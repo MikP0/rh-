@@ -4,7 +4,8 @@
 
 MapTile::MapTile()
 {
-	
+	f = 0;
+	g = 0;
 }
 
 

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "NavMesh.h"
 
+using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
@@ -22,6 +23,11 @@ NavMesh::~NavMesh()
 }
 
 void NavMesh::SetDestination(dxmath::Vector3 dest) {
+	shared_ptr<MapTile> start = terrain->GetTileWithPosition(transform->GetPosition());
+	shared_ptr<MapTile> goal = terrain->GetTileWithPosition(dest);
+
+	terrain->GetPath(start, goal);
+	/**/
 	if (dest != transform->GetPosition()) {
 		destination = dest;
 		isMoving = true;

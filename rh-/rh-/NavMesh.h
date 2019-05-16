@@ -2,10 +2,11 @@
 #include "pch.h"
 #include "Transform.h"
 #include "Terrain.h"
+#include "MapTile.h"
 
 namespace dxmath = DirectX::SimpleMath;
 
-class NavMesh //: public std::enable_shared_from_this<NavMesh>
+class NavMesh 
 {
 public:
 	NavMesh();
@@ -13,6 +14,7 @@ public:
 	virtual ~NavMesh();
 	void Move();
 	void SetDestination(dxmath::Vector3);
+
 
 	bool isMoving;
 

@@ -14,9 +14,13 @@ public:
 	void SetTilePositionsAndTypes();
 	void ConnectNeighboringTiles();
 
+	float EuklideanDistance(dxmath::Vector3, dxmath::Vector3);
+
 	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
+	std::vector<std::shared_ptr<MapTile>> GetPath(std::shared_ptr<MapTile>, std::shared_ptr<MapTile>);
 
 	bool CanWalk(dxmath::Vector3);
+	bool Within(std::shared_ptr<MapTile>);
 	std::shared_ptr<MapTile> GetTileWithPosition(dxmath::Vector3);
 
 	ID3D11DeviceContext1* context;
@@ -24,5 +28,9 @@ public:
 	int widthInTiles;
 	int heightInTiles;
 	const int tileSize = 1.f;
+
+	DirectX::SimpleMath::Matrix view;
+	DirectX::SimpleMath::Matrix projection;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tex;
 };
 
