@@ -42,6 +42,8 @@ public:
 	void AddPointLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Position, float Radius);
 	void AddDirectLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction);
 	void AddSpotLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction, float OuterAngle, DirectX::XMFLOAT3 Position, float InnerAngle, float Radius);
+	void UpdatePointLight(int id, DirectX::XMFLOAT3 Position);
+	void UpdateSpotLight(int id, DirectX::XMFLOAT3 Position);
 
 private:
 	// Private implementation.

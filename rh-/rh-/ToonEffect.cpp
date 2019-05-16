@@ -469,3 +469,15 @@ void ToonEffect::AddSpotLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Directi
 		m_pImpl->NumOfSL++;
 	}
 }
+
+void ToonEffect::UpdatePointLight(int id, DirectX::XMFLOAT3 Position)
+{
+	m_pImpl->PointLights[id].Position = Position;
+	m_pImpl->isSent = false;
+}
+
+void ToonEffect::UpdateSpotLight(int id, DirectX::XMFLOAT3 Position)
+{
+	m_pImpl->SpotLights[id].Position = Position;
+	m_pImpl->isSent = false;
+}

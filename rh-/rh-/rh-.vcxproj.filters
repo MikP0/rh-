@@ -196,6 +196,9 @@
     <ClInclude Include="MapTile.h" />
     <ClInclude Include="MapEdge.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="LightComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -345,6 +348,9 @@
     <ClCompile Include="MapTile.cpp" />
     <ClCompile Include="MapEdge.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="LightComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
