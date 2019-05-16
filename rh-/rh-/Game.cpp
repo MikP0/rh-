@@ -321,11 +321,11 @@ void Game::UpdateObjects(float elapsedTime)
 	}
 
 	// check collisions
+	collisionSystem->Iterate();
 	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
 	XMVECTORF32 collider1Color = DirectX::Colors::White;
 	XMVECTORF32 collider2Color = DirectX::Colors::White;
 
-	collisionSystem->UpdateCollidersPositions();
 	CollisionPtr collisionEntity1WithWall = Collision::CheckCollision(colliderCup1, colliderSceneWall);
 	CollisionPtr collisionEntity2WithWall = Collision::CheckCollision(colliderCup2, colliderSceneWall);
 	CollisionPtr collisionBetweenCups = Collision::CheckCollision(colliderCup1, colliderCup2);
@@ -355,8 +355,8 @@ void Game::UpdateObjects(float elapsedTime)
 		XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
 		XMVECTOR direction = Vector4(dirFromMouse.x, dirFromMouse.y, dirFromMouse.z, 0.0f);
 		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(origin, direction));
-		collisionCup1WithRay = Collision::CheckCollision(colliderCup1, *sharedRay);
-		collisionCup2WithRay = Collision::CheckCollision(colliderCup2, *sharedRay);
+		collisionCup1WithRay = Collision::CheckCollision(colliderCup1, sharedRay);
+		collisionCup2WithRay = Collision::CheckCollision(colliderCup2, sharedRay);
 	}
 
 	if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
@@ -383,7 +383,6 @@ void Game::UpdateObjects(float elapsedTime)
 	}
 
 	lightSystem->Iterate();
-
 
 	//billboarding
 	//planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
@@ -675,13 +674,13 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	initialBounding1Radius = 0.3f;
 	initialBounding2Radius = 0.8f;
 
-	collisionSystem = std::make_shared<PhysicsSystem>(entityManager);
+	collisionSystem = std::make_shared<PhysicsSystem>(entityManager, Vector3::Zero, ROOM_BOUNDS[0]);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);
 	colliderBoundingSceneWall = std::dynamic_pointer_cast<ColliderAABB>(colliderSceneWall->ColliderBounding);
 	colliderBoundingSceneWall->Bounding.Extents = XMFLOAT3(ROOM_BOUNDS[0] / 2.0f, ROOM_BOUNDS[1] / 2.0f, ROOM_BOUNDS[2] / 2.0f);
-	collisionSystem->InsertComponent(colliderSceneWall);
+	//collisionSystem->InsertComponent(colliderSceneWall);
 
 	colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
 	colliderCup1->SetParent(myEntity1);
@@ -694,6 +693,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
 	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
 	collisionSystem->InsertComponent(colliderCup2);
+
+	collisionSystem->Initialize();
 
 	m_room = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),

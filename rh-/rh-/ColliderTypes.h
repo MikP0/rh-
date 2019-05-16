@@ -11,7 +11,8 @@ enum ColliderType
 	Sphere = 1,
 	AABB = 2,
 	OOBB = 3,
-	Ray = 4
+	Frustum = 4,
+	Ray = 5
 };
 
 class ColliderBase
@@ -67,18 +68,76 @@ public:
 	};
 
 	~ColliderAABB() {};
+
+	void CalculateBounding()
+	{
+		Vector3 dimensions = Max - Min;
+
+		if (dimensions == Vector3::Zero)
+		{
+			Min = Vector3(Bounding.Center - Bounding.Extents);
+			Max = Vector3(Bounding.Center + Bounding.Extents);
+		}
+		else
+			if (Vector3(Bounding.Center) == Vector3::Zero || Vector3(Bounding.Extents) == Vector3::Zero)
+			{
+				Vector3 half = Vector3(Max - Min) / 2.0f;
+				Vector3 center = Min + half;
+
+				Bounding.Center = center;
+				Bounding.Extents = half;
+			}
+	};
+
+	void ChangeToCube()
+	{
+		Vector3 dimensions = Max - Min;
+
+		float max = dimensions.x;
+
+		if (dimensions.x > dimensions.y)
+		{
+			if (dimensions.x > dimensions.z)
+				max = dimensions.x;
+			else
+				max = dimensions.z;
+		}
+		else
+		{
+			if (dimensions.y > dimensions.z)
+				max = dimensions.y;
+			else
+				max = dimensions.z;
+		}
+
+		max /= 2.0f;
+		Min = Max = Vector3::Zero;
+		Bounding.Extents = XMFLOAT3(max, max, max);
+		CalculateBounding();
+	};
 };
 
-class ColliderRay
+class ColliderFrustum : public ColliderBase
 {
 public:
-	ColliderType Type;
+	BoundingFrustum Bounding;
+
+	ColliderFrustum() : ColliderBase(Frustum) {};
+	ColliderFrustum(XMMATRIX xmProj)
+	{
+		BoundingFrustum::CreateFromMatrix(Bounding, xmProj);
+	};
+};
+
+class ColliderRay : public ColliderBase
+{
+public:
 	XMVECTOR Origin;
 	XMVECTOR Direction;
 
-	ColliderRay() : Type(ColliderType::Ray) {};
+	ColliderRay() : ColliderBase(ColliderType::Ray) {};
 
-	ColliderRay(XMVECTOR origin, XMVECTOR direction) : Type(ColliderType::Ray)
+	ColliderRay(XMVECTOR origin, XMVECTOR direction) : ColliderBase(ColliderType::Ray)
 	{
 		Origin = origin;
 		Direction = direction;

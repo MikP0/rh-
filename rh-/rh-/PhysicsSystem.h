@@ -13,11 +13,12 @@ typedef shared_ptr<Entity> EntityPtr;
 typedef shared_ptr<PhysicsComponent> PhysicsComponentPtr;
 typedef shared_ptr<Collision> CollisionPtr;
 typedef vector<ContainmentType> ContainmentTypeVector;
+typedef shared_ptr<OctTree> OctTreePtr;
 
 class PhysicsSystem : public System
 {
 public:
-	PhysicsSystem(std::shared_ptr<EntityManager> entityManager);
+	PhysicsSystem(std::shared_ptr<EntityManager> entityManager, Vector3 sceneCenter, float cubeDimension);
 	~PhysicsSystem();
 
 	void UpdateCollidersPositions();
@@ -34,6 +35,9 @@ public:
 	virtual void Iterate() override;
 
 private:
-	std::vector<PhysicsComponentPtr> _components;
+	vector<PhysicsComponentPtr> _components;
+	Vector3 _sceneCenter;
+	float _sceneCubeDimension;
+	OctTreePtr _octTree;
 };
 
