@@ -28,6 +28,9 @@
 #include "LightSystem.h"
 #include "LightComponent.h"
 
+#include "NavMesh.h"
+#include "Terrain.h"
+
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 
@@ -157,7 +160,7 @@ private:
 	std::shared_ptr<Entity> inputEntity;
 	
 	// primitives
-	std::unique_ptr<DirectX::GeometricPrimitive> m_room;
+	//std::unique_ptr<DirectX::GeometricPrimitive> m_room;
 	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity1;
 	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity2;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roomTex;
@@ -192,5 +195,8 @@ private:
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
 
+	//NavMesh
+	std::shared_ptr<NavMesh> navMesh;
+	std::shared_ptr<Terrain> terrain;
 	std::shared_ptr<LightSystem> lightSystem;
 };

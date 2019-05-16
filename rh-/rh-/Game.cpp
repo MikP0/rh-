@@ -17,7 +17,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace
 {
-	const XMVECTORF32 ROOM_BOUNDS = { 15.f, 6.f, 12.f, 0.f };
+	const XMVECTORF32 ROOM_BOUNDS = { 1.f, 0.f, 1.f, 0.f };
 	const float ROTATION_GAIN = 0.008f;
 	const float MOVEMENT_GAIN = 0.07f;
 
@@ -27,10 +27,7 @@ namespace
 /*
 	Tymczasowa zmienna !!!!!!
 */
-bool angel = true;
 Mouse::ButtonStateTracker tracker;
-Vector3 destination = Vector3::Zero;
-Vector3 step = Vector3::Zero;
 
 Game::Game() noexcept(false) : m_pitch(0.f), m_yaw(0.f)
 {
@@ -84,7 +81,7 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 	float time = float(timer.GetTotalSeconds());
-	
+
 	// TODO: Add your game logic here.
 
 
@@ -163,7 +160,7 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 
 		if (*iter == moveFor)
-		{		
+		{
 			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, 1.0f))*elapsedTime * 0.001f, elapsedTime);
 			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
@@ -247,7 +244,7 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 	}
 
-	if (pushedKeysActions.size() == 0 && step == Vector3(0.f, 0.f, 0.f))
+	if (pushedKeysActions.size() == 0 && !navMesh->isMoving)
 	{
 		//mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
 		mSkinModel->SetInMove(true);
@@ -255,20 +252,14 @@ void Game::Update(DX::StepTimer const& timer)
 		clicked = false;
 	}
 
+	//NavMesh
 	tracker.Update(mouse);
 	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED) {
-		destination = Raycast::GetPointOnGround(camera);
-		//destination.y = -3.f;	// FLOOR LEVEL
-		//destination.y = mSkinModelTransform->GetPosition().y;
-		step = destination - mSkinModelTransform->GetPosition();
-		step = step / 100;
-
-		
-		float dot = mSkinModelTransform->GetTransformMatrix().Forward().x * (destination - mSkinModelTransform->GetPosition()).x + mSkinModelTransform->GetTransformMatrix().Forward().z * (destination - mSkinModelTransform->GetPosition()).z;
-		float cross = mSkinModelTransform->GetTransformMatrix().Forward().x * (destination - mSkinModelTransform->GetPosition()).z - mSkinModelTransform->GetTransformMatrix().Forward().z * (destination - mSkinModelTransform->GetPosition()).x;
-		float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
-		mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
-	
+		Vector3 destination = Raycast::GetPointOnGround(camera);
+		navMesh->SetDestination(destination);
+		mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+		mSkinModel->SetInMove(true);
+		mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 	}
 
 	//move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
@@ -294,7 +285,6 @@ void Game::Update(DX::StepTimer const& timer)
 
 	UpdateObjects(elapsedTime);
 
-
 	elapsedTime;
 }
 
@@ -303,7 +293,9 @@ void Game::UpdateObjects(float elapsedTime)
 	auto mouse = Input::GetMouseState();
 	static shared_ptr<Entity> selectedCollider;
 
-	if (destination != Vector3::Zero) {
+	//NavMesh
+	navMesh->Move();
+	/*if (destination != Vector3::Zero) {
 		if (!XMVector3NearEqual(destination, mSkinModelTransform->GetPosition(), Vector3(.001f, .001f, .001f))){												
 			mSkinModelTransform->SetPosition(mSkinModelTransform->GetPosition() + step);
 
@@ -318,7 +310,7 @@ void Game::UpdateObjects(float elapsedTime)
 		else {
 			step = Vector3(0.f, 0.f, 0.f);
 		}
-	}
+	}*/
 
 	// check collisions
 	collisionSystem->Iterate();
@@ -331,13 +323,11 @@ void Game::UpdateObjects(float elapsedTime)
 	CollisionPtr collisionBetweenCups = Collision::CheckCollision(colliderCup1, colliderCup2);
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-
 	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity1->Update();
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 	myEntity2->Update();
 	myEntity3->Update();
-
 
 	if (mouse.rightButton)
 	{
@@ -359,7 +349,7 @@ void Game::UpdateObjects(float elapsedTime)
 		collisionCup2WithRay = Collision::CheckCollision(colliderCup2, sharedRay);
 	}
 
-	if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
+	/*if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
 		dir1.x = -1.0f;
 
 	if (colliderBoundingCup1->Bounding.Center.x <= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
@@ -369,10 +359,12 @@ void Game::UpdateObjects(float elapsedTime)
 		dir2.x = -1.0f;
 
 	if (colliderBoundingCup2->Bounding.Center.x <= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
-		dir2.x = 1.0f;
+		dir2.x = 1.0f;*/
+
 
 	// skinned model
 //	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
+
 	if (mSkinModel->GetInMove())
 	{
 		mSkinModel->GetAnimatorPlayer()->ResumeClip();
@@ -424,9 +416,11 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
 	// room
-	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
+	//m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
-	// cups
+	terrain->Draw(camera, m_roomTex);
+
+
 	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(colliderBoundingCup1->Bounding.Extents.x * 2.0f,
 			colliderBoundingCup1->Bounding.Extents.y * 2.0f,
@@ -463,7 +457,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	// skinned model
 	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	
+
 	// billboarding
 	//m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
@@ -583,7 +577,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 {
 	auto size = m_deviceResources->GetOutputSize();										// backBufferWidth/backBufferHeight - > size
 	// TODO: Initialize windows-size dependent objects here.
-	
+
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f);
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
@@ -595,6 +589,8 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context)
 {
 	m_world = Matrix::Identity;
+
+	terrain = std::make_shared<Terrain>();
 
 	entityManager = std::make_shared<EntityManager>();
 
@@ -694,15 +690,17 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
 	collisionSystem->InsertComponent(colliderCup2);
 
-	collisionSystem->Initialize();
+	//m_room = GeometricPrimitive::CreateBox(context,
+	//	XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
+	//	false, true);
 
-	m_room = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
-		false, true);
+	terrain->InitTileMap(context);
+	collisionSystem->Initialize();
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"roomtexture.dds",
 			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
+
 
 
 	//skinned model
@@ -718,7 +716,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	mSkinModelTransform = std::make_shared<Transform>();
 	mSkinModelTransform->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-	mSkinModelTransform->SetPosition(Vector3(1.0f, -3.0f, 0.0f));
+	mSkinModelTransform->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 
 	//billboarding
 	m_plane = GeometricPrimitive::CreateBox(context,
@@ -728,7 +726,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 		CreateDDSTextureFromFile(device, L"cat.dds",
 			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
 	planeWorld = m_world;
-	
+
 
 	m_plane2 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
@@ -765,6 +763,10 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	audioSystem->Initialize();
 	audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
 	audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
+
+	//NavMesh
+	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);
+	navMesh->terrain = this->terrain;
 }
 
 void Game::OnDeviceLost()
@@ -778,8 +780,9 @@ void Game::OnDeviceLost()
 	myEntity3->Model.reset();
 	myEntity4->Model.reset();
 
-	m_room.reset();
-	m_roomTex.Reset();
+	//m_room.reset();
+	//m_roomTex.Reset();
+	//terrain.block.reset();
 
 
 	m_plane.reset();
