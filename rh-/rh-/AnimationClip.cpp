@@ -32,6 +32,7 @@ AnimationClip::AnimationClip(ModelSK& model, aiAnimation& animation)
 			mKeyframeCount = boneAnimation->Keyframes().size();
 		}
 	}
+	int a;
 }
 
 AnimationClip::~AnimationClip()
@@ -41,6 +42,17 @@ AnimationClip::~AnimationClip()
 		delete boneAnimation;
 	}
 }
+
+AnimationClip::AnimationClip(const AnimationClip & clip)
+{
+	mName = clip.mName;
+	mTicksPerSecond = clip.mTicksPerSecond;
+	mBoneAnimations = clip.mBoneAnimations;
+	mBoneAnimationsByBone = clip.mBoneAnimationsByBone;
+	mDuration = clip.mDuration;
+	mKeyframeCount = clip.mKeyframeCount;
+}
+
 
 const std::string& AnimationClip::Name() const
 {

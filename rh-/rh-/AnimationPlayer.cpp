@@ -14,6 +14,8 @@ AnimationPlayer::AnimationPlayer(MyGame& game, ModelSK& model, bool interpolatio
 	mFinalTransforms.resize(model.Bones().size());
 
 	mIsMovingForward = true;
+
+	mIsBlended = false;
 }
 
 const ModelSK& AnimationPlayer::GetModel() const
@@ -71,7 +73,17 @@ void AnimationPlayer::StartClip(std::string clipName)
 			{
 				if (animationClips[i]->Name() == clipName)
 				{
-					StartClip(*animationClips[i]);
+					if (!mIsBlended)
+					{
+						StartClip(*animationClips[i]);
+					}
+					else
+					{
+						if (mCurrentClip->Name() == "Idle")
+							StartClip(*animationClips[i]);
+						else
+							StartBlendedClip(*animationClips[i]);
+					}
 				}
 			}
 		}
@@ -98,6 +110,162 @@ void AnimationPlayer::StartClip(AnimationClip& clip)
 	DirectX::XMMATRIX inverseRootTransform = XMMatrixInverse(&XMMatrixDeterminant(mModel->RootNode()->TransformMatrix()), mModel->RootNode()->TransformMatrix());
 	XMStoreFloat4x4(&mInverseRootTransform, inverseRootTransform);
 	GetBindPose(*(mModel->RootNode()));
+}
+
+void AnimationPlayer::UpAnim()
+{
+	//std::string clipName = "Walk";
+
+	//for (int i = 0; i < animationClips.size(); i++)
+	//{
+	//	if (animationClips[i]->Name() == clipName)
+	//	{
+	//		//animationClips[i]->mDuration = 45.0f;
+	//		//animationClips[i]->mKeyframeCount = 45;
+
+
+	//		AnimationClip *newclip = new AnimationClip(*animationClips[i]);
+
+	//		int q = 5;
+
+	//		newclip->mDuration = 2;
+	//		q = 0;
+	//	}
+	//}
+}
+
+
+void AnimationPlayer::StartBlendedClip(AnimationClip & clip)
+{
+	if (orgClip != nullptr)
+		mCurrentClip = &(*orgClip);
+
+
+
+	tempClip = new AnimationClip(clip);
+
+	//int k = 0;
+	for (std::map<Bone*, BoneAnimation*>::const_iterator it = tempClip->mBoneAnimationsByBone.begin(); it != tempClip->mBoneAnimationsByBone.end(); ++it)
+	{
+		for (int k = 0; k < it->second->mKeyframes.size(); k++)
+		{
+			it->second->mKeyframes[k]->mTime = k;
+		}
+	}
+
+
+
+
+
+
+
+	int currytime = mCurrentTime;
+
+	std::vector <Keyframe*> keyframevec;
+	keyframevec.clear();
+
+	for (std::map<Bone*, BoneAnimation*>::const_iterator it = mCurrentClip->mBoneAnimationsByBone.begin(); it != mCurrentClip->mBoneAnimationsByBone.end(); ++it)
+	{
+		if (currytime < it->second->mKeyframes.size())
+		{
+			keyframevec.push_back(it->second->mKeyframes[currytime]);
+			keyframevec[keyframevec.size()-1]->mTime = tempClip->mDuration + 1.0f;
+		}
+		else
+		{
+			keyframevec.push_back(it->second->mKeyframes[0]);
+			keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 1.0f;
+		}
+
+		if (it->second->mKeyframes.size() > 1)
+		{
+			if (currytime + 1 < it->second->mKeyframes.size())
+			{
+				keyframevec.push_back(it->second->mKeyframes[currytime + 1]);
+				keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 2.0f;
+			}
+			else
+			{
+				keyframevec.push_back(it->second->mKeyframes[1]);
+				keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 2.0f;
+			}
+
+			if (currytime + 2 < it->second->mKeyframes.size())
+			{
+				keyframevec.push_back(it->second->mKeyframes[currytime + 2]);
+				keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 3.0f;
+			}
+			else
+			{
+				keyframevec.push_back(it->second->mKeyframes[2]);
+				keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 3.0f;
+			}
+
+			if (currytime + 3 < it->second->mKeyframes.size())
+			{
+				keyframevec.push_back(it->second->mKeyframes[currytime + 3]);
+				keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 4.0f;
+			}
+			else
+			{
+				keyframevec.push_back(it->second->mKeyframes[3]);
+				keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 4.0f;
+			}
+
+			if (currytime + 4 < it->second->mKeyframes.size())
+			{
+				keyframevec.push_back(it->second->mKeyframes[currytime + 4]);
+				keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 5.0f;
+			}
+			else
+			{
+				keyframevec.push_back(it->second->mKeyframes[4]);
+				keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 5.0f;
+			}
+		}
+		else
+		{
+			keyframevec.push_back(it->second->mKeyframes[0]);
+			keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 2.0f;
+			keyframevec.push_back(it->second->mKeyframes[0]);
+			keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 3.0f;
+			keyframevec.push_back(it->second->mKeyframes[0]);
+			keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 4.0f;
+			keyframevec.push_back(it->second->mKeyframes[0]);
+			keyframevec[keyframevec.size() - 1]->mTime = tempClip->mDuration + 5.0f;
+		}
+	}
+
+
+
+
+	int i = 0;
+	for (std::map<Bone*, BoneAnimation*>::const_iterator it = tempClip->mBoneAnimationsByBone.begin(); it != tempClip->mBoneAnimationsByBone.end(); ++it)
+	{
+		it->second->mKeyframes.push_back(keyframevec[i++]);
+		it->second->mKeyframes.push_back(keyframevec[i++]);
+		it->second->mKeyframes.push_back(keyframevec[i++]);
+		it->second->mKeyframes.push_back(keyframevec[i++]);
+		it->second->mKeyframes.push_back(keyframevec[i++]);
+	}
+
+
+	mIsPlayingClip = true;
+	mCurrentTime = tempClip->mDuration;
+	mCurrentKeyframe = tempClip->mKeyframeCount;
+
+	tempClip->mDuration += 5.0f;
+	tempClip->mKeyframeCount += 5;
+
+	mCurrentClip = &(*tempClip);
+	orgClip = &(clip);
+
+
+	blendingisdone = false;
+
+	//DirectX::XMMATRIX inverseRootTransform = XMMatrixInverse(&XMMatrixDeterminant(mModel->RootNode()->TransformMatrix()), mModel->RootNode()->TransformMatrix());
+	//XMStoreFloat4x4(&mInverseRootTransform, inverseRootTransform);
+	//GetBindPose(*(mModel->RootNode()));
 }
 
 void AnimationPlayer::PauseClip()
@@ -160,6 +328,37 @@ void AnimationPlayer::Update(float gameTime)
 		{
 			GetPose(mCurrentTime, *(mModel->RootNode()));
 		}
+
+
+
+
+		if ((!blendingisdone) && ((mCurrentTime > 2.0f) && (mCurrentTime < 5.0f)))
+		{
+			mCurrentClip->mDuration -= 6.0f;
+			mCurrentClip->mKeyframeCount -= 6;
+
+
+			for (std::map<Bone*, BoneAnimation*>::const_iterator it = mCurrentClip->mBoneAnimationsByBone.begin(); it != mCurrentClip->mBoneAnimationsByBone.end(); ++it)
+			{
+				it->second->mKeyframes.pop_back();
+				it->second->mKeyframes.pop_back();
+				it->second->mKeyframes.pop_back();
+				it->second->mKeyframes.pop_back();
+				it->second->mKeyframes.pop_back();
+			}
+
+			blendingisdone = true;
+		}
+
+		if (textnow)
+		{
+			std::string timetext = std::to_string(mCurrentTime) + "\n";
+			char text[350];
+			strcpy(text, timetext.c_str());
+			OutputDebugStringA(text);
+		}
+
+
 	}
 }
 
@@ -172,6 +371,11 @@ void AnimationPlayer::SetCurrentKeyFrame(UINT keyframe)
 void AnimationPlayer::SetDirection(bool isForward)
 {
 	mIsMovingForward = isForward;
+}
+
+void AnimationPlayer::SetBlending(bool isBlended)
+{
+	mIsBlended = isBlended;
 }
 
 bool AnimationPlayer::AddAnimationClip(AnimationClip * clip, std::string clipName)

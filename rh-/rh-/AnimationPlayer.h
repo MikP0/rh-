@@ -34,7 +34,21 @@ public:
 	void ResumeClip();
 	void Update(float gameTime);
 	void SetCurrentKeyFrame(UINT keyframe);
+
 	void SetDirection(bool isForward);
+	void SetBlending(bool isBlended);
+
+
+
+
+	AnimationClip* tempClip;
+	AnimationClip* orgClip = nullptr;
+	void UpAnim();
+	bool blendingisdone = true;
+
+
+	bool textnow = false;
+
 
 private:
 	AnimationPlayer();
@@ -42,6 +56,7 @@ private:
 	AnimationPlayer& operator=(const AnimationPlayer& rhs);
 
 	void StartClip(AnimationClip& clip);
+	void StartBlendedClip(AnimationClip& clip);
 
 	void GetBindPose(SceneNode& sceneNode);
 	void GetBindPoseBottomUp(SceneNode& sceneNode);
@@ -53,6 +68,12 @@ private:
 	AnimationClip* mCurrentClip;
 	std::vector<AnimationClip*> animationClips;
 
+
+
+
+
+
+
 	float mCurrentTime;
 	UINT mCurrentKeyframe;
 	std::map<SceneNode*, DirectX::XMFLOAT4X4> mToRootTransforms;
@@ -63,4 +84,5 @@ private:
 	bool mIsClipLooped;
 
 	bool mIsMovingForward;
+	bool mIsBlended;
 };

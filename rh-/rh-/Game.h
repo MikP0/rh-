@@ -128,6 +128,11 @@ private:
 	// camera
 	Camera camera;
 
+
+	float bardzowaznazmiennaalledousuniecia = 0;
+	bool clicked = false;
+
+
 	// input
 	std::map<availableKeys, actionList> actionKeysBindings = {
 		{availableKeys::esc, actionList::closeWindow},

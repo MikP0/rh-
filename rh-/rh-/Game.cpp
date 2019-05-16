@@ -209,34 +209,50 @@ void Game::Update(DX::StepTimer const& timer)
 
 
 		if (*iter == special1)
-		{
-			mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
+		{			
+			//mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
+			//mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 		}
 
 		if (*iter == special2)
 		{
+			//mSkinModel->GetAnimatorPlayer()->SetBlending(true);
 			mSkinModel->GetAnimatorPlayer()->StartClip("Dance");
 			mSkinModel->SetInMove(true);
 			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			
 		}
 
 		if (*iter == playBackground)
 		{
-			audioBackgroundSound->Mute = false;
+			//audioBackgroundSound->Mute = false;			
+
+			if (!clicked)
+			{
+				mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
+				clicked = true;
+			}
 		}
+
 
 		if (*iter == playSound1)
 		{
 			audioSound1->Mute = false;
+			//mSkinModel->GetAnimatorPlayer()->UpAnim();
+			mSkinModel->GetAnimatorPlayer()->SetBlending(true);
+			mSkinModel->GetAnimatorPlayer()->textnow = true;
 		}
 	}
 
 	if (pushedKeysActions.size() == 0 && step == Vector3(0.f, 0.f, 0.f))
 	{
-		mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
+		//mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
 		mSkinModel->SetInMove(true);
+
+		clicked = false;
 	}
 
 	tracker.Update(mouse);
@@ -356,7 +372,7 @@ void Game::UpdateObjects(float elapsedTime)
 		dir2.x = 1.0f;
 
 	// skinned model
-	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
+//	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
 	if (mSkinModel->GetInMove())
 	{
 		mSkinModel->GetAnimatorPlayer()->ResumeClip();
@@ -690,6 +706,11 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	//skinned model
 	mSkinModel = std::make_shared<ModelSkinned>(device, "content\\Models\\Hero.fbx", context);
+
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_Idle.fbx", "Idle");
+	mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
+	mSkinModel->GetAnimatorPlayer()->PauseClip();
+
 	mSkinModel->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
 	mSkinModel->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
 	mSkinModel->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
