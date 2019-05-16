@@ -676,13 +676,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//	XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
 	//	false, true);
 
-
 	terrain->InitTileMap(context);
 	collisionSystem->Initialize();
-
-	m_room = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
-		false, true);
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"roomtexture.dds",
