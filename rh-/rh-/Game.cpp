@@ -8,6 +8,9 @@
 #include "RenderableSystem.h"
 #include "RenderableComponent.h"
 
+#include <thread>
+#include <chrono>
+
 extern void ExitGame();
 
 using namespace DirectX;
@@ -126,7 +129,6 @@ void Game::Update(DX::StepTimer const& timer)
 		camera.ZoomOut();
 		Input::ResetWheel();
 	}
-
 
 	std::vector<actionList> pushedKeysActions = Input::GetActions();
 	Input::SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
