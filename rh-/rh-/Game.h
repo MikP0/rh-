@@ -15,7 +15,6 @@
 #include "Input.h"
 #include "Collision.h"
 #include "EntityManager.h"
-#include "SceneManager.h"
 #include "PhysicsComponent.h"
 #include "RenderableSystem.h"
 
@@ -177,8 +176,6 @@ private:
 	DirectX::SimpleMath::Matrix planeWorld2;
 	DirectX::SimpleMath::Matrix planeWorld3;
 	DirectX::SimpleMath::Matrix planeWorld4;
-
-	std::shared_ptr<SceneManager> sceneManager;
 
 	//Audio
 	std::shared_ptr<AudioSystem> audioSystem;

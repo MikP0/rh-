@@ -16,7 +16,7 @@ public:
 	Entity(const Entity&);
 	virtual ~Entity();
 
-	int GetId() const;
+	std::size_t GetId() const;
 	Entity* GetPartent() const;
 	std::vector<std::shared_ptr<Entity>> GetAllChildren() const;
 	std::shared_ptr<Transform> GetTransform() const;
@@ -28,6 +28,9 @@ public:
 	void SetParent(Entity* parent);
 	void SetName(std::string name);
 
+	void SetActive(bool activeFlag);
+	bool IsActive();
+
 	std::shared_ptr<Entity> GetChildById(int id);
 
 	void AddChild(std::shared_ptr<Entity> child);
@@ -36,14 +39,16 @@ public:
 	
 	std::unique_ptr<DirectX::Model> Model; //TODO: Move to renderer component
 
-	static int nextId;
+	static std::size_t nextId;
 	
 private:
-	int _id;
+	std::size_t _id;
 	
 	std::shared_ptr<Transform> _transform;
 	std::vector<std::shared_ptr<Entity>> _children;
 	Entity *_parent;
 	std::string _name;
 	dxmath::Matrix _worldMatrix;
+
+	bool _active;
 };

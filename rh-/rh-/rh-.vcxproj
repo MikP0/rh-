@@ -195,8 +195,6 @@
     <ClInclude Include="RTTI.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SkinnedModelMaterial.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Technique.h" />
@@ -207,6 +205,7 @@
     <ClInclude Include="Variable.h" />
     <ClInclude Include="VectorHelper.h" />
     <ClInclude Include="VertexDeclarations.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationClip.cpp">
@@ -299,8 +298,6 @@
     <ClCompile Include="Technique.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="ToonEffect.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -319,6 +316,7 @@
     <ClCompile Include="VectorHelper.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

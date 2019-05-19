@@ -157,12 +157,6 @@
     <ClInclude Include="ComponentFactory.h">
       <Filter>Inc</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneManager.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
     <ClInclude Include="Raycast.h">
       <Filter>Inc</Filter>
     </ClInclude>
@@ -191,6 +185,9 @@
       <Filter>Inc</Filter>
     </ClInclude>
     <ClInclude Include="LightComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
       <Filter>Inc</Filter>
     </ClInclude>
   </ItemGroup>
@@ -309,12 +306,6 @@
     <ClCompile Include="ComponentFactory.cpp">
       <Filter>Src</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneManager.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
     <ClCompile Include="Raycast.cpp">
       <Filter>Src</Filter>
     </ClCompile>
@@ -337,6 +328,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="LightComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

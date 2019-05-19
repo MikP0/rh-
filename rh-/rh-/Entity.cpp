@@ -5,7 +5,7 @@
 #include "Entity.h"
 
 
-int Entity::nextId = 0;
+std::size_t Entity::nextId = 0;
 
 Entity::Entity()
 {
@@ -39,7 +39,7 @@ Entity::~Entity()
 {
 }
 
-int Entity::GetId() const
+std::size_t Entity::GetId() const
 {
 	return _id;
 }
@@ -87,6 +87,16 @@ void Entity::SetParent(Entity* parent)
 void Entity::SetName(std::string name)
 {
 	_name = name;
+}
+
+void Entity::SetActive(bool activeFlag)
+{
+	_active = activeFlag;
+}
+
+bool Entity::IsActive()
+{
+	return _active;
 }
 
 std::shared_ptr<Entity> Entity::GetChildById(int id)
