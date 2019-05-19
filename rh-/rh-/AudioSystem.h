@@ -37,7 +37,7 @@ public:
 	void PauseAudio(AudioComponentPtr audioComponent);
 	void ResumeAudio(AudioComponentPtr audioComponent);
 
-	virtual vector<ComponentPtr> GetComponents(ComponentType componentType) override;
+	virtual vector<AudioComponentPtr> GetComponents() override;
 	virtual void UpdateComponentsCollection() override;
 
 	void InsertComponent(AudioComponentPtr component); // temporary function for tests

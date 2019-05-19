@@ -65,10 +65,13 @@ public:
 
 	std::shared_ptr<Entity> GetEntity(std::size_t index);
 
+	template<typename TComponent, typename... Args>
+	void AddComponent(std::size_t entityId, Args... args);
+
 private:
 	EntityMap _entityPoolMap;
 	std::map<std::size_t, std::shared_ptr<System>> _systemPoolMap;
-	std::unordered_multimap<int, std::shared_ptr<Component>> _entityComponentMap; //EntityId - Component pointer multimap
+	std::unordered_multimap<std::size_t, std::shared_ptr<Component>> _entityComponentMap; //EntityId - Component pointer multimap
 
 	std::shared_ptr<Entity> _sceneEntity;
 	std::shared_ptr<ComponentFactory> _componentFactory;

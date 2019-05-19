@@ -70,6 +70,13 @@ std::vector<std::shared_ptr<TComponent>> World::GetComponents()
 	return components;
 }
 
+template<typename TComponent, typename ...Args>
+void World::AddComponent(std::size_t entityId, Args ...args)
+{
+	std::shared_ptr<TComponent> component = std::make_shared<TComponent>(args...);
+	_entityComponentMap.insert(std::make_pair(entityId, std::move(component)));
+}
+
 void World::InitializeAllSystems()
 {
 	for (auto const& pair : _systemPoolMap)

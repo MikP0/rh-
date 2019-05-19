@@ -7,6 +7,7 @@
 #include "System.h"
 #include "RenderableSystem.h"
 #include "RenderableComponent.h"
+#include "AudioComponent.h"
 
 extern void ExitGame();
 
@@ -328,6 +329,7 @@ void Game::UpdateObjects(float elapsedTime)
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
 		//myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
 		myEntity4->GetTransform()->SetPosition(posOnGround);
+		//myEntity4->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
 	}
 
 	myEntity4->Update();

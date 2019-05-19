@@ -2,7 +2,7 @@
 #include "AudioSystem.h"
 
 
-AudioSystem::AudioSystem(shared_ptr<EntityManager> entityManager) : System(entityManager)
+AudioSystem::AudioSystem()
 {
 	_componentsType._name = "Audio";
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
@@ -113,9 +113,9 @@ void AudioSystem::ResumeAudio(AudioComponentPtr audioComponent)
 }
 
 // zastanowic sie czy ta funkcja nie jest do usuniecia z System
-std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType)
+std::vector<AudioComponentPtr> AudioSystem::GetComponents()
 {
-	vector<ComponentPtr> result = _entityManager->GetComponents(_componentsType);
+	vector<AudioComponentPtr> result = _world->GetComponents<AudioComponent>();
 
 	return result;
 }
@@ -123,12 +123,7 @@ std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType
 void AudioSystem::UpdateComponentsCollection()
 {
 	_components.clear();
-	vector<ComponentPtr> selectedComponents = GetComponents(_componentsType);
-	for each (ComponentPtr component in selectedComponents)
-	{
-		AudioComponentPtr audioComponent = dynamic_pointer_cast<AudioComponent>(component);
-		_components.push_back(audioComponent);
-	}
+	_components = GetComponents();
 }
 
 void AudioSystem::InsertComponent(AudioComponentPtr component)
@@ -139,8 +134,8 @@ void AudioSystem::InsertComponent(AudioComponentPtr component)
 
 void AudioSystem::Initialize()
 {
-	int backgroundAudioEntityID = _entityManager->CreateEntity("BackgroundAudioEntity");
-	int sound1AudioEntityID = _entityManager->CreateEntity("Sound1AudioEntity");
+	Entity backgroundAudioEntityID = _world->CreateEntity("BackgroundAudioEntity");
+	Entity sound1AudioEntityID = _world->CreateEntity("Sound1AudioEntity");
 
 	shared_ptr<AudioComponent> backgroundAudioComponent = std::make_shared<AudioComponent>("Resources\\Audio\\In The End.wav");
 	backgroundAudioComponent->Loop = true;
@@ -148,14 +143,14 @@ void AudioSystem::Initialize()
 	shared_ptr<AudioComponent> sound1AudioComponent = make_shared<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
 	SetComponentAudioFile(sound1AudioComponent);
 
-	_entityManager->AddComponent(backgroundAudioEntityID, backgroundAudioComponent);
-	_entityManager->AddComponent(sound1AudioEntityID, sound1AudioComponent);
+	backgroundAudioEntityID.AddComponent<AudioComponent>(backgroundAudioComponent);
+	sound1AudioEntityID.AddComponent<AudioComponent>(sound1AudioComponent);
 
-	vector<shared_ptr<Component>> components = GetComponents(ComponentType("Audio"));
+	vector<shared_ptr<AudioComponent>> components = GetComponents();
 
-	for each (shared_ptr<Component> component in components)
+	for each (shared_ptr<AudioComponent> component in components)
 	{
-		_components.push_back(dynamic_pointer_cast<AudioComponent>(component));
+		_components.push_back(component);
 	}
 }
 

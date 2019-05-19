@@ -13,7 +13,7 @@ typedef std::shared_ptr<Component> ComponentPtr;
 class System
 {
 public:
-	System(std::shared_ptr<EntityManager> entityManager) { _entityManager = std::move(entityManager); };
+	System() {};
 	virtual ~System() {};
 	virtual std::vector<ComponentPtr> GetComponents(ComponentType componentType) { return std::vector<ComponentPtr>(); };
 	virtual void UpdateComponentsCollection() {};
@@ -22,6 +22,5 @@ public:
 
 protected:
 	ComponentType _componentsType;
-	std::shared_ptr<EntityManager> _entityManager;
 	std::shared_ptr<World> _world;
 };

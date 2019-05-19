@@ -21,7 +21,7 @@ class Component
 {
 public:
 	Component();
-	virtual ~Component();
+	virtual ~Component() = default;
 
 	virtual ComponentType GetType(void) = 0;
 	std::shared_ptr<Entity> GetParent() const;

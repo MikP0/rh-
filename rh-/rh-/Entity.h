@@ -7,6 +7,7 @@
 #include <vector>
 #include "Transform.h"
 #include "pch.h"
+#include "World.h"
 
 class Entity : public std::enable_shared_from_this<Entity>
 {
@@ -39,6 +40,9 @@ public:
 	
 	std::unique_ptr<DirectX::Model> Model; //TODO: Move to renderer component
 
+	template<typename TComponent, typename... Args>
+	void AddComponent(Args...);
+
 	static std::size_t nextId;
 	
 private:
@@ -50,5 +54,6 @@ private:
 	std::string _name;
 	dxmath::Matrix _worldMatrix;
 
+	std::shared_ptr<World> _world;
 	bool _active;
 };
