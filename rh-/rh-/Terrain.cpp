@@ -28,8 +28,8 @@ void Terrain::InitTileMap(ID3D11DeviceContext1* context)
 
 void Terrain::ResetTileMap()
 {
-	widthInTiles = 15;
-	heightInTiles = 15;
+	widthInTiles = 30;
+	heightInTiles = 30;
 	for (int i = 0; i < widthInTiles*heightInTiles; i++) {
 		tiles.push_back(shared_ptr<MapTile>(new MapTile()));
 		tiles[i]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize), false, true);
@@ -42,7 +42,7 @@ void Terrain::SetTilePositionsAndTypes()
 		for (int j = 0; j < heightInTiles; j++) {
 			tiles[i *heightInTiles + j]->worldPosition = Vector3(i*1.f, 0.f, j*1.f);
 			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
-			if (i*j % 3 < 2) {
+			if (i*j % 15 < 10) {
 				tiles[i *heightInTiles + j]->type = TileType::grass;
 				tiles[i *heightInTiles + j]->walkable = true;
 			}
