@@ -92,7 +92,7 @@ void Game::Update(DX::StepTimer const& timer)
 	Vector3 tempCamera;
 	Vector3 move = Vector3::Zero;
 
-	/*if (mouse.positionMode == Mouse::MODE_RELATIVE)
+	if (mouse.positionMode == Mouse::MODE_RELATIVE)
 	{
 		Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f)
 			* ROTATION_GAIN;
@@ -115,7 +115,7 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			m_yaw += XM_PI * 2.0f;
 		}
-	}*/
+	}
 
 	if (mouse.scrollWheelValue > 0) {
 		camera.ZoomIn();
@@ -227,11 +227,11 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			//audioBackgroundSound->Mute = false;			
 
-			if (!clicked)
+			/*if (!clicked)
 			{
 				mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
 				clicked = true;
-			}
+			}*/
 		}
 
 
@@ -239,14 +239,14 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			audioSound1->Mute = false;
 			//mSkinModel->GetAnimatorPlayer()->UpAnim();
-			mSkinModel->GetAnimatorPlayer()->SetBlending(true);
-			mSkinModel->GetAnimatorPlayer()->textnow = true;
+			//mSkinModel->GetAnimatorPlayer()->SetBlending(true);
+			//mSkinModel->GetAnimatorPlayer()->textnow = true;
 		}
 	}
 
 	if (pushedKeysActions.size() == 0 && !navMesh->isMoving)
 	{
-		//mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
+		mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
 		mSkinModel->SetInMove(true);
 
 		clicked = false;
@@ -262,22 +262,22 @@ void Game::Update(DX::StepTimer const& timer)
 		mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 	}
 
-	//move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
-	//move *= MOVEMENT_GAIN;
-	//tempCamera = camera.GetPositionVector();
-	//tempCamera += move;
-	//camera.SetPosition(tempCamera);
+	move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
+	move *= MOVEMENT_GAIN;
+	tempCamera = camera.GetPositionVector();
+	tempCamera += move;
+	camera.SetPosition(tempCamera);
 
 	Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f)) - Vector3(0.1f, 0.1f, 0.1f);
 
 	//camera.SetPosition(Vector3::Min(camera.GetPositionVector(), halfBound));
 	//camera.SetPosition(Vector3::Max(camera.GetPositionVector(), -halfBound));
-	//tempCamera = camera.GetPositionVector();
+	tempCamera = camera.GetPositionVector();
 	//tempCamera = tempCamera * zoom;
-	camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom()));
+	//camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom()));
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
-	camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
+	//camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
 	////////
 
 	//Audio
@@ -329,11 +329,14 @@ void Game::UpdateObjects(float elapsedTime)
 	myEntity2->Update();
 	myEntity3->Update();
 
+	myEntityWall->Update();
+
+
 	if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
 		//myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
-		myEntity4->GetTransform()->SetPosition(posOnGround);
+		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.5f, posOnGround.z));
 	}
 
 	myEntity4->Update();
@@ -363,7 +366,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 
 	// skinned model
-//	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
+	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
 
 	if (mSkinModel->GetInMove())
 	{
@@ -459,10 +462,13 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	// billboarding
-	//m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
-	m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
-	m_plane3->Draw(planeWorld3, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
-	m_plane4->Draw(planeWorld4, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	//m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	//m_plane3->Draw(planeWorld3, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	//m_plane4->Draw(planeWorld4, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+
+
+	m_model->Draw(context, *m_states, mytranfu->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 }
 
 // Helper method to clear the back buffers.
@@ -607,42 +613,49 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity3 = entityManager->GetEntity(entityManager->CreateEntity("Cup3"));
 	myEntity4 = entityManager->GetEntity(entityManager->CreateEntity("Cup4"));
 
+	myEntityWall = entityManager->GetEntity(entityManager->CreateEntity("WallToRoom"));
+
+
 	std::shared_ptr<RenderableComponent> renderableComponent = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
 	std::shared_ptr<RenderableComponent> renderableComponent2 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
 	std::shared_ptr<RenderableComponent> renderableComponent3 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
 	std::shared_ptr<RenderableComponent> renderableComponent4 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
 
+	std::shared_ptr<RenderableComponent> renderableComponentWall = std::make_shared<RenderableComponent>(L"WallToRoom.cmo", camera);
+
 	componentFactory->CreateComponent(myEntity1, renderableComponent);
 	componentFactory->CreateComponent(myEntity2, renderableComponent2);
 	componentFactory->CreateComponent(myEntity3, renderableComponent3);
 	componentFactory->CreateComponent(myEntity4, renderableComponent4);
+	componentFactory->CreateComponent(myEntityWall, renderableComponentWall);
 
 
-	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
+	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.3f, 0.3f, 0.3f);
 
 	renderableSystem->Initialize();
 
 	// pointLightEntity1 - RED light follow player
 	pointLightEntity1 = entityManager->GetEntity(entityManager->CreateEntity("PointLight1"));
-	pointLightEntity2 = entityManager->GetEntity(entityManager->CreateEntity("PointLight2"));
-	pointLightEntity3 = entityManager->GetEntity(entityManager->CreateEntity("PointLight3"));
-	spotLightEntity1 = entityManager->GetEntity(entityManager->CreateEntity("SpotLight1"));
+	//pointLightEntity2 = entityManager->GetEntity(entityManager->CreateEntity("PointLight2"));
+	//pointLightEntity3 = entityManager->GetEntity(entityManager->CreateEntity("PointLight3"));
+	//spotLightEntity1 = entityManager->GetEntity(entityManager->CreateEntity("SpotLight1"));
 
-	pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
-	pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 0.0f, 2.0f));
-	pointLightEntity3->GetTransform()->SetPosition(Vector3(2.0f, -1.0f, 1.0f));
-	spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
+	pointLightEntity1->GetTransform()->SetPosition(Vector3(-2.0f, 1.0f, 0.0f));
+	//pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 2.0f, 2.0f));
+	//pointLightEntity3->GetTransform()->SetPosition(Vector3(2.0f, -2.0f, 1.0f));
+	//spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 3.0f, 0.0f));
+
 
 	// lightComponent - RED light follow player
-	std::shared_ptr<LightComponent> lightComponent = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
-	std::shared_ptr<LightComponent> lightComponent2 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
-	std::shared_ptr<LightComponent> lightComponent3 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
-	std::shared_ptr<LightComponent> lightComponent4 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
+	std::shared_ptr<LightComponent> lightComponent = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 20.0f);
+	//std::shared_ptr<LightComponent> lightComponent2 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
+	//std::shared_ptr<LightComponent> lightComponent3 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
+	//std::shared_ptr<LightComponent> lightComponent4 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
 
 	componentFactory->CreateComponent(pointLightEntity1, lightComponent);
-	componentFactory->CreateComponent(pointLightEntity2, lightComponent2);
-	componentFactory->CreateComponent(pointLightEntity3, lightComponent3);
-	componentFactory->CreateComponent(spotLightEntity1, lightComponent4);
+	//componentFactory->CreateComponent(pointLightEntity2, lightComponent2);
+	//componentFactory->CreateComponent(pointLightEntity3, lightComponent3);
+	//componentFactory->CreateComponent(spotLightEntity1, lightComponent4);
 
 	lightSystem->Initialize();
 
@@ -661,7 +674,13 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity4->GetTransform()->SetScale(scaleEntity4);
-	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
+	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, 5.0f, 0.0f));
+
+	myEntityWall->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
+	myEntityWall->GetTransform()->SetPosition(Vector3(0.0f, 2.52f, 0.0f));
+
+
+
 
 	myEntity1->AddChild(myEntity3);
 
@@ -745,18 +764,18 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld4 = m_world;
 
 
-	//planeWorld = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-	planeWorld2 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-	planeWorld3 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-	planeWorld4 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	planeWorld = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	//planeWorld2 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	//planeWorld3 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	//planeWorld4 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
 
 	//planePos = Vector3(-2.0f, 0.0f, -2.0f);
 	//planeWorld.CreateTranslation(planePos);
 
-	//planeWorld = planeWorld * XMMatrixTranslation(-2.0f, 0.0f, -2.0f);
-	planeWorld2 = planeWorld2 * XMMatrixTranslation(-2.0f, 0.0f, 2.0f);
-	planeWorld3 = planeWorld3 * XMMatrixTranslation(2.0f, -1.0f, 1.0f);
-	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
+	planeWorld = planeWorld * XMMatrixTranslation(-2.0f, 1.0f, 0.0f);
+	//planeWorld2 = planeWorld2 * XMMatrixTranslation(-2.0f, 0.0f, 2.0f);
+	//planeWorld3 = planeWorld3 * XMMatrixTranslation(2.0f, -1.0f, 1.0f);
+	//planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
 	//Audio
 	audioSystem = std::make_shared<AudioSystem>(entityManager);
@@ -767,6 +786,11 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//NavMesh
 	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);
 	navMesh->terrain = this->terrain;
+
+
+	mytranfu = make_shared<Transform>();
+	mytranfu->SetPosition(Vector3(0, 3, 0));
+	m_model->CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 }
 
 void Game::OnDeviceLost()
@@ -779,6 +803,8 @@ void Game::OnDeviceLost()
 	myEntity2->Model.reset();
 	myEntity3->Model.reset();
 	myEntity4->Model.reset();
+
+	myEntityWall->Model.reset();
 
 	//m_room.reset();
 	//m_roomTex.Reset();

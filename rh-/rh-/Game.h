@@ -98,8 +98,9 @@ private:
 	std::shared_ptr<ComponentFactory> componentFactory;
 
 	// Model
-	std::unique_ptr<DirectX::Model> m_model;
-	std::unique_ptr<DirectX::Model> m_model2;
+	std::shared_ptr<DirectX::Model> m_model;
+	std::shared_ptr<Transform> mytranfu;
+	std::shared_ptr<DirectX::Model> m_model2;
 
 	// cup Object
 	std::shared_ptr<Entity> sceneWallEntity;
@@ -107,6 +108,11 @@ private:
 	std::shared_ptr<Entity> myEntity2;
 	std::shared_ptr<Entity> myEntity3;
 	std::shared_ptr<Entity> myEntity4;
+
+	//wall
+	std::shared_ptr<Entity> myEntityWall;
+
+
 
 	// lights
 	std::shared_ptr<Entity> pointLightEntity1;

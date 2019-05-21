@@ -127,14 +127,14 @@ void Camera::SetZoom(XMFLOAT3 zoom)
 }
 
 void Camera::ZoomIn() {
-	if (zoom.y != 2) {
+	if (zoom.y != 4) {
 		zoom.y += 0.5f;
 		zoom.z += -0.5f;
 	}
 }
 
 void Camera::ZoomOut() {
-	if (zoom.y != 0) {
+	if (zoom.y != -2) {
 		zoom.y += -0.5f;
 		zoom.z += 0.5f;
 	}

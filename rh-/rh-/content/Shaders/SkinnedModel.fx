@@ -7,8 +7,8 @@ cbuffer CBufferPerFrame
 {
     float4 AmbientColor = { 1.0f, 1.0f, 1.0f, 0.0f };
     float4 LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float3 LightPosition = { 0.0f, 0.0f, -2.0f };
-    float LightRadius = 10.0f;
+    float3 LightPosition = { -2.0f, 1.0f, 0.0f };
+    float LightRadius = 20.0f;
     float3 CameraPosition;
 }
 
@@ -127,7 +127,7 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
 
 
 
-	/*if (intensity > 0.95)
+	if (intensity > 0.95)
 		color = float4(1.0, 1.0, 1.0, 1.0) * color;
 	else if (intensity > 0.8)
 		color = float4(0.8, 0.8, 0.8, 1.0) * color;
@@ -138,7 +138,7 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
 	else if (intensity > 0.2)
 		color = float4(0.2, 0.2, 0.2, 1.0) * color;
 	else
-		color = float4(0.1, 0.1, 0.1, 1.0) * color;*/
+		color = float4(0.1, 0.1, 0.1, 1.0) * color;
 
 
 
