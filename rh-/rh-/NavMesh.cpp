@@ -59,9 +59,10 @@ void NavMesh::Move()
 				shared_ptr<MapTile> goal = terrain->GetTileWithPosition(destination);
 
 				currentPath = terrain->GetPath(start, goal);
-				localDestination = currentPath.front()->worldPosition;
-				transform->SetPosition(start->worldPosition);
-				currentPath.erase(currentPath.begin());
+				//localDestination = currentPath.front()->worldPosition;
+				//transform->SetPosition(start->worldPosition);
+				//currentPath.erase(currentPath.begin());
+				localDestination = start->worldPosition;
 				float dot = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).x + transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).z;
 				float cross = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).z - transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).x;
 				float fAngle = (atan2(cross, dot) * 180.0f / 3.14159265f) + 180.0f;

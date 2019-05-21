@@ -40,48 +40,48 @@ class Game : public DX::IDeviceNotify
 {
 public:
 
-    Game() noexcept(false);
+	Game() noexcept(false);
 
-    // Initialization and management
-    void Initialize(HWND window, int width, int height);
+	// Initialization and management
+	void Initialize(HWND window, int width, int height);
 
-    // Basic game loop
-    void Tick();
+	// Basic game loop
+	void Tick();
 
-    // IDeviceNotify
-    virtual void OnDeviceLost() override;
-    virtual void OnDeviceRestored() override;
+	// IDeviceNotify
+	virtual void OnDeviceLost() override;
+	virtual void OnDeviceRestored() override;
 
-    // Messages
-    void OnActivated();
-    void OnDeactivated();
-    void OnSuspending();
-    void OnResuming();
-    void OnWindowMoved();
-    void OnWindowSizeChanged(int width, int height);
+	// Messages
+	void OnActivated();
+	void OnDeactivated();
+	void OnSuspending();
+	void OnResuming();
+	void OnWindowMoved();
+	void OnWindowSizeChanged(int width, int height);
 	void OnNewAudioDevice();
 
-    // Properties
-    void GetDefaultSize( int& width, int& height );
+	// Properties
+	void GetDefaultSize(int& width, int& height);
 
 private:
 
-    void Update(DX::StepTimer const& timer);
+	void Update(DX::StepTimer const& timer);
 	void UpdateObjects(float elapsedTime);
-    void Render();
+	void Render();
 	void RenderObjects(ID3D11DeviceContext1 *context);
 
-    void Clear();
+	void Clear();
 
-    void CreateDeviceDependentResources();
-    void CreateWindowSizeDependentResources();
+	void CreateDeviceDependentResources();
+	void CreateWindowSizeDependentResources();
 	void InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context);
 
-    // Device resources.
-    std::unique_ptr<DX::DeviceResources>    m_deviceResources;
+	// Device resources.
+	std::unique_ptr<DX::DeviceResources>    m_deviceResources;
 
-    // Rendering loop timer.
-    DX::StepTimer                           m_timer;
+	// Rendering loop timer.
+	DX::StepTimer                           m_timer;
 
 	// Matrix
 	DirectX::SimpleMath::Matrix m_world;
@@ -151,9 +151,10 @@ private:
 		{availableKeys::four, actionList::special4},
 		{availableKeys::z, actionList::playBackground},
 		{availableKeys::x, actionList::playSound1},
+		{availableKeys::c, actionList::freeCamera}
 	};
 	std::shared_ptr<Entity> inputEntity;
-	
+
 	// primitives
 	//std::unique_ptr<DirectX::GeometricPrimitive> m_room;
 	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity1;
@@ -194,4 +195,7 @@ private:
 	std::shared_ptr<NavMesh> navMesh;
 	std::shared_ptr<Terrain> terrain;
 	std::shared_ptr<LightSystem> lightSystem;
+
+	Mouse::ButtonStateTracker tracker;
+	bool freeCameraLook = false;
 };

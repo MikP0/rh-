@@ -27,11 +27,6 @@ namespace
 	const XMVECTORF32 PLANE_BOUNDS = { 1.5f, 1.5f, 1.5f, 0.f };
 }
 
-/*
-	Tymczasowa zmienna !!!!!!
-*/
-Mouse::ButtonStateTracker tracker;
-
 Game::Game() noexcept(false) : m_pitch(0.f), m_yaw(0.f)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -87,78 +82,37 @@ void Game::Update(DX::StepTimer const& timer)
 
 	// TODO: Add your game logic here.
 
-
-	// INPUT
-	auto mouse = Input::GetMouseState();
-	/*auto mouse = m_mouse->GetState();
-	auto keyboard = m_keyboard->GetState();*/
-	Vector3 tempCamera;
 	Vector3 move = Vector3::Zero;
 
-	/*if (mouse.positionMode == Mouse::MODE_RELATIVE)
-	{
-		Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f)
-			* ROTATION_GAIN;
+	//Mouse
+	auto mouse = Input::GetMouseState();
+	Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
-		m_pitch -= delta.y;
-		m_yaw -= delta.x;
-
-		// limit pitch to straight up or straight down
-		// with a little fudge-factor to avoid gimbal lock
-		float limit = XM_PI / 2.0f - 0.01f;
-		m_pitch = std::max(-limit, m_pitch);
-		m_pitch = std::min(+limit, m_pitch);
-
-		// keep longitude in sane range by wrapping
-		if (m_yaw > XM_PI)
-		{
-			m_yaw -= XM_PI * 2.0f;
-		}
-		else if (m_yaw < -XM_PI)
-		{
-			m_yaw += XM_PI * 2.0f;
-		}
-	}*/
-
-	if (mouse.scrollWheelValue > 0) {
-		camera.ZoomIn();
-		Input::ResetWheel();
-
-	}
-	if (mouse.scrollWheelValue < 0) {
-		camera.ZoomOut();
-		Input::ResetWheel();
-	}
-
+	//Pressed Keys
 	std::vector<actionList> pushedKeysActions = Input::GetActions();
-	Input::SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
-		// zmiana MouseMode tutaj z udzialem InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
-		//inputSystem->SetMouseMode(*iter == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-
 		if (*iter == closeWindow)
 			ExitGame();
 
-		if (*iter == up)
-			move.y += 1.f;
+		if (freeCamera) {
+			if (*iter == up)
+				move.y += 1.f;
 
-		if (*iter == down)
-			move.y -= 1.f;
+			if (*iter == down)
+				move.y -= 1.f;
 
-		if (*iter == actionList::left)
-			move.x += 1.f;
+			if (*iter == actionList::left)
+				move.x += 1.f;
 
-		if (*iter == actionList::right)
-			move.x -= 1.f;
+			if (*iter == actionList::right)
+				move.x -= 1.f;
 
-		if (*iter == actionList::forward) {
-			move.z += 1.f;
-		}
+			if (*iter == actionList::forward)
+				move.z += 1.f;
 
-		if (*iter == actionList::backward) {
-			move.z -= 1.f;
+			if (*iter == actionList::backward)
+				move.z -= 1.f;
 		}
 
 		if (*iter == moveFor)
@@ -187,26 +141,6 @@ void Game::Update(DX::StepTimer const& timer)
 			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-150.f * elapsedTime));
 		}
 
-
-		/*if (*iter == moveLeft)
-		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
-			mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
-
-		if (*iter == moveRight)
-		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
-			mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}*/
-
-
 		if (*iter == special1)
 		{
 			mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
@@ -230,6 +164,10 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			audioSound1->Mute = false;
 		}
+
+		if (*iter == freeCamera) {
+			freeCameraLook = !freeCameraLook;
+		}
 	}
 
 	if (pushedKeysActions.size() == 0 && !navMesh->isMoving)
@@ -238,36 +176,64 @@ void Game::Update(DX::StepTimer const& timer)
 		mSkinModel->SetInMove(true);
 	}
 
-	//NavMesh
-	tracker.Update(mouse);
-	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED) {
-		Vector3 destination = Raycast::GetPointOnGround(camera);
-		navMesh->SetDestination(destination);
+	if (navMesh->isMoving) {
 		mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
 		mSkinModel->SetInMove(true);
 		mSkinModel->GetAnimatorPlayer()->SetDirection(true);
 	}
 
-	//move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
-	//move *= MOVEMENT_GAIN;
-	//tempCamera = camera.GetPositionVector();
-	//tempCamera += move;
-	//camera.SetPosition(tempCamera);
-
-	Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f)) - Vector3(0.1f, 0.1f, 0.1f);
-
-	//camera.SetPosition(Vector3::Min(camera.GetPositionVector(), halfBound));
-	//camera.SetPosition(Vector3::Max(camera.GetPositionVector(), -halfBound));
-	//tempCamera = camera.GetPositionVector();
-	//tempCamera = tempCamera * zoom;
-	camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom()));
-	camera.SetPitch(m_pitch);
-	camera.SetYaw(m_yaw);
-	camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
-	////////
-
 	//Audio
 	audioSystem->Iterate();
+
+	//Camera Movement
+	if (freeCameraLook) {
+		if (mouse.positionMode == Mouse::MODE_RELATIVE)
+		{
+			Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f) * ROTATION_GAIN;
+
+			m_pitch -= delta.y;
+			m_yaw -= delta.x;
+
+			// limit pitch to straight up or straight down with a little fudge-factor to avoid gimbal lock
+			float limit = XM_PI / 2.0f - 0.01f;
+			m_pitch = std::max(-limit, m_pitch);
+			m_pitch = std::min(+limit, m_pitch);
+
+			// keep longitude in sane range by wrapping
+			if (m_yaw > XM_PI)
+			{
+				m_yaw -= XM_PI * 2.0f;
+			}
+			else if (m_yaw < -XM_PI)
+			{
+				m_yaw += XM_PI * 2.0f;
+			}
+		}
+
+		move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
+		move *= MOVEMENT_GAIN;
+		Vector3 tempCamera = camera.GetPositionVector();
+		tempCamera += move;
+		camera.SetPosition(tempCamera);
+		camera.SetPitch(m_pitch);
+		camera.SetYaw(m_yaw);
+	}
+	else {
+		camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom()));
+		camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
+		camera.SetPitch(0);
+		camera.SetYaw(0);
+	}
+
+	//CameraZoom
+	if (mouse.scrollWheelValue > 0) {
+		camera.ZoomIn();
+		Input::ResetWheel();
+	}
+	if (mouse.scrollWheelValue < 0) {
+		camera.ZoomOut();
+		Input::ResetWheel();
+	}
 
 	UpdateObjects(elapsedTime);
 
@@ -280,9 +246,15 @@ void Game::UpdateObjects(float elapsedTime)
 	static shared_ptr<Entity> selectedCollider;
 
 	//NavMesh
+	tracker.Update(mouse);
+	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD) {
+		Vector3 destination = Raycast::GetPointOnGround(camera);
+		navMesh->SetDestination(destination);
+	}
 	navMesh->Move();
+
 	/*if (destination != Vector3::Zero) {
-		if (!XMVector3NearEqual(destination, mSkinModelTransform->GetPosition(), Vector3(.001f, .001f, .001f))){												
+		if (!XMVector3NearEqual(destination, mSkinModelTransform->GetPosition(), Vector3(.001f, .001f, .001f))){
 			mSkinModelTransform->SetPosition(mSkinModelTransform->GetPosition() + step);
 
 			// RED light follow player
