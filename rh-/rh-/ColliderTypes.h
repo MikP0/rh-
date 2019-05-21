@@ -29,69 +29,176 @@ public:
 class ColliderSphere : public ColliderBase
 {
 public:
-	BoundingSphere Bounding;
-
 	ColliderSphere() : ColliderBase(Sphere) {};
 
 	ColliderSphere(XMFLOAT3 center, float radius) : ColliderBase(Sphere)
 	{
-		Bounding.Center = center;
-		Bounding.Radius = radius;
+		_bounding.Center = center;
+		_bounding.Radius = radius;
 	};
 
 	~ColliderSphere() {};
+
+	BoundingSphere GetBounding()
+	{
+		return _bounding;
+	}
+
+	Vector3 GetCenter()
+	{
+		return _bounding.Center;
+	}
+
+	float GetRadius()
+	{
+		return _bounding.Radius;
+	}
+
+	void SetBounding(BoundingSphere bounding)
+	{
+		_bounding = bounding;
+	}
+
+	void SetCenter(Vector3 center)
+	{
+		_bounding.Center = center;
+	}
+
+	void SetRadius(float radius)
+	{
+		_bounding.Radius = radius;
+	}
+
+private:
+	BoundingSphere _bounding;
 };
 
 class ColliderAABB : public ColliderBase
 {
 public:
-	BoundingBox Bounding;
-	Vector3 Min, Max;
-
 	ColliderAABB() : ColliderBase(AABB) {};
 
 	ColliderAABB(XMFLOAT3 center, XMFLOAT3 extents) : ColliderBase(AABB)
 	{
-		Bounding.Center = center;
-		Bounding.Extents = extents;
-		Min = Vector3(Bounding.Center - Bounding.Extents);
-		Max = Vector3(Bounding.Center + Bounding.Extents);
+		_bounding.Center = center;
+		_bounding.Extents = extents;
+		UpdateMinMax();
 	};
 
-	ColliderAABB(Vector3 min, Vector3 max, bool flagMinMax) : ColliderBase(AABB), Min(min), Max(max)
+	ColliderAABB(Vector3 min, Vector3 max, bool flagMinMax) : ColliderBase(AABB), _min(min), _max(max)
 	{
-		Vector3 half = Vector3(Max - Min) / 2.0f;
-		Vector3 center = Min + half;
-
-		Bounding.Center = center;
-		Bounding.Extents = half;
+		UpdateCenterExtents();
 	};
 
 	~ColliderAABB() {};
 
-	void CalculateBounding()
+	BoundingBox GetBounding()
 	{
-		Vector3 dimensions = Max - Min;
+		return _bounding;
+	}
+
+	Vector3 GetCenter()
+	{
+		return _bounding.Center;
+	}
+
+	Vector3 GetExtents()
+	{
+		return _bounding.Extents;
+	}
+
+	Vector3 GetMin()
+	{
+		return _min;
+	}
+
+	Vector3 GetMax()
+	{
+		return _max;
+	}
+
+	void SetBounding(BoundingBox bounding)
+	{
+		_bounding = bounding;
+		UpdateMinMax();
+	}
+
+	void SetBounding(XMFLOAT3 center, XMFLOAT3 extents)
+	{
+		_bounding.Center = center;
+		_bounding.Extents = extents;
+		UpdateMinMax();
+	}
+
+	void SetBounding(Vector3 min, Vector3 max, bool flagMinMax)
+	{
+		_min = min;
+		_max = max;
+
+		UpdateCenterExtents();
+	}
+
+	void SetCenter(Vector3 center)
+	{
+		_bounding.Center = center;
+		UpdateMinMax();
+	}
+
+	void SetExtents(Vector3 extents)
+	{
+		_bounding.Extents = extents;
+		UpdateMinMax();
+	}
+
+	void SetMin(Vector3 min)
+	{
+		_min = min;
+		UpdateCenterExtents();
+	}
+
+	void SetMax(Vector3 max)
+	{
+		_max = max;
+		UpdateCenterExtents();
+	}
+
+	void UpdateCenterExtents()
+	{
+		Vector3 half = Vector3(_max - _min) / 2.0f;
+		Vector3 center = _min + half;
+
+		_bounding.Center = center;
+		_bounding.Extents = half;
+	}
+
+	void UpdateMinMax()
+	{
+		_min = Vector3(_bounding.Center - _bounding.Extents);
+		_max = Vector3(_bounding.Center + _bounding.Extents);
+	}
+
+	void CalculateDimBounding()
+	{
+		Vector3 dimensions = _max - _min;
 
 		if (dimensions == Vector3::Zero)
 		{
-			Min = Vector3(Bounding.Center - Bounding.Extents);
-			Max = Vector3(Bounding.Center + Bounding.Extents);
+			UpdateMinMax();
 		}
 		else
-			if (Vector3(Bounding.Center) == Vector3::Zero || Vector3(Bounding.Extents) == Vector3::Zero)
+			if (Vector3(_bounding.Center) == Vector3::Zero || Vector3(_bounding.Extents) == Vector3::Zero)
 			{
-				Vector3 half = Vector3(Max - Min) / 2.0f;
-				Vector3 center = Min + half;
+				Vector3 half = Vector3(_max - _min) / 2.0f;
+				Vector3 center = _min + half;
 
-				Bounding.Center = center;
-				Bounding.Extents = half;
+				_bounding.Center = center;
+				_bounding.Extents = half;
 			}
 	};
 
 	void ChangeToCube()
 	{
-		Vector3 dimensions = Max - Min;
+		Vector3 dimensions = _max - _min;
 
 		float max = dimensions.x;
 
@@ -111,22 +218,40 @@ public:
 		}
 
 		max /= 2.0f;
-		Min = Max = Vector3::Zero;
-		Bounding.Extents = XMFLOAT3(max, max, max);
-		CalculateBounding();
+		_min = _max = Vector3::Zero;
+		_bounding.Extents = XMFLOAT3(max, max, max);
+		CalculateDimBounding();
 	};
+
+private:
+	BoundingBox _bounding;
+	Vector3 _min, _max;
 };
 
 class ColliderFrustum : public ColliderBase
 {
 public:
-	BoundingFrustum Bounding;
-
 	ColliderFrustum() : ColliderBase(Frustum) {};
-	ColliderFrustum(XMMATRIX xmProj)
+
+	ColliderFrustum(XMMATRIX xmProj) : ColliderBase(Frustum)
 	{
-		BoundingFrustum::CreateFromMatrix(Bounding, xmProj);
+		BoundingFrustum::CreateFromMatrix(_bounding, xmProj);
 	};
+
+	~ColliderFrustum() {};
+
+	BoundingFrustum GetBounding()
+	{
+		return _bounding;
+	}
+
+	void SetBounding(BoundingFrustum bounding)
+	{
+		_bounding = bounding;
+	}
+
+private:
+	BoundingFrustum _bounding;
 };
 
 class ColliderRay : public ColliderBase

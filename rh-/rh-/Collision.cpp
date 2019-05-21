@@ -39,8 +39,8 @@ ContainmentTypeVector Collision::Collide(ColliderAABBptr collider1, ColliderAABB
 	collider1->CollisionKind = DISJOINT;
 	collider2->CollisionKind = DISJOINT;
 
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
+	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
 
 	collider1->CollisionKind = collider1Result;
 	collider2->CollisionKind = collider2Result;
@@ -55,8 +55,8 @@ ContainmentTypeVector Collision::Collide(ColliderSpherePtr collider1, ColliderSp
 	collider1->CollisionKind = DISJOINT;
 	collider2->CollisionKind = DISJOINT;
 
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
+	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
 
 	collider1->CollisionKind = collider1Result;
 	collider2->CollisionKind = collider2Result;
@@ -71,8 +71,8 @@ ContainmentTypeVector Collision::Collide(ColliderAABBptr collider1, ColliderSphe
 	collider1->CollisionKind = DISJOINT;
 	collider2->CollisionKind = DISJOINT;
 
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
+	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
 
 	collider1->CollisionKind = collider1Result;
 	collider2->CollisionKind = collider2Result;
@@ -87,8 +87,8 @@ ContainmentTypeVector Collision::Collide(ColliderSpherePtr collider1, ColliderAA
 	collider1->CollisionKind = DISJOINT;
 	collider2->CollisionKind = DISJOINT;
 
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
+	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
 
 	collider1->CollisionKind = collider1Result;
 	collider2->CollisionKind = collider2Result;
@@ -103,8 +103,8 @@ ContainmentTypeVector Collision::Collide(ColliderFrustumPtr collider1, ColliderA
 	collider1->CollisionKind = DISJOINT;
 	collider2->CollisionKind = DISJOINT;
 
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
+	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
 
 	collider1->CollisionKind = collider1Result;
 	collider2->CollisionKind = collider2Result;
@@ -119,8 +119,8 @@ ContainmentTypeVector Collision::Collide(ColliderFrustumPtr collider1, ColliderS
 	collider1->CollisionKind = DISJOINT;
 	collider2->CollisionKind = DISJOINT;
 
-	ContainmentType collider1Result = collider1->Bounding.Contains(collider2->Bounding);
-	ContainmentType collider2Result = collider2->Bounding.Contains(collider1->Bounding);
+	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
 
 	collider1->CollisionKind = collider1Result;
 	collider2->CollisionKind = collider2Result;
@@ -135,7 +135,7 @@ float Collision::Collide(ColliderAABBptr collider, ColliderRayPtr ray)
 	float distance = 0.0f;
 
 	float dist;
-	if (collider->Bounding.Intersects(ray->Origin, ray->Direction, dist))
+	if (collider->GetBounding().Intersects(ray->Origin, ray->Direction, dist))
 	{
 		distance = dist;
 		collider->CollisionKind = INTERSECTS;
@@ -151,7 +151,7 @@ float Collision::Collide(ColliderSpherePtr collider, ColliderRayPtr ray)
 	float distance = 0.0f;
 
 	float dist;
-	if (collider->Bounding.Intersects(ray->Origin, ray->Direction, dist))
+	if (collider->GetBounding().Intersects(ray->Origin, ray->Direction, dist))
 	{
 		distance = dist;
 		collider->CollisionKind = INTERSECTS;
