@@ -50,6 +50,6 @@ public:
 
 	list<CollisionPtr> GetIntersection(list<PhysicsComponentPtr> parentObjs);
 	list<CollisionPtr> GetIntersection(ColliderRayPtr intersectRay);
-
+	list<CollisionPtr> GetIntersection(ColliderFrustumPtr colliderFrustum);
 };
 

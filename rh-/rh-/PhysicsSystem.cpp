@@ -87,6 +87,12 @@ vector<CollisionPtr> PhysicsSystem::GetCollisionsWithRay(ColliderRayPtr ray)
 	return vector<CollisionPtr>(collisionList.begin(), collisionList.end());
 }
 
+vector<CollisionPtr> PhysicsSystem::GetCollisionsWithFrustum(ColliderFrustumPtr frustum)
+{
+	list<CollisionPtr> collisionList = _octTree->GetIntersection(frustum);
+	return vector<CollisionPtr>(collisionList.begin(), collisionList.end());
+}
+
 bool PhysicsSystem::CheckIfShouldUpdateTree()
 {
 	for each(PhysicsComponentPtr component in _components)

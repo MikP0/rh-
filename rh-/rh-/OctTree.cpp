@@ -327,5 +327,43 @@ list<CollisionPtr> OctTree::GetIntersection(ColliderRayPtr intersectRay)
 	return ret;
 }
 
+list<CollisionPtr> OctTree::GetIntersection(ColliderFrustumPtr colliderFrustum)
+{
+	list<CollisionPtr> ret = list<CollisionPtr>();
+
+	if (NodeObjects.empty() && HasChildren() == false)   //terminator for any recursion
+		return ret;
+
+	//test each object in the list for intersection
+	for each(PhysicsComponentPtr obj in NodeObjects)
+	{
+		CollisionPtr ir = Collision::CheckCollision(make_shared<PhysicsComponent>(colliderFrustum), obj);
+
+		if (ir != nullptr)
+			ret.push_back(ir);
+	}
+
+	//test each object in the list for intersection
+	for (int a = 0; a < 8; a++)
+	{
+		if (ChildrenNodes[a] != nullptr)
+		{
+			CollisionPtr coll = Collision::CheckCollision(make_shared<PhysicsComponent>(colliderFrustum), make_shared<PhysicsComponent>(ChildrenNodes[a]->Region));
+
+			if (coll != nullptr)
+			{
+				list<CollisionPtr> hits = ChildrenNodes[a]->GetIntersection(colliderFrustum);
+
+				if (!hits.empty())
+				{
+					copy(hits.begin(), hits.end(), back_insert_iterator<list<CollisionPtr>>(ret));
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+
 
 
