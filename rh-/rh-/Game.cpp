@@ -88,7 +88,8 @@ void Game::Update(DX::StepTimer const& timer)
 
 	//Mouse
 	auto mouse = Input::GetMouseState();
-	Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+	if (freeCamera)
+		Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 	//Pressed Keys
 	std::vector<actionList> pushedKeysActions = Input::GetActions();
