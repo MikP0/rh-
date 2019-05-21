@@ -250,6 +250,26 @@ public:
 		_bounding = bounding;
 	}
 
+	XMFLOAT3 GetOrigin()
+	{
+		return _bounding.Origin;
+	}
+
+	void SetOrigin(XMFLOAT3 origin)
+	{
+		_bounding.Origin = origin;
+	}
+
+	XMFLOAT4 GetOrientation()
+	{
+		return _bounding.Orientation;
+	}
+
+	void SetOrientation(XMFLOAT4 orientation)
+	{
+		_bounding.Orientation = orientation;
+	}
+
 private:
 	BoundingFrustum _bounding;
 };
