@@ -29,6 +29,7 @@ public:
 
 	vector<CollisionPtr> GetCurrentCollisions();
 	vector<CollisionPtr> GetCollisionsWithRay(ColliderRayPtr ray);
+	vector<CollisionPtr> GetCollisionsWithFrustum(ColliderFrustumPtr frustum);
 
 	bool CheckIfShouldUpdateTree();
 	void ResetAllUpdatePositionFlags();
