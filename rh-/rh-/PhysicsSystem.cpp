@@ -2,7 +2,7 @@
 #include "PhysicsSystem.h"
 
 
-PhysicsSystem::PhysicsSystem(shared_ptr<EntityManager> entityManager, Vector3 sceneCenter, float cubeDimension) : System(entityManager)
+PhysicsSystem::PhysicsSystem(Vector3 sceneCenter, float cubeDimension) : System()
 {
 	_componentsType._name = "Physics";
 	_sceneCenter = sceneCenter;
@@ -58,21 +58,13 @@ void PhysicsSystem::UpdateColliderPosition(PhysicsComponentPtr component)
 }
 
 
-vector<ComponentPtr> PhysicsSystem::GetComponents(ComponentType componentType)
-{
-	vector<ComponentPtr> result = _entityManager->GetComponents(_componentsType);
-
-	return result;
-}
-
 void PhysicsSystem::UpdateComponentsCollection()
 {
 	_components.clear();
-	vector<ComponentPtr> selectedComponents = GetComponents(_componentsType);
-	for each (ComponentPtr component in selectedComponents)
+	vector<PhysicsComponentPtr> selectedComponents = _world->GetComponents<PhysicsComponent>();
+	for each (PhysicsComponentPtr component in selectedComponents)
 	{
-		PhysicsComponentPtr physicsComponent = dynamic_pointer_cast<PhysicsComponent>(component);
-		_components.push_back(physicsComponent);
+		_components.push_back(component);
 	}
 }
 

@@ -43,6 +43,9 @@ public:
 	template<typename TComponent, typename... Args>
 	void AddComponent(Args...);
 
+	template<typename TComponent>
+	void RemoveComponent();
+
 	static std::size_t nextId;
 	
 private:

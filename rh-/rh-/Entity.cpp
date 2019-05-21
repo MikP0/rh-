@@ -136,3 +136,9 @@ template<typename TComponent, typename... Args>
 void Entity::AddComponent(Args... args) {
 	_world->AddComponent<TComponent, Args>(_id, args...);
 }
+
+template<typename TComponent>
+void Entity::RemoveComponent()
+{
+	_world->RemoveComponent<TComponent>();
+}

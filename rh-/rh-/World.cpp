@@ -77,6 +77,22 @@ void World::AddComponent(std::size_t entityId, Args ...args)
 	_entityComponentMap.insert(std::make_pair(entityId, std::move(component)));
 }
 
+template<typename TComponent>
+void World::RemoveComponent(std::size_t entityId)
+{
+	typedef std::unordered_multimap<std::size_t, std::shared_ptr<Component>>::iterator iterator;
+	std::pair<iterator, iterator> iterpair = _entityComponentMap.equal_range(entityId);
+
+	iterator it = iterpair.first;
+	for (; it != iterpair.second; ++it) {
+		if (std::is_same<*it->second, TComponent>::value) 
+		{
+			_entityComponentMap.erase(it);
+			break;
+		}
+	}
+}
+
 void World::InitializeAllSystems()
 {
 	for (auto const& pair : _systemPoolMap)
@@ -134,6 +150,8 @@ bool World::IsActivated(Entity& entity) const
 
 void World::RefreshWorld()
 {
+	//TODO: Update entity
+
 	for (auto const& pair : _systemPoolMap)
 	{
 		pair.second->Iterate();

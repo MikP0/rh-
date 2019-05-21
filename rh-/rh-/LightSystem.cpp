@@ -1,9 +1,7 @@
 #include "LightSystem.h"
 
-LightSystem::LightSystem(std::shared_ptr<EntityManager> entityManager, std::shared_ptr<ToonFactory> fxFactory) : System(entityManager)
+LightSystem::LightSystem(std::shared_ptr<ToonFactory> fxFactory) : System()
 {
-	_componentsType = ComponentType("Light");
-
 	_fxFactory = fxFactory;
 }
 
@@ -13,19 +11,19 @@ LightSystem::~LightSystem()
 
 void LightSystem::Iterate()
 {
-	for (auto lightComponent : _entityManager->GetComponents(_componentsType))
+	for (auto lightComponent : _world->GetComponents<LightComponent>())
 	{
-		if (std::dynamic_pointer_cast<LightComponent>(lightComponent))
+		if (lightComponent)
 		{
-			if ((std::dynamic_pointer_cast<LightComponent>(lightComponent))->UpdateAble)
+			if (lightComponent->UpdateAble)
 			{
-				if ((std::dynamic_pointer_cast<LightComponent>(lightComponent))->LightType == LightTypeComponent::POINTLight)
+				if (lightComponent->LightType == LightTypeComponent::POINTLight)
 				{
-					_fxFactory->UpdatePointLight((std::dynamic_pointer_cast<LightComponent>(lightComponent))->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
+					_fxFactory->UpdatePointLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
 				}
-				else if ((std::dynamic_pointer_cast<LightComponent>(lightComponent))->LightType == LightTypeComponent::SPOTLight)
+				else if (lightComponent->LightType == LightTypeComponent::SPOTLight)
 				{
-					_fxFactory->UpdateSpotLight((std::dynamic_pointer_cast<LightComponent>(lightComponent))->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
+					_fxFactory->UpdateSpotLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
 				}
 			}
 		}
@@ -34,21 +32,21 @@ void LightSystem::Iterate()
 
 void LightSystem::Initialize()
 {
-	for (auto lightComponent : _entityManager->GetComponents(_componentsType))
+	for (auto lightComponent : _world->GetComponents<LightComponent>())
 	{
-		if (std::dynamic_pointer_cast<LightComponent>(lightComponent))
+		if (lightComponent)
 		{
-			if ((std::dynamic_pointer_cast<LightComponent>(lightComponent))->LightType == LightTypeComponent::POINTLight)
+			if (lightComponent->LightType == LightTypeComponent::POINTLight)
 			{
-				_fxFactory->AddPointLight((std::dynamic_pointer_cast<LightComponent>(lightComponent))->Color, (std::dynamic_pointer_cast<LightComponent>(lightComponent))->Position, (std::dynamic_pointer_cast<LightComponent>(lightComponent))->Radius);
+				_fxFactory->AddPointLight(lightComponent->Color, lightComponent->Position, lightComponent->Radius);
 			}
-			else if ((std::dynamic_pointer_cast<LightComponent>(lightComponent))->LightType == LightTypeComponent::DIRECTLight)
+			else if (lightComponent->LightType == LightTypeComponent::DIRECTLight)
 			{
-				_fxFactory->AddDirectLight((std::dynamic_pointer_cast<LightComponent>(lightComponent))->Color, (std::dynamic_pointer_cast<LightComponent>(lightComponent))->Direction);
+				_fxFactory->AddDirectLight(lightComponent->Color, lightComponent->Direction);
 			}
-			else if ((std::dynamic_pointer_cast<LightComponent>(lightComponent))->LightType == LightTypeComponent::SPOTLight)
+			else if (lightComponent->LightType == LightTypeComponent::SPOTLight)
 			{
-				_fxFactory->AddSpotLight((std::dynamic_pointer_cast<LightComponent>(lightComponent))->Color, (std::dynamic_pointer_cast<LightComponent>(lightComponent))->Direction, (std::dynamic_pointer_cast<LightComponent>(lightComponent))->OuterAngle, (std::dynamic_pointer_cast<LightComponent>(lightComponent))->Position, (std::dynamic_pointer_cast<LightComponent>(lightComponent))->InnerAngle, (std::dynamic_pointer_cast<LightComponent>(lightComponent))->Radius);
+				_fxFactory->AddSpotLight(lightComponent->Color, lightComponent->Direction, lightComponent->OuterAngle, lightComponent->Position, lightComponent->InnerAngle, lightComponent->Radius);
 			}
 		}
 	}

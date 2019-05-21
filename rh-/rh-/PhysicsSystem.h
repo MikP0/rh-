@@ -18,13 +18,13 @@ typedef shared_ptr<OctTree> OctTreePtr;
 class PhysicsSystem : public System
 {
 public:
-	PhysicsSystem(std::shared_ptr<EntityManager> entityManager, Vector3 sceneCenter, float cubeDimension);
+	PhysicsSystem(Vector3 sceneCenter, float cubeDimension);
 	~PhysicsSystem();
 
 	void UpdateCollidersPositions();
 	void UpdateColliderPosition(PhysicsComponentPtr component);
 
-	virtual std::vector<ComponentPtr> GetComponents(ComponentType componentType) override;
+	std::vector<PhysicsComponentPtr> GetComponents(ComponentType componentType);
 	virtual void UpdateComponentsCollection() override;
 
 	void ResetAllUpdatePositionFlags();

@@ -8,7 +8,7 @@
 class LightSystem : public System
 {
 public:
-	LightSystem(std::shared_ptr<EntityManager> entityManager, std::shared_ptr<ToonFactory> fxFactory);
+	LightSystem(std::shared_ptr<ToonFactory> fxFactory);
 	~LightSystem();
 
 	virtual void Iterate() override;
