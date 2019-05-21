@@ -18,6 +18,8 @@ using Microsoft::WRL::ComPtr;
 namespace
 {
 	const XMVECTORF32 ROOM_BOUNDS = { 1.f, 0.f, 1.f, 0.f };
+	const float COLLISION_SCENE_RANGE = 60.0f;
+	const Vector3 SCENE_CENTER = Vector3::Zero;
 	const float ROTATION_GAIN = 0.008f;
 	const float MOVEMENT_GAIN = 0.07f;
 
@@ -324,28 +326,32 @@ void Game::UpdateObjects(float elapsedTime)
 
 	if (mouse.middleButton)
 	{
-		XMFLOAT3 cameraPos = camera.GetPositionFloat3();
-		XMVECTOR origin = Vector4(cameraPos.x, cameraPos.y, cameraPos.z, 0.0f);
-		XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
-		XMVECTOR direction = Vector4(dirFromMouse.x, dirFromMouse.y, dirFromMouse.z, 0.0f);
-		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(origin, direction));
-		collisionCup1WithRay = Collision::CheckCollision(colliderCup1, sharedRay);
-		collisionCup2WithRay = Collision::CheckCollision(colliderCup2, sharedRay);
+		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
+		vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+		for each(shared_ptr<Collision> coll in collisionsWithRay)
+		{
+			if (coll->OriginObject->GetId() == colliderCup1->GetParent()->GetId())
+				collisionCup1WithRay = coll;
+
+			if (coll->OriginObject->GetId() == colliderCup2->GetParent()->GetId())
+				collisionCup2WithRay = coll;
+		}
 	}
 
-	/*if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
+	if (colliderBoundingCup1->GetCenter().x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
 		dir1.x = -1.0f;
 
-	if (colliderBoundingCup1->Bounding.Center.x <= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
+	if (colliderBoundingCup1->GetCenter().x <= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
 		dir1.x = 1.0f;
 
-	if (colliderBoundingCup2->Bounding.Center.x >= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
+	if (colliderBoundingCup2->GetCenter().x >= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
 		dir2.x = -1.0f;
 
-	if (colliderBoundingCup2->Bounding.Center.x <= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
-		dir2.x = 1.0f;*/
+	if (colliderBoundingCup2->GetCenter().x <= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
+		dir2.x = 1.0f;
 
-		// skinned model
+	// skinned model
 	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
 	if (mSkinModel->GetInMove())
 	{
@@ -404,9 +410,9 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 
 	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(colliderBoundingCup1->Bounding.Extents.x * 2.0f,
-			colliderBoundingCup1->Bounding.Extents.y * 2.0f,
-			colliderBoundingCup1->Bounding.Extents.z * 2.0f),
+		XMFLOAT3(colliderBoundingCup1->GetExtents().x * 2.0f,
+			colliderBoundingCup1->GetExtents().y * 2.0f,
+			colliderBoundingCup1->GetExtents().z * 2.0f),
 		false, true);
 
 	/*m_boundingEntity1 = GeometricPrimitive::CreateSphere(context,
@@ -420,11 +426,11 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 			false, true);*/
 
 	m_boundingEntity2 = GeometricPrimitive::CreateSphere(
-		context, colliderBoundingCup2->Bounding.Radius  * 2.0f,
+		context, colliderBoundingCup2->GetRadius()  * 2.0f,
 		16, false, true);
 
-	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->Bounding.Center);
-	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->Bounding.Center);
+	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->GetCenter());
+	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->GetCenter());
 
 	renderableSystem->Iterate();
 
@@ -631,45 +637,50 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
-	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
+	myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
+	myEntity1->Update();
 
 	//myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
-	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
+	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
+	myEntity2->Update();
 
 	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity3->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
+	myEntity3->Update();
 
 	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity4->GetTransform()->SetScale(scaleEntity4);
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
+	myEntity4->Update();
 
 	myEntity1->AddChild(myEntity3);
 
-	initialBoundingEntity1Size = XMFLOAT3(0.3f, 0.3f, 0.3f);
-	initialBoundingEntity2Size = XMFLOAT3(0.8f, 0.8f, 0.8f);
+	initialBoundingEntity1Size = XMFLOAT3(0.2f, 0.2f, 0.2f);
+	initialBoundingEntity2Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
 	initialBounding1Radius = 0.3f;
-	initialBounding2Radius = 0.8f;
+	initialBounding2Radius = 0.4f;
 
-	collisionSystem = std::make_shared<PhysicsSystem>(entityManager, Vector3::Zero, ROOM_BOUNDS[0]);
+	collisionSystem = std::make_shared<PhysicsSystem>(entityManager, SCENE_CENTER, COLLISION_SCENE_RANGE);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);
 	colliderBoundingSceneWall = std::dynamic_pointer_cast<ColliderAABB>(colliderSceneWall->ColliderBounding);
-	colliderBoundingSceneWall->Bounding.Extents = XMFLOAT3(ROOM_BOUNDS[0] / 2.0f, ROOM_BOUNDS[1] / 2.0f, ROOM_BOUNDS[2] / 2.0f);
+	colliderBoundingSceneWall->SetExtents(XMFLOAT3(COLLISION_SCENE_RANGE / 2.0f, COLLISION_SCENE_RANGE / 2.0f, COLLISION_SCENE_RANGE / 2.0f));
 	//collisionSystem->InsertComponent(colliderSceneWall);
 
 	colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
 	colliderCup1->SetParent(myEntity1);
 	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
-	colliderBoundingCup1->Bounding.Extents = initialBoundingEntity1Size;
+	colliderBoundingCup1->SetExtents(initialBoundingEntity1Size);
 	collisionSystem->InsertComponent(colliderCup1);
+	//colliderCup1->SetIsEnabled(false);
 
 	colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
 	colliderCup2->SetParent(myEntity2);
 	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
-	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
+	colliderBoundingCup2->SetRadius(initialBounding2Radius);
 	collisionSystem->InsertComponent(colliderCup2);
 
 	//m_room = GeometricPrimitive::CreateBox(context,
