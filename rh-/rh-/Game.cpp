@@ -275,7 +275,7 @@ void Game::Update(DX::StepTimer const& timer)
 	////////
 
 	//Audio
-	audioSystem->Iterate();
+	//audioSystem->Iterate();
 
 	UpdateObjects(elapsedTime);
 
@@ -306,7 +306,7 @@ void Game::UpdateObjects(float elapsedTime)
 	}
 
 	// check collisions
-	collisionSystem->Iterate();
+	//collisionSystem->Iterate();
 	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
 	XMVECTORF32 collider1Color = DirectX::Colors::White;
 	XMVECTORF32 collider2Color = DirectX::Colors::White;
@@ -436,7 +436,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->Bounding.Center);
 	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->Bounding.Center);
 
-	renderableSystem->Iterate();
+	//renderableSystem->Iterate();
 
 	//myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	//myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
@@ -455,6 +455,9 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	m_plane3->Draw(planeWorld3, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	m_plane4->Draw(planeWorld4, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+
+	world->RefreshWorld();
+
 }
 
 // Helper method to clear the back buffers.
@@ -591,9 +594,10 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
-	world->AddSystem<RenderableSystem>(renderableSystem, 1);
-	world->AddSystem<LightSystem>(lightSystem, 2);
+	collisionSystem = std::make_shared<PhysicsSystem>(Vector3::Zero, ROOM_BOUNDS[0]);
 
+
+	
 	sceneWallEntity = world->CreateEntity("SceneWall");
 	myEntity1 = world->CreateEntity("Cup1");
 	myEntity2 = world->CreateEntity("Cup2");
@@ -607,7 +611,17 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
 
-	world->InitializeSystem<RenderableSystem>();
+	myEntity1->GetTransform()->SetScale(scaleEntity1);
+	myEntity2->GetTransform()->SetScale(scaleEntity1);
+	myEntity3->GetTransform()->SetScale(scaleEntity1);
+	myEntity4->GetTransform()->SetScale(scaleEntity1);
+
+	renderableSystem->SetWorld(world);
+	renderableSystem->Initialize();
+
+	
+	
+	//world->InitializeSystem<RenderableSystem>();
 
 	// pointLightEntity1 - RED light follow player
 	pointLightEntity1 = world->CreateEntity("PointLight1");
@@ -626,7 +640,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
 	spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
 
-	lightSystem->Initialize();
+	//world->InitializeSystem<RenderableSystem>();
 
 	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
@@ -651,7 +665,6 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	initialBounding1Radius = 0.3f;
 	initialBounding2Radius = 0.8f;
 
-	collisionSystem = std::make_shared<PhysicsSystem>(Vector3::Zero, ROOM_BOUNDS[0]);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);
@@ -734,7 +747,12 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	//Audio
 	audioSystem = std::make_shared<AudioSystem>();
-	audioSystem->Initialize();
+
+	world->AddSystem<RenderableSystem>(renderableSystem, 1);
+	world->AddSystem<LightSystem>(lightSystem, 2);
+	world->AddSystem<PhysicsSystem>(collisionSystem, 3);
+
+	//audioSystem->Initialize();
 	//audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
 	//audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
 }

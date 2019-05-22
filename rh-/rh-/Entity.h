@@ -44,10 +44,10 @@ public:
 	std::unique_ptr<DirectX::Model> Model; //TODO: Move to renderer component
 
 	template<typename TComponent, typename... Args>
-	void AddComponent(Args&& ... args) 
+	void AddComponent(Args ... args) 
 	{
-		std::shared_ptr<TComponent> component = std::make_shared<TComponent>(std::forward(args) ...);
-		//_world->AddComponent<TComponent, Args...>(_id, args...);
+		//std::shared_ptr<TComponent> component = std::make_shared<TComponent>(std::forward(args) ...);
+		_world->AddComponent<TComponent, Args...>(_id, args...);
 	}
 
 	template<typename TComponent>
@@ -55,6 +55,8 @@ public:
 	{
 		_world->RemoveComponent<TComponent>();
 	}
+
+	void SetWorld(std::shared_ptr<World> world);
 
 	static std::size_t nextId;
 	

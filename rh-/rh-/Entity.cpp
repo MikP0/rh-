@@ -135,3 +135,8 @@ void Entity::Update()
 	}
 }
 
+void Entity::SetWorld(std::shared_ptr<World> world)
+{
+	_world = world;
+}
+

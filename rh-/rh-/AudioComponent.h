@@ -15,6 +15,7 @@ public:
 	unique_ptr<DirectX::SoundEffectInstance> AudioLoopInstance;
 
 	AudioComponent(string path);
+	AudioComponent(const std::shared_ptr<AudioComponent> audioComponent);
 	~AudioComponent();
 };
 

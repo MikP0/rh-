@@ -114,9 +114,10 @@ public:
 	std::shared_ptr<Entity> GetEntity(std::size_t index);
 
 	template<typename TComponent, typename... Args>
-	void AddComponent(std::size_t entityId, Args &&... args)
+	void AddComponent(std::size_t entityId, Args... args)
 	{
-		std::shared_ptr<TComponent> component = std::make_shared<TComponent>(std::forward(args)...);
+		auto component = std::make_shared<TComponent>(args...);
+		std::dynamic_pointer_cast<Component>(component)->SetParent(GetEntity(entityId));
 		_entityComponentMap.insert(std::make_pair(entityId, std::move(component)));
 	}
 

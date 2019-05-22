@@ -36,6 +36,7 @@ void World::RemoveAllSystems()
 std::shared_ptr<Entity> World::CreateEntity(std::string name)
 {
 	auto entity = std::make_shared<Entity>(name);
+	entity->SetWorld(shared_from_this());
 	_entityPoolMap[entity->GetId()] = entity;
 	return entity;
 }
@@ -70,7 +71,10 @@ bool World::IsActivated(Entity& entity) const
 
 void World::RefreshWorld()
 {
-	//TODO: Update entity
+	for (auto const& pair : _entityPoolMap)
+	{
+		pair.second->Update();
+	}
 
 	for (auto const& pair : _systemPoolMap)
 	{
