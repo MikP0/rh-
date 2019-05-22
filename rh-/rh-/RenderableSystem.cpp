@@ -15,6 +15,8 @@ RenderableSystem::RenderableSystem(std::shared_ptr<EntityManager> entityManager,
 	_fxFactory = std::make_shared<ToonFactory>(_device);
 
 	_componentsType = ComponentType("Renderable");
+
+	DebugDrawAction = std::make_unique<DebugDraw>(_device, _context);
 }
 
 RenderableSystem::~RenderableSystem()
@@ -23,7 +25,6 @@ RenderableSystem::~RenderableSystem()
 
 void RenderableSystem::Iterate()
 {
-
 	for (auto renderableComponent : _entityManager->GetComponents(_componentsType))
 	{
 		if (std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model != nullptr) {

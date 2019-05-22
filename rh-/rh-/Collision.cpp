@@ -24,10 +24,10 @@ Collision::~Collision()
 XMVECTORF32 Collision::GetCollisionColor(DirectX::ContainmentType collisionKind)
 {
 	if (collisionKind == DirectX::DISJOINT)
-		return DirectX::Colors::White;
+		return DirectX::Colors::GreenYellow;
 	else
 		if (collisionKind == DirectX::INTERSECTS)
-			return DirectX::Colors::Yellow;
+			return DirectX::Colors::White;
 		else
 			if (collisionKind == DirectX::CONTAINS)
 				return DirectX::Colors::Red;
