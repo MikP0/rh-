@@ -14,7 +14,6 @@
 #include "Raycast.h"
 #include "Input.h"
 #include "Collision.h"
-#include "EntityManager.h"
 #include "PhysicsComponent.h"
 #include "RenderableSystem.h"
 
@@ -88,10 +87,6 @@ private:
 
 	//Shaders
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
-
-	//Managers
-	std::shared_ptr<EntityManager> entityManager;
-	std::shared_ptr<ComponentFactory> componentFactory;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;
@@ -185,4 +180,7 @@ private:
 	std::shared_ptr<RenderableSystem> renderableSystem;
 
 	std::shared_ptr<LightSystem> lightSystem;
+
+	//World
+	std::shared_ptr<World> world;
 };

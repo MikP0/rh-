@@ -67,9 +67,6 @@
     <ClInclude Include="Transform.h">
       <Filter>Inc</Filter>
     </ClInclude>
-    <ClInclude Include="EntityManager.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
     <ClInclude Include="AnimationClip.h">
       <Filter>Inc\Skinning</Filter>
     </ClInclude>
@@ -154,9 +151,6 @@
     <ClInclude Include="Input.h">
       <Filter>Inc</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentFactory.h">
-      <Filter>Inc</Filter>
-    </ClInclude>
     <ClInclude Include="Raycast.h">
       <Filter>Inc</Filter>
     </ClInclude>
@@ -220,9 +214,6 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="AudioSystem.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityManager.cpp">
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="AnimationClip.cpp">
@@ -301,9 +292,6 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
-      <Filter>Src</Filter>
-    </ClCompile>
-    <ClCompile Include="ComponentFactory.cpp">
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="Raycast.cpp">

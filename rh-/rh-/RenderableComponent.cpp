@@ -13,8 +13,3 @@ RenderableComponent::RenderableComponent(std::wstring path , Camera& camera)
 RenderableComponent::~RenderableComponent()
 {
 }
-
-ComponentType RenderableComponent::GetType(void)
-{
-	return ComponentType("Renderable");
-}

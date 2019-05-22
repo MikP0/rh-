@@ -6,8 +6,11 @@
 
 #include <vector>
 #include "Transform.h"
-#include "pch.h"
 #include "World.h"
+#include "pch.h"
+
+
+class RenderableComponent;
 
 class Entity : public std::enable_shared_from_this<Entity>
 {
@@ -41,10 +44,17 @@ public:
 	std::unique_ptr<DirectX::Model> Model; //TODO: Move to renderer component
 
 	template<typename TComponent, typename... Args>
-	void AddComponent(Args...);
+	void AddComponent(Args&& ... args) 
+	{
+		std::shared_ptr<TComponent> component = std::make_shared<TComponent>(std::forward(args) ...);
+		//_world->AddComponent<TComponent, Args...>(_id, args...);
+	}
 
 	template<typename TComponent>
-	void RemoveComponent();
+	void RemoveComponent() 
+	{
+		_world->RemoveComponent<TComponent>();
+	}
 
 	static std::size_t nextId;
 	

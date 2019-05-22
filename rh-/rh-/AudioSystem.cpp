@@ -4,7 +4,6 @@
 
 AudioSystem::AudioSystem()
 {
-	_componentsType._name = "Audio";
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
 	#ifdef _DEBUG
 	eflags = eflags | AudioEngine_Debug;
@@ -112,18 +111,10 @@ void AudioSystem::ResumeAudio(AudioComponentPtr audioComponent)
 	audioComponent->AudioLoopInstance->Resume();
 }
 
-// zastanowic sie czy ta funkcja nie jest do usuniecia z System
-std::vector<AudioComponentPtr> AudioSystem::GetComponents()
-{
-	vector<AudioComponentPtr> result = _world->GetComponents<AudioComponent>();
-
-	return result;
-}
-
 void AudioSystem::UpdateComponentsCollection()
 {
 	_components.clear();
-	_components = GetComponents();
+	_components = _world->GetComponents<AudioComponent>();
 }
 
 void AudioSystem::InsertComponent(AudioComponentPtr component)
@@ -134,8 +125,8 @@ void AudioSystem::InsertComponent(AudioComponentPtr component)
 
 void AudioSystem::Initialize()
 {
-	Entity backgroundAudioEntityID = _world->CreateEntity("BackgroundAudioEntity");
-	Entity sound1AudioEntityID = _world->CreateEntity("Sound1AudioEntity");
+	std::shared_ptr<Entity> backgroundAudioEntityID = _world->CreateEntity("BackgroundAudioEntity");
+	std::shared_ptr<Entity> sound1AudioEntityID = _world->CreateEntity("Sound1AudioEntity");
 
 	shared_ptr<AudioComponent> backgroundAudioComponent = std::make_shared<AudioComponent>("Resources\\Audio\\In The End.wav");
 	backgroundAudioComponent->Loop = true;
@@ -143,10 +134,10 @@ void AudioSystem::Initialize()
 	shared_ptr<AudioComponent> sound1AudioComponent = make_shared<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
 	SetComponentAudioFile(sound1AudioComponent);
 
-	backgroundAudioEntityID.AddComponent<AudioComponent>(backgroundAudioComponent);
-	sound1AudioEntityID.AddComponent<AudioComponent>(sound1AudioComponent);
+	backgroundAudioEntityID->AddComponent<AudioComponent>(backgroundAudioComponent);
+	sound1AudioEntityID->AddComponent<AudioComponent>(sound1AudioComponent);
 
-	vector<shared_ptr<AudioComponent>> components = GetComponents();
+	vector<shared_ptr<AudioComponent>> components = _world->GetComponents<AudioComponent>();
 
 	for each (shared_ptr<AudioComponent> component in components)
 	{

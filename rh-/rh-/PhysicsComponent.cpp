@@ -27,8 +27,3 @@ PhysicsComponent::PhysicsComponent(shared_ptr<ColliderBase> collider)
 PhysicsComponent::~PhysicsComponent()
 {
 }
-
-ComponentType PhysicsComponent::GetType(void)
-{
-	return ComponentType("Physics");
-}

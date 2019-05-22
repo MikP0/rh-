@@ -13,8 +13,6 @@ RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* 
 	_states = std::make_unique<DirectX::CommonStates>(_device);
 
 	_fxFactory = std::make_shared<ToonFactory>(_device);
-
-	_componentsType = ComponentType("Renderable");
 }
 
 RenderableSystem::~RenderableSystem()

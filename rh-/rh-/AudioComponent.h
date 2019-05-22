@@ -16,7 +16,5 @@ public:
 
 	AudioComponent(string path);
 	~AudioComponent();
-
-	virtual ComponentType GetType(void) override;
 };
 

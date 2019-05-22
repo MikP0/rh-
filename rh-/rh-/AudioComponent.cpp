@@ -19,8 +19,3 @@ AudioComponent::AudioComponent(string path)
 AudioComponent::~AudioComponent()
 {
 }
-
-ComponentType AudioComponent::GetType(void)
-{
-	return ComponentType("Audio");
-}

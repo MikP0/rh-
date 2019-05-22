@@ -4,7 +4,6 @@
 
 PhysicsSystem::PhysicsSystem(Vector3 sceneCenter, float cubeDimension) : System()
 {
-	_componentsType._name = "Physics";
 	_sceneCenter = sceneCenter;
 	_sceneCubeDimension = cubeDimension;
 	ColliderAABBptr region = make_shared<ColliderAABB>();

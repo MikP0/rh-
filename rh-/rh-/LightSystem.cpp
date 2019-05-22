@@ -1,6 +1,6 @@
 #include "LightSystem.h"
 
-LightSystem::LightSystem(std::shared_ptr<ToonFactory> fxFactory) : System()
+LightSystem::LightSystem(std::shared_ptr<ToonFactory> fxFactory)
 {
 	_fxFactory = fxFactory;
 }
@@ -13,18 +13,15 @@ void LightSystem::Iterate()
 {
 	for (auto lightComponent : _world->GetComponents<LightComponent>())
 	{
-		if (lightComponent)
+		if (lightComponent->UpdateAble)
 		{
-			if (lightComponent->UpdateAble)
+			if (lightComponent->LightType == LightTypeComponent::POINTLight)
 			{
-				if (lightComponent->LightType == LightTypeComponent::POINTLight)
-				{
-					_fxFactory->UpdatePointLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
-				}
-				else if (lightComponent->LightType == LightTypeComponent::SPOTLight)
-				{
-					_fxFactory->UpdateSpotLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
-				}
+				_fxFactory->UpdatePointLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
+			}
+			else if (lightComponent->LightType == LightTypeComponent::SPOTLight)
+			{
+				_fxFactory->UpdateSpotLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
 			}
 		}
 	}
@@ -34,20 +31,17 @@ void LightSystem::Initialize()
 {
 	for (auto lightComponent : _world->GetComponents<LightComponent>())
 	{
-		if (lightComponent)
+		if (lightComponent->LightType == LightTypeComponent::POINTLight)
 		{
-			if (lightComponent->LightType == LightTypeComponent::POINTLight)
-			{
-				_fxFactory->AddPointLight(lightComponent->Color, lightComponent->Position, lightComponent->Radius);
-			}
-			else if (lightComponent->LightType == LightTypeComponent::DIRECTLight)
-			{
-				_fxFactory->AddDirectLight(lightComponent->Color, lightComponent->Direction);
-			}
-			else if (lightComponent->LightType == LightTypeComponent::SPOTLight)
-			{
-				_fxFactory->AddSpotLight(lightComponent->Color, lightComponent->Direction, lightComponent->OuterAngle, lightComponent->Position, lightComponent->InnerAngle, lightComponent->Radius);
-			}
+			_fxFactory->AddPointLight(lightComponent->Color, lightComponent->Position, lightComponent->Radius);
+		}
+		else if (lightComponent->LightType == LightTypeComponent::DIRECTLight)
+		{
+			_fxFactory->AddDirectLight(lightComponent->Color, lightComponent->Direction);
+		}
+		else if (lightComponent->LightType == LightTypeComponent::SPOTLight)
+		{
+			_fxFactory->AddSpotLight(lightComponent->Color, lightComponent->Direction, lightComponent->OuterAngle, lightComponent->Position, lightComponent->InnerAngle, lightComponent->Radius);
 		}
 	}
 }

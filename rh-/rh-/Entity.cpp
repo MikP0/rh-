@@ -14,6 +14,7 @@ Entity::Entity()
 	_parent = nullptr;
 	_name = "Entity " + std::to_string(_id);
 	_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
+	_world = nullptr;
 }
 
 Entity::Entity(const std::string name)
@@ -23,6 +24,8 @@ Entity::Entity(const std::string name)
 	_parent = nullptr;
 	_name = name;
 	_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
+	_world = nullptr;
+
 }
 
 Entity::Entity(const Entity & entity)
@@ -132,13 +135,3 @@ void Entity::Update()
 	}
 }
 
-template<typename TComponent, typename... Args>
-void Entity::AddComponent(Args... args) {
-	_world->AddComponent<TComponent, Args>(_id, args...);
-}
-
-template<typename TComponent>
-void Entity::RemoveComponent()
-{
-	_world->RemoveComponent<TComponent>();
-}

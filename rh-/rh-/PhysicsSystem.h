@@ -24,8 +24,7 @@ public:
 	void UpdateCollidersPositions();
 	void UpdateColliderPosition(PhysicsComponentPtr component);
 
-	std::vector<PhysicsComponentPtr> GetComponents(ComponentType componentType);
-	virtual void UpdateComponentsCollection() override;
+	virtual void UpdateComponentsCollection();
 
 	void ResetAllUpdatePositionFlags();
 
