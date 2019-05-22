@@ -41,7 +41,10 @@ enum actionList
 	playBackground,
 	playSound1,
 
-	freeCamera
+	freeCamera,
+
+	debugDrawAll,
+	debugDrawWithoutRegions
 };
 
 enum availableKeys
@@ -61,6 +64,8 @@ enum availableKeys
 	z,
 	x,
 	c,
+	v,
+	b,
 	upperArrow,
 	leftArrow,
 	lowerArrow,

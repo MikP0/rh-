@@ -27,6 +27,7 @@ public:
 	virtual std::vector<ComponentPtr> GetComponents(ComponentType componentType) override;
 	virtual void UpdateComponentsCollection() override;
 
+	OctTreePtr GetOctTree();
 	vector<CollisionPtr> GetCurrentCollisions();
 	vector<CollisionPtr> GetCollisionsWithRay(ColliderRayPtr ray);
 	vector<CollisionPtr> GetCollisionsWithFrustum(ColliderFrustumPtr frustum);

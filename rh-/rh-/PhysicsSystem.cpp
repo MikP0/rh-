@@ -75,6 +75,11 @@ void PhysicsSystem::UpdateComponentsCollection()
 	}
 }
 
+OctTreePtr PhysicsSystem::GetOctTree()
+{
+	return _octTree;
+}
+
 vector<CollisionPtr> PhysicsSystem::GetCurrentCollisions()
 {
 	list<CollisionPtr> currentCollisionList = _octTree->GetIntersection(list<PhysicsComponentPtr>());

@@ -84,6 +84,12 @@ std::map<availableKeys, bool> Input::GetPushedKeys()
 	if (KeyboardState.C)
 		pushedKeys[c] = true;
 
+	if (KeyboardState.V)
+		pushedKeys[v] = true;
+
+	if (KeyboardState.B)
+		pushedKeys[b] = true;
+
 	return pushedKeys;
 }
 
