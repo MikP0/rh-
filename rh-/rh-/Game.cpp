@@ -21,7 +21,7 @@ using Microsoft::WRL::ComPtr;
 namespace
 {
 	const XMVECTORF32 ROOM_BOUNDS = { 1.f, 0.f, 1.f, 0.f };
-	const float COLLISION_SCENE_RANGE = 60.0f;
+	const float COLLISION_SCENE_RANGE = 15.0f;
 	const Vector3 SCENE_CENTER = Vector3::Zero;
 	const float ROTATION_GAIN = 0.008f;
 	const float MOVEMENT_GAIN = 0.07f;
@@ -181,6 +181,16 @@ void Game::Update(DX::StepTimer const& timer)
 			if (*iter == freeCamera) {
 				freeCameraLook = !freeCameraLook;
 			}
+
+			if (*iter == debugDrawAll)
+			{
+				debugDraw = !debugDraw;
+			}
+
+			if (*iter == debugDrawWithoutRegions)
+			{
+				debugDrawTreeRegions = !debugDrawTreeRegions;
+			}
 		}
 	}
 
@@ -299,6 +309,7 @@ void Game::Update(DX::StepTimer const& timer)
 void Game::UpdateObjects(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
+	auto keyboard = Input::GetKeyboardState();
 	static shared_ptr<Entity> selectedCollider;
 
 
@@ -356,7 +367,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 	myEntity4->Update();
 
-	if (mouse.middleButton)
+	if (keyboard.M)
 	{
 		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
 		vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
@@ -431,6 +442,10 @@ void Game::Render()
 
 void Game::RenderObjects(ID3D11DeviceContext1 *context)
 {
+	DirectX::XMMATRIX cameraView = camera.GetViewMatrix();
+	DirectX::XMMATRIX cameraProjection = camera.GetProjectionMatrix();
+	
+
 	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
@@ -439,43 +454,14 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	terrain->Draw(camera, m_roomTex);
 
-
-	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(colliderBoundingCup1->GetExtents().x * 2.0f,
-			colliderBoundingCup1->GetExtents().y * 2.0f,
-			colliderBoundingCup1->GetExtents().z * 2.0f),
-		false, true);
-
-	/*m_boundingEntity1 = GeometricPrimitive::CreateSphere(context,
-		colliderBoundingCup1->Bounding.Radius * 2.0f,
-		16, false, true);*/
-
-		/*m_boundingEntity2 = GeometricPrimitive::CreateBox(context,
-			XMFLOAT3(colliderBoundingCup2->Bounding.Extents.x * 2.0f,
-				colliderBoundingCup2->Bounding.Extents.y * 2.0f,
-				colliderBoundingCup2->Bounding.Extents.z * 2.0f),
-			false, true);*/
-
-	m_boundingEntity2 = GeometricPrimitive::CreateSphere(
-		context, colliderBoundingCup2->GetRadius()  * 2.0f,
-		16, false, true);
-
-	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->GetCenter());
-	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->GetCenter());
-
 	renderableSystem->Iterate();
 
-	//myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	//myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	//myEntity3->Model->Draw(context, *m_states, myEntity3->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	//myEntity4->Model->Draw(context, *m_states, myEntity4->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-
-
-	m_boundingEntity1->Draw(boundingMatrix1, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider1Color, nullptr, true);
-	m_boundingEntity2->Draw(boundingMatrix2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider2Color, nullptr, true);
+	if (debugDraw)
+		renderableSystem->DebugDrawAction->DrawOctTree(
+			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
 	// skinned model
-	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), cameraView, cameraProjection);
 
 	// billboarding
 	//m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
@@ -719,10 +705,10 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	myEntity1->AddChild(myEntity3);
 
-	initialBoundingEntity1Size = XMFLOAT3(0.2f, 0.2f, 0.2f);
+	initialBoundingEntity1Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
 	initialBoundingEntity2Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
 	initialBounding1Radius = 0.3f;
-	initialBounding2Radius = 0.4f;
+	initialBounding2Radius = 0.7f;
 
 	collisionSystem = std::make_shared<PhysicsSystem>(entityManager, SCENE_CENTER, COLLISION_SCENE_RANGE);
 

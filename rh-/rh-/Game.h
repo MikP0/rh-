@@ -156,14 +156,14 @@ private:
 		{availableKeys::four, actionList::special4},
 		{availableKeys::z, actionList::playBackground},
 		{availableKeys::x, actionList::playSound1},
-		{availableKeys::c, actionList::freeCamera}
+		{availableKeys::c, actionList::freeCamera},
+		{availableKeys::v, actionList::debugDrawAll},
+		{availableKeys::b, actionList::debugDrawWithoutRegions}
 	};
 	std::shared_ptr<Entity> inputEntity;
 
 	// primitives
 	//std::unique_ptr<DirectX::GeometricPrimitive> m_room;
-	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity1;
-	std::unique_ptr<DirectX::GeometricPrimitive> m_boundingEntity2;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_roomTex;
 
 	// mouse settings
@@ -226,7 +226,11 @@ private:
 
 	bool menuIsOn;
 
+	//Debug Tree
+	bool debugDraw = false;
+	bool debugDrawTreeRegions = true;
+
 	//Shadows
-	//wall
 	std::shared_ptr<Entity> myEntityWall;
+	
 };
