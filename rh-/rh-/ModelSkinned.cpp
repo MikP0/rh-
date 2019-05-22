@@ -3,11 +3,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-const UINT DepthMapWidth = 1024U;
-const UINT DepthMapHeight = 1024U;
-const RECT DepthMapDestinationRectangle = { 0, 512, 256, 768 };
-const float DepthBiasModulationRate = 10000;
-
 ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D11DeviceContext1* con)
 {
 	mAmbientColor.r = 1.0f;
@@ -23,29 +18,14 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 
 	mSkinnedModel = new ModelSK(myGameTemp, filename, true);
 
-
-	//mModelWorldMatrix = DirectX::SimpleMath::Matrix::Identity;
-	//mProjectedTextureScalingMatrix = MatrixHelper::Zero;
-
-
-	// Skinned and shadows
 	mEffect = new EffectSK(myGameTemp);
 	mEffect->LoadCompiledEffect(L"Content\\Shaders\\SkinnedModel.cso");
 	mMaterial = new SkinnedModelMaterial();
 	mMaterial->Initialize(*mEffect);
 
-	// depth
-	//mDepthEffect = new EffectSK(myGameTemp);
-	//mDepthEffect->LoadCompiledEffect(L"Content\\Shaders\\SkinnedModel.cso");  // !!!!!!!!!111
-	//mDepthMaterial = new DepthMapMaterial();
-	//mDepthMaterial->Initialize(*mDepthEffect);
-
-
 	mVertexBuffers.clear();
-	//mDepthVertexBuffers.clear();
 	mIndexBuffers.clear();
 	mVertexBuffers.resize(mSkinnedModel->Meshes().size());
-	//mDepthVertexBuffers.resize(mSkinnedModel->Meshes().size());
 	mIndexBuffers.resize(mSkinnedModel->Meshes().size());
 	mIndexCounts.resize(mSkinnedModel->Meshes().size());
 	mColorTextures.resize(mSkinnedModel->Meshes().size());
@@ -56,32 +36,14 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 		MeshSK* mesh = mSkinnedModel->Meshes().at(i);
 
 		ID3D11Buffer* vertexBuffer = nullptr;
-		ID3D11Buffer* depthVertexBuffer = nullptr;
 		mMaterial->CreateVertexBuffer(DDevice, *mesh, &vertexBuffer);
-
-		//mDepthMaterial->CreateVertexBuffer(DDevice, *mesh, &depthVertexBuffer);
-
 		mVertexBuffers[i] = vertexBuffer;
-		//mDepthVertexBuffers[i] = depthVertexBuffer;
-
 
 		ID3D11Buffer* indexBuffer = nullptr;
 		mesh->CreateIndexBuffer(&indexBuffer);
 		mIndexBuffers[i] = indexBuffer;
 
 		mIndexCounts[i] = mesh->Indices().size();
-
-
-		//XMStoreFloat4x4(&mModelWorldMatrix, XMMatrixScaling(0.1f, 0.1f, 0.1f) * XMMatrixTranslation(0.0f, 5.0f, 2.5f));
-
-		//mDepthMap = new DepthMap(*(&myGameTemp), DepthMapWidth, DepthMapHeight);
-
-		//UpdateDepthBiasState();
-
-
-
-
-
 
 		ID3D11ShaderResourceView* colorTexture = nullptr;
 		ModelMaterial* material = mesh->GetMaterial();
@@ -239,32 +201,3 @@ bool ModelSkinned::AddAnimationClip(std::string path, std::string clipName)
 
 	return true;
 }
-
-//void ModelSkinned::InitializeProjectedTextureScalingMatrix()
-//{
-//	mProjectedTextureScalingMatrix._11 = 0.5f;
-//	mProjectedTextureScalingMatrix._22 = -0.5f;
-//	mProjectedTextureScalingMatrix._33 = 1.0f;
-//	mProjectedTextureScalingMatrix._41 = 0.5f;
-//	mProjectedTextureScalingMatrix._42 = 0.5f;
-//	mProjectedTextureScalingMatrix._44 = 1.0f;
-//}
-//
-//void ModelSkinned::UpdateDepthBiasState()
-//{
-//	//ReleaseObject(mDepthBiasState);
-//
-//	D3D11_RASTERIZER_DESC rasterizerStateDesc;
-//	ZeroMemory(&rasterizerStateDesc, sizeof(rasterizerStateDesc));
-//	rasterizerStateDesc.FillMode = D3D11_FILL_SOLID;
-//	rasterizerStateDesc.CullMode = D3D11_CULL_BACK;
-//	rasterizerStateDesc.DepthClipEnable = true;
-//	rasterizerStateDesc.DepthBias = (int)mDepthBias;
-//	rasterizerStateDesc.SlopeScaledDepthBias = mSlopeScaledDepthBias;
-//
-//	HRESULT hr = mGame->Direct3DDevice()->CreateRasterizerState(&rasterizerStateDesc, &mDepthBiasState);
-//	if (FAILED(hr))
-//	{
-//		throw GameException("ID3D11Device::CreateRasterizerState() failed.", hr);
-//	}
-//}

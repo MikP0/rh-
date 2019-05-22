@@ -53,6 +53,7 @@
 #include <dxgidebug.h>
 #endif
 
+
 // XTK/toolkit
 #include "CommonStates.h"
 #include "DDSTextureLoader.h"
@@ -72,8 +73,6 @@
 #include "SpriteFont.h"
 #include "VertexTypes.h"
 #include "WICTextureLoader.h"
-#include "Audio.h"
-
 
 
 

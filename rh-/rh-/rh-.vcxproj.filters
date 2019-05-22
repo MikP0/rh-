@@ -199,15 +199,6 @@
     <ClInclude Include="LightComponent.h">
       <Filter>Inc</Filter>
     </ClInclude>
-    <ClInclude Include="DepthMapMaterial.h">
-      <Filter>Inc\Skinning\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderTarget.h">
-      <Filter>Inc\Skinning</Filter>
-    </ClInclude>
-    <ClInclude Include="DepthMap.h">
-      <Filter>Inc\Skinning</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -360,15 +351,9 @@
     <ClCompile Include="LightComponent.cpp">
       <Filter>Src</Filter>
     </ClCompile>
-    <ClCompile Include="DepthMapMaterial.cpp">
-      <Filter>Src\Skinning\Effect</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTarget.cpp">
-      <Filter>Src\Skinning</Filter>
-    </ClCompile>
-    <ClCompile Include="DepthMap.cpp">
-      <Filter>Src\Skinning</Filter>
-    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="directx.ico">
@@ -397,9 +382,6 @@
     <None Include="content\Shaders\Include\Common.fxh">
       <Filter>Inc\Shaders\Include</Filter>
     </None>
-    <None Include="WallToRoom.cmo">
-      <Filter>Assets</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">
@@ -419,8 +401,5 @@
     <Media Include="Resources\Audio\Happyrock.wav">
       <Filter>Assets</Filter>
     </Media>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
 </Project>

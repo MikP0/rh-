@@ -57,8 +57,6 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\MeshContentTask.props" />
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\ImageContentTask.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -78,8 +76,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -96,7 +92,6 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,7 +107,6 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <AdditionalIncludeDirectories>$(SolutionDir)\DirectXTK\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -168,8 +162,6 @@
     <ClInclude Include="BufferContainer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColliderTypes.h" />
-    <ClInclude Include="DepthMap.h" />
-    <ClInclude Include="DepthMapMaterial.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Component.h" />
@@ -203,7 +195,6 @@
     <ClInclude Include="ReadData.h" />
     <ClInclude Include="RenderableComponent.h" />
     <ClInclude Include="RenderableSystem.h" />
-    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RTTI.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SkinnedModelMaterial.h" />
@@ -239,12 +230,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="DepthMap.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="DepthMapMaterial.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Input.cpp" />
@@ -312,9 +297,6 @@
     <ClCompile Include="Raycast.cpp" />
     <ClCompile Include="RenderableComponent.cpp" />
     <ClCompile Include="RenderableSystem.cpp" />
-    <ClCompile Include="RenderTarget.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="SceneNode.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -364,7 +346,6 @@
     </None>
     <None Include="cup.cmo" />
     <None Include="packages.config" />
-    <None Include="WallToRoom.cmo" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">
@@ -387,21 +368,12 @@
     <Media Include="Resources\Audio\Explo1.wav" />
     <Media Include="Resources\Audio\Happyrock.wav" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DirectXTK\Audio\DirectXTKAudio_Desktop_2017_Win8.vcxproj">
-      <Project>{4f150a30-cecb-49d1-8283-6a3f57438cf5}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\DirectXTK\DirectXTK_Desktop_2017.vcxproj">
-      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\assimp_native.redist.4.0.1\build\native\assimp_native.redist.targets" Condition="Exists('..\packages\assimp_native.redist.4.0.1\build\native\assimp_native.redist.targets')" />
     <Import Project="..\packages\assimp_native.4.0.1\build\native\assimp_native.targets" Condition="Exists('..\packages\assimp_native.4.0.1\build\native\assimp_native.targets')" />
+    <Import Project="..\packages\directxtk_desktop_2015.2019.4.26.1\build\native\directxtk_desktop_2015.targets" Condition="Exists('..\packages\directxtk_desktop_2015.2019.4.26.1\build\native\directxtk_desktop_2015.targets')" />
     <Import Project="..\packages\fx11_desktop_2015.2019.4.27.1\build\native\fx11_desktop_2015.targets" Condition="Exists('..\packages\fx11_desktop_2015.2019.4.27.1\build\native\fx11_desktop_2015.targets')" />
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\MeshContentTask.targets" />
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\ImageContentTask.targets" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -409,6 +381,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\assimp_native.redist.4.0.1\build\native\assimp_native.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\assimp_native.redist.4.0.1\build\native\assimp_native.redist.targets'))" />
     <Error Condition="!Exists('..\packages\assimp_native.4.0.1\build\native\assimp_native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\assimp_native.4.0.1\build\native\assimp_native.targets'))" />
+    <Error Condition="!Exists('..\packages\directxtk_desktop_2015.2019.4.26.1\build\native\directxtk_desktop_2015.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk_desktop_2015.2019.4.26.1\build\native\directxtk_desktop_2015.targets'))" />
     <Error Condition="!Exists('..\packages\fx11_desktop_2015.2019.4.27.1\build\native\fx11_desktop_2015.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\fx11_desktop_2015.2019.4.27.1\build\native\fx11_desktop_2015.targets'))" />
   </Target>
 </Project>
