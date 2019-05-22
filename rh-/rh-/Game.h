@@ -198,4 +198,26 @@ private:
 
 	Mouse::ButtonStateTracker tracker;
 	bool freeCameraLook = false;
+
+	//UI Sprites
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> healthBarTex;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> healthBarHeroTex;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> healthBarHealthTex;
+	DirectX::SimpleMath::Vector2 healthBarPos;
+	DirectX::SimpleMath::Vector2 healthBarHeroPos;
+	DirectX::SimpleMath::Vector2 healthBarHealthPos;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> fpsBarTex;
+	DirectX::SimpleMath::Vector2 fpsBarPos;
+
+	std::shared_ptr<DirectX::SpriteBatch> uiSpriteBatch;
+
+	std::shared_ptr<DirectX::SpriteFont> fpsFont;
+	DirectX::SimpleMath::Vector2 fpsFontPos;
+	std::wstring fpsFontText;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> menuTex;
+	DirectX::SimpleMath::Vector2 menuPos;
+
+	bool menuIsOn;
 };
