@@ -81,6 +81,8 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 	float time = float(timer.GetTotalSeconds());
+	float fps = timer.GetFramesPerSecond();
+
 
 	// TODO: Add your game logic here.
 
@@ -96,149 +98,200 @@ void Game::Update(DX::StepTimer const& timer)
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
 		if (*iter == closeWindow)
-			ExitGame();
-
-		if (freeCamera) {
-			if (*iter == up)
-				move.y += 1.f;
-
-			if (*iter == down)
-				move.y -= 1.f;
-
-			if (*iter == actionList::left)
-				move.x += 1.f;
-
-			if (*iter == actionList::right)
-				move.x -= 1.f;
-
-			if (*iter == actionList::forward)
-				move.z += 1.f;
-
-			if (*iter == actionList::backward)
-				move.z -= 1.f;
-		}
-
-		if (*iter == moveFor)
 		{
-			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, 1.0f))*elapsedTime * 0.001f, elapsedTime);
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			//ExitGame();
+			menuIsOn = true;
 		}
 
-		if (*iter == moveBac)
+		if (!menuIsOn)
 		{
-			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, -1.0f))*elapsedTime * 0.001f, -elapsedTime);
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
-		}
+			if (freeCamera) {
+				if (*iter == up)
+					move.y += 1.f;
 
-		if (*iter == moveLeft)
-		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(150.f * elapsedTime));
-		}
+				if (*iter == down)
+					move.y -= 1.f;
 
-		if (*iter == moveRight)
-		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-150.f * elapsedTime));
-		}
+				if (*iter == actionList::left)
+					move.x += 1.f;
 
-		if (*iter == special1)
-		{
-			mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
+				if (*iter == actionList::right)
+					move.x -= 1.f;
 
-		if (*iter == special2)
-		{
-			mSkinModel->GetAnimatorPlayer()->StartClip("Dance");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
+				if (*iter == actionList::forward)
+					move.z += 1.f;
 
-		if (*iter == playBackground)
-		{
-			audioBackgroundSound->Mute = false;
-		}
+				if (*iter == actionList::backward)
+					move.z -= 1.f;
+			}
 
-		if (*iter == playSound1)
-		{
-			audioSound1->Mute = false;
-		}
+			if (*iter == moveFor)
+			{
+				mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, 1.0f))*elapsedTime * 0.001f, elapsedTime);
+				mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+				mSkinModel->SetInMove(true);
+				mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			}
 
-		if (*iter == freeCamera) {
-			freeCameraLook = !freeCameraLook;
+			if (*iter == moveBac)
+			{
+				mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, -1.0f))*elapsedTime * 0.001f, -elapsedTime);
+				mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+				mSkinModel->SetInMove(true);
+				mSkinModel->GetAnimatorPlayer()->SetDirection(false);
+			}
+
+			if (*iter == moveLeft)
+			{
+				mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(150.f * elapsedTime));
+			}
+
+			if (*iter == moveRight)
+			{
+				mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-150.f * elapsedTime));
+			}
+
+			if (*iter == special1)
+			{
+				mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
+				mSkinModel->SetInMove(true);
+				mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			}
+
+			if (*iter == special2)
+			{
+				mSkinModel->GetAnimatorPlayer()->StartClip("Dance");
+				mSkinModel->SetInMove(true);
+				mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			}
+
+			if (*iter == playBackground)
+			{
+				audioBackgroundSound->Mute = false;
+			}
+
+			if (*iter == playSound1)
+			{
+				audioSound1->Mute = false;
+
+				if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
+					healthBarHealthPos.x -= 5.f;
+			}
+
+			if (*iter == freeCamera) {
+				freeCameraLook = !freeCameraLook;
+			}
 		}
 	}
 
-	if (pushedKeysActions.size() == 0 && !navMesh->isMoving)
+	if (!menuIsOn)
 	{
-		mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
-		mSkinModel->SetInMove(true);
-	}
 
-	if (navMesh->isMoving) {
-		mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-		mSkinModel->SetInMove(true);
-		mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		if (pushedKeysActions.size() == 0 && !navMesh->isMoving)
+		{
+			mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
+			mSkinModel->SetInMove(true);
+		}
+
+		if (navMesh->isMoving) {
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
 	}
 
 	//Audio
 	audioSystem->Iterate();
 
-	//Camera Movement
-	if (freeCameraLook) {
-		if (mouse.positionMode == Mouse::MODE_RELATIVE)
-		{
-			Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f) * ROTATION_GAIN;
+	if (!menuIsOn)
+	{
 
-			m_pitch -= delta.y;
-			m_yaw -= delta.x;
-
-			// limit pitch to straight up or straight down with a little fudge-factor to avoid gimbal lock
-			float limit = XM_PI / 2.0f - 0.01f;
-			m_pitch = std::max(-limit, m_pitch);
-			m_pitch = std::min(+limit, m_pitch);
-
-			// keep longitude in sane range by wrapping
-			if (m_yaw > XM_PI)
+		//Camera Movement
+		if (freeCameraLook) {
+			if (mouse.positionMode == Mouse::MODE_RELATIVE)
 			{
-				m_yaw -= XM_PI * 2.0f;
+				Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f) * ROTATION_GAIN;
+
+				m_pitch -= delta.y;
+				m_yaw -= delta.x;
+
+				// limit pitch to straight up or straight down with a little fudge-factor to avoid gimbal lock
+				float limit = XM_PI / 2.0f - 0.01f;
+				m_pitch = std::max(-limit, m_pitch);
+				m_pitch = std::min(+limit, m_pitch);
+
+				// keep longitude in sane range by wrapping
+				if (m_yaw > XM_PI)
+				{
+					m_yaw -= XM_PI * 2.0f;
+				}
+				else if (m_yaw < -XM_PI)
+				{
+					m_yaw += XM_PI * 2.0f;
+				}
 			}
-			else if (m_yaw < -XM_PI)
-			{
-				m_yaw += XM_PI * 2.0f;
-			}
+
+			move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
+			move *= MOVEMENT_GAIN;
+			Vector3 tempCamera = camera.GetPositionVector();
+			tempCamera += move;
+			camera.SetPosition(tempCamera);
+			camera.SetPitch(m_pitch);
+			camera.SetYaw(m_yaw);
+		}
+		else {
+			camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom()));
+			camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
+			camera.SetPitch(0);
+			camera.SetYaw(0);
 		}
 
-		move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
-		move *= MOVEMENT_GAIN;
-		Vector3 tempCamera = camera.GetPositionVector();
-		tempCamera += move;
-		camera.SetPosition(tempCamera);
-		camera.SetPitch(m_pitch);
-		camera.SetYaw(m_yaw);
-	}
-	else {
-		camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom()));
-		camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
-		camera.SetPitch(0);
-		camera.SetYaw(0);
+		//CameraZoom
+		if (mouse.scrollWheelValue > 0) {
+			camera.ZoomIn();
+			Input::ResetWheel();
+		}
+		if (mouse.scrollWheelValue < 0) {
+			camera.ZoomOut();
+			Input::ResetWheel();
+		}
 	}
 
-	//CameraZoom
-	if (mouse.scrollWheelValue > 0) {
-		camera.ZoomIn();
-		Input::ResetWheel();
-	}
-	if (mouse.scrollWheelValue < 0) {
-		camera.ZoomOut();
-		Input::ResetWheel();
-	}
+	// UI FPS
+	std::string str = std::to_string(fps);
+	fpsFontText = std::wstring(str.begin(), str.end());
 
-	UpdateObjects(elapsedTime);
+	if (!menuIsOn)
+	{
+		UpdateObjects(elapsedTime);
+	}
+	else
+	{
+		auto mouse = Input::GetMouseState();
+
+		if (mouse.leftButton)
+		{
+			if ((mouse.x >= 320) && (mouse.x <= 450))
+			{
+				if ((mouse.y >= 300) && (mouse.y <= 370))
+				{
+					//menuIsOn = false;
+					ExitGame();
+				}	
+				else if ((mouse.y >= 160) && (mouse.y <= 220))
+				{
+					menuIsOn = false;
+				}
+			}
+			else if ((mouse.x >= 275) && (mouse.x <= 515))
+			{
+				if ((mouse.y >= 160) && (mouse.y <= 220))
+				{
+					menuIsOn = false;
+				}			
+			}
+		}
+	}
 
 	elapsedTime;
 }
@@ -247,6 +300,7 @@ void Game::UpdateObjects(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
 	static shared_ptr<Entity> selectedCollider;
+
 
 	//NavMesh
 	tracker.Update(mouse);
@@ -362,7 +416,6 @@ void Game::Render()
 
 	// TODO: Add your rendering code here.
 
-
 	RenderObjects(context);
 
 	context;
@@ -426,6 +479,33 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	m_plane3->Draw(planeWorld3, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	m_plane4->Draw(planeWorld4, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+
+
+	uiSpriteBatch->Begin();
+
+	uiSpriteBatch->Draw(healthBarTex.Get(), healthBarPos, nullptr, Colors::White,
+		0.f, Vector2(0, 0), 0.25f);
+
+	uiSpriteBatch->Draw(healthBarHealthTex.Get(), healthBarHealthPos, nullptr, Colors::White,
+		0.f, Vector2(0, 0), 0.25f);
+
+	uiSpriteBatch->Draw(healthBarHeroTex.Get(), healthBarHeroPos, nullptr, Colors::White,
+		0.f, Vector2(0, 0), 0.35f);
+
+	uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
+		0.f, Vector2(0, 0), 0.15f);
+
+	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
+		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
+
+	if (menuIsOn)
+	{
+		uiSpriteBatch->Draw(menuTex.Get(), menuPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 0.6f);
+	}
+
+	uiSpriteBatch->End();
+
 }
 
 // Helper method to clear the back buffers.
@@ -730,6 +810,58 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//NavMesh
 	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);
 	navMesh->terrain = this->terrain;
+
+	//UI
+	uiSpriteBatch = std::make_shared<SpriteBatch>(context);
+
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\hp_bar.dds",
+			nullptr,
+			healthBarTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\hero.dds",
+			nullptr,
+			healthBarHeroTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\health.dds",
+			nullptr,
+			healthBarHealthTex.ReleaseAndGetAddressOf()));
+
+	healthBarPos.x = 0.f;
+	healthBarPos.y = 0.f;
+
+	healthBarHeroPos.x = 0.f;
+	healthBarHeroPos.y = 0.f;
+
+	healthBarHealthPos.x = 135.f;
+	healthBarHealthPos.y = 30.f;
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\fpsbar.dds",
+			nullptr,
+			fpsBarTex.ReleaseAndGetAddressOf()));
+
+	fpsBarPos.x = 710.0f;
+	fpsBarPos.y = -5.0f;
+
+	fpsFont = std::make_unique<SpriteFont>(device, L"Resources\\Fonts\\fpsFont.spritefont");
+
+	fpsFontPos.x = 710.0f;
+	fpsFontPos.y = 10.0f;
+	fpsFontText = std::wstring(L"60");
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Menu.dds",
+			nullptr,
+			menuTex.ReleaseAndGetAddressOf()));
+
+	menuPos.x = 250.0f;
+	menuPos.y = 100.0f;
+
+	menuIsOn = false;
 }
 
 void Game::OnDeviceLost()
@@ -750,6 +882,12 @@ void Game::OnDeviceLost()
 
 	m_plane.reset();
 	m_planeTex.Reset();
+
+	uiSpriteBatch.reset();
+	healthBarTex.Reset();
+	healthBarHealthTex.Reset();
+	healthBarHeroTex.Reset();
+	fpsFont.reset();
 }
 
 void Game::OnDeviceRestored()
