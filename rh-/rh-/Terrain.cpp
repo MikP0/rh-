@@ -3,6 +3,8 @@
 #include "Terrain.h"
 #include <map>
 #include <unordered_set>
+#include <queue>
+#include <limits>
 
 using namespace std;
 using namespace DirectX::SimpleMath;
@@ -26,8 +28,8 @@ void Terrain::InitTileMap(ID3D11DeviceContext1* context)
 
 void Terrain::ResetTileMap()
 {
-	widthInTiles = 15;
-	heightInTiles = 15;
+	widthInTiles = 30;
+	heightInTiles = 30;
 	for (int i = 0; i < widthInTiles*heightInTiles; i++) {
 		tiles.push_back(shared_ptr<MapTile>(new MapTile()));
 		tiles[i]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize), false, true);
@@ -40,7 +42,7 @@ void Terrain::SetTilePositionsAndTypes()
 		for (int j = 0; j < heightInTiles; j++) {
 			tiles[i *heightInTiles + j]->worldPosition = Vector3(i*1.f, 0.f, j*1.f);
 			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
-			if (i*j % 3 < 2) {
+			if (i*j % 15 < 10) {
 				tiles[i *heightInTiles + j]->type = TileType::grass;
 				tiles[i *heightInTiles + j]->walkable = true;
 			}
@@ -149,31 +151,44 @@ vector<shared_ptr<MapTile>> Terrain::GetPath(shared_ptr<MapTile> start, shared_p
 
 	for each (shared_ptr<MapTile> tile in tiles)
 	{
-		tile->f = 0;
-		tile->g = 0;
+		tile->f = std::numeric_limits<float>::max();
+		tile->g = std::numeric_limits<float>::max();
 	}
 
 	struct classcomp {
 		bool operator() (const shared_ptr<MapTile> lhs, const shared_ptr<MapTile> rhs) const
 		{
-			return lhs->f < rhs->f;
+			return lhs->g > rhs->g;
 		}
 	};
+
+	auto cmp = [](shared_ptr<MapTile> left, shared_ptr<MapTile> right) { return left->f > right->f; };
+	//std::priority_queue<int, std::vector<int>, decltype(cmp)> q3(cmp);
+
+	//set<shared_ptr<MapTile>, decltype(cmp)> openv2 = set<shared_ptr<MapTile>, decltype(cmp)>(cmp);
+
 
 	multimap<shared_ptr<MapTile>, float, classcomp> open = multimap<shared_ptr<MapTile>, float, classcomp>();
 	unordered_set<shared_ptr<MapTile>> closed = unordered_set<shared_ptr<MapTile>>();
 
 	start->g = 0;
-	start->f = this->EuklideanDistance(start->worldPosition, goal->worldPosition);
-
+	start->f = this->HexDistance(start->worldPosition, goal->worldPosition);
+	
+	//openv2.insert(start);
 	open.insert(pair<shared_ptr<MapTile>, float>(start, start->f));
 
 	shared_ptr<MapTile> current = nullptr;
 
+	//while(!openv2.empty() && current != goal){
 	while (!open.empty() && current != goal) {
 		multimap<shared_ptr<MapTile>, float>::iterator iter = open.begin();
 		current = iter->first;
 		open.erase(iter);
+
+		//set<shared_ptr<MapTile>>::iterator iter = openv2.begin();
+		//current = *iter;
+		//openv2.erase(iter);
+
 		closed.insert(current);
 
 		for (int i = 0; i < 8; i++) {
@@ -183,17 +198,23 @@ vector<shared_ptr<MapTile>> Terrain::GetPath(shared_ptr<MapTile> start, shared_p
 			}
 			shared_ptr<MapTile> neighbor = edge->node2;
 			float cost = current->g + edge->cost;
-
+			if (!neighbor->walkable) {
+				continue;
+			}
 			if (open.find(neighbor) != open.end() && cost < neighbor->g) {
 				open.erase(neighbor);
+			//if (openv2.find(neighbor) != openv2.end() && cost < neighbor->g) {
+			//	openv2.erase(neighbor);
 			}
 			if (closed.find(neighbor) != closed.end() && cost < neighbor->g) {
 				closed.erase(neighbor);
 			}
 			if (open.find(neighbor) == open.end() && closed.find(neighbor) == closed.end()) {
+			//if (openv2.find(neighbor) == openv2.end() && closed.find(neighbor) == closed.end()) {
 				neighbor->g = cost;
-				float f = cost + this->EuklideanDistance(neighbor->worldPosition, goal->worldPosition); //heurystyka
+				float f = cost + this->HexDistance(neighbor->worldPosition, goal->worldPosition); //heurystyka
 				open.insert(pair<shared_ptr<MapTile>, float>(neighbor, f));
+				//openv2.insert(neighbor);
 				neighbor->parent = current;
 			}
 		}
@@ -207,11 +228,6 @@ vector<shared_ptr<MapTile>> Terrain::GetPath(shared_ptr<MapTile> start, shared_p
 	}
 
 	reverse(path.begin(), path.end());
-	//for each (shared_ptr<MapTile> tile in path)
-	//{
-		//tiles[0]->block->Draw(dxmath::Matrix::CreateTranslation(tiles[0]->worldPosition+ Vector3(0.f, 3.f, 0.f)), view, projection, Colors::Blue, tex.Get());
-		//tile->block->GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 5.f, tileSize), false, true);
-	//}
 	return path;	
 }
 
@@ -220,4 +236,31 @@ float Terrain::EuklideanDistance(Vector3 point1, Vector3 point2) {
 	float dy = point1.y - point2.y;
 	float dz = point1.z - point2.z;
 	return sqrt(dx*dx + dy*dy + dz*dz);
+}
+
+float Terrain::ManhattanDistance(Vector3 start, Vector3 goal) {
+	float dx = abs(start.x - goal.x);
+	float dy = abs(start.y - goal.y);
+	float dz = abs(start.z - goal.z);
+	float h = dx + dy + dz;
+
+	return h;
+}
+
+float Terrain::DiagonalDistance(Vector3 start, Vector3 goal) {
+	float dx = abs(start.x - goal.x);
+	float dy = abs(start.y - goal.y);
+	float dz = abs(start.z - goal.z);
+	float h = max(dx, dz);
+
+	return h;
+}
+
+float Terrain::HexDistance(Vector3 start, Vector3 goal) {
+	float dx = start.x - goal.x;
+	float dy = start.z - goal.z;
+	float dz = dx - dy;
+	float h = max(abs(dx), max(abs(dy), abs(dz)));
+
+	return h;
 }

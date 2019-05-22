@@ -27,6 +27,11 @@ public:
 	virtual std::vector<ComponentPtr> GetComponents(ComponentType componentType) override;
 	virtual void UpdateComponentsCollection() override;
 
+	vector<CollisionPtr> GetCurrentCollisions();
+	vector<CollisionPtr> GetCollisionsWithRay(ColliderRayPtr ray);
+	vector<CollisionPtr> GetCollisionsWithFrustum(ColliderFrustumPtr frustum);
+
+	bool CheckIfShouldUpdateTree();
 	void ResetAllUpdatePositionFlags();
 
 	void InsertComponent(PhysicsComponentPtr component); // temporary function for tests

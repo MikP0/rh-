@@ -368,6 +368,21 @@
     <Image Include="cat.DDS">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Resources\UISprites\fpsbar.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Resources\UISprites\hp_bar.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Resources\UISprites\Menu.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Resources\UISprites\health.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Resources\UISprites\hero.DDS">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">
@@ -381,6 +396,9 @@
     </None>
     <None Include="content\Shaders\Include\Common.fxh">
       <Filter>Inc\Shaders\Include</Filter>
+    </None>
+    <None Include="Resources\Fonts\fpsFont.spritefont">
+      <Filter>Assets</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

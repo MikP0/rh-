@@ -39,7 +39,9 @@ enum actionList
 	special4,
 
 	playBackground,
-	playSound1
+	playSound1,
+
+	freeCamera
 };
 
 enum availableKeys
@@ -58,6 +60,7 @@ enum availableKeys
 	d,
 	z,
 	x,
+	c,
 	upperArrow,
 	leftArrow,
 	lowerArrow,

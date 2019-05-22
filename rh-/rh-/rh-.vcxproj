@@ -335,6 +335,11 @@
     <Image Include="cat.DDS" />
     <Image Include="cup.jpg" />
     <Image Include="directx.ico" />
+    <Image Include="Resources\UISprites\fpsbar.DDS" />
+    <Image Include="Resources\UISprites\health.DDS" />
+    <Image Include="Resources\UISprites\hero.DDS" />
+    <Image Include="Resources\UISprites\hp_bar.DDS" />
+    <Image Include="Resources\UISprites\Menu.DDS" />
     <Image Include="roomtexture.dds" />
   </ItemGroup>
   <ItemGroup>
@@ -346,6 +351,7 @@
     </None>
     <None Include="cup.cmo" />
     <None Include="packages.config" />
+    <None Include="Resources\Fonts\fpsFont.spritefont" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">

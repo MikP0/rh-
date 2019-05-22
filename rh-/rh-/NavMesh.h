@@ -21,6 +21,8 @@ public:
 	std::shared_ptr<Terrain> terrain;
 	std::shared_ptr<Transform> transform;
 	dxmath::Vector3 destination;
+	dxmath::Vector3 localDestination;
 	float speed;	
 	dxmath::Vector3 step;
+	std::vector<std::shared_ptr<MapTile>> currentPath;
 };

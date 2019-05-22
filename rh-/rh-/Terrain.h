@@ -15,6 +15,9 @@ public:
 	void ConnectNeighboringTiles();
 
 	float EuklideanDistance(dxmath::Vector3, dxmath::Vector3);
+	float ManhattanDistance(dxmath::Vector3, dxmath::Vector3);
+	float DiagonalDistance(dxmath::Vector3, dxmath::Vector3);
+	float HexDistance(dxmath::Vector3, dxmath::Vector3);
 
 	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
 	std::vector<std::shared_ptr<MapTile>> GetPath(std::shared_ptr<MapTile>, std::shared_ptr<MapTile>);
