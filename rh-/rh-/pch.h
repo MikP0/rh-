@@ -74,7 +74,7 @@
 #include "VertexTypes.h"
 #include "WICTextureLoader.h"
 
-
+#include "Audio.h"
 
 #include <vector>
 #include <string>

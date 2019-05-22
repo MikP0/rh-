@@ -225,4 +225,8 @@ private:
 	DirectX::SimpleMath::Vector2 menuPos;
 
 	bool menuIsOn;
+
+	//Shadows
+	//wall
+	std::shared_ptr<Entity> myEntityWall;
 };

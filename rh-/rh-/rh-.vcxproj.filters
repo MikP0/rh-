@@ -400,6 +400,9 @@
     <None Include="Resources\Fonts\fpsFont.spritefont">
       <Filter>Assets</Filter>
     </None>
+    <None Include="WallToRoom.cmo">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">
