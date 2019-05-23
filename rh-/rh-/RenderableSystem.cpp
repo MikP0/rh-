@@ -12,7 +12,7 @@ RenderableSystem::RenderableSystem(std::shared_ptr<EntityManager> entityManager,
 
 	_states = std::make_unique<DirectX::CommonStates>(_device);
 
-	_fxFactory = std::make_shared<ToonFactory>(_device);
+	_fxFactory = std::make_shared<ShadowFactory>(_device);
 
 	_componentsType = ComponentType("Renderable");
 

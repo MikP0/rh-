@@ -864,6 +864,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	// Shadows
 	myEntityWall->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
 	myEntityWall->GetTransform()->SetPosition(Vector3(0.0f, 2.52f, 0.0f));
+
+	m_shadowMap.reset(new ShadowMap(device, 1024, 1024));
+
 }
 
 void Game::OnDeviceLost()

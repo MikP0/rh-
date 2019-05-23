@@ -31,6 +31,10 @@
 #include "NavMesh.h"
 #include "Terrain.h"
 
+#include "ShadowMap.h"
+
+
+
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 
@@ -232,5 +236,7 @@ private:
 
 	//Shadows
 	std::shared_ptr<Entity> myEntityWall;
+
+	std::shared_ptr<ShadowMap> m_shadowMap;
 	
 };

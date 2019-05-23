@@ -1,6 +1,6 @@
 #include "LightSystem.h"
 
-LightSystem::LightSystem(std::shared_ptr<EntityManager> entityManager, std::shared_ptr<ToonFactory> fxFactory) : System(entityManager)
+LightSystem::LightSystem(std::shared_ptr<EntityManager> entityManager, std::shared_ptr<ShadowFactory> fxFactory) : System(entityManager)
 {
 	_componentsType = ComponentType("Light");
 

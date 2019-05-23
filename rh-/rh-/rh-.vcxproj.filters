@@ -202,6 +202,12 @@
     <ClInclude Include="DebugDraw.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowEffect.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowFactory.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -355,6 +361,12 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="DebugDraw.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowEffect.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowFactory.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

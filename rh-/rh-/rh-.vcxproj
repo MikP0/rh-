@@ -200,6 +200,8 @@
     <ClInclude Include="RenderableSystem.h" />
     <ClInclude Include="RTTI.h" />
     <ClInclude Include="SceneNode.h" />
+    <ClInclude Include="ShadowEffect.h" />
+    <ClInclude Include="ShadowFactory.h" />
     <ClInclude Include="SkinnedModelMaterial.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
@@ -302,6 +304,14 @@
     <ClCompile Include="RenderableComponent.cpp" />
     <ClCompile Include="RenderableSystem.cpp" />
     <ClCompile Include="SceneNode.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ShadowEffect.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ShadowFactory.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SkinnedModelMaterial.cpp">
