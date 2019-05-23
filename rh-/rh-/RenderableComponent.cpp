@@ -2,10 +2,10 @@
 #include "RenderableComponent.h"
 
 
-RenderableComponent::RenderableComponent(std::wstring path , Camera& camera)
+RenderableComponent::RenderableComponent(std::wstring path , Camera* camera)
 {
 	_modelPath = path;
-	_camera = &camera;
+	_camera = camera;
 	_model = nullptr;
 	_modelSkinned = nullptr;
 }

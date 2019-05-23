@@ -31,7 +31,7 @@ public:
 	void AddSystem(std::shared_ptr<TSystem> system, size_t index) 
 	{
 		if (std::is_base_of<System, TSystem>::value) {
-			std::dynamic_pointer_cast<System>(system)->SetWorld(shared_from_this());
+			std::dynamic_pointer_cast<System>(system)->SetWorld(std::move(shared_from_this()));
 			_systemPoolMap[index] = system;
 		}
 	}

@@ -352,6 +352,7 @@
     <None Include="content\Shaders\Include\Common.fxh">
       <Filter>Inc\Shaders\Include</Filter>
     </None>
+    <None Include="WallExpo.cmo" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">

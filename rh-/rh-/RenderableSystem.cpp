@@ -5,14 +5,14 @@
 #include <codecvt>
 #include <locale>
 
-RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* context) : System()
+RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* context)
 {
 	_device = device;
 	_context = context;
 
-	_states = std::make_unique<DirectX::CommonStates>(_device);
+	_states = std::make_shared<DirectX::CommonStates>(_device);
 
-	_fxFactory = std::make_shared<ToonFactory>(_device);
+	_fxFactory = std::make_shared<DirectX::EffectFactory>(_device);
 }
 
 RenderableSystem::~RenderableSystem()

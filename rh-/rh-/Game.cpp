@@ -368,7 +368,7 @@ void Game::UpdateObjects(float elapsedTime)
 		mSkinModel->GetAnimatorPlayer()->PauseClip();
 	}
 
-	lightSystem->Iterate();
+	//lightSystem->Iterate();
 
 	//billboarding
 	//planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
@@ -455,7 +455,12 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	m_plane3->Draw(planeWorld3, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	m_plane4->Draw(planeWorld4, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	
+	world->GetEntity(1)->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(0.1f, 0.1f, 0.1f));
 
+
+	//collisionSystem->Iterate();
+	//renderableSystem->Iterate();
 	world->RefreshWorld();
 
 }
@@ -592,11 +597,13 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	renderableSystem = std::make_shared<RenderableSystem>(device, context);
 
-	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
+	//lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
 	collisionSystem = std::make_shared<PhysicsSystem>(Vector3::Zero, ROOM_BOUNDS[0]);
 
-
+	world->AddSystem<RenderableSystem>(renderableSystem, 1);
+	//world->AddSystem<LightSystem>(lightSystem, 1);
+	world->AddSystem<PhysicsSystem>(collisionSystem, 0);
 	
 	sceneWallEntity = world->CreateEntity("SceneWall");
 	myEntity1 = world->CreateEntity("Cup1");
@@ -604,22 +611,18 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity3 = world->CreateEntity("Cup3");
 	myEntity4 = world->CreateEntity("Cup4");
 
-	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", camera);
-	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", camera);
-	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", camera);
-	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", camera);
+	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 
-	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
 
-	myEntity1->GetTransform()->SetScale(scaleEntity1);
-	myEntity2->GetTransform()->SetScale(scaleEntity1);
-	myEntity3->GetTransform()->SetScale(scaleEntity1);
-	myEntity4->GetTransform()->SetScale(scaleEntity1);
+	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
 
-	renderableSystem->SetWorld(world);
-	renderableSystem->Initialize();
-
-	
+	//myEntity1->GetTransform()->SetScale(scaleEntity1);
+	//myEntity2->GetTransform()->SetScale(scaleEntity1);
+	//myEntity3->GetTransform()->SetScale(scaleEntity1);
+	//myEntity4->GetTransform()->SetScale(scaleEntity1);
 	
 	//world->InitializeSystem<RenderableSystem>();
 
@@ -628,6 +631,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	pointLightEntity2 = world->CreateEntity("PointLight2");
 	pointLightEntity3 = world->CreateEntity("PointLight3");
 	spotLightEntity1 = world->CreateEntity("SpotLight1");
+
+	//myEntity1->Model =
+		//DirectX::Model::CreateFromCMO(device, L"cup.cmo", m_fxFactory);
 
 	pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
 	pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 0.0f, 2.0f));
@@ -642,20 +648,23 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	//world->InitializeSystem<RenderableSystem>();
 
-	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
-	myEntity1->GetTransform()->SetScale(scaleEntity1);
+	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	//myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", camera);
+
+	world->GetEntity(1)->GetTransform()->SetScale(scaleEntity1);
 	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
 
 	//myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
-	myEntity2->GetTransform()->SetScale(scaleEntity2);
+	world->GetEntity(2)->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
 
 	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
-	myEntity3->GetTransform()->SetScale(scaleEntity3);
+	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
+	
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
 	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
-	myEntity4->GetTransform()->SetScale(scaleEntity4);
+	world->GetEntity(4)->GetTransform()->SetScale(scaleEntity4);
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
 
 	myEntity1->AddChild(myEntity3);
@@ -684,7 +693,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
 	collisionSystem->InsertComponent(colliderCup2);
 
-	collisionSystem->Initialize();
+	//collisionSystem->Initialize();
 
 	m_room = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
@@ -748,10 +757,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//Audio
 	audioSystem = std::make_shared<AudioSystem>();
 
-	world->AddSystem<RenderableSystem>(renderableSystem, 1);
-	world->AddSystem<LightSystem>(lightSystem, 2);
-	world->AddSystem<PhysicsSystem>(collisionSystem, 3);
-
+	renderableSystem->SetWorld(world);
+	renderableSystem->Initialize();
 	//audioSystem->Initialize();
 	//audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
 	//audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);

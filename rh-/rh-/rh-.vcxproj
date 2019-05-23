@@ -332,6 +332,7 @@
     </None>
     <None Include="cup.cmo" />
     <None Include="packages.config" />
+    <None Include="WallExpo.cmo" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">
