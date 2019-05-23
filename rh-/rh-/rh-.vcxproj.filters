@@ -208,6 +208,9 @@
     <ClInclude Include="ShadowFactory.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -367,6 +370,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="ShadowFactory.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
