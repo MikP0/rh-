@@ -9,6 +9,9 @@
 #include "RenderableComponent.h"
 #include "AudioComponent.h"
 
+#include <thread>
+#include <chrono>
+
 extern void ExitGame();
 
 using namespace DirectX;
@@ -18,20 +21,14 @@ using Microsoft::WRL::ComPtr;
 
 namespace
 {
-	const XMVECTORF32 ROOM_BOUNDS = { 15.f, 6.f, 12.f, 0.f };
+	const XMVECTORF32 ROOM_BOUNDS = { 1.f, 0.f, 1.f, 0.f };
+	const float COLLISION_SCENE_RANGE = 15.0f;
+	const Vector3 SCENE_CENTER = Vector3::Zero;
 	const float ROTATION_GAIN = 0.008f;
 	const float MOVEMENT_GAIN = 0.07f;
 
 	const XMVECTORF32 PLANE_BOUNDS = { 1.5f, 1.5f, 1.5f, 0.f };
 }
-
-/*
-	Tymczasowa zmienna !!!!!!
-*/
-bool angel = true;
-Mouse::ButtonStateTracker tracker;
-Vector3 destination = Vector3::Zero;
-Vector3 step = Vector3::Zero;
 
 Game::Game() noexcept(false) : m_pitch(0.f), m_yaw(0.f)
 {
@@ -85,200 +82,227 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	float elapsedTime = float(timer.GetElapsedSeconds());
 	float time = float(timer.GetTotalSeconds());
-	
+	float fps = timer.GetFramesPerSecond();
+
+
 	// TODO: Add your game logic here.
 
-
-	// INPUT
-	auto mouse = Input::GetMouseState();
-	/*auto mouse = m_mouse->GetState();
-	auto keyboard = m_keyboard->GetState();*/
-	Vector3 tempCamera;
 	Vector3 move = Vector3::Zero;
 
-	/*if (mouse.positionMode == Mouse::MODE_RELATIVE)
-	{
-		Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f)
-			* ROTATION_GAIN;
+	//Mouse
+	auto mouse = Input::GetMouseState();
+	if (freeCamera)
+		Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
-		m_pitch -= delta.y;
-		m_yaw -= delta.x;
-
-		// limit pitch to straight up or straight down
-		// with a little fudge-factor to avoid gimbal lock
-		float limit = XM_PI / 2.0f - 0.01f;
-		m_pitch = std::max(-limit, m_pitch);
-		m_pitch = std::min(+limit, m_pitch);
-
-		// keep longitude in sane range by wrapping
-		if (m_yaw > XM_PI)
-		{
-			m_yaw -= XM_PI * 2.0f;
-		}
-		else if (m_yaw < -XM_PI)
-		{
-			m_yaw += XM_PI * 2.0f;
-		}
-	}*/
-
-	if (mouse.scrollWheelValue > 0) {
-		camera.ZoomIn();
-		Input::ResetWheel();
-
-	}
-	if (mouse.scrollWheelValue < 0) {
-		camera.ZoomOut();
-		Input::ResetWheel();
-	}
-
-
+	//Pressed Keys
 	std::vector<actionList> pushedKeysActions = Input::GetActions();
-	Input::SetMouseMode(mouse.leftButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-
 	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter)
 	{
-		// zmiana MouseMode tutaj z udzialem InputSystemu spowalnia renderowanie przy obracaniu (nie wiem czemu)
-		//inputSystem->SetMouseMode(*iter == anchorRotation ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-
 		if (*iter == closeWindow)
-			ExitGame();
-
-		if (*iter == up)
-			move.y += 1.f;
-
-		if (*iter == down)
-			move.y -= 1.f;
-
-		if (*iter == actionList::left)
-			move.x += 1.f;
-
-		if (*iter == actionList::right)
-			move.x -= 1.f;
-
-		if (*iter == actionList::forward) {
-			move.z += 1.f;
-		}
-
-		if (*iter == actionList::backward) {
-			move.z -= 1.f;
-		}
-
-		if (*iter == moveFor)
-		{		
-			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, 1.0f))*elapsedTime * 0.001f, elapsedTime);
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
-
-		if (*iter == moveBac)
 		{
-			mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, -1.0f))*elapsedTime * 0.001f, -elapsedTime);
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(false);
+			//ExitGame();
+			menuIsOn = true;
 		}
 
-		if (*iter == moveLeft)
+		if (!menuIsOn)
 		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(150.f * elapsedTime));
-		}
+			if (freeCamera) {
+				if (*iter == up)
+					move.y += 1.f;
 
-		if (*iter == moveRight)
-		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-150.f * elapsedTime));
-		}
+				if (*iter == down)
+					move.y -= 1.f;
 
+				if (*iter == actionList::left)
+					move.x += 1.f;
 
-		/*if (*iter == moveLeft)
-		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(90.f));
-			mSkinModelTransform->Translate(Vector3(0.03f, 0.0f, 0.0f));
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
+				if (*iter == actionList::right)
+					move.x -= 1.f;
 
-		if (*iter == moveRight)
-		{
-			mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-90.f));
-			mSkinModelTransform->Translate(Vector3(-0.03f, 0.0f, 0.0f));
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}*/
+				if (*iter == actionList::forward)
+					move.z += 1.f;
 
+				if (*iter == actionList::backward)
+					move.z -= 1.f;
+			}
 
-		if (*iter == special1)
-		{
-			mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
+			if (*iter == moveFor)
+			{
+				mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, 1.0f))*elapsedTime * 0.001f, elapsedTime);
+				mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+				mSkinModel->SetInMove(true);
+				mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			}
 
-		if (*iter == special2)
-		{
-			mSkinModel->GetAnimatorPlayer()->StartClip("Dance");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
-		}
+			if (*iter == moveBac)
+			{
+				mSkinModelTransform->Translate((Vector3(0.0f, 0.0f, -1.0f))*elapsedTime * 0.001f, -elapsedTime);
+				mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+				mSkinModel->SetInMove(true);
+				mSkinModel->GetAnimatorPlayer()->SetDirection(false);
+			}
 
-		if (*iter == playBackground)
-		{
-			audioBackgroundSound->Mute = false;
-		}
+			if (*iter == moveLeft)
+			{
+				mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(150.f * elapsedTime));
+			}
 
-		if (*iter == playSound1)
-		{
-			audioSound1->Mute = false;
+			if (*iter == moveRight)
+			{
+				mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-150.f * elapsedTime));
+			}
+
+			if (*iter == special1)
+			{
+				mSkinModel->GetAnimatorPlayer()->StartClip("HipHop");
+				mSkinModel->SetInMove(true);
+				mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			}
+
+			if (*iter == special2)
+			{
+				mSkinModel->GetAnimatorPlayer()->StartClip("Dance");
+				mSkinModel->SetInMove(true);
+				mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+			}
+
+			if (*iter == playBackground)
+			{
+				audioBackgroundSound->Mute = false;
+			}
+
+			if (*iter == playSound1)
+			{
+				audioSound1->Mute = false;
+
+				if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
+					healthBarHealthPos.x -= 5.f;
+			}
+
+			if (*iter == freeCamera) {
+				freeCameraLook = !freeCameraLook;
+			}
+
+			if (*iter == debugDrawAll)
+			{
+				debugDraw = !debugDraw;
+			}
+
+			if (*iter == debugDrawWithoutRegions)
+			{
+				debugDrawTreeRegions = !debugDrawTreeRegions;
+			}
 		}
 	}
 
-	if (pushedKeysActions.size() == 0 && step == Vector3(0.f, 0.f, 0.f))
+	if (!menuIsOn)
 	{
-		mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
-		mSkinModel->SetInMove(true);
+
+		if (pushedKeysActions.size() == 0 && !navMesh->isMoving)
+		{
+			mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
+			mSkinModel->SetInMove(true);
+		}
+
+		if (navMesh->isMoving) {
+			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
+			mSkinModel->SetInMove(true);
+			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		}
 	}
-
-	tracker.Update(mouse);
-	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED) {
-		destination = Raycast::GetPointOnGround(camera);
-		//destination.y = -3.f;	// FLOOR LEVEL
-		//destination.y = mSkinModelTransform->GetPosition().y;
-		step = destination - mSkinModelTransform->GetPosition();
-		step = step / 100;
-
-		
-		float dot = mSkinModelTransform->GetTransformMatrix().Forward().x * (destination - mSkinModelTransform->GetPosition()).x + mSkinModelTransform->GetTransformMatrix().Forward().z * (destination - mSkinModelTransform->GetPosition()).z;
-		float cross = mSkinModelTransform->GetTransformMatrix().Forward().x * (destination - mSkinModelTransform->GetPosition()).z - mSkinModelTransform->GetTransformMatrix().Forward().z * (destination - mSkinModelTransform->GetPosition()).x;
-		float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
-		mSkinModelTransform->Rotate(Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
-	
-	}
-
-	//move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
-	//move *= MOVEMENT_GAIN;
-	//tempCamera = camera.GetPositionVector();
-	//tempCamera += move;
-	//camera.SetPosition(tempCamera);
-
-	Vector3 halfBound = (Vector3(ROOM_BOUNDS.v) / Vector3(2.f)) - Vector3(0.1f, 0.1f, 0.1f);
-
-	//camera.SetPosition(Vector3::Min(camera.GetPositionVector(), halfBound));
-	//camera.SetPosition(Vector3::Max(camera.GetPositionVector(), -halfBound));
-	//tempCamera = camera.GetPositionVector();
-	//tempCamera = tempCamera * zoom;
-	camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom()));
-	camera.SetPitch(m_pitch);
-	camera.SetYaw(m_yaw);
-	camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
-	////////
 
 	//Audio
-	//audioSystem->Iterate();
+	audioSystem->Iterate();
 
-	UpdateObjects(elapsedTime);
+	if (!menuIsOn)
+	{
 
+		//Camera Movement
+		if (freeCameraLook) {
+			if (mouse.positionMode == Mouse::MODE_RELATIVE)
+			{
+				Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f) * ROTATION_GAIN;
+
+				m_pitch -= delta.y;
+				m_yaw -= delta.x;
+
+				// limit pitch to straight up or straight down with a little fudge-factor to avoid gimbal lock
+				float limit = XM_PI / 2.0f - 0.01f;
+				m_pitch = std::max(-limit, m_pitch);
+				m_pitch = std::min(+limit, m_pitch);
+
+				// keep longitude in sane range by wrapping
+				if (m_yaw > XM_PI)
+				{
+					m_yaw -= XM_PI * 2.0f;
+				}
+				else if (m_yaw < -XM_PI)
+				{
+					m_yaw += XM_PI * 2.0f;
+				}
+			}
+
+			move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
+			move *= MOVEMENT_GAIN;
+			Vector3 tempCamera = camera.GetPositionVector();
+			tempCamera += move;
+			camera.SetPosition(tempCamera);
+			camera.SetPitch(m_pitch);
+			camera.SetYaw(m_yaw);
+		}
+		else {
+			camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom()));
+			camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
+			camera.SetPitch(0);
+			camera.SetYaw(0);
+		}
+
+		//CameraZoom
+		if (mouse.scrollWheelValue > 0) {
+			camera.ZoomIn();
+			Input::ResetWheel();
+		}
+		if (mouse.scrollWheelValue < 0) {
+			camera.ZoomOut();
+			Input::ResetWheel();
+		}
+	}
+
+	// UI FPS
+	std::string str = std::to_string(fps);
+	fpsFontText = std::wstring(str.begin(), str.end());
+
+	if (!menuIsOn)
+	{
+		UpdateObjects(elapsedTime);
+	}
+	else
+	{
+		auto mouse = Input::GetMouseState();
+
+		if (mouse.leftButton)
+		{
+			if ((mouse.x >= 320) && (mouse.x <= 450))
+			{
+				if ((mouse.y >= 300) && (mouse.y <= 370))
+				{
+					//menuIsOn = false;
+					ExitGame();
+				}	
+				else if ((mouse.y >= 160) && (mouse.y <= 220))
+				{
+					menuIsOn = false;
+				}
+			}
+			else if ((mouse.x >= 275) && (mouse.x <= 515))
+			{
+				if ((mouse.y >= 160) && (mouse.y <= 220))
+				{
+					menuIsOn = false;
+				}			
+			}
+		}
+	}
 
 	elapsedTime;
 }
@@ -286,10 +310,20 @@ void Game::Update(DX::StepTimer const& timer)
 void Game::UpdateObjects(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
+	auto keyboard = Input::GetKeyboardState();
 	static shared_ptr<Entity> selectedCollider;
 
-	if (destination != Vector3::Zero) {
-		if (!XMVector3NearEqual(destination, mSkinModelTransform->GetPosition(), Vector3(.001f, .001f, .001f))){												
+
+	//NavMesh
+	tracker.Update(mouse);
+	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD) {
+		Vector3 destination = Raycast::GetPointOnGround(camera);
+		navMesh->SetDestination(destination);
+	}
+	navMesh->Move();
+
+	/*if (destination != Vector3::Zero) {
+		if (!XMVector3NearEqual(destination, mSkinModelTransform->GetPosition(), Vector3(.001f, .001f, .001f))){
 			mSkinModelTransform->SetPosition(mSkinModelTransform->GetPosition() + step);
 
 			// RED light follow player
@@ -303,7 +337,7 @@ void Game::UpdateObjects(float elapsedTime)
 		else {
 			step = Vector3(0.f, 0.f, 0.f);
 		}
-	}
+	}*/
 
 	// check collisions
 	//collisionSystem->Iterate();
@@ -316,13 +350,11 @@ void Game::UpdateObjects(float elapsedTime)
 	CollisionPtr collisionBetweenCups = Collision::CheckCollision(colliderCup1, colliderCup2);
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-
 	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity1->Update();
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 	myEntity2->Update();
 	myEntity3->Update();
-
 
 	if (mouse.rightButton)
 	{
@@ -334,27 +366,31 @@ void Game::UpdateObjects(float elapsedTime)
 
 	myEntity4->Update();
 
-	if (mouse.middleButton)
+	if (keyboard.M)
 	{
-		XMFLOAT3 cameraPos = camera.GetPositionFloat3();
-		XMVECTOR origin = Vector4(cameraPos.x, cameraPos.y, cameraPos.z, 0.0f);
-		XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
-		XMVECTOR direction = Vector4(dirFromMouse.x, dirFromMouse.y, dirFromMouse.z, 0.0f);
-		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(origin, direction));
-		collisionCup1WithRay = Collision::CheckCollision(colliderCup1, sharedRay);
-		collisionCup2WithRay = Collision::CheckCollision(colliderCup2, sharedRay);
+		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
+		vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+		for each(shared_ptr<Collision> coll in collisionsWithRay)
+		{
+			if (coll->OriginObject->GetId() == colliderCup1->GetParent()->GetId())
+				collisionCup1WithRay = coll;
+
+			if (coll->OriginObject->GetId() == colliderCup2->GetParent()->GetId())
+				collisionCup2WithRay = coll;
+		}
 	}
 
-	if (colliderBoundingCup1->Bounding.Center.x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
+	if (colliderBoundingCup1->GetCenter().x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
 		dir1.x = -1.0f;
 
-	if (colliderBoundingCup1->Bounding.Center.x <= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
+	if (colliderBoundingCup1->GetCenter().x <= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
 		dir1.x = 1.0f;
 
-	if (colliderBoundingCup2->Bounding.Center.x >= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
+	if (colliderBoundingCup2->GetCenter().x >= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
 		dir2.x = -1.0f;
 
-	if (colliderBoundingCup2->Bounding.Center.x <= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
+	if (colliderBoundingCup2->GetCenter().x <= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
 		dir2.x = 1.0f;
 
 	// skinned model
@@ -393,7 +429,6 @@ void Game::Render()
 
 	// TODO: Add your rendering code here.
 
-
 	RenderObjects(context);
 
 	context;
@@ -406,62 +441,58 @@ void Game::Render()
 
 void Game::RenderObjects(ID3D11DeviceContext1 *context)
 {
+	DirectX::XMMATRIX cameraView = camera.GetViewMatrix();
+	DirectX::XMMATRIX cameraProjection = camera.GetProjectionMatrix();
+	
+
 	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
 	// room
-	m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
+	//m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
-	// cups
-	m_boundingEntity1 = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(colliderBoundingCup1->Bounding.Extents.x * 2.0f,
-			colliderBoundingCup1->Bounding.Extents.y * 2.0f,
-			colliderBoundingCup1->Bounding.Extents.z * 2.0f),
-		false, true);
+	terrain->Draw(camera, m_roomTex);
 
-	/*m_boundingEntity1 = GeometricPrimitive::CreateSphere(context,
-		colliderBoundingCup1->Bounding.Radius * 2.0f,
-		16, false, true);*/
+	renderableSystem->Iterate();
 
-		/*m_boundingEntity2 = GeometricPrimitive::CreateBox(context,
-			XMFLOAT3(colliderBoundingCup2->Bounding.Extents.x * 2.0f,
-				colliderBoundingCup2->Bounding.Extents.y * 2.0f,
-				colliderBoundingCup2->Bounding.Extents.z * 2.0f),
-			false, true);*/
-
-	m_boundingEntity2 = GeometricPrimitive::CreateSphere(
-		context, colliderBoundingCup2->Bounding.Radius  * 2.0f,
-		16, false, true);
-
-	dxmath::Matrix boundingMatrix1 = dxmath::Matrix::CreateTranslation(colliderBoundingCup1->Bounding.Center);
-	dxmath::Matrix boundingMatrix2 = dxmath::Matrix::CreateTranslation(colliderBoundingCup2->Bounding.Center);
-
-	//renderableSystem->Iterate();
-
-	//myEntity1->Model->Draw(context, *m_states, myEntity1->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	//myEntity2->Model->Draw(context, *m_states, myEntity2->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	//myEntity3->Model->Draw(context, *m_states, myEntity3->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	//myEntity4->Model->Draw(context, *m_states, myEntity4->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-
-
-	m_boundingEntity1->Draw(boundingMatrix1, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider1Color, nullptr, true);
-	m_boundingEntity2->Draw(boundingMatrix2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), collider2Color, nullptr, true);
+	if (debugDraw)
+		renderableSystem->DebugDrawAction->DrawOctTree(
+			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
 	// skinned model
-	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	
+	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), cameraView, cameraProjection);
+
 	// billboarding
 	//m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
-	m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
-	m_plane3->Draw(planeWorld3, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
-	m_plane4->Draw(planeWorld4, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
-	
-	world->GetEntity(1)->GetTransform()->SetScale(DirectX::SimpleMath::Vector3(0.1f, 0.1f, 0.1f));
+	m_plane2->Draw(planeWorld2, cameraView, cameraProjection, Colors::White, m_planeTex.Get());
+	m_plane3->Draw(planeWorld3, cameraView, cameraProjection, Colors::White, m_planeTex.Get());
+	m_plane4->Draw(planeWorld4, cameraView, cameraProjection, Colors::White, m_planeTex.Get());
 
 
-	//collisionSystem->Iterate();
-	//renderableSystem->Iterate();
-	world->RefreshWorld();
+	uiSpriteBatch->Begin();
+
+	uiSpriteBatch->Draw(healthBarTex.Get(), healthBarPos, nullptr, Colors::White,
+		0.f, Vector2(0, 0), 0.25f);
+
+	uiSpriteBatch->Draw(healthBarHealthTex.Get(), healthBarHealthPos, nullptr, Colors::White,
+		0.f, Vector2(0, 0), 0.25f);
+
+	uiSpriteBatch->Draw(healthBarHeroTex.Get(), healthBarHeroPos, nullptr, Colors::White,
+		0.f, Vector2(0, 0), 0.35f);
+
+	uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
+		0.f, Vector2(0, 0), 0.15f);
+
+	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
+		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
+
+	if (menuIsOn)
+	{
+		uiSpriteBatch->Draw(menuTex.Get(), menuPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 0.6f);
+	}
+
+	uiSpriteBatch->End();
 
 }
 
@@ -577,7 +608,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 {
 	auto size = m_deviceResources->GetOutputSize();										// backBufferWidth/backBufferHeight - > size
 	// TODO: Initialize windows-size dependent objects here.
-	
+
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f);
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
@@ -590,7 +621,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 {
 	m_world = Matrix::Identity;
 
-	world = std::make_shared<World>();
+	terrain = std::make_shared<Terrain>();
+
+	entityManager = std::make_shared<EntityManager>();
 
 	//entityManager = std::make_shared<EntityManager>();
 	//componentFactory = std::make_shared<ComponentFactory>(entityManager);
@@ -651,57 +684,67 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
 	//myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", camera);
 
-	world->GetEntity(1)->GetTransform()->SetScale(scaleEntity1);
-	myEntity1->GetTransform()->SetPosition(Vector3(-1.0f, 0.0f, 0.0f));
+
+	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
+	myEntity1->GetTransform()->SetScale(scaleEntity1);
+	myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
+	myEntity1->Update();
 
 	//myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
-	world->GetEntity(2)->GetTransform()->SetScale(scaleEntity2);
-	myEntity2->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
+	myEntity2->GetTransform()->SetScale(scaleEntity2);
+	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
+	myEntity2->Update();
 
 	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
 	
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
+	myEntity3->Update();
 
 	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	world->GetEntity(4)->GetTransform()->SetScale(scaleEntity4);
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
+	myEntity4->Update();
 
 	myEntity1->AddChild(myEntity3);
 
-	initialBoundingEntity1Size = XMFLOAT3(0.3f, 0.3f, 0.3f);
-	initialBoundingEntity2Size = XMFLOAT3(0.8f, 0.8f, 0.8f);
+	initialBoundingEntity1Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
+	initialBoundingEntity2Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
 	initialBounding1Radius = 0.3f;
-	initialBounding2Radius = 0.8f;
+	initialBounding2Radius = 0.7f;
 
+	collisionSystem = std::make_shared<PhysicsSystem>(entityManager, SCENE_CENTER, COLLISION_SCENE_RANGE);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);
 	colliderBoundingSceneWall = std::dynamic_pointer_cast<ColliderAABB>(colliderSceneWall->ColliderBounding);
-	colliderBoundingSceneWall->Bounding.Extents = XMFLOAT3(ROOM_BOUNDS[0] / 2.0f, ROOM_BOUNDS[1] / 2.0f, ROOM_BOUNDS[2] / 2.0f);
+	colliderBoundingSceneWall->SetExtents(XMFLOAT3(COLLISION_SCENE_RANGE / 2.0f, COLLISION_SCENE_RANGE / 2.0f, COLLISION_SCENE_RANGE / 2.0f));
 	//collisionSystem->InsertComponent(colliderSceneWall);
 
 	colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
 	colliderCup1->SetParent(myEntity1);
 	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
-	colliderBoundingCup1->Bounding.Extents = initialBoundingEntity1Size;
+	colliderBoundingCup1->SetExtents(initialBoundingEntity1Size);
 	collisionSystem->InsertComponent(colliderCup1);
+	//colliderCup1->SetIsEnabled(false);
 
 	colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
 	colliderCup2->SetParent(myEntity2);
 	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
-	colliderBoundingCup2->Bounding.Radius = initialBounding2Radius;
+	colliderBoundingCup2->SetRadius(initialBounding2Radius);
 	collisionSystem->InsertComponent(colliderCup2);
 
-	//collisionSystem->Initialize();
+	//m_room = GeometricPrimitive::CreateBox(context,
+	//	XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
+	//	false, true);
 
-	m_room = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
-		false, true);
+	terrain->InitTileMap(context);
+	collisionSystem->Initialize();
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"roomtexture.dds",
 			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
+
 
 
 	//skinned model
@@ -712,7 +755,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	mSkinModelTransform = std::make_shared<Transform>();
 	mSkinModelTransform->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-	mSkinModelTransform->SetPosition(Vector3(1.0f, -3.0f, 0.0f));
+	mSkinModelTransform->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 
 	//billboarding
 	m_plane = GeometricPrimitive::CreateBox(context,
@@ -722,7 +765,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 		CreateDDSTextureFromFile(device, L"cat.dds",
 			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
 	planeWorld = m_world;
-	
+
 
 	m_plane2 = GeometricPrimitive::CreateBox(context,
 		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
@@ -755,13 +798,66 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
 	//Audio
-	audioSystem = std::make_shared<AudioSystem>();
+	audioSystem = std::make_shared<AudioSystem>(entityManager);
+	audioSystem->Initialize();
+	audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
+	audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
 
-	renderableSystem->SetWorld(world);
-	renderableSystem->Initialize();
-	//audioSystem->Initialize();
-	//audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
-	//audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
+	//NavMesh
+	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);
+	navMesh->terrain = this->terrain;
+
+	//UI
+	uiSpriteBatch = std::make_shared<SpriteBatch>(context);
+
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\hp_bar.dds",
+			nullptr,
+			healthBarTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\hero.dds",
+			nullptr,
+			healthBarHeroTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\health.dds",
+			nullptr,
+			healthBarHealthTex.ReleaseAndGetAddressOf()));
+
+	healthBarPos.x = 0.f;
+	healthBarPos.y = 0.f;
+
+	healthBarHeroPos.x = 0.f;
+	healthBarHeroPos.y = 0.f;
+
+	healthBarHealthPos.x = 135.f;
+	healthBarHealthPos.y = 30.f;
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\fpsbar.dds",
+			nullptr,
+			fpsBarTex.ReleaseAndGetAddressOf()));
+
+	fpsBarPos.x = 710.0f;
+	fpsBarPos.y = -5.0f;
+
+	fpsFont = std::make_unique<SpriteFont>(device, L"Resources\\Fonts\\fpsFont.spritefont");
+
+	fpsFontPos.x = 710.0f;
+	fpsFontPos.y = 10.0f;
+	fpsFontText = std::wstring(L"60");
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Menu.dds",
+			nullptr,
+			menuTex.ReleaseAndGetAddressOf()));
+
+	menuPos.x = 250.0f;
+	menuPos.y = 100.0f;
+
+	menuIsOn = false;
 }
 
 void Game::OnDeviceLost()
@@ -775,12 +871,19 @@ void Game::OnDeviceLost()
 	myEntity3->Model.reset();
 	myEntity4->Model.reset();
 
-	m_room.reset();
-	m_roomTex.Reset();
+	//m_room.reset();
+	//m_roomTex.Reset();
+	//terrain.block.reset();
 
 
 	m_plane.reset();
 	m_planeTex.Reset();
+
+	uiSpriteBatch.reset();
+	healthBarTex.Reset();
+	healthBarHealthTex.Reset();
+	healthBarHeroTex.Reset();
+	fpsFont.reset();
 }
 
 void Game::OnDeviceRestored()

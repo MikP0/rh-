@@ -12,7 +12,9 @@ RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* 
 
 	_states = std::make_shared<DirectX::CommonStates>(_device);
 
-	_fxFactory = std::make_shared<DirectX::EffectFactory>(_device);
+	_fxFactory = std::make_shared<ToonFactory>(_device);
+
+	DebugDrawAction = std::make_unique<DebugDraw>(_device, _context);
 }
 
 RenderableSystem::~RenderableSystem()

@@ -21,6 +21,7 @@ PhysicsComponent::PhysicsComponent(ColliderType colliderType)
 
 PhysicsComponent::PhysicsComponent(shared_ptr<ColliderBase> collider)
 {
+	isTrigger = false;
 	ColliderBounding = collider;
 }
 

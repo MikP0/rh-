@@ -178,10 +178,19 @@
     <ClInclude Include="ColliderTypes.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="NavMesh.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="MapTile.h" />
+    <ClInclude Include="MapEdge.h" />
+    <ClInclude Include="Terrain.h" />
     <ClInclude Include="LightComponent.h">
       <Filter>Inc</Filter>
     </ClInclude>
     <ClInclude Include="World.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugDraw.h">
       <Filter>Inc</Filter>
     </ClInclude>
   </ItemGroup>
@@ -315,10 +324,19 @@
     <ClCompile Include="LightSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="NavMesh.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="MapTile.cpp" />
+    <ClCompile Include="MapEdge.cpp" />
+    <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="LightComponent.cpp">
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="World.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugDraw.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -338,6 +356,21 @@
     <Image Include="cat.DDS">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Resources\UISprites\fpsbar.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Resources\UISprites\hp_bar.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Resources\UISprites\Menu.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Resources\UISprites\health.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Resources\UISprites\hero.DDS">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">
@@ -353,6 +386,9 @@
       <Filter>Inc\Shaders\Include</Filter>
     </None>
     <None Include="WallExpo.cmo" />
+    <None Include="Resources\Fonts\fpsFont.spritefont">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">

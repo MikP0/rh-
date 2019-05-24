@@ -68,3 +68,13 @@ ColliderRay *Raycast::CastRay(XMVECTOR origin, XMVECTOR direction)
 {
 	return (new ColliderRay(origin, direction));
 }
+
+ColliderRay *Raycast::CastRay(Camera camera)
+{
+	XMFLOAT3 cameraPos = camera.GetPositionFloat3();
+	XMVECTOR origin = Vector4(cameraPos.x, cameraPos.y, cameraPos.z, 0.0f);
+	XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
+	XMVECTOR direction = Vector4(dirFromMouse.x, dirFromMouse.y, dirFromMouse.z, 0.0f);
+	
+	return CastRay(origin, direction);
+}

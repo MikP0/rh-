@@ -162,6 +162,7 @@
     <ClInclude Include="BufferContainer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColliderTypes.h" />
+    <ClInclude Include="DebugDraw.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Component.h" />
@@ -173,6 +174,8 @@
     <ClInclude Include="Keyframe.h" />
     <ClInclude Include="LightComponent.h" />
     <ClInclude Include="LightSystem.h" />
+    <ClInclude Include="MapEdge.h" />
+    <ClInclude Include="MapTile.h" />
     <ClInclude Include="MaterialSK.h" />
     <ClInclude Include="MatrixHelper.h" />
     <ClInclude Include="MeshSK.h" />
@@ -180,6 +183,7 @@
     <ClInclude Include="ModelSK.h" />
     <ClInclude Include="ModelSkinned.h" />
     <ClInclude Include="MyGame.h" />
+    <ClInclude Include="NavMesh.h" />
     <ClInclude Include="OctTree.h" />
     <ClInclude Include="Pass.h" />
     <ClInclude Include="pch.h" />
@@ -196,6 +200,7 @@
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Technique.h" />
+    <ClInclude Include="Terrain.h" />
     <ClInclude Include="ToonEffect.h" />
     <ClInclude Include="ToonFactory.h" />
     <ClInclude Include="Transform.h" />
@@ -225,6 +230,7 @@
     <ClCompile Include="Camera.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="DebugDraw.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Component.cpp" />
@@ -247,6 +253,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MapEdge.cpp" />
+    <ClCompile Include="MapTile.cpp" />
     <ClCompile Include="MaterialSK.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -269,6 +277,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="NavMesh.cpp" />
     <ClCompile Include="OctTree.cpp" />
     <ClCompile Include="Pass.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -294,6 +303,7 @@
     <ClCompile Include="Technique.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="ToonEffect.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -321,6 +331,11 @@
     <Image Include="cat.DDS" />
     <Image Include="cup.jpg" />
     <Image Include="directx.ico" />
+    <Image Include="Resources\UISprites\fpsbar.DDS" />
+    <Image Include="Resources\UISprites\health.DDS" />
+    <Image Include="Resources\UISprites\hero.DDS" />
+    <Image Include="Resources\UISprites\hp_bar.DDS" />
+    <Image Include="Resources\UISprites\Menu.DDS" />
     <Image Include="roomtexture.dds" />
   </ItemGroup>
   <ItemGroup>
@@ -332,6 +347,7 @@
     </None>
     <None Include="cup.cmo" />
     <None Include="packages.config" />
+    <None Include="Resources\Fonts\fpsFont.spritefont" />
     <None Include="WallExpo.cmo" />
   </ItemGroup>
   <ItemGroup>

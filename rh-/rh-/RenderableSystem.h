@@ -4,7 +4,7 @@
 #include "DeviceResources.h"
 #include "StepTimer.h"
 #include "ToonFactory.h"
-
+#include "DebugDraw.h"
 
 class RenderableSystem :
 	public System
@@ -24,5 +24,8 @@ public:
 
 	ID3D11Device1* _device;
 	ID3D11DeviceContext1* _context;
+
+	bool Debug;
+	std::unique_ptr<DebugDraw> DebugDrawAction;
 };
 

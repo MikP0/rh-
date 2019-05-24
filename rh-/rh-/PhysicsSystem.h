@@ -26,6 +26,12 @@ public:
 
 	virtual void UpdateComponentsCollection();
 
+	OctTreePtr GetOctTree();
+	vector<CollisionPtr> GetCurrentCollisions();
+	vector<CollisionPtr> GetCollisionsWithRay(ColliderRayPtr ray);
+	vector<CollisionPtr> GetCollisionsWithFrustum(ColliderFrustumPtr frustum);
+
+	bool CheckIfShouldUpdateTree();
 	void ResetAllUpdatePositionFlags();
 
 	void InsertComponent(PhysicsComponentPtr component); // temporary function for tests
