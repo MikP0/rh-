@@ -14,7 +14,5 @@ public:
 	PhysicsComponent(ColliderType colliderType);
 	PhysicsComponent(shared_ptr<ColliderBase> collider);
 	~PhysicsComponent();
-
-	virtual ComponentType GetType(void) override;
 };
 

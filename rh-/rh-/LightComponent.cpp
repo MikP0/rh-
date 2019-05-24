@@ -39,8 +39,3 @@ LightComponent::LightComponent(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direct
 LightComponent::~LightComponent()
 {
 }
-
-ComponentType LightComponent::GetType(void)
-{
-	return ComponentType("Light");
-}

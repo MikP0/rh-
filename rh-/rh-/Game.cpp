@@ -7,6 +7,7 @@
 #include "System.h"
 #include "RenderableSystem.h"
 #include "RenderableComponent.h"
+#include "AudioComponent.h"
 
 #include <thread>
 #include <chrono>
@@ -339,7 +340,7 @@ void Game::UpdateObjects(float elapsedTime)
 	}*/
 
 	// check collisions
-	collisionSystem->Iterate();
+	//collisionSystem->Iterate();
 	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
 	XMVECTORF32 collider1Color = DirectX::Colors::White;
 	XMVECTORF32 collider2Color = DirectX::Colors::White;
@@ -350,19 +351,15 @@ void Game::UpdateObjects(float elapsedTime)
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
 	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
-	myEntity1->Update();
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
-	myEntity2->Update();
-	myEntity3->Update();
 
 	if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
 		//myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
 		myEntity4->GetTransform()->SetPosition(posOnGround);
+		//myEntity4->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
 	}
-
-	myEntity4->Update();
 
 	if (keyboard.M)
 	{
@@ -402,7 +399,9 @@ void Game::UpdateObjects(float elapsedTime)
 		mSkinModel->GetAnimatorPlayer()->PauseClip();
 	}
 
-	lightSystem->Iterate();
+	world->RefreshWorld();
+
+	//lightSystem->Iterate();
 
 	//billboarding
 	//planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
@@ -608,7 +607,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	// TODO: Initialize windows-size dependent objects here.
 
 
-	camera.SetPosition(0.0f, 0.0f, -2.0f);
+	camera.SetPosition(0.0f, 0.0f, -2.0f); // TODO
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
@@ -621,41 +620,53 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	terrain = std::make_shared<Terrain>();
 
-	entityManager = std::make_shared<EntityManager>();
+	world = std::make_shared<World>();
 
-	componentFactory = std::make_shared<ComponentFactory>(entityManager);
+	//entityManager = std::make_shared<EntityManager>();
+	//componentFactory = std::make_shared<ComponentFactory>(entityManager);
 
-	renderableSystem = std::make_shared<RenderableSystem>(entityManager, device, context);
+	renderableSystem = std::make_shared<RenderableSystem>(device, context);
 
-	lightSystem = std::make_shared<LightSystem>(entityManager, renderableSystem->_fxFactory);
+	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
-
-	sceneWallEntity = entityManager->GetEntity(entityManager->CreateEntity("SceneWall"));
-	myEntity1 = entityManager->GetEntity(entityManager->CreateEntity("Cup1"));
-	myEntity2 = entityManager->GetEntity(entityManager->CreateEntity("Cup2"));
-	myEntity3 = entityManager->GetEntity(entityManager->CreateEntity("Cup3"));
-	myEntity4 = entityManager->GetEntity(entityManager->CreateEntity("Cup4"));
-
-	std::shared_ptr<RenderableComponent> renderableComponent = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
-	std::shared_ptr<RenderableComponent> renderableComponent2 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
-	std::shared_ptr<RenderableComponent> renderableComponent3 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
-	std::shared_ptr<RenderableComponent> renderableComponent4 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
-
-	componentFactory->CreateComponent(myEntity1, renderableComponent);
-	componentFactory->CreateComponent(myEntity2, renderableComponent2);
-	componentFactory->CreateComponent(myEntity3, renderableComponent3);
-	componentFactory->CreateComponent(myEntity4, renderableComponent4);
+	collisionSystem = std::make_shared<PhysicsSystem>(Vector3::Zero, ROOM_BOUNDS[0]);
 
 
-	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
+	world->AddSystem<PhysicsSystem>(collisionSystem, 0);
+	world->AddSystem<LightSystem>(lightSystem, 1);
+	world->AddSystem<RenderableSystem>(renderableSystem, 2);
+	
+	sceneWallEntity = world->CreateEntity("SceneWall");
+	myEntity1 = world->CreateEntity("Cup1");
+	myEntity2 = world->CreateEntity("Cup2");
+	myEntity3 = world->CreateEntity("Cup3");
+	myEntity4 = world->CreateEntity("Cup4");
 
-	renderableSystem->Initialize();
+	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+
+
+	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
+
+	//myEntity1->GetTransform()->SetScale(scaleEntity1);
+	//myEntity2->GetTransform()->SetScale(scaleEntity1);
+	//myEntity3->GetTransform()->SetScale(scaleEntity1);
+	//myEntity4->GetTransform()->SetScale(scaleEntity1);
+	
+	world->InitializeSystem<RenderableSystem>();
+	world->InitializeSystem<PhysicsSystem>();
+	world->InitializeSystem<LightSystem>();
 
 	// pointLightEntity1 - RED light follow player
-	pointLightEntity1 = entityManager->GetEntity(entityManager->CreateEntity("PointLight1"));
-	pointLightEntity2 = entityManager->GetEntity(entityManager->CreateEntity("PointLight2"));
-	pointLightEntity3 = entityManager->GetEntity(entityManager->CreateEntity("PointLight3"));
-	spotLightEntity1 = entityManager->GetEntity(entityManager->CreateEntity("SpotLight1"));
+	pointLightEntity1 = world->CreateEntity("PointLight1");
+	pointLightEntity2 = world->CreateEntity("PointLight2");
+	pointLightEntity3 = world->CreateEntity("PointLight3");
+	spotLightEntity1 = world->CreateEntity("SpotLight1");
+
+	//myEntity1->Model =
+		//DirectX::Model::CreateFromCMO(device, L"cup.cmo", m_fxFactory);
 
 	pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
 	pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 0.0f, 2.0f));
@@ -663,17 +674,15 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
 
 	// lightComponent - RED light follow player
-	std::shared_ptr<LightComponent> lightComponent = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
-	std::shared_ptr<LightComponent> lightComponent2 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
-	std::shared_ptr<LightComponent> lightComponent3 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
-	std::shared_ptr<LightComponent> lightComponent4 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
+	pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
+	pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
+	pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
+	spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
 
-	componentFactory->CreateComponent(pointLightEntity1, lightComponent);
-	componentFactory->CreateComponent(pointLightEntity2, lightComponent2);
-	componentFactory->CreateComponent(pointLightEntity3, lightComponent3);
-	componentFactory->CreateComponent(spotLightEntity1, lightComponent4);
+	//world->InitializeSystem<RenderableSystem>();
 
-	lightSystem->Initialize();
+	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
+	//myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", camera);
 
 
 	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
@@ -687,12 +696,13 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity2->Update();
 
 	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
-	myEntity3->GetTransform()->SetScale(scaleEntity3);
+	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
+	
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 	myEntity3->Update();
 
 	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
-	myEntity4->GetTransform()->SetScale(scaleEntity4);
+	world->GetEntity(4)->GetTransform()->SetScale(scaleEntity4);
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
 	myEntity4->Update();
 
@@ -703,7 +713,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	initialBounding1Radius = 0.3f;
 	initialBounding2Radius = 0.7f;
 
-	collisionSystem = std::make_shared<PhysicsSystem>(entityManager, SCENE_CENTER, COLLISION_SCENE_RANGE);
+	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);
@@ -788,10 +798,10 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
 	//Audio
-	audioSystem = std::make_shared<AudioSystem>(entityManager);
-	audioSystem->Initialize();
-	audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
-	audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
+	audioSystem = std::make_shared<AudioSystem>();
+	//audioSystem->Initialize();
+	//audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
+	//audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
 
 	//NavMesh
 	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);

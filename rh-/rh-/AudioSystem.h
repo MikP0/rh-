@@ -16,7 +16,7 @@ class AudioSystem : public System
 {
 public:
 
-	AudioSystem(std::shared_ptr<EntityManager> entityManager);
+	AudioSystem();
 	~AudioSystem();
 
 	string GetComponentPath(AudioComponentPtr audioComponent);
@@ -37,8 +37,7 @@ public:
 	void PauseAudio(AudioComponentPtr audioComponent);
 	void ResumeAudio(AudioComponentPtr audioComponent);
 
-	virtual vector<ComponentPtr> GetComponents(ComponentType componentType) override;
-	virtual void UpdateComponentsCollection() override;
+	virtual void UpdateComponentsCollection();
 
 	void InsertComponent(AudioComponentPtr component); // temporary function for tests
 
