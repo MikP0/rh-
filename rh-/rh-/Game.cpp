@@ -351,10 +351,7 @@ void Game::UpdateObjects(float elapsedTime)
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
 	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
-	myEntity1->Update();
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
-	myEntity2->Update();
-	myEntity3->Update();
 
 	if (mouse.rightButton)
 	{
@@ -363,8 +360,6 @@ void Game::UpdateObjects(float elapsedTime)
 		myEntity4->GetTransform()->SetPosition(posOnGround);
 		//myEntity4->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
 	}
-
-	myEntity4->Update();
 
 	if (keyboard.M)
 	{
@@ -403,6 +398,8 @@ void Game::UpdateObjects(float elapsedTime)
 	{
 		mSkinModel->GetAnimatorPlayer()->PauseClip();
 	}
+
+	world->RefreshWorld();
 
 	//lightSystem->Iterate();
 
@@ -630,13 +627,14 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	renderableSystem = std::make_shared<RenderableSystem>(device, context);
 
-	//lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
+	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
 	collisionSystem = std::make_shared<PhysicsSystem>(Vector3::Zero, ROOM_BOUNDS[0]);
 
-	world->AddSystem<RenderableSystem>(renderableSystem, 1);
-	//world->AddSystem<LightSystem>(lightSystem, 1);
+
 	world->AddSystem<PhysicsSystem>(collisionSystem, 0);
+	world->AddSystem<LightSystem>(lightSystem, 1);
+	world->AddSystem<RenderableSystem>(renderableSystem, 2);
 	
 	sceneWallEntity = world->CreateEntity("SceneWall");
 	myEntity1 = world->CreateEntity("Cup1");
@@ -658,6 +656,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//myEntity4->GetTransform()->SetScale(scaleEntity1);
 	
 	world->InitializeSystem<RenderableSystem>();
+	world->InitializeSystem<PhysicsSystem>();
+	world->InitializeSystem<LightSystem>();
 
 	// pointLightEntity1 - RED light follow player
 	pointLightEntity1 = world->CreateEntity("PointLight1");
