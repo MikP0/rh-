@@ -610,7 +610,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	// TODO: Initialize windows-size dependent objects here.
 
 
-	camera.SetPosition(0.0f, 0.0f, -2.0f);
+	camera.SetPosition(0.0f, 0.0f, -2.0f); // TODO
 	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
@@ -623,7 +623,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	terrain = std::make_shared<Terrain>();
 
-	entityManager = std::make_shared<EntityManager>();
+	world = std::make_shared<World>();
 
 	//entityManager = std::make_shared<EntityManager>();
 	//componentFactory = std::make_shared<ComponentFactory>(entityManager);
@@ -657,7 +657,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//myEntity3->GetTransform()->SetScale(scaleEntity1);
 	//myEntity4->GetTransform()->SetScale(scaleEntity1);
 	
-	//world->InitializeSystem<RenderableSystem>();
+	world->InitializeSystem<RenderableSystem>();
 
 	// pointLightEntity1 - RED light follow player
 	pointLightEntity1 = world->CreateEntity("PointLight1");
@@ -713,7 +713,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	initialBounding1Radius = 0.3f;
 	initialBounding2Radius = 0.7f;
 
-	collisionSystem = std::make_shared<PhysicsSystem>(entityManager, SCENE_CENTER, COLLISION_SCENE_RANGE);
+	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);
@@ -798,10 +798,10 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
 	//Audio
-	audioSystem = std::make_shared<AudioSystem>(entityManager);
-	audioSystem->Initialize();
-	audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
-	audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
+	audioSystem = std::make_shared<AudioSystem>();
+	//audioSystem->Initialize();
+	//audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
+	//audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
 
 	//NavMesh
 	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "PhysicsSystem.h"
 
-PhysicsSystem::PhysicsSystem(shared_ptr<EntityManager> entityManager, Vector3 sceneCenter, float cubeDimension) : System(entityManager)
+PhysicsSystem::PhysicsSystem(Vector3 sceneCenter, float cubeDimension) : System()
 {
 	_sceneCenter = sceneCenter;
 	_sceneCubeDimension = cubeDimension;
