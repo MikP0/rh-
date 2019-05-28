@@ -2,9 +2,8 @@
 #include "AudioSystem.h"
 
 
-AudioSystem::AudioSystem(shared_ptr<EntityManager> entityManager) : System(entityManager)
+AudioSystem::AudioSystem()
 {
-	_componentsType._name = "Audio";
 	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
 	#ifdef _DEBUG
 	eflags = eflags | AudioEngine_Debug;
@@ -112,53 +111,24 @@ void AudioSystem::ResumeAudio(AudioComponentPtr audioComponent)
 	audioComponent->AudioLoopInstance->Resume();
 }
 
-// zastanowic sie czy ta funkcja nie jest do usuniecia z System
-std::vector<ComponentPtr> AudioSystem::GetComponents(ComponentType componentType)
-{
-	vector<ComponentPtr> result = _entityManager->GetComponents(_componentsType);
-
-	return result;
-}
-
 void AudioSystem::UpdateComponentsCollection()
 {
-	_components.clear();
-	vector<ComponentPtr> selectedComponents = GetComponents(_componentsType);
-	for each (ComponentPtr component in selectedComponents)
-	{
-		AudioComponentPtr audioComponent = dynamic_pointer_cast<AudioComponent>(component);
-		_components.push_back(audioComponent);
-	}
+	_world->GetComponents<AudioComponent>().clear();
+	_world->GetComponents<AudioComponent>() = _world->GetComponents<AudioComponent>();
 }
 
 void AudioSystem::InsertComponent(AudioComponentPtr component)
 {
-	_components.push_back(component);
 	SetComponentAudioFile(component);
 }
 
 void AudioSystem::Initialize()
 {
-	int backgroundAudioEntityID = _entityManager->CreateEntity("BackgroundAudioEntity");
-	int sound1AudioEntityID = _entityManager->CreateEntity("Sound1AudioEntity");
-
-	shared_ptr<AudioComponent> backgroundAudioComponent = std::make_shared<AudioComponent>("Resources\\Audio\\In The End.wav");
-	backgroundAudioComponent->Loop = true;
-	SetComponentAudioFile(backgroundAudioComponent);
-	shared_ptr<AudioComponent> sound1AudioComponent = make_shared<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
-	SetComponentAudioFile(sound1AudioComponent);
-
-	_entityManager->AddComponent(backgroundAudioEntityID, backgroundAudioComponent);
-	_entityManager->AddComponent(sound1AudioEntityID, sound1AudioComponent);
-
-	vector<shared_ptr<Component>> components = GetComponents(ComponentType("Audio"));
-
-	for each (shared_ptr<Component> component in components)
+	for (auto component : _world->GetComponents<AudioComponent>())
 	{
-		_components.push_back(dynamic_pointer_cast<AudioComponent>(component));
+		SetComponentAudioFile(component);
 	}
 }
-
 void AudioSystem::Iterate()
 {
 	bool shouldResetAudio = false;
@@ -181,7 +151,7 @@ void AudioSystem::Iterate()
 		}
 	}
 
-	for each (AudioComponentPtr component in _components)
+	for each (AudioComponentPtr component in _world->GetComponents<AudioComponent>())
 	{
 		SoundState soundState = component->AudioLoopInstance->GetState();
 		

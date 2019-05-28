@@ -16,11 +16,20 @@ AudioComponent::AudioComponent(string path)
 	AudioLoopInstance = nullptr;
 }
 
-AudioComponent::~AudioComponent()
+AudioComponent::AudioComponent(const std::shared_ptr<AudioComponent> audioComponent)
 {
+	SetIsEnabled(true);
+	Path = audioComponent->Path;
+	Mute = audioComponent->Mute;
+	Loop = audioComponent->Loop;
+	Volume = audioComponent->Volume;
+	Pitch = audioComponent->Pitch;
+	Pan = audioComponent->Pan;
+	Delay = audioComponent->Delay;
+	AudioFile = nullptr;
+	AudioLoopInstance = nullptr;
 }
 
-ComponentType AudioComponent::GetType(void)
+AudioComponent::~AudioComponent()
 {
-	return ComponentType("Audio");
 }

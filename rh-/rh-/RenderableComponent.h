@@ -10,11 +10,9 @@ class RenderableComponent : public Component
 {
 public:
 	//Methods
-	RenderableComponent();
-	RenderableComponent(std::wstring path, Camera& camera);
+	RenderableComponent(std::wstring path, Camera* camera);
 	virtual ~RenderableComponent();
 
-	virtual ComponentType GetType(void) override;
 
 	//Fields
 	std::unique_ptr<DirectX::Model>	_model;

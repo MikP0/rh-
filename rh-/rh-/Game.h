@@ -14,8 +14,6 @@
 #include "Raycast.h"
 #include "Input.h"
 #include "Collision.h"
-#include "EntityManager.h"
-#include "SceneManager.h"
 #include "PhysicsComponent.h"
 #include "RenderableSystem.h"
 
@@ -92,10 +90,6 @@ private:
 
 	//Shaders
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
-
-	//Managers
-	std::shared_ptr<EntityManager> entityManager;
-	std::shared_ptr<ComponentFactory> componentFactory;
 
 	// Model
 	std::unique_ptr<DirectX::Model> m_model;
@@ -182,8 +176,6 @@ private:
 	DirectX::SimpleMath::Matrix planeWorld3;
 	DirectX::SimpleMath::Matrix planeWorld4;
 
-	std::shared_ptr<SceneManager> sceneManager;
-
 	//Audio
 	std::shared_ptr<AudioSystem> audioSystem;
 	std::shared_ptr<AudioComponent> audioBackgroundSound;
@@ -222,4 +214,7 @@ private:
 	bool menuIsOn;
 	bool debugDraw = false;
 	bool debugDrawTreeRegions = true;
+
+	//World
+	std::shared_ptr<World> world;
 };

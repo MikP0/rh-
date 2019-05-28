@@ -5,7 +5,7 @@
 #include "Entity.h"
 
 
-int Entity::nextId = 0;
+std::size_t Entity::nextId = 0;
 
 Entity::Entity()
 {
@@ -14,6 +14,7 @@ Entity::Entity()
 	_parent = nullptr;
 	_name = "Entity " + std::to_string(_id);
 	_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
+	_world = nullptr;
 }
 
 Entity::Entity(const std::string name)
@@ -23,6 +24,8 @@ Entity::Entity(const std::string name)
 	_parent = nullptr;
 	_name = name;
 	_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
+	_world = nullptr;
+
 }
 
 Entity::Entity(const Entity & entity)
@@ -39,7 +42,7 @@ Entity::~Entity()
 {
 }
 
-int Entity::GetId() const
+std::size_t Entity::GetId() const
 {
 	return _id;
 }
@@ -89,6 +92,16 @@ void Entity::SetName(std::string name)
 	_name = name;
 }
 
+void Entity::SetActive(bool activeFlag)
+{
+	_active = activeFlag;
+}
+
+bool Entity::IsActive()
+{
+	return _active;
+}
+
 std::shared_ptr<Entity> Entity::GetChildById(int id)
 {
 	for (auto entity : _children) 
@@ -121,3 +134,9 @@ void Entity::Update()
 		}
 	}
 }
+
+void Entity::SetWorld(std::shared_ptr<World> world)
+{
+	_world = world;
+}
+

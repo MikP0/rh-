@@ -162,15 +162,12 @@
     <ClInclude Include="BufferContainer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColliderTypes.h" />
-    <ClInclude Include="DebugDraw.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="ComponentFactory.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="EffectSK.h" />
     <ClInclude Include="Entity.h" />
-    <ClInclude Include="EntityManager.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameException.h" />
     <ClInclude Include="Keyframe.h" />
@@ -199,8 +196,6 @@
     <ClInclude Include="RTTI.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="SkinnedModelMaterial.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Technique.h" />
@@ -212,6 +207,7 @@
     <ClInclude Include="Variable.h" />
     <ClInclude Include="VectorHelper.h" />
     <ClInclude Include="VertexDeclarations.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationClip.cpp">
@@ -237,13 +233,11 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="ComponentFactory.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectSK.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameException.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -308,8 +302,6 @@
     <ClCompile Include="Technique.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="ToonEffect.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -329,6 +321,7 @@
     <ClCompile Include="VectorHelper.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -337,11 +330,6 @@
     <Image Include="cat.DDS" />
     <Image Include="cup.jpg" />
     <Image Include="directx.ico" />
-    <Image Include="Resources\UISprites\fpsbar.DDS" />
-    <Image Include="Resources\UISprites\health.DDS" />
-    <Image Include="Resources\UISprites\hero.DDS" />
-    <Image Include="Resources\UISprites\hp_bar.DDS" />
-    <Image Include="Resources\UISprites\Menu.DDS" />
     <Image Include="roomtexture.dds" />
   </ItemGroup>
   <ItemGroup>
@@ -353,7 +341,6 @@
     </None>
     <None Include="cup.cmo" />
     <None Include="packages.config" />
-    <None Include="Resources\Fonts\fpsFont.spritefont" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">

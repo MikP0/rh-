@@ -11,7 +11,7 @@ class RenderableSystem :
 {
 public:
 	
-	RenderableSystem(std::shared_ptr<EntityManager> entityManager, ID3D11Device1* device, ID3D11DeviceContext1* context);
+	RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* context);
 	~RenderableSystem();
 
 	virtual void Iterate() override;
@@ -19,7 +19,7 @@ public:
 
 	//Fields
 	std::unique_ptr<DX::DeviceResources> _deviceResources;
-	std::unique_ptr<DirectX::CommonStates> _states;
+	std::shared_ptr<DirectX::CommonStates> _states;
 	std::shared_ptr<ToonFactory> _fxFactory;
 
 	ID3D11Device1* _device;

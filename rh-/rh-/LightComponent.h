@@ -22,8 +22,6 @@ public:
 
 	virtual ~LightComponent();
 
-	virtual ComponentType GetType(void) override;
-
 	//Fields
 	DirectX::XMFLOAT4 Color;
 	DirectX::XMFLOAT3 Direction;
