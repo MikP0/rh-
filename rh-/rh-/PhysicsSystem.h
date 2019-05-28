@@ -24,8 +24,6 @@ public:
 	void UpdateCollidersPositions();
 	void UpdateColliderPosition(PhysicsComponentPtr component);
 
-	virtual void UpdateComponentsCollection();
-
 	OctTreePtr GetOctTree();
 	vector<CollisionPtr> GetCurrentCollisions();
 	vector<CollisionPtr> GetCollisionsWithRay(ColliderRayPtr ray);
@@ -34,13 +32,10 @@ public:
 	bool CheckIfShouldUpdateTree();
 	void ResetAllUpdatePositionFlags();
 
-	void InsertComponent(PhysicsComponentPtr component); // temporary function for tests
-
 	virtual void Initialize() override;
 	virtual void Iterate() override;
 
 private:
-	vector<PhysicsComponentPtr> _components;
 	Vector3 _sceneCenter;
 	float _sceneCubeDimension;
 	OctTreePtr _octTree;

@@ -96,7 +96,6 @@ private:
 	std::unique_ptr<DirectX::Model> m_model2;
 
 	// cup Object
-	std::shared_ptr<Entity> sceneWallEntity;
 	std::shared_ptr<Entity> myEntity1;
 	std::shared_ptr<Entity> myEntity2;
 	std::shared_ptr<Entity> myEntity3;
@@ -112,17 +111,10 @@ private:
 
 	// Collision boundings
 	std::shared_ptr<PhysicsSystem> collisionSystem;
-	std::shared_ptr<PhysicsComponent> colliderSceneWall;
 	std::shared_ptr<PhysicsComponent> colliderCup1;
 	std::shared_ptr<PhysicsComponent> colliderCup2;
-	ColliderAABBptr colliderBoundingSceneWall;
 	ColliderAABBptr colliderBoundingCup1;
 	ColliderSpherePtr colliderBoundingCup2;
-
-	XMFLOAT3 initialBoundingEntity1Size;
-	XMFLOAT3 initialBoundingEntity2Size;
-	float initialBounding1Radius;
-	float initialBounding2Radius;
 
 	// camera
 	Camera camera;
