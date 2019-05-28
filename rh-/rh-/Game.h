@@ -68,6 +68,14 @@ public:
 	// Properties
 	void GetDefaultSize(int& width, int& height);
 
+
+
+
+	//
+	void BuildShadowTransform(ID3D11DeviceContext1 *context);
+
+
+
 private:
 
 	void Update(DX::StepTimer const& timer);
@@ -97,6 +105,8 @@ private:
 	//Shaders
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;
 
+
+
 	//Managers
 	std::shared_ptr<EntityManager> entityManager;
 	std::shared_ptr<ComponentFactory> componentFactory;
@@ -117,6 +127,7 @@ private:
 	std::shared_ptr<Entity> pointLightEntity2;
 	std::shared_ptr<Entity> pointLightEntity3;
 	std::shared_ptr<Entity> spotLightEntity1;
+	std::shared_ptr<Entity> directLightEntity1;
 
 	// Collision boundings
 	std::shared_ptr<PhysicsSystem> collisionSystem;
@@ -238,5 +249,31 @@ private:
 	std::shared_ptr<Entity> myEntityWall;
 
 	std::shared_ptr<ShadowMap> m_shadowMap;
+	void XM_CALLCONV DrawSenceToShadowMap(FXMMATRIX view, FXMMATRIX projection);
+	
+
+
+	std::shared_ptr<ShadowFactory> m_shadowFactory;
+	std::shared_ptr<ToonFactory> m_toonFactory;
+
+	bool isFirstCup = false;
+	bool isSecondCup = false;
+	bool isThirdCup = false;
+
+	bool isFordCup = false;
+
+	std::shared_ptr<Entity> entityCup1;
+	std::shared_ptr<Entity> entityCup2;
+	std::shared_ptr<Entity> entityCup3;
+
+
+	std::shared_ptr<Entity> testShadowEntity;
+	std::shared_ptr<DirectX::Model> testShadowModel;
+
+	XMMATRIX lightView;
+	XMMATRIX lightProj;
+	XMMATRIX lightShadowTransform;
+
+
 	
 };

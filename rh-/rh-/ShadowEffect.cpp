@@ -54,6 +54,13 @@ struct DynamicConstantBuffer
 	DirectX::XMFLOAT4X4 WorldViewProjection;
 	DirectX::XMFLOAT3 CameraPosition;
 	float IsTextured;
+
+	DirectX::XMFLOAT4X4 ShadowMapTransform;
+};
+
+struct DynamicConstantShadowBuffer
+{
+	DirectX::XMFLOAT4X4 WorldViewProjection;
 };
 
 
@@ -66,6 +73,10 @@ public:
 	XMMATRIX m_projection;
 	XMFLOAT3 m_camera;
 
+
+	XMMATRIX m_shadowMapTransform;
+
+
 	XMFLOAT3 diffuseColor;
 	XMFLOAT3 emissiveColor;
 	float alpha;
@@ -74,6 +85,10 @@ public:
 	XMVECTOR SpecularColor;
 	XMVECTOR SpecularPower;
 	XMVECTOR IsTextured;
+
+
+	bool renderingShadowMap = false;
+	bool shadowEnable = false;
 
 
 	POINT_LIGHT PointLights[MAX_NUMBER_OF_LIGHT];
@@ -92,15 +107,37 @@ public:
 	bool m_isInit = false;
 	bool m_isTextured = false;
 	bool m_isNormalMapped = false;
+	bool m_isShadowMapped = false;
+
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixelShader;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertexShaderShadow;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixelShaderShadow;
+
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_staticConstantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicConstantBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicConstantShadowBuffer;
+
+
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalMap;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowMap;
+
+
+	//Microsoft::WRL::ComPtr<ID3D11SamplerState> mySimpleSampler;
+	//Microsoft::WRL::ComPtr<ID3D11SamplerState> myComparisonSampler;
+
+	ID3D11SamplerState* mySimpleSampler;
+	ID3D11SamplerState* myComparisonSampler;
+
+
 	StaticConstantBuffer m_staticData;
 	DynamicConstantBuffer m_dynamicData;
+	DynamicConstantShadowBuffer m_dynamicShadowData;
+
 	std::vector<uint8_t> m_VSBytecode;
+	std::vector<uint8_t> m_VSBytecodeShadow;
 
 
 	ShadowEffect::Impl(_In_ ID3D11Device* device);
@@ -155,167 +192,286 @@ ShadowEffect::Impl::Impl(_In_ ID3D11Device* device)
 
 	CD3D11_BUFFER_DESC dynamicBufferDesc(
 		sizeof(DynamicConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
-
 	if (FAILED(device->CreateBuffer(
 		&dynamicBufferDesc, nullptr, &m_dynamicConstantBuffer)))
 	{
 		return;
 	}
 
+	CD3D11_BUFFER_DESC dynamicBufferShadowDesc(
+		sizeof(DynamicConstantShadowBuffer), D3D11_BIND_CONSTANT_BUFFER);
+	if (FAILED(device->CreateBuffer(
+		&dynamicBufferShadowDesc, nullptr, &m_dynamicConstantShadowBuffer)))
+	{
+		return;
+	}
+
+
+	/*float aColor = 0.0f;
+
+	D3D11_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+	samplerDesc.MinLOD = -FLT_MAX;
+	samplerDesc.MaxLOD = FLT_MAX;
+	samplerDesc.BorderColor[0] = aColor;
+	samplerDesc.BorderColor[1] = aColor;
+	samplerDesc.BorderColor[2] = aColor;
+	samplerDesc.BorderColor[3] = aColor;
+	
+
+	D3D11_SAMPLER_DESC simpleSamplerDesc;
+	simpleSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	simpleSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	simpleSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	simpleSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	simpleSamplerDesc.MipLODBias = 0.0f;
+	simpleSamplerDesc.MaxAnisotropy = 1;
+	simpleSamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	simpleSamplerDesc.MinLOD = -FLT_MAX;
+	simpleSamplerDesc.MaxLOD = FLT_MAX;
+
+
+	DX::ThrowIfFailed(
+		device->CreateSamplerState(&samplerDesc, &myComparisonSampler)
+	);
+
+	DX::ThrowIfFailed(
+		device->CreateSamplerState(&simpleSamplerDesc, &mySimpleSampler)
+	);*/
+
+
 	m_isInit = true;
 }
 
 void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 {
-	if (!m_isInit)
+	if (!renderingShadowMap)
 	{
-		return;
-	}
-
-	if (!isSent)
-	{
-		if (!m_isTextured)
+		if (!m_isInit)
 		{
-			XMVECTOR DiffuseColorFin;
-			XMVECTOR EmissiveColor;
+			return;
+		}
 
-			XMVECTOR diffuse = { diffuseColor.x, diffuseColor.y, diffuseColor.z };
-			XMVECTOR emissive = { emissiveColor.x, emissiveColor.y, emissiveColor.z };
-			XMVECTOR alphaVector = XMVectorReplicate(alpha);
-			static const XMVECTORF32 AmbientColor = { 1.0f, 1.0f, 1.0f, 0.0f };
-
-			EmissiveColor = XMVectorMultiply(XMVectorMultiplyAdd(AmbientColor, diffuse, emissive), alphaVector);
-
-			DiffuseColorFin = XMVectorSelect(alphaVector, XMVectorMultiply(diffuse, alphaVector), g_XMSelect1110);
-
-			XMStoreFloat4(&m_staticData.DiffuseColor, DiffuseColorFin);
-			XMStoreFloat3(&m_staticData.EmissiveColor, EmissiveColor);
-			XMStoreFloat(&m_staticData.SpecularPower, SpecularPower);
-			XMStoreFloat4(&m_staticData.AmbientColor, AmbientColor);
-			XMStoreFloat4(&m_staticData.SpecularColor, SpecularColor);
-
-			for (int i = 0; i < NumOfPL; i++)
+		if (!isSent)
+		{
+			if (!m_isTextured)
 			{
-				m_staticData.PointLight[i] = PointLights[i];
+				XMVECTOR DiffuseColorFin;
+				XMVECTOR EmissiveColor;
+
+				XMVECTOR diffuse = { diffuseColor.x, diffuseColor.y, diffuseColor.z };
+				XMVECTOR emissive = { emissiveColor.x, emissiveColor.y, emissiveColor.z };
+				XMVECTOR alphaVector = XMVectorReplicate(alpha);
+				static const XMVECTORF32 AmbientColor = { 1.0f, 1.0f, 1.0f, 0.0f };
+
+				EmissiveColor = XMVectorMultiply(XMVectorMultiplyAdd(AmbientColor, diffuse, emissive), alphaVector);
+
+				DiffuseColorFin = XMVectorSelect(alphaVector, XMVectorMultiply(diffuse, alphaVector), g_XMSelect1110);
+
+				XMStoreFloat4(&m_staticData.DiffuseColor, DiffuseColorFin);
+				XMStoreFloat3(&m_staticData.EmissiveColor, EmissiveColor);
+				XMStoreFloat(&m_staticData.SpecularPower, SpecularPower);
+				XMStoreFloat4(&m_staticData.AmbientColor, AmbientColor);
+				XMStoreFloat4(&m_staticData.SpecularColor, SpecularColor);
+
+				for (int i = 0; i < NumOfPL; i++)
+				{
+					m_staticData.PointLight[i] = PointLights[i];
+				}
+
+				for (int i = 0; i < NumOfDL; i++)
+				{
+					m_staticData.DirectionalLight[i] = DirectionalLights[i];
+				}
+
+				for (int i = 0; i < NumOfSL; i++)
+				{
+					m_staticData.SpotLight[i] = SpotLights[i];
+				}
+
+				NumOfLights.x = NumOfPL;
+				NumOfLights.y = NumOfDL;
+				NumOfLights.z = NumOfSL;
+				NumOfLights.w = 0.0f;
+
+				m_staticData.NumOfLights = NumOfLights;
+			}
+			else
+			{
+				static const DirectX::XMVECTOR EmissiveColorTemp = { 0.0f, 0.0f, 0.0f };
+				static const DirectX::XMVECTOR DiffuseColorTemp = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+				XMStoreFloat4(&m_staticData.DiffuseColor, DiffuseColorTemp);
+				XMStoreFloat3(&m_staticData.EmissiveColor, EmissiveColorTemp);
+				XMStoreFloat(&m_staticData.SpecularPower, SpecularPower);
+				XMStoreFloat4(&m_staticData.AmbientColor, AmbientColor);
+				XMStoreFloat4(&m_staticData.SpecularColor, SpecularColor);
+
+				for (int i = 0; i < NumOfPL; i++)
+				{
+					m_staticData.PointLight[i] = PointLights[i];
+				}
+
+				for (int i = 0; i < NumOfDL; i++)
+				{
+					m_staticData.DirectionalLight[i] = DirectionalLights[i];
+				}
+
+				for (int i = 0; i < NumOfSL; i++)
+				{
+					m_staticData.SpotLight[i] = SpotLights[i];
+				}
+
+				IsTextured = { 1.0f };
+
+				NumOfLights.x = NumOfPL;
+				NumOfLights.y = NumOfDL;
+				NumOfLights.z = NumOfSL;
+				NumOfLights.w = 0.0f;
+
+				m_staticData.NumOfLights = NumOfLights;
 			}
 
-			for (int i = 0; i < NumOfDL; i++)
-			{
-				m_staticData.DirectionalLight[i] = DirectionalLights[i];
-			}
+			isSent = true;
+		}
 
-			for (int i = 0; i < NumOfSL; i++)
-			{
-				m_staticData.SpotLight[i] = SpotLights[i];
-			}
+		// Update the static buffer
+		deviceContext->UpdateSubresource(
+			m_staticConstantBuffer.Get(), 0, NULL, &m_staticData, 0, 0);
 
-			NumOfLights.x = NumOfPL;
-			NumOfLights.y = NumOfDL;
-			NumOfLights.z = NumOfSL;
-			NumOfLights.w = 0.0f;
+		deviceContext->VSSetConstantBuffers(
+			0, 1, m_staticConstantBuffer.GetAddressOf());
+		deviceContext->PSSetConstantBuffers(
+			0, 1, m_staticConstantBuffer.GetAddressOf());
 
-			m_staticData.NumOfLights = NumOfLights;
+
+		XMStoreFloat4x4(&m_dynamicData.World, XMMatrixTranspose(m_world));
+		XMStoreFloat4x4(&m_dynamicData.View, XMMatrixTranspose(m_view));
+		XMStoreFloat4x4(&m_dynamicData.Projection, XMMatrixTranspose(m_projection));
+		XMStoreFloat4x4(&m_dynamicData.WorldViewProjection, XMMatrixTranspose(XMMatrixMultiply((XMMatrixMultiply(m_world, m_view)), m_projection)));
+		//XMStoreFloat4x4(&m_dynamicData.ShadowMapTransform, XMMatrixTranspose(m_shadowMapTransform));
+		//XMStoreFloat4x4(&m_dynamicData.ShadowMapTransform, XMMatrixTranspose(XMMatrixMultiply(m_world, m_shadowMapTransform)));
+		XMStoreFloat4x4(&m_dynamicData.ShadowMapTransform, m_shadowMapTransform);
+
+
+		XMVECTOR cam = { m_camera.x, m_camera.y, m_camera.z };
+		XMStoreFloat3(&m_dynamicData.CameraPosition, cam);
+
+		XMStoreFloat(&m_dynamicData.IsTextured, IsTextured);
+
+
+		deviceContext->UpdateSubresource(
+			m_dynamicConstantBuffer.Get(), 0, NULL, &m_dynamicData, 0, 0);
+
+		deviceContext->VSSetConstantBuffers(
+			1, 1, m_dynamicConstantBuffer.GetAddressOf());
+		deviceContext->PSSetConstantBuffers(
+			1, 1, m_dynamicConstantBuffer.GetAddressOf());
+
+		ID3D11ShaderResourceView* textures[2];
+
+		if (m_isTextured)
+		{
+			textures[0] = m_texture.Get();
 		}
 		else
 		{
-			static const DirectX::XMVECTOR EmissiveColorTemp = { 0.0f, 0.0f, 0.0f };
-			static const DirectX::XMVECTOR DiffuseColorTemp = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-			XMStoreFloat4(&m_staticData.DiffuseColor, DiffuseColorTemp);
-			XMStoreFloat3(&m_staticData.EmissiveColor, EmissiveColorTemp);
-			XMStoreFloat(&m_staticData.SpecularPower, SpecularPower);
-			XMStoreFloat4(&m_staticData.AmbientColor, AmbientColor);
-			XMStoreFloat4(&m_staticData.SpecularColor, SpecularColor);
-
-			for (int i = 0; i < NumOfPL; i++)
-			{
-				m_staticData.PointLight[i] = PointLights[i];
-			}
-
-			for (int i = 0; i < NumOfDL; i++)
-			{
-				m_staticData.DirectionalLight[i] = DirectionalLights[i];
-			}
-
-			for (int i = 0; i < NumOfSL; i++)
-			{
-				m_staticData.SpotLight[i] = SpotLights[i];
-			}
-
-			IsTextured = { 1.0f };
-
-			NumOfLights.x = NumOfPL;
-			NumOfLights.y = NumOfDL;
-			NumOfLights.z = NumOfSL;
-			NumOfLights.w = 0.0f;
-
-			m_staticData.NumOfLights = NumOfLights;
+			textures[0] = nullptr;
 		}
 
-		isSent = true;
+		if (m_isShadowMapped)
+		{
+			textures[1] = m_shadowMap.Get();
+		}
+		else
+		{
+			textures[1] = nullptr;
+		}
+
+		/*if (m_isNormalMapped)
+		{
+			textures[2] = m_normalMap.Get();
+		}
+		else
+		{
+			textures[2] = nullptr;
+		}*/
+
+
+		deviceContext->PSSetShaderResources(
+			0, static_cast<UINT>(2), textures);
+
+		deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
+		deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+
 	}
-
-	// Update the static buffer
-	deviceContext->UpdateSubresource(
-		m_staticConstantBuffer.Get(), 0, NULL, &m_staticData, 0, 0);
-
-	deviceContext->VSSetConstantBuffers(
-		0, 1, m_staticConstantBuffer.GetAddressOf());
-	deviceContext->PSSetConstantBuffers(
-		0, 1, m_staticConstantBuffer.GetAddressOf());
-
-
-	XMStoreFloat4x4(&m_dynamicData.World, XMMatrixTranspose(m_world));
-	XMStoreFloat4x4(&m_dynamicData.View, XMMatrixTranspose(m_view));
-	XMStoreFloat4x4(&m_dynamicData.Projection, XMMatrixTranspose(m_projection));
-	XMStoreFloat4x4(&m_dynamicData.WorldViewProjection, XMMatrixTranspose(XMMatrixMultiply((XMMatrixMultiply(m_world, m_view)), m_projection)));
-
-	XMVECTOR cam = { m_camera.x, m_camera.y, m_camera.z };
-	XMStoreFloat3(&m_dynamicData.CameraPosition, cam);
-
-	XMStoreFloat(&m_dynamicData.IsTextured, IsTextured);
-
-
-	deviceContext->UpdateSubresource(
-		m_dynamicConstantBuffer.Get(), 0, NULL, &m_dynamicData, 0, 0);
-
-	deviceContext->VSSetConstantBuffers(
-		1, 1, m_dynamicConstantBuffer.GetAddressOf());
-	deviceContext->PSSetConstantBuffers(
-		1, 1, m_dynamicConstantBuffer.GetAddressOf());
-
-	ID3D11ShaderResourceView* textures[2];
-
-	if (m_isTextured)
+	else	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	{
-		textures[0] = m_texture.Get();
-	}
-	else
-	{
-		textures[0] = nullptr;
-	}
+		if (!m_isInit)
+		{
+			return;
+		}
 
-	if (m_isNormalMapped)
-	{
-		textures[1] = m_normalMap.Get();
-	}
-	else
-	{
-		textures[1] = nullptr;
-	}
+		XMStoreFloat4x4(&m_dynamicShadowData.WorldViewProjection, XMMatrixTranspose(XMMatrixMultiply((XMMatrixMultiply(m_world, m_view)), m_projection)));
 
-	deviceContext->PSSetShaderResources(
-		0, static_cast<UINT>(2), textures);
+		deviceContext->UpdateSubresource(
+			m_dynamicConstantShadowBuffer.Get(), 0, NULL, &m_dynamicShadowData, 0, 0);
 
-	deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
-	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+		deviceContext->VSSetConstantBuffers(
+			1, 1, m_dynamicConstantShadowBuffer.GetAddressOf());
+		deviceContext->PSSetConstantBuffers(
+			1, 1, m_dynamicConstantShadowBuffer.GetAddressOf());
+
+
+		ID3D11ShaderResourceView* textures[1];
+
+		if (m_isTextured)
+		{
+			textures[0] = m_texture.Get();
+		}
+		else
+		{
+			textures[0] = nullptr;
+		}
+
+		deviceContext->PSSetShaderResources(
+			0, static_cast<UINT>(1), textures);
+
+
+		//deviceContext->PSSetSamplers(0, 1, &myComparisonSampler);
+		//deviceContext->PSSetSamplers(0, 2, &mySimpleSampler);
+
+
+		//ID3D11SamplerState* samplerStates[2];
+		//samplerStates[0] = mySimpleSampler;
+		//samplerStates[1] = myComparisonSampler;	
+		//deviceContext->PSSetSamplers(0, 2, samplerStates);
+
+
+		deviceContext->VSSetShader(m_vertexShaderShadow.Get(), nullptr, 0);
+		deviceContext->PSSetShader(m_pixelShaderShadow.Get(), nullptr, 0);
+	}
 }
 
 void ShadowEffect::Impl::GetVertexShaderBytecode(
 	_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength)
 {
-	*pShaderByteCode = m_VSBytecode.empty() ? nullptr : &m_VSBytecode[0];
-	*pByteCodeLength = m_VSBytecode.size();
+	if (!renderingShadowMap)
+	{
+		*pShaderByteCode = m_VSBytecode.empty() ? nullptr : &m_VSBytecode[0];
+		*pByteCodeLength = m_VSBytecode.size();
+	}
+	else
+	{
+		*pShaderByteCode = m_VSBytecodeShadow.empty() ? nullptr : &m_VSBytecodeShadow[0];
+		*pByteCodeLength = m_VSBytecodeShadow.size();
+	}
 }
 
 HRESULT ShadowEffect::Impl::loadShaders(ID3D11Device* device)
@@ -335,6 +491,20 @@ HRESULT ShadowEffect::Impl::loadShaders(ID3D11Device* device)
 			psData.size(),
 			nullptr,
 			m_pixelShader.ReleaseAndGetAddressOf()));
+
+		m_VSBytecodeShadow = DX::ReadData(L"VSShadowMap.cso");
+		DX::ThrowIfFailed(device->CreateVertexShader(
+			m_VSBytecodeShadow.data(),
+			m_VSBytecodeShadow.size(),
+			nullptr,
+			m_vertexShaderShadow.ReleaseAndGetAddressOf()));
+
+		auto psDataShadow = DX::ReadData(L"PSShadowMap.cso");
+		DX::ThrowIfFailed(device->CreatePixelShader(
+			psDataShadow.data(),
+			psDataShadow.size(),
+			nullptr,
+			m_pixelShaderShadow.ReleaseAndGetAddressOf()));
 	}
 	catch (...)
 	{
@@ -481,4 +651,29 @@ void ShadowEffect::UpdateSpotLight(int id, DirectX::XMFLOAT3 Position)
 {
 	m_pImpl->SpotLights[id].Position = Position;
 	m_pImpl->isSent = false;
+}
+
+void ShadowEffect::SetRenderingShadowMap(bool value)
+{
+	m_pImpl->renderingShadowMap = value;
+}
+
+void ShadowEffect::SetShadowEnable(bool value)
+{
+	m_pImpl->shadowEnable = value;
+}
+
+void XM_CALLCONV ShadowEffect::SetShadowMapTransform(FXMMATRIX value)
+{
+	m_pImpl->m_shadowMapTransform =  XMMatrixTranspose(m_pImpl->m_world * value);
+}
+
+void ShadowEffect::SetShadowMapEnabled(bool value)
+{
+	m_pImpl->m_isShadowMapped = value;
+}
+
+void ShadowEffect::SetShadowMap(ID3D11ShaderResourceView * value)
+{
+	m_pImpl->m_shadowMap = value;
 }

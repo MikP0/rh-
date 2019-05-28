@@ -45,6 +45,32 @@ void RenderableSystem::Iterate()
 	}
 }
 
+void RenderableSystem::Iterate(FXMMATRIX view, FXMMATRIX projection)
+{
+	for (auto renderableComponent : _entityManager->GetComponents(_componentsType))
+	{
+		//if (renderableComponent->GetParent()->GetName() != "WallToRoom")
+		//{
+			if (std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model != nullptr) {
+				std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model->Draw(
+					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+					view,
+					projection
+				);
+			}
+			else
+			{
+				std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelSkinned->DrawModel(
+					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+					std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_camera->GetViewMatrix(),
+					std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_camera->GetProjectionMatrix()
+				);
+			}
+		//}
+	}
+}
+
+
 void RenderableSystem::Initialize()
 {
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;

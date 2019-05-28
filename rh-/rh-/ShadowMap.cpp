@@ -3,7 +3,63 @@
 
 void ShadowMap::CreateShaderResource(_In_ ID3D11Device* device, UINT width, UINT height)
 {
-	m_viewport.TopLeftX = 0.0f;
+	_width = width;
+	_height = height;
+
+
+	_viewport.TopLeftX = 0.0f;
+	_viewport.TopLeftY = 0.0f;
+	_viewport.Width = static_cast<float>(width);
+	_viewport.Height = static_cast<float>(height);
+	_viewport.MinDepth = 0.0f;
+	_viewport.MaxDepth = 1.0f;
+
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	texDesc.Width = _width;
+	texDesc.Height = _height;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthMap;
+	DX::ThrowIfFailed(
+		device->CreateTexture2D(&texDesc, nullptr, depthMap.ReleaseAndGetAddressOf())
+	);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	dsvDesc.Flags = 0;
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Texture2D.MipSlice = 0;
+	
+
+	DX::ThrowIfFailed(
+		device->CreateDepthStencilView(depthMap.Get(), &dsvDesc, _depthMapDSV.ReleaseAndGetAddressOf())
+	);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+
+	DX::ThrowIfFailed(
+		device->CreateShaderResourceView(depthMap.Get(), &srvDesc, _depthMapSRV.ReleaseAndGetAddressOf())
+	);
+	
+	//depthMap->Release();
+	//depthMap = nullptr;
+
+
+	/*m_viewport.TopLeftX = 0.0f;
 	m_viewport.TopLeftY = 0.0f;
 	m_viewport.Width = static_cast<float>(width);
 	m_viewport.Height = static_cast<float>(height);
@@ -12,6 +68,7 @@ void ShadowMap::CreateShaderResource(_In_ ID3D11Device* device, UINT width, UINT
 
 	DXGI_FORMAT format;
 	format = DXGI_FORMAT_R32G32_FLOAT;
+	//format = DXGI_FORMAT_R24G8_TYPELESS;
 
 	D3D11_TEXTURE2D_DESC texDesc;
 	texDesc.Width = width;
@@ -23,6 +80,7 @@ void ShadowMap::CreateShaderResource(_In_ ID3D11Device* device, UINT width, UINT
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	//texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	texDesc.CPUAccessFlags = 0;
 	texDesc.MiscFlags = 0;
 
@@ -66,8 +124,43 @@ void ShadowMap::CreateShaderResource(_In_ ID3D11Device* device, UINT width, UINT
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 
 	hr = device->CreateDepthStencilView(m_depthBufferTexture.Get(), &dsvd, m_shadowMapDSV.ReleaseAndGetAddressOf());
-	//ThrowIfFailed(hr);
+	//ThrowIfFailed(hr);*/
+
+
+	
 }
+
+void ShadowMap::BindDsvAndSetNullRenderTarget(ID3D11DeviceContext * context)
+{
+	//UINT numViewport = 1;
+	//deviceContext->RSGetViewports(&numViewport, &m_originalViewport);
+	//deviceContext->RSSetViewports(1, &m_viewport);
+
+
+	context->RSSetViewports(1, &_viewport);
+
+	//ID3D11RenderTargetView* renderTargets[1] = { m_shadowMapRTV.Get() };
+	//deviceContext->OMGetRenderTargets(1, &m_originalRTV, &m_pOriginalDSV);
+	//deviceContext->OMSetRenderTargets(1, renderTargets, m_shadowMapDSV.Get());
+
+
+	ID3D11RenderTargetView* renderTargets = nullptr;
+
+	context->OMSetRenderTargets(1, &renderTargets, _depthMapDSV.Get());
+
+	context->ClearDepthStencilView(_depthMapDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+void ShadowMap::Dispose()
+{
+	_depthMapSRV->Release();
+	_depthMapSRV = nullptr;
+
+	_depthMapDSV->Release();
+	_depthMapDSV = nullptr;
+}
+
+
 
 // Public constructor.
 ShadowMap::ShadowMap(_In_ ID3D11Device* device, UINT width, UINT height)
@@ -86,7 +179,7 @@ ShadowMap::ShadowMap(ShadowMap&& /*moveFrom*/)
 
 void ShadowMap::BindRenderTarget(ID3D11DeviceContext * deviceContext)
 {
-	ID3D11ShaderResourceView *const pSRV[1] = { NULL };
+	/*ID3D11ShaderResourceView *const pSRV[1] = { NULL };
 	deviceContext->PSSetShaderResources(1, 1, pSRV);
 
 	UINT numViewport = 1;
@@ -101,14 +194,14 @@ void ShadowMap::BindRenderTarget(ID3D11DeviceContext * deviceContext)
 
 	FLOAT ClearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	deviceContext->ClearRenderTargetView(m_shadowMapRTV.Get(), ClearColor);
-	deviceContext->ClearDepthStencilView(m_shadowMapDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	deviceContext->ClearDepthStencilView(m_shadowMapDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);*/
 }
 //	
 //	Unbind Render traget and set it to PS shader resource
 //
 void ShadowMap::UnbindRenderTarget(ID3D11DeviceContext * deviceContext)
 {
-	ID3D11RenderTargetView* renderTargets[1] = { m_originalRTV };
+	/*ID3D11RenderTargetView* renderTargets[1] = { m_originalRTV };
 
 	deviceContext->RSSetViewports(1, &m_originalViewport);
 
@@ -117,10 +210,17 @@ void ShadowMap::UnbindRenderTarget(ID3D11DeviceContext * deviceContext)
 	//ID3D11ShaderResourceView *const pSRV[1] = { m_shadowMapSRV.Get() };
 	//deviceContext->PSSetShaderResources(1, 1, pSRV);
 	m_originalRTV->Release();
-	m_pOriginalDSV->Release();
+	m_pOriginalDSV->Release();*/
 }
 
 ID3D11ShaderResourceView * ShadowMap::GetShadowMapSRV()
 {
 	return m_shadowMapSRV.Get();
 }
+
+ID3D11ShaderResourceView * ShadowMap::GetDepthMapSRV()
+{
+	return _depthMapSRV.Get();
+}
+
+

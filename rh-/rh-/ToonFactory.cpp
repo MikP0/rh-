@@ -279,3 +279,11 @@ void ToonFactory::UpdateSpotLight(int id, DirectX::XMFLOAT3 Position)
 		it->second->UpdateSpotLight(id, Position);
 	}
 }
+
+void ToonFactory::SetTexture(ID3D11ShaderResourceView * value)
+{
+	for (std::map< std::wstring, std::shared_ptr<ToonEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->SetTexture(value);
+	}
+}

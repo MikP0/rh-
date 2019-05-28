@@ -38,6 +38,9 @@ public:
 	void UpdatePointLight(int id, DirectX::XMFLOAT3 Position);
 	void UpdateSpotLight(int id, DirectX::XMFLOAT3 Position);
 
+
+	void SetTexture(ID3D11ShaderResourceView * value);	// temporary method
+
 private:
 	// Private implementation.
 	class Impl;

@@ -427,6 +427,12 @@
     <None Include="WallToRoom.cmo">
       <Filter>Assets</Filter>
     </None>
+    <None Include="content\Shaders\Include\ShadowMap.fx">
+      <Filter>Inc\Shaders\Include</Filter>
+    </None>
+    <None Include="FloorToRoom.cmo">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">
@@ -436,6 +442,18 @@
       <Filter>Inc\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="content\Shaders\SkinnedModel.fx">
+      <Filter>Inc\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Shaders\PSShadowMap.hlsl">
+      <Filter>Inc\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Shaders\VSShadowMap.hlsl">
+      <Filter>Inc\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Shaders\PSToonShader.hlsl">
+      <Filter>Inc\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Shaders\VSToonShader.hlsl">
       <Filter>Inc\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

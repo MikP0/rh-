@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-class ShadowEffect : public DirectX::IEffect, public DirectX::IEffectMatrices
+class ShadowEffect : public DirectX::IEffect, public DirectX::IEffectMatrices, public DirectX::IEffectShadowMap
 {
 public:
 	explicit ShadowEffect(_In_ ID3D11Device* device);
@@ -44,6 +44,13 @@ public:
 	void AddSpotLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction, float OuterAngle, DirectX::XMFLOAT3 Position, float InnerAngle, float Radius);
 	void UpdatePointLight(int id, DirectX::XMFLOAT3 Position);
 	void UpdateSpotLight(int id, DirectX::XMFLOAT3 Position);
+
+	//Shadow setting
+	void _cdecl SetRenderingShadowMap(bool value) override;
+	void _cdecl SetShadowEnable(bool value) override;
+	void XM_CALLCONV SetShadowMapTransform(DirectX::FXMMATRIX value) override;
+	void SetShadowMapEnabled(bool value);
+	void SetShadowMap(_In_opt_ ID3D11ShaderResourceView* value);
 
 private:
 	// Private implementation.

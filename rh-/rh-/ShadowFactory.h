@@ -37,6 +37,12 @@ public:
 	void UpdatePointLight(int id, DirectX::XMFLOAT3 Position);
 	void UpdateSpotLight(int id, DirectX::XMFLOAT3 Position);
 
+	void SetRenderingShadowMap(bool value);
+	void SetShadowEnable(bool value);
+	void SetShadowMapTransform(DirectX::FXMMATRIX value);
+	void SetShadowMapEnabled(bool value);
+	void SetShadowMap(_In_opt_ ID3D11ShaderResourceView* value);
+
 private:
 	// Private implementation.
 	class Impl;

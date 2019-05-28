@@ -16,6 +16,16 @@ public:
 
 	ID3D11ShaderResourceView * GetShadowMapSRV();
 
+	
+
+
+	//
+	ID3D11ShaderResourceView * GetDepthMapSRV();
+	void BindDsvAndSetNullRenderTarget(ID3D11DeviceContext * context);
+
+	void Dispose();
+
+
 protected:
 	void	CreateShaderResource(_In_ ID3D11Device* device, UINT width, UINT height);
 
@@ -40,5 +50,15 @@ private:
 	// Prevent copying.
 	ShadowMap(ShadowMap const&);
 	ShadowMap& operator= (ShadowMap const&);
+
+
+	//
+	bool _disposed;
+	int _width;
+	int _height;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> _depthMapDSV;
+	D3D11_VIEWPORT _viewport;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _depthMapSRV;
+
 };
 

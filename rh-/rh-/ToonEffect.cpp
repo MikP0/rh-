@@ -321,14 +321,14 @@ HRESULT ToonEffect::Impl::loadShaders(ID3D11Device* device)
 {
 	try
 	{
-		m_VSBytecode = DX::ReadData(L"VertexShader.cso");
+		m_VSBytecode = DX::ReadData(L"VSToonShader.cso");
 		DX::ThrowIfFailed(device->CreateVertexShader(
 			m_VSBytecode.data(),
 			m_VSBytecode.size(),
 			nullptr,
 			m_vertexShader.ReleaseAndGetAddressOf()));
 
-		auto psData = DX::ReadData(L"PixelShader.cso");
+		auto psData = DX::ReadData(L"PSToonShader.cso");
 		DX::ThrowIfFailed(device->CreatePixelShader(
 			psData.data(),
 			psData.size(),

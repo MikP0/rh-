@@ -279,3 +279,44 @@ void ShadowFactory::UpdateSpotLight(int id, DirectX::XMFLOAT3 Position)
 		it->second->UpdateSpotLight(id, Position);
 	}
 }
+
+void ShadowFactory::SetRenderingShadowMap(bool value)
+{
+	for (std::map< std::wstring, std::shared_ptr<ShadowEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		//if ((it->first != L"default") && (it->first != L"01___Default"))
+			it->second->SetRenderingShadowMap(value);	
+	}
+}
+
+void ShadowFactory::SetShadowEnable(bool value)
+{
+	for (std::map< std::wstring, std::shared_ptr<ShadowEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->SetShadowEnable(value);
+	}
+}
+
+void ShadowFactory::SetShadowMapTransform(DirectX::FXMMATRIX value)
+{
+	for (std::map< std::wstring, std::shared_ptr<ShadowEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->SetShadowMapTransform(value);
+	}
+}
+
+void ShadowFactory::SetShadowMapEnabled(bool value)
+{
+	for (std::map< std::wstring, std::shared_ptr<ShadowEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->SetShadowMapEnabled(value);
+	}
+}
+
+void ShadowFactory::SetShadowMap(ID3D11ShaderResourceView * value)
+{
+	for (std::map< std::wstring, std::shared_ptr<ShadowEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->SetShadowMap(value);
+	}
+}

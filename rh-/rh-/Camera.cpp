@@ -24,6 +24,7 @@ void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float near
 	this->nearZ = nearZplane;
 	this->farZ = farZplane;
 	this->projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(fovDegrees, aspectRatio, nearZ, farZ);
+	//this->projectionMatrix = DirectX::SimpleMath::Matrix::CreateOrthographicOffCenter(-10.0f,10.0f, -10.0f, 10.0f, nearZ, farZ);
 }
 
 const XMMATRIX & Camera::GetViewMatrix() const

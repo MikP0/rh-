@@ -168,6 +168,11 @@ void Game::Update(DX::StepTimer const& timer)
 			if (*iter == playBackground)
 			{
 				audioBackgroundSound->Mute = false;
+
+				isFirstCup = true;
+				isSecondCup = false;
+				isThirdCup = false;
+				isFordCup = false;
 			}
 
 			if (*iter == playSound1)
@@ -176,20 +181,37 @@ void Game::Update(DX::StepTimer const& timer)
 
 				if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
 					healthBarHealthPos.x -= 5.f;
+
+				isFirstCup = false;
+				isSecondCup = true;
+				isThirdCup = false;
+				isFordCup = false;
 			}
 
 			if (*iter == freeCamera) {
 				freeCameraLook = !freeCameraLook;
+
+
+				
 			}
 
 			if (*iter == debugDrawAll)
 			{
 				debugDraw = !debugDraw;
+				isFirstCup = false;
+				isSecondCup = false;
+				isThirdCup = false;
+				isFordCup = true;
 			}
 
 			if (*iter == debugDrawWithoutRegions)
 			{
 				debugDrawTreeRegions = !debugDrawTreeRegions;
+
+				isFirstCup = false;
+				isSecondCup = false;
+				isThirdCup = true;
+				isFordCup = false;
 			}
 		}
 	}
@@ -355,14 +377,39 @@ void Game::UpdateObjects(float elapsedTime)
 	myEntity2->Update();
 	myEntity3->Update();
 
+	entityCup1->Update();
+	entityCup2->Update();
+	entityCup3->Update();
+
 
 	myEntityWall->Update();
+
+	testShadowEntity->Update();
+
 
 	if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
 		//myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
-		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 1.0f, posOnGround.z));
+		//myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 1.0f, posOnGround.z));
+
+
+		if (isFirstCup)
+		{
+			myEntityWall->GetTransform()->SetPosition(Vector3(posOnGround.x, myEntityWall->GetTransform()->GetPosition().y, posOnGround.z));
+		}
+		else if(isSecondCup)
+		{
+			entityCup2->GetTransform()->SetPosition(Vector3(posOnGround.x, entityCup2->GetTransform()->GetPosition().y, posOnGround.z));
+		}
+		else if (isThirdCup)
+		{
+			entityCup3->GetTransform()->SetPosition(Vector3(posOnGround.x, entityCup3->GetTransform()->GetPosition().y, posOnGround.z));
+		}
+		else if (isFordCup)
+		{
+			testShadowEntity->GetTransform()->SetPosition(Vector3(posOnGround.x, testShadowEntity->GetTransform()->GetPosition().y, posOnGround.z));
+		}
 	}
 
 	myEntity4->Update();
@@ -430,6 +477,11 @@ void Game::Render()
 
 	// TODO: Add your rendering code here.
 
+
+	BuildShadowTransform(context);
+
+
+
 	RenderObjects(context);
 
 	context;
@@ -446,31 +498,156 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	DirectX::XMMATRIX cameraProjection = camera.GetProjectionMatrix();
 	
 
-	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
-	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
+
+	/////
+
+	/*XMVECTOR lightDir = XMVectorSet(0.7198464f, -0.3420201f, 0.6040227f, 0.0f);
+	XMVECTOR eye = -lightDir * 10;
+	XMVECTOR at = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	XMMATRIX smView = XMMatrixLookAtLH(eye, at, up);
+	XMMATRIX smProjection = XMMatrixOrthographicLH(20.f, 20.f, 0.1f, 100.f);*/
+
+
+
+
+
+
+	/*
+	XMVECTOR lightDir = XMVectorSet(2.0f, -2.0f, 0.0f, 0.0f);
+	XMVECTOR eye = -lightDir;// *10;
+	XMVECTOR at = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	XMMATRIX smView = XMMatrixLookAtLH(eye, at, up);
+	XMMATRIX smProjection = XMMatrixOrthographicLH(20.f, 20.f, 0.1f, 100.f);
+
+
+
+	DrawSenceToShadowMap(smView, smProjection);
+
+	context->GSSetShader(NULL, NULL, 0);
+
+	ID3D11ShaderResourceView * pSRV[1] = { m_shadowMap->GetShadowMapSRV() };
+	context->PSSetShaderResources(1, 1, pSRV);
+
+
+
+	// Build Shadow Transform
+	Matrix T;
+	T._11 = 0;
+	T._12 = 0;
+	T._13 = 0;
+	T._14 = 0;
+	T._21 = 0;
+	T._22 = 0;
+	T._23 = 0;
+	T._24 = 0;
+	T._31 = 0;
+	T._32 = 0;
+	T._33 = 0;
+	T._34 = 0;
+	T._41 = 0;
+	T._42 = 0;
+	T._43 = 0;
+	T._44 = 0;
+
+	T._11 = 0.5f;
+	T._22 = -0.5f;
+	T._33 = 1.0f;
+	T._41 = 0.5f;
+	T._42 = 0.5f;
+	T._44 = 1.0f;
+
+	XMMATRIX TT = T;
+
+	XMMATRIX res = smView * smProjection * TT;*/
+	//
+
+
+	m_shadowMap->BindDsvAndSetNullRenderTarget(context);
+	DrawSenceToShadowMap(lightView, lightProj);
+
+	context->ClearState();
+	context->RSSetState(nullptr);
+
+
+	auto renderTarget = m_deviceResources->GetRenderTargetView();
+	auto depthStencil = m_deviceResources->GetDepthStencilView();
+	auto viewport = m_deviceResources->GetScreenViewport();
+
+	
+	context->OMSetRenderTargets(1, &renderTarget, depthStencil);
+	context->RSSetViewports(1, &viewport);
+	context->ClearRenderTargetView(renderTarget, Colors::Silver);
+	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+
+
+
+	renderableSystem->_fxFactory->SetShadowMapEnabled(true);
+	renderableSystem->_fxFactory->SetShadowMap(m_shadowMap->GetDepthMapSRV());
+	renderableSystem->_fxFactory->SetRenderingShadowMap(false);
+	renderableSystem->_fxFactory->SetShadowMapTransform(lightShadowTransform);
+
+
+
+	uiSpriteBatch->Begin();
+	uiSpriteBatch->Draw(m_shadowMap->GetDepthMapSRV(), Vector2(450, 250), nullptr, Colors::White,
+		0.f, Vector2(0, 0), 0.3f);
+	uiSpriteBatch->End();
+
+
+
+	renderableSystem->Iterate();
+	
+	//m_toonFactory->SetTexture(m_shadowMap->GetShadowMapSRV());
+
+	
+	///////
+
+	//ID3D11ShaderResourceView* null[] = { nullptr, nullptr };
+	//context->PSSetShaderResources(0, 2, null);
+
+	//context->OMSetRenderTargets(1, m_rt1RT.GetAddressOf(), nullptr);
+	//// Draw using m_rt2SRV
+
+	//context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), nullptr);
+	//// Draw using m_rt1SRV
+
+	//context->PSSetShaderResources(0, 2, null);
+
+
+
+
+
+
+	//XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
+	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
 	// room
 	//m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
-	terrain->Draw(camera, m_roomTex);
+	//terrain->Draw(camera, m_roomTex);
 
-	renderableSystem->Iterate();
+	//renderableSystem->Iterate();
 
-	if (debugDraw)
-		renderableSystem->DebugDrawAction->DrawOctTree(
-			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
+	//if (debugDraw)
+	//	renderableSystem->DebugDrawAction->DrawOctTree(
+	//		collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
 	// skinned model
-	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), cameraView, cameraProjection);
+	//mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), cameraView, cameraProjection);
 
 	// billboarding
 	//m_plane->Draw(planeWorld, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
-	m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
+	//m_plane2->Draw(planeWorld2, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	//m_plane3->Draw(planeWorld3, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 	//m_plane4->Draw(planeWorld4, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_planeTex.Get());
 
 
-	uiSpriteBatch->Begin();
+	/*uiSpriteBatch->Begin();
 
 	uiSpriteBatch->Draw(healthBarTex.Get(), healthBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.25f);
@@ -494,6 +671,33 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	}
 
 	uiSpriteBatch->End();
+	*/
+
+
+
+	//context->GSSetShader(NULL, NULL, 0);
+
+	//ID3D11ShaderResourceView* null[] = { nullptr, nullptr };
+	//context->PSSetShaderResources(0, 2, null);
+	//context->PSSetShaderResources(0, 1, null);
+	//context->PSSetShaderResources(0, 0, null);
+
+	//context->GSSetShader(NULL, NULL, 0);
+
+
+	//ID3D11ShaderResourceView*  tex;
+
+	//tex = m_shadowMap->GetShadowMapSRV();
+
+
+	//uiSpriteBatch->Begin();
+	//uiSpriteBatch->Draw(m_shadowMap->GetShadowMapSRV(), Vector2(450,250), nullptr, Colors::White,
+	//	0.f, Vector2(0, 0), 0.3f);
+	//uiSpriteBatch->End();
+
+
+
+	//testShadowEntity->Model->Draw(context, *m_states, testShadowEntity->GetWorldMatrix(), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 }
 
@@ -599,6 +803,12 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	m_fxFactory = std::make_unique<EffectFactory>(device);
 
+
+	m_shadowFactory = std::make_shared<ShadowFactory>(device);
+
+	m_toonFactory = std::make_shared<ToonFactory>(device);
+
+
 	InitializeObjects(device, context);
 
 	device;
@@ -641,18 +851,51 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	myEntityWall = entityManager->GetEntity(entityManager->CreateEntity("WallToRoom"));
 
-	std::shared_ptr<RenderableComponent> renderableComponent = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
-	std::shared_ptr<RenderableComponent> renderableComponent2 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
-	std::shared_ptr<RenderableComponent> renderableComponent3 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
-	std::shared_ptr<RenderableComponent> renderableComponent4 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
 
-	std::shared_ptr<RenderableComponent> renderableComponentWall = std::make_shared<RenderableComponent>(L"WallToRoom.cmo", camera);
 
-	componentFactory->CreateComponent(myEntity1, renderableComponent);
-	componentFactory->CreateComponent(myEntity2, renderableComponent2);
-	componentFactory->CreateComponent(myEntity3, renderableComponent3);
-	componentFactory->CreateComponent(myEntity4, renderableComponent4);
+	entityCup1 = entityManager->GetEntity(entityManager->CreateEntity("Cup10"));
+	entityCup2 = entityManager->GetEntity(entityManager->CreateEntity("Cup20"));
+	entityCup3 = entityManager->GetEntity(entityManager->CreateEntity("Cup30"));
+
+
+
+
+	//std::shared_ptr<RenderableComponent> renderableComponent = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+	//std::shared_ptr<RenderableComponent> renderableComponent2 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+	//std::shared_ptr<RenderableComponent> renderableComponent3 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+	//std::shared_ptr<RenderableComponent> renderableComponent4 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+
+	std::shared_ptr<RenderableComponent> renderableComponentWall = std::make_shared<RenderableComponent>(L"FloorToRoom.cmo", camera);
+
+
+
+	std::shared_ptr<RenderableComponent> renderableComponent10 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+	std::shared_ptr<RenderableComponent> renderableComponent20 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+	std::shared_ptr<RenderableComponent> renderableComponent30 = std::make_shared<RenderableComponent>(L"cup.cmo", camera);
+
+
+
+	entityCup1->GetTransform()->SetPosition(Vector3(2, 1, 1));
+	entityCup2->GetTransform()->SetPosition(Vector3(0, 0.5f, 2));
+	entityCup3->GetTransform()->SetPosition(Vector3(0, 0.5f, 1));
+
+	entityCup1->GetTransform()->SetScale(Vector3(1.2f, 1.2f, 1.2f));
+	entityCup2->GetTransform()->SetScale(Vector3(0.7f, 1.0f, 1.0f));
+	entityCup3->GetTransform()->SetScale(Vector3(1.5f, 1.5f, 1.5f));
+
+
+	//componentFactory->CreateComponent(myEntity1, renderableComponent);
+	//componentFactory->CreateComponent(myEntity2, renderableComponent2);
+	//componentFactory->CreateComponent(myEntity3, renderableComponent3);
+	//componentFactory->CreateComponent(myEntity4, renderableComponent4);
 	componentFactory->CreateComponent(myEntityWall, renderableComponentWall);
+
+
+	componentFactory->CreateComponent(entityCup1, renderableComponent10);
+	componentFactory->CreateComponent(entityCup2, renderableComponent20);
+	componentFactory->CreateComponent(entityCup3, renderableComponent30);
+
+
 
 	Vector3 scaleEntity1(0.5f, 0.5f, 0.5f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
 
@@ -664,21 +907,29 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	pointLightEntity3 = entityManager->GetEntity(entityManager->CreateEntity("PointLight3"));
 	spotLightEntity1 = entityManager->GetEntity(entityManager->CreateEntity("SpotLight1"));
 
+	directLightEntity1 = entityManager->GetEntity(entityManager->CreateEntity("DirectLight1"));
+
+
 	pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
 	pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 2.0f, 0.0f));
 	pointLightEntity3->GetTransform()->SetPosition(Vector3(2.0f, -1.0f, 1.0f));
 	spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
+	directLightEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
 
 	// lightComponent - RED light follow player
 	//std::shared_ptr<LightComponent> lightComponent = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
-	std::shared_ptr<LightComponent> lightComponent2 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 50.0f);
+	//std::shared_ptr<LightComponent> lightComponent2 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 50.0f);
 	//std::shared_ptr<LightComponent> lightComponent3 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
 	//std::shared_ptr<LightComponent> lightComponent4 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
+	std::shared_ptr<LightComponent> lightComponent5 = std::make_shared<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -2.0f, 0.0f));
+
 
 	//componentFactory->CreateComponent(pointLightEntity1, lightComponent);
-	componentFactory->CreateComponent(pointLightEntity2, lightComponent2);
+	//componentFactory->CreateComponent(pointLightEntity2, lightComponent2);
 	//componentFactory->CreateComponent(pointLightEntity3, lightComponent3);
 	//componentFactory->CreateComponent(spotLightEntity1, lightComponent4);
+	componentFactory->CreateComponent(directLightEntity1, lightComponent5);
+
 
 	lightSystem->Initialize();
 
@@ -865,8 +1116,25 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntityWall->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
 	myEntityWall->GetTransform()->SetPosition(Vector3(0.0f, 2.52f, 0.0f));
 
-	m_shadowMap.reset(new ShadowMap(device, 1024, 1024));
+	//m_shadowMap.reset(new ShadowMap(device, 1024, 1024));
 
+	m_shadowMap = make_shared<ShadowMap>(device, 1024, 1024);
+
+
+	testShadowEntity = make_shared<Entity>();
+
+	//m_toonFactory->AddDirectLight(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -2.0f, 0.0f));
+
+	testShadowEntity->GetTransform()->SetPosition(Vector3(0, 0.5f, 1));
+
+
+	testShadowEntity->Model = Model::CreateFromCMO(device, L"WallToRoom.cmo", *m_toonFactory);
+
+
+	testShadowEntity->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
+	//testShadowEntity->GetTransform()->SetPosition(Vector3(0.0f, 2.52f, 0.0f));
+
+	testShadowEntity->GetTransform()->SetPosition(Vector3(0.0f, 10.52f, 0.0f));
 }
 
 void Game::OnDeviceLost()
@@ -904,3 +1172,92 @@ void Game::OnDeviceRestored()
 	CreateWindowSizeDependentResources();
 }
 #pragma endregion
+
+
+
+void XM_CALLCONV Game::DrawSenceToShadowMap(FXMMATRIX view, FXMMATRIX projection)
+{
+	// Draw all models to shadow map
+	auto context = m_deviceResources->GetD3DDeviceContext();
+
+	/*
+	m_shadowMap->BindRenderTarget(context);
+
+	
+	renderableSystem->_fxFactory->SetRenderingShadowMap(true);
+
+	renderableSystem->Iterate(view, projection);
+
+
+	//testShadowEntity->Model->Draw(context, *m_states, testShadowEntity->GetWorldMatrix(), view, projection);
+
+	// skinned model
+	//mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), view, projection);
+
+	m_shadowMap->UnbindRenderTarget(context);*/
+
+
+	renderableSystem->_fxFactory->SetRenderingShadowMap(true);
+
+	renderableSystem->Iterate(view, projection);
+
+
+	//m_shadowMap->Dispose();
+}
+
+void Game::BuildShadowTransform(ID3D11DeviceContext1 *context)
+{
+	XMVECTOR lightDir = XMVectorSet(2.0f, -2.0f, 0.0f, 0.0f);
+	XMVECTOR eye = -lightDir * 10;
+	XMVECTOR at = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	XMMATRIX smView = XMMatrixLookAtLH(eye, at, up);
+	XMMATRIX smProjection = XMMatrixOrthographicLH(20.f, 20.f, 0.1f, 100.f);
+
+
+
+	//DrawSenceToShadowMap(smView, smProjection);
+
+	//context->GSSetShader(NULL, NULL, 0);
+
+	//ID3D11ShaderResourceView * pSRV[1] = { m_shadowMap->GetShadowMapSRV() };
+	//context->PSSetShaderResources(1, 1, pSRV);
+
+
+
+	// Build Shadow Transform
+	Matrix T;
+	T._11 = 0;
+	T._12 = 0;
+	T._13 = 0;
+	T._14 = 0;
+	T._21 = 0;
+	T._22 = 0;
+	T._23 = 0;
+	T._24 = 0;
+	T._31 = 0;
+	T._32 = 0;
+	T._33 = 0;
+	T._34 = 0;
+	T._41 = 0;
+	T._42 = 0;
+	T._43 = 0;
+	T._44 = 0;
+
+	T._11 = 0.5f;
+	T._22 = -0.5f;
+	T._33 = 1.0f;
+	T._41 = 0.5f;
+	T._42 = 0.5f;
+	T._44 = 1.0f;
+
+	XMMATRIX TT = T;
+
+	XMMATRIX res = smView * smProjection * TT;
+
+
+	lightShadowTransform = res;
+	lightProj = smProjection;
+	lightView = smView;
+}
