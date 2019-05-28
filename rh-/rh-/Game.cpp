@@ -626,7 +626,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
-	collisionSystem = std::make_shared<PhysicsSystem>(Vector3::Zero, ROOM_BOUNDS[0]);
+	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
 
 	audioSystem = std::make_shared<AudioSystem>();
 
@@ -665,10 +665,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 
 	world->InitializeSystem<PhysicsSystem>();
-	//world->InitializeSystem<LightSystem>();
 	//world->InitializeSystem<AudioSystem>();
 	world->InitializeSystem<RenderableSystem>();
-	lightSystem->Initialize(); //TODO
+	world->InitializeSystem<LightSystem>();
 
 	// pointLightEntity1 - RED light follow player
 
@@ -717,7 +716,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	initialBounding1Radius = 0.3f;
 	initialBounding2Radius = 0.7f;
 
-	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
+	//collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
 
 	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
 	colliderSceneWall->SetParent(sceneWallEntity);
