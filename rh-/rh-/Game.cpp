@@ -168,12 +168,12 @@ void Game::Update(DX::StepTimer const& timer)
 
 			if (*iter == playBackground)
 			{
-				audioBackgroundSound->Mute = false;
+				//audioBackgroundSound->Mute = false;
 			}
 
 			if (*iter == playSound1)
 			{
-				audioSound1->Mute = false;
+				//audioSound1->Mute = false;
 
 				if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
 					healthBarHealthPos.x -= 5.f;
@@ -212,7 +212,6 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 	//Audio
-	audioSystem->Iterate();
 
 	if (!menuIsOn)
 	{
@@ -340,7 +339,7 @@ void Game::UpdateObjects(float elapsedTime)
 	}*/
 
 	// check collisions
-	//collisionSystem->Iterate();
+
 	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
 	XMVECTORF32 collider1Color = DirectX::Colors::White;
 	XMVECTORF32 collider2Color = DirectX::Colors::White;
@@ -398,11 +397,12 @@ void Game::UpdateObjects(float elapsedTime)
 	{
 		mSkinModel->GetAnimatorPlayer()->PauseClip();
 	}
+	
+	audioSystem->Iterate();
+	collisionSystem->Iterate();
+	lightSystem->Iterate();
 
 	world->RefreshWorld();
-
-	//lightSystem->Iterate();
-
 	//billboarding
 	//planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
 }
@@ -450,8 +450,6 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	terrain->Draw(camera, m_roomTex);
 
-	renderableSystem->Iterate();
-
 	if (debugDraw)
 		renderableSystem->DebugDrawAction->DrawOctTree(
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
@@ -465,6 +463,8 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	m_plane3->Draw(planeWorld3, cameraView, cameraProjection, Colors::White, m_planeTex.Get());
 	m_plane4->Draw(planeWorld4, cameraView, cameraProjection, Colors::White, m_planeTex.Get());
 
+
+	renderableSystem->Iterate();
 
 	uiSpriteBatch->Begin();
 
@@ -622,25 +622,30 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	world = std::make_shared<World>();
 
-	//entityManager = std::make_shared<EntityManager>();
-	//componentFactory = std::make_shared<ComponentFactory>(entityManager);
-
 	renderableSystem = std::make_shared<RenderableSystem>(device, context);
 
 	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
 	collisionSystem = std::make_shared<PhysicsSystem>(Vector3::Zero, ROOM_BOUNDS[0]);
 
+	audioSystem = std::make_shared<AudioSystem>();
+
 
 	world->AddSystem<PhysicsSystem>(collisionSystem, 0);
 	world->AddSystem<LightSystem>(lightSystem, 1);
-	world->AddSystem<RenderableSystem>(renderableSystem, 2);
+	world->AddSystem<AudioSystem>(audioSystem, 2);
+	world->AddSystem<RenderableSystem>(renderableSystem, 3);
 	
 	sceneWallEntity = world->CreateEntity("SceneWall");
 	myEntity1 = world->CreateEntity("Cup1");
 	myEntity2 = world->CreateEntity("Cup2");
 	myEntity3 = world->CreateEntity("Cup3");
 	myEntity4 = world->CreateEntity("Cup4");
+
+	pointLightEntity1 = world->CreateEntity("PointLight1");
+	pointLightEntity2 = world->CreateEntity("PointLight2");
+	pointLightEntity3 = world->CreateEntity("PointLight3");
+	spotLightEntity1 = world->CreateEntity("SpotLight1");
 
 	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
@@ -649,21 +654,24 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 
 	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
-
-	//myEntity1->GetTransform()->SetScale(scaleEntity1);
-	//myEntity2->GetTransform()->SetScale(scaleEntity1);
-	//myEntity3->GetTransform()->SetScale(scaleEntity1);
-	//myEntity4->GetTransform()->SetScale(scaleEntity1);
 	
-	world->InitializeSystem<RenderableSystem>();
+	pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
+	pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
+	pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
+	spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
+
+	//myEntity1->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
+	//myEntity2->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+
+
 	world->InitializeSystem<PhysicsSystem>();
-	world->InitializeSystem<LightSystem>();
+	//world->InitializeSystem<LightSystem>();
+	//world->InitializeSystem<AudioSystem>();
+	world->InitializeSystem<RenderableSystem>();
+	lightSystem->Initialize(); //TODO
 
 	// pointLightEntity1 - RED light follow player
-	pointLightEntity1 = world->CreateEntity("PointLight1");
-	pointLightEntity2 = world->CreateEntity("PointLight2");
-	pointLightEntity3 = world->CreateEntity("PointLight3");
-	spotLightEntity1 = world->CreateEntity("SpotLight1");
+
 
 	//myEntity1->Model =
 		//DirectX::Model::CreateFromCMO(device, L"cup.cmo", m_fxFactory);
@@ -674,11 +682,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
 
 	// lightComponent - RED light follow player
-	pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
-	pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
-	pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
-	spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
-
+	
 	//world->InitializeSystem<RenderableSystem>();
 
 	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
@@ -798,7 +802,6 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
 	//Audio
-	audioSystem = std::make_shared<AudioSystem>();
 	//audioSystem->Initialize();
 	//audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
 	//audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
@@ -858,6 +861,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	menuPos.y = 100.0f;
 
 	menuIsOn = false;
+
 }
 
 void Game::OnDeviceLost()

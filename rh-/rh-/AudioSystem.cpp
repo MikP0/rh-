@@ -113,38 +113,22 @@ void AudioSystem::ResumeAudio(AudioComponentPtr audioComponent)
 
 void AudioSystem::UpdateComponentsCollection()
 {
-	_components.clear();
-	_components = _world->GetComponents<AudioComponent>();
+	_world->GetComponents<AudioComponent>().clear();
+	_world->GetComponents<AudioComponent>() = _world->GetComponents<AudioComponent>();
 }
 
 void AudioSystem::InsertComponent(AudioComponentPtr component)
 {
-	_components.push_back(component);
 	SetComponentAudioFile(component);
 }
 
 void AudioSystem::Initialize()
 {
-	std::shared_ptr<Entity> backgroundAudioEntityID = _world->CreateEntity("BackgroundAudioEntity");
-	std::shared_ptr<Entity> sound1AudioEntityID = _world->CreateEntity("Sound1AudioEntity");
-
-	shared_ptr<AudioComponent> backgroundAudioComponent = std::make_shared<AudioComponent>("Resources\\Audio\\In The End.wav");
-	backgroundAudioComponent->Loop = true;
-	SetComponentAudioFile(backgroundAudioComponent);
-	shared_ptr<AudioComponent> sound1AudioComponent = make_shared<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
-	SetComponentAudioFile(sound1AudioComponent);
-
-	backgroundAudioEntityID->AddComponent<AudioComponent>(backgroundAudioComponent);
-	sound1AudioEntityID->AddComponent<AudioComponent>(sound1AudioComponent);
-
-	vector<shared_ptr<AudioComponent>> components = _world->GetComponents<AudioComponent>();
-
-	for each (shared_ptr<AudioComponent> component in components)
+	for (auto component : _world->GetComponents<AudioComponent>())
 	{
-		_components.push_back(component);
+		SetComponentAudioFile(component);
 	}
 }
-
 void AudioSystem::Iterate()
 {
 	bool shouldResetAudio = false;
@@ -167,7 +151,7 @@ void AudioSystem::Iterate()
 		}
 	}
 
-	for each (AudioComponentPtr component in _components)
+	for each (AudioComponentPtr component in _world->GetComponents<AudioComponent>())
 	{
 		SoundState soundState = component->AudioLoopInstance->GetState();
 		
