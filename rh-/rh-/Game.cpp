@@ -168,12 +168,12 @@ void Game::Update(DX::StepTimer const& timer)
 
 			if (*iter == playBackground)
 			{
-				//audioBackgroundSound->Mute = false;
+				audioBackgroundSound->Mute = false;
 			}
 
 			if (*iter == playSound1)
 			{
-				//audioSound1->Mute = false;
+				audioSound1->Mute = false;
 
 				if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
 					healthBarHealthPos.x -= 5.f;
@@ -641,6 +641,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity2 = world->CreateEntity("Cup2");
 	myEntity3 = world->CreateEntity("Cup3");
 	myEntity4 = world->CreateEntity("Cup4");
+	myEntity5 = world->CreateEntity("BackgroundAudioEntity");
+	myEntity6 = world->CreateEntity("Sound1AudioEntity");
 
 	pointLightEntity1 = world->CreateEntity("PointLight1");
 	pointLightEntity2 = world->CreateEntity("PointLight2");
@@ -652,6 +654,10 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 
+	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
+	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+	
+
 
 	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
 	
@@ -660,12 +666,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
 	spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
 
-	//myEntity1->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
-	//myEntity2->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
-
-
+	world->InitializeSystem<AudioSystem>();
 	world->InitializeSystem<PhysicsSystem>();
-	//world->InitializeSystem<AudioSystem>();
 	world->InitializeSystem<RenderableSystem>();
 	world->InitializeSystem<LightSystem>();
 
@@ -801,9 +803,24 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 
 	//Audio
-	//audioSystem->Initialize();
-	//audioBackgroundSound = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("BackgroundAudioEntity")->GetId(), ComponentType("Audio"))[0]);
-	//audioSound1 = std::dynamic_pointer_cast<AudioComponent>(entityManager->GetEntityComponentsOfType(entityManager->GetEntity("Sound1AudioEntity")->GetId(), ComponentType("Audio"))[0]);
+	for (auto component : world->GetComponents<AudioComponent>())
+	{
+		if (strcmp(component->GetParent()->GetName().c_str(),
+			"BackgroundAudioEntity") == 0)
+		{
+			audioBackgroundSound = component;
+			audioBackgroundSound->Loop = true;
+			continue;
+		}
+
+		if (strcmp(component->GetParent()->GetName().c_str(),
+			"Sound1AudioEntity") == 0)
+		{
+			audioSound1 = component;
+			continue;
+		}
+	}
+
 
 	//NavMesh
 	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);

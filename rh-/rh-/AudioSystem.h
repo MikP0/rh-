@@ -37,15 +37,10 @@ public:
 	void PauseAudio(AudioComponentPtr audioComponent);
 	void ResumeAudio(AudioComponentPtr audioComponent);
 
-	virtual void UpdateComponentsCollection();
-
-	void InsertComponent(AudioComponentPtr component); // temporary function for tests
-
 	virtual void Initialize() override;
 	virtual void Iterate() override;
 
 private:
-	vector<AudioComponentPtr> _components;
 	unique_ptr<DirectX::AudioEngine> _audioEngine;
 	bool _retryAudio;
 	const float LOOP_DELAY_TIME = 0.2;
