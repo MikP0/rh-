@@ -101,6 +101,8 @@ private:
 	std::shared_ptr<Entity> myEntity2;
 	std::shared_ptr<Entity> myEntity3;
 	std::shared_ptr<Entity> myEntity4;
+	std::shared_ptr<Entity> myEntity5;
+	std::shared_ptr<Entity> myEntity6;
 
 	// lights
 	std::shared_ptr<Entity> pointLightEntity1;
