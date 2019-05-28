@@ -16,7 +16,7 @@ PhysicsSystem::~PhysicsSystem()
 
 void PhysicsSystem::UpdateCollidersPositions()
 {
-	for each (PhysicsComponentPtr component in _components)
+	for (auto component : _world->GetComponents<PhysicsComponent>())
 	{
 		dxmath::Matrix objectMatrix = component->GetParent()->GetWorldMatrix();
 		dxmath::Vector3 objectPosition = DirectX::XMVector3Transform(dxmath::Vector3::Zero, objectMatrix);;
@@ -55,17 +55,6 @@ void PhysicsSystem::UpdateColliderPosition(PhysicsComponentPtr component)
 		}
 }
 
-
-void PhysicsSystem::UpdateComponentsCollection()
-{
-	_components.clear();
-	vector<PhysicsComponentPtr> selectedComponents = _world->GetComponents<PhysicsComponent>();
-	for each (PhysicsComponentPtr component in selectedComponents)
-	{
-		_components.push_back(component);
-	}
-}
-
 OctTreePtr PhysicsSystem::GetOctTree()
 {
 	return _octTree;
@@ -91,7 +80,7 @@ vector<CollisionPtr> PhysicsSystem::GetCollisionsWithFrustum(ColliderFrustumPtr 
 
 bool PhysicsSystem::CheckIfShouldUpdateTree()
 {
-	for each(PhysicsComponentPtr component in _components)
+	for (auto component : _world->GetComponents<PhysicsComponent>())
 	{
 		if (component->GetParent()->GetTransform()->GetUpdatedMoveFlag())
 			return true;
@@ -102,15 +91,10 @@ bool PhysicsSystem::CheckIfShouldUpdateTree()
 
 void PhysicsSystem::ResetAllUpdatePositionFlags()
 {
-	for each(PhysicsComponentPtr component in _components)
+	for (auto component : _world->GetComponents<PhysicsComponent>())
 	{
 		component->GetParent()->GetTransform()->SetUpdatedMoveFlag(false);
 	}
-}
-
-void PhysicsSystem::InsertComponent(PhysicsComponentPtr component)
-{
-	_components.push_back(component);
 }
 
 void PhysicsSystem::Initialize()
@@ -120,7 +104,7 @@ void PhysicsSystem::Initialize()
 
 	UpdateCollidersPositions();
 	_octTree->UnloadContent();
-	_octTree->InsertIntoTree(_components);
+	_octTree->InsertIntoTree(_world->GetComponents<PhysicsComponent>());
 	_octTree->BuildTree();
 }
 
@@ -132,7 +116,7 @@ void PhysicsSystem::Iterate()
 	{
 		vector<PhysicsComponentPtr> activeComponents = vector<PhysicsComponentPtr>();
 
-		for each(PhysicsComponentPtr component in _components)
+		for (auto component : _world->GetComponents<PhysicsComponent>())
 		{
 			if (component->CheckIfEnabled())
 				activeComponents.push_back(component);

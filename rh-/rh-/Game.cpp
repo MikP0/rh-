@@ -312,6 +312,7 @@ void Game::UpdateObjects(float elapsedTime)
 	auto keyboard = Input::GetKeyboardState();
 	static shared_ptr<Entity> selectedCollider;
 
+	world->RefreshWorld();
 
 	//NavMesh
 	tracker.Update(mouse);
@@ -339,14 +340,12 @@ void Game::UpdateObjects(float elapsedTime)
 	}*/
 
 	// check collisions
+	vector<CollisionPtr> currentCollisions = collisionSystem->GetCurrentCollisions();
 
 	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
 	XMVECTORF32 collider1Color = DirectX::Colors::White;
 	XMVECTORF32 collider2Color = DirectX::Colors::White;
 
-	CollisionPtr collisionEntity1WithWall = Collision::CheckCollision(colliderCup1, colliderSceneWall);
-	CollisionPtr collisionEntity2WithWall = Collision::CheckCollision(colliderCup2, colliderSceneWall);
-	CollisionPtr collisionBetweenCups = Collision::CheckCollision(colliderCup1, colliderCup2);
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
 	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
@@ -355,9 +354,27 @@ void Game::UpdateObjects(float elapsedTime)
 	if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
-		//myEntity4->GetTransform()->SetPosition(posOnGround / myEntity4->GetTransform()->GetScale());
 		myEntity4->GetTransform()->SetPosition(posOnGround);
-		//myEntity4->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
+	}
+
+	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
+
+	if (octrTreeBounding.Contains(colliderBoundingCup1->GetBounding()) != CONTAINS)
+	{
+		if (colliderBoundingCup1->GetCenter().x >= 0.0f)
+			dir1.x = -1.0f;
+
+		if (colliderBoundingCup1->GetCenter().x <= 0.0f)
+			dir1.x = 1.0f;
+	}
+
+	if (octrTreeBounding.Contains(colliderBoundingCup2->GetBounding()) != CONTAINS)
+	{
+		if (colliderBoundingCup2->GetCenter().x >= 0.0f)
+			dir2.x = -1.0f;
+
+		if (colliderBoundingCup2->GetCenter().x <= 0.0f)
+			dir2.x = 1.0f;
 	}
 
 	if (keyboard.M)
@@ -375,18 +392,6 @@ void Game::UpdateObjects(float elapsedTime)
 		}
 	}
 
-	if (colliderBoundingCup1->GetCenter().x >= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
-		dir1.x = -1.0f;
-
-	if (colliderBoundingCup1->GetCenter().x <= 0.0f && collisionEntity1WithWall->CollisionKind != CONTAINS)
-		dir1.x = 1.0f;
-
-	if (colliderBoundingCup2->GetCenter().x >= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
-		dir2.x = -1.0f;
-
-	if (colliderBoundingCup2->GetCenter().x <= 0.0f && collisionEntity2WithWall->CollisionKind != CONTAINS)
-		dir2.x = 1.0f;
-
 	// skinned model
 	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime);
 	if (mSkinModel->GetInMove())
@@ -398,11 +403,7 @@ void Game::UpdateObjects(float elapsedTime)
 		mSkinModel->GetAnimatorPlayer()->PauseClip();
 	}
 	
-	audioSystem->Iterate();
-	collisionSystem->Iterate();
-	lightSystem->Iterate();
-
-	world->RefreshWorld();
+	
 	//billboarding
 	//planeWorld = Matrix::CreateBillboard(planePos, camera.GetPositionVector(), camera.GetUpVector());
 }
@@ -444,9 +445,6 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
-
-	// room
-	//m_room->Draw(Matrix::Identity, camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, m_roomTex.Get());
 
 	terrain->Draw(camera, m_roomTex);
 
@@ -617,192 +615,76 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context)
 {
 	m_world = Matrix::Identity;
-
 	terrain = std::make_shared<Terrain>();
-
 	world = std::make_shared<World>();
 
-	renderableSystem = std::make_shared<RenderableSystem>(device, context);
-
-	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
-
-	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
-
+	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
-
-
+	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
+	renderableSystem = std::make_shared<RenderableSystem>(device, context);
+	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
+	
+	// Adding systems to world ------------------------------------------------------------------
 	world->AddSystem<PhysicsSystem>(collisionSystem, 0);
 	world->AddSystem<LightSystem>(lightSystem, 1);
 	world->AddSystem<AudioSystem>(audioSystem, 2);
 	world->AddSystem<RenderableSystem>(renderableSystem, 3);
 	
-	sceneWallEntity = world->CreateEntity("SceneWall");
+	// Creation of entities ------------------------------------------------------------------
 	myEntity1 = world->CreateEntity("Cup1");
 	myEntity2 = world->CreateEntity("Cup2");
 	myEntity3 = world->CreateEntity("Cup3");
 	myEntity4 = world->CreateEntity("Cup4");
 	myEntity5 = world->CreateEntity("BackgroundAudioEntity");
 	myEntity6 = world->CreateEntity("Sound1AudioEntity");
-
 	pointLightEntity1 = world->CreateEntity("PointLight1");
 	pointLightEntity2 = world->CreateEntity("PointLight2");
 	pointLightEntity3 = world->CreateEntity("PointLight3");
 	spotLightEntity1 = world->CreateEntity("SpotLight1");
 
+	// Creation of audio components ------------------------------------------------------------------
+	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
+	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+
+	// Creation of physics components ----------------------------------------------------------------
+	myEntity1->AddComponent<PhysicsComponent>(AABB);
+	myEntity2->AddComponent<PhysicsComponent>(Sphere);
+
+	// Creation of renderable components
 	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 
-	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
-	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
-	
-
-
-	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
-	
+	// Creation of light components ------------------------------------------------------------------
+	// pointLightEntity1 - RED light follow player
+	// lightComponent - RED light follow player
 	pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
 	pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
 	pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
 	spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
 
-	world->InitializeSystem<AudioSystem>();
-	world->InitializeSystem<PhysicsSystem>();
-	world->InitializeSystem<RenderableSystem>();
-	world->InitializeSystem<LightSystem>();
-
-	// pointLightEntity1 - RED light follow player
-
-
-	//myEntity1->Model =
-		//DirectX::Model::CreateFromCMO(device, L"cup.cmo", m_fxFactory);
-
-	pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
-	pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 0.0f, 2.0f));
-	pointLightEntity3->GetTransform()->SetPosition(Vector3(2.0f, -1.0f, 1.0f));
-	spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
-
-	// lightComponent - RED light follow player
-	
-	//world->InitializeSystem<RenderableSystem>();
-
-	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_fxFactory);
-	//myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", camera);
-
-
+	// Setting up transform parameters of entities  --------------------------------------------------
 	//myEntity1->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
+	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
 	myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
 	myEntity1->Update();
-
 	//myEntity2->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
 	myEntity2->Update();
-
 	//myEntity3->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
-	
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 	myEntity3->Update();
-
+	myEntity1->AddChild(myEntity3);
 	//myEntity4->Model = Model::CreateFromCMO(device, L"cup.cmo", *m_ToonFactory);
 	world->GetEntity(4)->GetTransform()->SetScale(scaleEntity4);
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
 	myEntity4->Update();
 
-	myEntity1->AddChild(myEntity3);
-
-	initialBoundingEntity1Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
-	initialBoundingEntity2Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
-	initialBounding1Radius = 0.3f;
-	initialBounding2Radius = 0.7f;
-
-	//collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
-
-	colliderSceneWall = std::make_shared<PhysicsComponent>(AABB);
-	colliderSceneWall->SetParent(sceneWallEntity);
-	colliderBoundingSceneWall = std::dynamic_pointer_cast<ColliderAABB>(colliderSceneWall->ColliderBounding);
-	colliderBoundingSceneWall->SetExtents(XMFLOAT3(COLLISION_SCENE_RANGE / 2.0f, COLLISION_SCENE_RANGE / 2.0f, COLLISION_SCENE_RANGE / 2.0f));
-	//collisionSystem->InsertComponent(colliderSceneWall);
-
-	colliderCup1 = std::make_shared<PhysicsComponent>(AABB);
-	colliderCup1->SetParent(myEntity1);
-	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
-	colliderBoundingCup1->SetExtents(initialBoundingEntity1Size);
-	collisionSystem->InsertComponent(colliderCup1);
-	//colliderCup1->SetIsEnabled(false);
-
-	colliderCup2 = std::make_shared<PhysicsComponent>(Sphere);
-	colliderCup2->SetParent(myEntity2);
-	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
-	colliderBoundingCup2->SetRadius(initialBounding2Radius);
-	collisionSystem->InsertComponent(colliderCup2);
-
-	//m_room = GeometricPrimitive::CreateBox(context,
-	//	XMFLOAT3(ROOM_BOUNDS[0], ROOM_BOUNDS[1], ROOM_BOUNDS[2]),
-	//	false, true);
-
-	terrain->InitTileMap(context);
-	collisionSystem->Initialize();
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(device, L"roomtexture.dds",
-			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
-
-
-
-	//skinned model
-	mSkinModel = std::make_shared<ModelSkinned>(device, "content\\Models\\Hero.fbx", context);
-	mSkinModel->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
-	mSkinModel->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
-	mSkinModel->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
-
-	mSkinModelTransform = std::make_shared<Transform>();
-	mSkinModelTransform->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-	mSkinModelTransform->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
-
-	//billboarding
-	m_plane = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
-		true, true);
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(device, L"cat.dds",
-			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
-	planeWorld = m_world;
-
-
-	m_plane2 = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
-		true, true);
-	planeWorld2 = m_world;
-
-
-	m_plane3 = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
-		true, true);
-	planeWorld3 = m_world;
-
-	m_plane4 = GeometricPrimitive::CreateBox(context,
-		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
-		true, true);
-	planeWorld4 = m_world;
-
-
-	//planeWorld = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-	planeWorld2 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-	planeWorld3 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-	planeWorld4 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
-
-	//planePos = Vector3(-2.0f, 0.0f, -2.0f);
-	//planeWorld.CreateTranslation(planePos);
-
-	//planeWorld = planeWorld * XMMatrixTranslation(-2.0f, 0.0f, -2.0f);
-	planeWorld2 = planeWorld2 * XMMatrixTranslation(-2.0f, 0.0f, 2.0f);
-	planeWorld3 = planeWorld3 * XMMatrixTranslation(2.0f, -1.0f, 1.0f);
-	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
-
-	//Audio
+	// Setting up parameters of audio
 	for (auto component : world->GetComponents<AudioComponent>())
 	{
 		if (strcmp(component->GetParent()->GetName().c_str(),
@@ -821,14 +703,105 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 		}
 	}
 
+	// Setting up parameters of colliders ----------------------------------------------------------------
+	XMFLOAT3 initialBoundingEntity1Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
+	XMFLOAT3 initialBoundingEntity2Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
+	float initialBounding1Radius = 0.3f;
+	float initialBounding2Radius = 0.7f;
 
-	//NavMesh
+	for (auto physicsComponent : world->GetComponents<PhysicsComponent>())
+	{
+		if (strcmp(physicsComponent->GetParent()->GetName().c_str(), "Cup1") == 0)
+		{
+			colliderCup1 = physicsComponent;
+			continue;
+		}
+
+		if (strcmp(physicsComponent->GetParent()->GetName().c_str(), "Cup2") == 0)
+		{
+			colliderCup2 = physicsComponent;
+			continue;
+		}
+	}
+
+	colliderCup1->SetParent(myEntity1);
+	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
+	colliderBoundingCup1->SetExtents(initialBoundingEntity1Size);
+	colliderCup2->SetParent(myEntity2);
+	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
+	colliderBoundingCup2->SetRadius(initialBounding2Radius);
+
+	// Setting up positions of lights ----------------------------------------------------------------
+	pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
+	pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 0.0f, 2.0f));
+	pointLightEntity3->GetTransform()->SetPosition(Vector3(2.0f, -1.0f, 1.0f));
+	spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
+
+	// Setting up terrain tile map -------------------------------------------------------------------
+	terrain->InitTileMap(context);
+	
+	// Initialization of systems ---------------------------------------------------------------------
+	world->InitializeSystem<AudioSystem>();
+	world->InitializeSystem<PhysicsSystem>();
+	world->InitializeSystem<RenderableSystem>();
+	world->InitializeSystem<LightSystem>();
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"roomtexture.dds",
+			nullptr, m_roomTex.ReleaseAndGetAddressOf()));
+
+	//Setting up skinned model -----------------------------------------------------------------------
+	mSkinModel = std::make_shared<ModelSkinned>(device, "content\\Models\\Hero.fbx", context);
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
+	mSkinModel->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
+	mSkinModelTransform = std::make_shared<Transform>();
+	mSkinModelTransform->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+	mSkinModelTransform->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+
+	// Setting up billboarding -----------------------------------------------------------------------
+	m_plane = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"cat.dds",
+			nullptr, m_planeTex.ReleaseAndGetAddressOf()));
+	planeWorld = m_world;
+
+	m_plane2 = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	planeWorld2 = m_world;
+
+	m_plane3 = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	planeWorld3 = m_world;
+
+	m_plane4 = GeometricPrimitive::CreateBox(context,
+		XMFLOAT3(PLANE_BOUNDS[0], PLANE_BOUNDS[1], PLANE_BOUNDS[2]),
+		true, true);
+	planeWorld4 = m_world;
+
+	//planeWorld = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	planeWorld2 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	planeWorld3 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	planeWorld4 = XMMatrixScaling(0.2f, 0.2f, 0.2f);
+
+	//planePos = Vector3(-2.0f, 0.0f, -2.0f);
+	//planeWorld.CreateTranslation(planePos);
+
+	//planeWorld = planeWorld * XMMatrixTranslation(-2.0f, 0.0f, -2.0f);
+	planeWorld2 = planeWorld2 * XMMatrixTranslation(-2.0f, 0.0f, 2.0f);
+	planeWorld3 = planeWorld3 * XMMatrixTranslation(2.0f, -1.0f, 1.0f);
+	planeWorld4 = planeWorld4 * XMMatrixTranslation(0.0f, 2.0f, 0.0f);
+
+	//Setting up NavMesh ------------------------------------------------------------------------------
 	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);
 	navMesh->terrain = this->terrain;
 
-	//UI
+	//Setting up UI -----------------------------------------------------------------------------------
 	uiSpriteBatch = std::make_shared<SpriteBatch>(context);
-
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\hp_bar.dds",
