@@ -17,6 +17,14 @@ Collision::Collision(EntityPtr origin, ContainmentType collisionKind, float rayI
 	RayIntersectDist = rayIntersectDist;
 }
 
+Collision::Collision(shared_ptr<Collision> collision)
+{
+	OriginObject = collision->OriginObject;
+	CollidingObject = collision->CollidingObject;
+	CollisionKind = collision->CollisionKind;
+	RayIntersectDist = collision->RayIntersectDist;
+}
+
 Collision::~Collision()
 {
 }
