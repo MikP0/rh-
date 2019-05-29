@@ -143,7 +143,6 @@ private:
 		{availableKeys::v, actionList::debugDrawAll},
 		{availableKeys::b, actionList::debugDrawWithoutRegions}
 	};
-	std::shared_ptr<Entity> inputEntity;
 
 	// primitives
 	//std::unique_ptr<DirectX::GeometricPrimitive> m_room;
