@@ -6,10 +6,8 @@
 #include "ToonFactory.h"
 #include "DebugDraw.h"
 
-
 #include "ShadowFactory.h"
-
-
+#include "ShadowMap.h"
 
 class RenderableSystem :
 	public System
@@ -18,7 +16,6 @@ public:
 	
 	RenderableSystem(std::shared_ptr<EntityManager> entityManager, ID3D11Device1* device, ID3D11DeviceContext1* context);
 	~RenderableSystem();
-
 
 	void Iterate(FXMMATRIX view, FXMMATRIX projection);
 	virtual void Iterate() override;
@@ -34,5 +31,13 @@ public:
 
 	bool Debug;
 	std::unique_ptr<DebugDraw> DebugDrawAction;
+
+
+	std::unique_ptr<ShadowMap> _shadowMap;
+	ID3D11RenderTargetView* _renderTargetView;
+	ID3D11DepthStencilView* _depthStencilView;
+	bool isSent;
+
+	void SentDeviceResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView);
 };
 

@@ -17,6 +17,13 @@ RenderableSystem::RenderableSystem(std::shared_ptr<EntityManager> entityManager,
 	_componentsType = ComponentType("Renderable");
 
 	DebugDrawAction = std::make_unique<DebugDraw>(_device, _context);
+
+	_shadowMap = std::make_unique<ShadowMap>(device, 1024, 1024);
+
+	_renderTargetView = nullptr;
+	_depthStencilView = nullptr;
+
+	isSent = false;
 }
 
 RenderableSystem::~RenderableSystem()
@@ -25,6 +32,41 @@ RenderableSystem::~RenderableSystem()
 
 void RenderableSystem::Iterate()
 {
+	_shadowMap->BuildShadowTransform(_context);
+	_shadowMap->BindDsvAndSetNullRenderTarget(_context);
+	_fxFactory->SetRenderingShadowMap(true);
+
+	for (auto renderableComponent : _entityManager->GetComponents(_componentsType))
+	{
+		if (std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model != nullptr) {
+			std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model->Draw(
+				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+				_shadowMap->_lightView,
+				_shadowMap->_lightProj
+			);
+		}
+		else
+		{
+			std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelSkinned->DrawModel(
+				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+				_shadowMap->_lightView,
+				_shadowMap->_lightProj
+			);
+		}
+	}
+
+	_shadowMap->UnbindTargetAndViewport(_context);
+
+	_context->RSSetState(0);
+	_context->ClearRenderTargetView(_renderTargetView, Colors::Silver);
+	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	_fxFactory->SetShadowMapEnabled(true);
+	_fxFactory->SetShadowMap(_shadowMap->GetDepthMapSRV());
+	_fxFactory->SetRenderingShadowMap(false);
+	_fxFactory->SetShadowMapTransform(_shadowMap->_lightShadowTransform);
+
+
 	for (auto renderableComponent : _entityManager->GetComponents(_componentsType))
 	{
 		if (std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model != nullptr) {
@@ -34,7 +76,7 @@ void RenderableSystem::Iterate()
 				std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_camera->GetProjectionMatrix()
 			);
 		}
-		else 
+		else
 		{
 			std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelSkinned->DrawModel(
 				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
@@ -49,24 +91,21 @@ void RenderableSystem::Iterate(FXMMATRIX view, FXMMATRIX projection)
 {
 	for (auto renderableComponent : _entityManager->GetComponents(_componentsType))
 	{
-		//if (renderableComponent->GetParent()->GetName() != "WallToRoom")
-		//{
-			if (std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model != nullptr) {
-				std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model->Draw(
-					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-					view,
-					projection
-				);
-			}
-			else
-			{
-				std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelSkinned->DrawModel(
-					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-					std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_camera->GetViewMatrix(),
-					std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_camera->GetProjectionMatrix()
-				);
-			}
-		//}
+		if (std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model != nullptr) {
+			std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model->Draw(
+				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+				view,
+				projection
+			);
+		}
+		else
+		{
+			std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelSkinned->DrawModel(
+				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+				std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_camera->GetViewMatrix(),
+				std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_camera->GetProjectionMatrix()
+			);
+		}
 	}
 }
 
@@ -77,20 +116,30 @@ void RenderableSystem::Initialize()
 
 	for (auto renderableComponent : _entityManager->GetComponents(_componentsType))
 	{
-		if (std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelPath.find(L".cmo") != std::wstring::npos) 
+		if (std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelPath.find(L".cmo") != std::wstring::npos)
 		{
 			std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_model =
 				DirectX::Model::CreateFromCMO(_device,
 					std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelPath.c_str(),
 					*_fxFactory);
 		}
-		else 
+		else
 		{
-				std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelSkinned =
-					std::make_unique<ModelSkinned>(_device,
-						converter.to_bytes(std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelPath.c_str()),
-						_context);
+			std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelSkinned =
+				std::make_unique<ModelSkinned>(_device,
+					converter.to_bytes(std::dynamic_pointer_cast<RenderableComponent>(renderableComponent)->_modelPath.c_str()),
+					_context);
 
 		}
+	}
+}
+
+void RenderableSystem::SentDeviceResources(ID3D11RenderTargetView * renderTargetView, ID3D11DepthStencilView * depthStencilView)
+{
+	if (!isSent)
+	{
+		_renderTargetView = renderTargetView;
+		_depthStencilView = depthStencilView;
+		isSent = true;
 	}
 }

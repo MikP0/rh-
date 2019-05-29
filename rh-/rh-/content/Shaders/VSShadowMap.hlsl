@@ -28,11 +28,8 @@ PixelShaderInput main(VertexShaderInput input)
 {
 	PixelShaderInput OUT = (PixelShaderInput)0;
 
-	//float4 pos = mul(input.pos, WorldViewProjection);
-
-
 	float4 pos = mul(float4(input.pos, 1.0f), WorldViewProjection);
-	float2 tex = input.texCoord;//mul(float4(input.texCoord, 0.0f, 1.0f), gTexTransform).xy;
+	float2 tex = input.texCoord;
 
 	OUT.pos = pos;
 	OUT.texCoord = tex;

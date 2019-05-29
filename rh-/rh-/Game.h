@@ -90,7 +90,7 @@ private:
 	void InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context);
 
 	// Device resources.
-	std::unique_ptr<DX::DeviceResources>    m_deviceResources;
+	std::shared_ptr<DX::DeviceResources>    m_deviceResources;
 
 	// Rendering loop timer.
 	DX::StepTimer                           m_timer;
@@ -245,35 +245,6 @@ private:
 	bool debugDraw = false;
 	bool debugDrawTreeRegions = true;
 
-	//Shadows
+	//Floor for shadows
 	std::shared_ptr<Entity> myEntityWall;
-
-	std::shared_ptr<ShadowMap> m_shadowMap;
-	void XM_CALLCONV DrawSenceToShadowMap(FXMMATRIX view, FXMMATRIX projection);
-	
-
-
-	std::shared_ptr<ShadowFactory> m_shadowFactory;
-	std::shared_ptr<ToonFactory> m_toonFactory;
-
-	bool isFirstCup = false;
-	bool isSecondCup = false;
-	bool isThirdCup = false;
-
-	bool isFordCup = false;
-
-	std::shared_ptr<Entity> entityCup1;
-	std::shared_ptr<Entity> entityCup2;
-	std::shared_ptr<Entity> entityCup3;
-
-
-	std::shared_ptr<Entity> testShadowEntity;
-	std::shared_ptr<DirectX::Model> testShadowModel;
-
-	XMMATRIX lightView;
-	XMMATRIX lightProj;
-	XMMATRIX lightShadowTransform;
-
-
-	
 };

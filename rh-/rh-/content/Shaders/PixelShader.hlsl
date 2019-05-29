@@ -72,6 +72,34 @@ SamplerState samShadow
 	ComparisonFunc = LESS;
 };
 
+
+
+
+
+
+//SamplerState ColorSampler  : register(s0)
+//{
+//	Filter = MIN_MAG_MIP_LINEAR;
+//	AddressU = WRAP;
+//	AddressV = WRAP;
+//};
+//
+//SamplerComparisonState samShadow  : register(s1);
+//{
+//	Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+//	AddressU = BORDER;
+//	AddressV = BORDER;
+//	AddressW = BORDER;
+//	BorderColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+//
+//	ComparisonFunc = LESS;
+//};
+
+
+
+
+
+
 //------------------------------------------------------------------------------
 // A pass-through function for the (interpolated) color data.
 //------------------------------------------------------------------------------

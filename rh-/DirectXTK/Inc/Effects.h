@@ -139,19 +139,6 @@ namespace DirectX
         IEffectSkinning() = default;
     };
 
-	class IEffectShadowMap
-	{
-	public:
-		virtual ~IEffectShadowMap() { }
-
-		virtual void _cdecl SetRenderingShadowMap(bool value) = 0;
-
-		virtual void _cdecl SetShadowEnable(bool value) = 0;
-
-		virtual void XM_CALLCONV SetShadowMapTransform(FXMMATRIX value) = 0;
-
-	};
-
     //----------------------------------------------------------------------------------
     // Built-in shader supports optional texture mapping, vertex coloring, directional lighting, and fog.
     class BasicEffect : public IEffect, public IEffectMatrices, public IEffectLights, public IEffectFog

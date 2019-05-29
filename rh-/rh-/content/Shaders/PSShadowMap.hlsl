@@ -25,9 +25,6 @@ SamplerState ColorSampler
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-	//float4 color = mul(input.pos, WorldViewProjection);
-
-
 	float4 color = ColorMap.Sample(ColorSampler, input.texCoord);
 
 	clip(color.a - 0.15f);

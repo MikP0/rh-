@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-class ShadowEffect : public DirectX::IEffect, public DirectX::IEffectMatrices, public DirectX::IEffectShadowMap
+class ShadowEffect : public DirectX::IEffect, public DirectX::IEffectMatrices
 {
 public:
 	explicit ShadowEffect(_In_ ID3D11Device* device);
@@ -26,7 +26,6 @@ public:
 	void XM_CALLCONV SetMatrices(DirectX::FXMMATRIX world, DirectX::CXMMATRIX view, DirectX::CXMMATRIX projection) override;
 	void SetCameraPosition(DirectX::XMFLOAT3 value);
 
-
 	// ToonEffect methods
 	void SetTextureEnabled(bool value);
 	void SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
@@ -46,9 +45,9 @@ public:
 	void UpdateSpotLight(int id, DirectX::XMFLOAT3 Position);
 
 	//Shadow setting
-	void _cdecl SetRenderingShadowMap(bool value) override;
-	void _cdecl SetShadowEnable(bool value) override;
-	void XM_CALLCONV SetShadowMapTransform(DirectX::FXMMATRIX value) override;
+	void _cdecl SetRenderingShadowMap(bool value);
+	void _cdecl SetShadowEnable(bool value);
+	void XM_CALLCONV SetShadowMapTransform(DirectX::FXMMATRIX value);
 	void SetShadowMapEnabled(bool value);
 	void SetShadowMap(_In_opt_ ID3D11ShaderResourceView* value);
 

@@ -5,60 +5,34 @@
 class ShadowMap
 {
 public:
-	explicit ShadowMap(_In_ ID3D11Device* device, UINT width, UINT height);
+	ShadowMap(_In_ ID3D11Device* device, UINT width, UINT height);
 	ShadowMap(ShadowMap&& moveFrom);
 	ShadowMap& operator= (ShadowMap&& moveFrom);
-	virtual ~ShadowMap();
+	 ~ShadowMap();
 
-	void BindRenderTarget(ID3D11DeviceContext * deviceContext);
-
-	void UnbindRenderTarget(ID3D11DeviceContext * deviceContext);
-
-	ID3D11ShaderResourceView * GetShadowMapSRV();
-
-	
-
-
-	//
 	ID3D11ShaderResourceView * GetDepthMapSRV();
 	void BindDsvAndSetNullRenderTarget(ID3D11DeviceContext * context);
+	void UnbindTargetAndViewport(ID3D11DeviceContext * context);
 
-	void Dispose();
+	void BuildShadowTransform(ID3D11DeviceContext1 *context);
 
-
-protected:
-	void	CreateShaderResource(_In_ ID3D11Device* device, UINT width, UINT height);
+	DirectX::XMMATRIX _lightView;
+	DirectX::XMMATRIX _lightProj;
+	DirectX::XMMATRIX _lightShadowTransform;
 
 private:
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_shadowMapTex;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_shadowMapRTV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowMapSRV;
-
-	Microsoft::WRL::ComPtr<ID3D11Texture2D>                 m_depthBufferTexture;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>      m_shadowMapDSV;
-
-	ID3D11RenderTargetView* m_originalRTV;
-	ID3D11DepthStencilView * m_pOriginalDSV;
-
-	bool skinned;
-	int weightsPerVertex;
-
-	D3D11_VIEWPORT m_viewport;
-	D3D11_VIEWPORT m_originalViewport;
-
-	// Prevent copying.
 	ShadowMap(ShadowMap const&);
 	ShadowMap& operator= (ShadowMap const&);
 
-
-	//
-	bool _disposed;
-	int _width;
+	UINT _width;
 	int _height;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> _depthMapDSV;
+	ID3D11ShaderResourceView* _depthMapSRV;
+	ID3D11DepthStencilView* _depthMapDSV;
 	D3D11_VIEWPORT _viewport;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _depthMapSRV;
 
+	D3D11_VIEWPORT orgViewport;
+	ID3D11RenderTargetView* orgRenderTarger;
+	ID3D11DepthStencilView * orgDepthStencilView;
 };
 

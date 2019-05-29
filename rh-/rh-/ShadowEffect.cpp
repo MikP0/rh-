@@ -1,10 +1,8 @@
 #include "ShadowEffect.h"
 
-
 using namespace DirectX;
 
 #define MAX_NUMBER_OF_LIGHT 10
-
 
 struct POINT_LIGHT
 {
@@ -73,9 +71,7 @@ public:
 	XMMATRIX m_projection;
 	XMFLOAT3 m_camera;
 
-
 	XMMATRIX m_shadowMapTransform;
-
 
 	XMFLOAT3 diffuseColor;
 	XMFLOAT3 emissiveColor;
@@ -86,10 +82,8 @@ public:
 	XMVECTOR SpecularPower;
 	XMVECTOR IsTextured;
 
-
 	bool renderingShadowMap = false;
 	bool shadowEnable = false;
-
 
 	POINT_LIGHT PointLights[MAX_NUMBER_OF_LIGHT];
 	DIRECTIONAL_LIGHT DirectionalLights[MAX_NUMBER_OF_LIGHT];
@@ -118,18 +112,13 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicConstantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicConstantShadowBuffer;
 
-
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalMap;
 
+
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowMap;
-
-
-	//Microsoft::WRL::ComPtr<ID3D11SamplerState> mySimpleSampler;
-	//Microsoft::WRL::ComPtr<ID3D11SamplerState> myComparisonSampler;
-
-	ID3D11SamplerState* mySimpleSampler;
-	ID3D11SamplerState* myComparisonSampler;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> mySimpleSampler;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> myComparisonSampler;
 
 
 	StaticConstantBuffer m_staticData;
@@ -207,25 +196,8 @@ ShadowEffect::Impl::Impl(_In_ ID3D11Device* device)
 	}
 
 
-	/*float aColor = 0.0f;
-
-	D3D11_SAMPLER_DESC samplerDesc;
-	samplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
-	samplerDesc.MinLOD = -FLT_MAX;
-	samplerDesc.MaxLOD = FLT_MAX;
-	samplerDesc.BorderColor[0] = aColor;
-	samplerDesc.BorderColor[1] = aColor;
-	samplerDesc.BorderColor[2] = aColor;
-	samplerDesc.BorderColor[3] = aColor;
-	
-
 	D3D11_SAMPLER_DESC simpleSamplerDesc;
+	ZeroMemory(&simpleSamplerDesc, sizeof(D3D11_SAMPLER_DESC));
 	simpleSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	simpleSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	simpleSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -236,15 +208,42 @@ ShadowEffect::Impl::Impl(_In_ ID3D11Device* device)
 	simpleSamplerDesc.MinLOD = -FLT_MAX;
 	simpleSamplerDesc.MaxLOD = FLT_MAX;
 
+	D3D11_SAMPLER_DESC samplerCompDesc;
+	ZeroMemory(&samplerCompDesc, sizeof(D3D11_SAMPLER_DESC));
+	samplerCompDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	samplerCompDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerCompDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerCompDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerCompDesc.MipLODBias = 0.0f;
+	samplerCompDesc.MaxAnisotropy = 1;
+	samplerCompDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+	samplerCompDesc.MinLOD = -FLT_MAX;
+	samplerCompDesc.MaxLOD = FLT_MAX;
+	samplerCompDesc.BorderColor[0] = 0.0f;
+	samplerCompDesc.BorderColor[1] = 0.0f;
+	samplerCompDesc.BorderColor[2] = 0.0f;
+	samplerCompDesc.BorderColor[3] = 0.0f;
+	
+	/*D3D11_SAMPLER_DESC samplerCompDesc = { 
+	D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT ,
+	D3D11_TEXTURE_ADDRESS_BORDER, 
+	D3D11_TEXTURE_ADDRESS_BORDER, 
+	D3D11_TEXTURE_ADDRESS_BORDER, 
+	0.0f, 
+	1, 
+	D3D11_COMPARISON_LESS, 
+	{0.0f, 0.0f, 0.0f, 0.0f},
+	-FLT_MAX, 
+	FLT_MAX };*/
 
-	DX::ThrowIfFailed(
-		device->CreateSamplerState(&samplerDesc, &myComparisonSampler)
-	);
 
 	DX::ThrowIfFailed(
 		device->CreateSamplerState(&simpleSamplerDesc, &mySimpleSampler)
-	);*/
+	);
 
+	DX::ThrowIfFailed(
+		device->CreateSamplerState(&samplerCompDesc, &myComparisonSampler)
+	);
 
 	m_isInit = true;
 }
@@ -355,8 +354,6 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		XMStoreFloat4x4(&m_dynamicData.View, XMMatrixTranspose(m_view));
 		XMStoreFloat4x4(&m_dynamicData.Projection, XMMatrixTranspose(m_projection));
 		XMStoreFloat4x4(&m_dynamicData.WorldViewProjection, XMMatrixTranspose(XMMatrixMultiply((XMMatrixMultiply(m_world, m_view)), m_projection)));
-		//XMStoreFloat4x4(&m_dynamicData.ShadowMapTransform, XMMatrixTranspose(m_shadowMapTransform));
-		//XMStoreFloat4x4(&m_dynamicData.ShadowMapTransform, XMMatrixTranspose(XMMatrixMultiply(m_world, m_shadowMapTransform)));
 		XMStoreFloat4x4(&m_dynamicData.ShadowMapTransform, m_shadowMapTransform);
 
 
@@ -409,9 +406,8 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 
 		deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 		deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-
 	}
-	else	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	else
 	{
 		if (!m_isInit)
 		{
@@ -428,7 +424,6 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		deviceContext->PSSetConstantBuffers(
 			1, 1, m_dynamicConstantShadowBuffer.GetAddressOf());
 
-
 		ID3D11ShaderResourceView* textures[1];
 
 		if (m_isTextured)
@@ -443,16 +438,8 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		deviceContext->PSSetShaderResources(
 			0, static_cast<UINT>(1), textures);
 
-
-		//deviceContext->PSSetSamplers(0, 1, &myComparisonSampler);
-		//deviceContext->PSSetSamplers(0, 2, &mySimpleSampler);
-
-
-		//ID3D11SamplerState* samplerStates[2];
-		//samplerStates[0] = mySimpleSampler;
-		//samplerStates[1] = myComparisonSampler;	
-		//deviceContext->PSSetSamplers(0, 2, samplerStates);
-
+		//ID3D11SamplerState* samplers[] = { myComparisonSampler.Get(), mySimpleSampler.Get() };
+		//deviceContext->PSSetSamplers(0, _countof(samplers), samplers);
 
 		deviceContext->VSSetShader(m_vertexShaderShadow.Get(), nullptr, 0);
 		deviceContext->PSSetShader(m_pixelShaderShadow.Get(), nullptr, 0);

@@ -70,11 +70,6 @@ PixelShaderInput main(VertexShaderInput input)
 	OUT.worldPosition = mul(pos, World).xyz;
 	OUT.texCoord = input.texCoord;
 	OUT.normal = normalize(mul(float4(input.normal, 0), World).xyz);
-	//float4x4 shadMapTran = mul(World, ShadowMapTransform);
-	//OUT.shadowPosition = mul(pos, shadMapTran);
-
-	//vout.ShadowPosH = mul(float4(vin.PosL, 1.0f), gShadowTransform);
-
 	OUT.shadowPosition = mul(pos, ShadowMapTransform);
 
 	return OUT;
