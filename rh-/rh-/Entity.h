@@ -12,6 +12,13 @@
 
 class RenderableComponent;
 
+enum Tags {
+	NONE,
+	PLAYER,
+	ENEMY
+};
+
+
 class Entity : public std::enable_shared_from_this<Entity>
 {
 public:
@@ -46,7 +53,6 @@ public:
 	template<typename TComponent, typename... Args>
 	void AddComponent(Args ... args) 
 	{
-		//std::shared_ptr<TComponent> component = std::make_shared<TComponent>(std::forward(args) ...);
 		_world->AddComponent<TComponent, Args...>(_id, args...);
 	}
 
@@ -56,7 +62,16 @@ public:
 		_world->RemoveComponent<TComponent>();
 	}
 
+	template<typename TComponent>
+	std::shared_ptr<TComponent> GetComponent()
+	{
+		_world->GetComponent(_id);
+	}
+
 	void SetWorld(std::shared_ptr<World> world);
+
+	void SetTag(Tags tag);
+	Tags GetTag();
 
 	static std::size_t nextId;
 	
@@ -71,4 +86,7 @@ private:
 
 	std::shared_ptr<World> _world;
 	bool _active;
+
+	Tags _tag;
 };
+
