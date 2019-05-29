@@ -576,8 +576,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
 
 	// Creation of physics components ----------------------------------------------------------------
-	myEntity1->AddComponent<PhysicsComponent>(AABB);
-	myEntity2->AddComponent<PhysicsComponent>(Sphere);
+	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), false);
+	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
 
 
 	// Creation of renderable components
@@ -631,11 +631,6 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	}
 
 	// Setting up parameters of colliders ----------------------------------------------------------------
-	// CONSTRUCTORS
-	XMFLOAT3 initialBoundingEntity1Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
-	XMFLOAT3 initialBoundingEntity2Size = XMFLOAT3(0.4f, 0.4f, 0.4f);
-	float initialBounding1Radius = 0.3f;
-	float initialBounding2Radius = 0.7f;
 
 	for (auto physicsComponent : world->GetComponents<PhysicsComponent>())
 	{
@@ -652,12 +647,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 		}
 	}
 
-
 	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
-	colliderBoundingCup1->SetExtents(initialBoundingEntity1Size);
-
 	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
-	colliderBoundingCup2->SetRadius(initialBounding2Radius);
 
 	// Setting up positions of lights ----------------------------------------------------------------
 	pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));

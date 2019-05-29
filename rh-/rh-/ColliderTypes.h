@@ -29,12 +29,17 @@ public:
 class ColliderSphere : public ColliderBase
 {
 public:
-	ColliderSphere() : ColliderBase(Sphere) {};
-
 	ColliderSphere(XMFLOAT3 center, float radius) : ColliderBase(Sphere)
 	{
 		_bounding.Center = center;
 		_bounding.Radius = radius;
+	};
+
+	ColliderSphere(Vector3 positionOffset, XMFLOAT3 center, float radius) : ColliderBase(Sphere)
+	{
+		_bounding.Center = center;
+		_bounding.Radius = radius;
+		_positionOffset = positionOffset;
 	};
 
 	~ColliderSphere() {};
@@ -47,6 +52,11 @@ public:
 	Vector3 GetCenter()
 	{
 		return _bounding.Center;
+	}
+
+	Vector3 GetPositionOffset()
+	{
+		return _positionOffset;
 	}
 
 	float GetRadius()
@@ -64,6 +74,11 @@ public:
 		_bounding.Center = center;
 	}
 
+	void SetPositionOffset(Vector3 offset)
+	{
+		_positionOffset = offset;
+	}
+
 	void SetRadius(float radius)
 	{
 		_bounding.Radius = radius;
@@ -71,13 +86,12 @@ public:
 
 private:
 	BoundingSphere _bounding;
+	Vector3 _positionOffset;
 };
 
 class ColliderAABB : public ColliderBase
 {
 public:
-	ColliderAABB() : ColliderBase(AABB) {};
-
 	ColliderAABB(XMFLOAT3 center, XMFLOAT3 extents) : ColliderBase(AABB)
 	{
 		_bounding.Center = center;
@@ -85,8 +99,22 @@ public:
 		UpdateMinMax();
 	};
 
+	ColliderAABB(Vector3 positionOffset, XMFLOAT3 center, XMFLOAT3 extents) : ColliderBase(AABB)
+	{
+		_bounding.Center = center;
+		_bounding.Extents = extents;
+		_positionOffset = positionOffset;
+		UpdateMinMax();
+	};
+
 	ColliderAABB(Vector3 min, Vector3 max, bool flagMinMax) : ColliderBase(AABB), _min(min), _max(max)
 	{
+		UpdateCenterExtents();
+	};
+
+	ColliderAABB(Vector3 positionOffset, Vector3 min, Vector3 max, bool flagMinMax) : ColliderBase(AABB), _min(min), _max(max)
+	{
+		_positionOffset = positionOffset;
 		UpdateCenterExtents();
 	};
 
@@ -117,6 +145,11 @@ public:
 		return _max;
 	}
 
+	Vector3 GetPositionOffset()
+	{
+		return _positionOffset;
+	}
+
 	void SetBounding(BoundingBox bounding)
 	{
 		_bounding = bounding;
@@ -142,6 +175,11 @@ public:
 	{
 		_bounding.Center = center;
 		UpdateMinMax();
+	}
+
+	void SetPositionOffset(Vector3 offset)
+	{
+		_positionOffset = offset;
 	}
 
 	void SetExtents(Vector3 extents)
@@ -226,6 +264,7 @@ public:
 private:
 	BoundingBox _bounding;
 	Vector3 _min, _max;
+	Vector3 _positionOffset;
 };
 
 class ColliderFrustum : public ColliderBase

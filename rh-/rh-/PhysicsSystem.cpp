@@ -5,7 +5,7 @@ PhysicsSystem::PhysicsSystem(Vector3 sceneCenter, float cubeDimension) : System(
 {
 	_sceneCenter = sceneCenter;
 	_sceneCubeDimension = cubeDimension;
-	ColliderAABBptr region = make_shared<ColliderAABB>();
+	ColliderAABBptr region = make_shared<ColliderAABB>(XMFLOAT3(_sceneCenter), XMFLOAT3(Vector3(_sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f)));
 	_octTree = make_shared<OctTree>(region);
 }
 
@@ -19,11 +19,12 @@ void PhysicsSystem::UpdateCollidersPositions()
 	for (auto component : _world->GetComponents<PhysicsComponent>())
 	{
 		dxmath::Matrix objectMatrix = component->GetParent()->GetWorldMatrix();
-		dxmath::Vector3 objectPosition = DirectX::XMVector3Transform(dxmath::Vector3::Zero, objectMatrix);;
 
 		if (component->ColliderBounding->Type == AABB)
 		{
 			ColliderAABBptr collider = dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
+			dxmath::Vector3 objectPosition =
+				DirectX::XMVector3Transform(collider->GetPositionOffset(),objectMatrix);
 			collider->SetCenter(objectPosition);
 			continue;
 		}
@@ -31,26 +32,31 @@ void PhysicsSystem::UpdateCollidersPositions()
 		if (component->ColliderBounding->Type == Sphere)
 		{
 			ColliderSpherePtr collider = dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
+			dxmath::Vector3 objectPosition =
+				DirectX::XMVector3Transform(collider->GetPositionOffset(), objectMatrix);
 			collider->SetCenter(objectPosition);
 			continue;
-		}	
+		}
 	}
 }
 
 void PhysicsSystem::UpdateColliderPosition(PhysicsComponentPtr component)
 {
 	dxmath::Matrix objectMatrix = component->GetParent()->GetWorldMatrix();
-	dxmath::Vector3 objectPosition = DirectX::XMVector3Transform(dxmath::Vector3::Zero, objectMatrix);;
 
 	if (component->ColliderBounding->Type == AABB)
 	{
 		ColliderAABBptr collider = dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
+		dxmath::Vector3 objectPosition =
+			DirectX::XMVector3Transform(collider->GetPositionOffset(), objectMatrix);
 		collider->SetCenter(objectPosition);
 	}
 	else
 		if (component->ColliderBounding->Type == Sphere)
 		{
 			ColliderSpherePtr collider = dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
+			dxmath::Vector3 objectPosition =
+				DirectX::XMVector3Transform(collider->GetPositionOffset(), objectMatrix);
 			collider->SetCenter(objectPosition);
 		}
 }
@@ -99,7 +105,7 @@ void PhysicsSystem::ResetAllUpdatePositionFlags()
 
 void PhysicsSystem::Initialize()
 {
-	_octTree->Region->SetBounding(BoundingBox(_sceneCenter, Vector3(_sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f)));
+	//_octTree->Region->SetBounding(BoundingBox(_sceneCenter, Vector3(_sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f)));
 	_octTree->Root = _octTree;
 
 	UpdateCollidersPositions();
