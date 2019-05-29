@@ -140,3 +140,13 @@ void Entity::SetWorld(std::shared_ptr<World> world)
 	_world = world;
 }
 
+void Entity::SetTag(Tags tag)
+{
+	_tag = tag;
+}
+
+Tags Entity::GetTag()
+{
+	return _tag;
+}
+

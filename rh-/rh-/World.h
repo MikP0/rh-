@@ -129,10 +129,25 @@ public:
 
 		iterator it = iterpair.first;
 		for (; it != iterpair.second; ++it) {
-			if (std::is_same<*it->second, TComponent>::value)
+			if (typeid(TComponent) == typeid(*it->second))
 			{
 				_entityComponentMap.erase(it);
 				break;
+			}
+		}
+	}
+
+	template<typename TComponent>
+	std::shared_ptr<TComponent> GetComponent(std::size_t entityId)
+	{
+		typedef std::unordered_multimap<std::size_t, std::shared_ptr<Component>>::iterator iterator;
+		std::pair<iterator, iterator> iterpair = _entityComponentMap.equal_range(entityId);
+
+		iterator it = iterpair.first;
+		for (; it != iterpair.second; ++it) {
+			if (typeid(*it->second) == typeid(TComponent))
+			{
+				return _entityComponentMap[it];
 			}
 		}
 	}
