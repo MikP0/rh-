@@ -284,7 +284,8 @@ void Game::UpdateObjects(float elapsedTime)
 
 
 	// check collisions
-	vector<CollisionPtr> currentCollisions = collisionSystem->GetCurrentCollisions();
+	vector<CollisionPtr> currentCollisions = collisionSystem->AllCollisions;
+	vector<CollisionPtr> collisionsForEntity1 = collisionSystem->GetCollisionsForEntity(1);
 
 	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
 	XMVECTORF32 collider1Color = DirectX::Colors::White;

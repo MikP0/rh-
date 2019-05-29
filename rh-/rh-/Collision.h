@@ -30,6 +30,7 @@ public:
 
 	Collision(EntityPtr origin, EntityPtr collider, ContainmentType collisionKind);
 	Collision(EntityPtr origin, ContainmentType collisionKind, float rayIntersectDist);
+	Collision(shared_ptr<Collision> collision);
 	~Collision();
 
 	static XMVECTORF32 Collision::GetCollisionColor(ContainmentType collisionKind);
