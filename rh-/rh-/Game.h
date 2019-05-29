@@ -103,11 +103,15 @@ private:
 	std::shared_ptr<Entity> myEntity5;
 	std::shared_ptr<Entity> myEntity6;
 
+	// floor for shadows
+	std::shared_ptr<Entity> myEntityFloor;
+
 	// lights
 	std::shared_ptr<Entity> pointLightEntity1;
 	std::shared_ptr<Entity> pointLightEntity2;
 	std::shared_ptr<Entity> pointLightEntity3;
 	std::shared_ptr<Entity> spotLightEntity1;
+	std::shared_ptr<Entity> directLightEntity1;
 
 	// Collision boundings
 	std::shared_ptr<PhysicsSystem> collisionSystem;

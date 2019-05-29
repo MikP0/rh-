@@ -1,6 +1,6 @@
 #include "LightSystem.h"
 
-LightSystem::LightSystem(std::shared_ptr<ToonFactory> fxFactory)
+LightSystem::LightSystem(std::shared_ptr<ShadowFactory> fxFactory)
 {
 	_fxFactory = fxFactory;
 }
