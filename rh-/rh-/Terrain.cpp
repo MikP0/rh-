@@ -28,8 +28,8 @@ void Terrain::InitTileMap(ID3D11DeviceContext1* context)
 
 void Terrain::ResetTileMap()
 {
-	widthInTiles = 30;
-	heightInTiles = 30;
+	widthInTiles = 10;
+	heightInTiles = 20;
 	for (int i = 0; i < widthInTiles*heightInTiles; i++) {
 		tiles.push_back(shared_ptr<MapTile>(new MapTile()));
 		tiles[i]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize), false, true);
@@ -51,6 +51,15 @@ void Terrain::SetTilePositionsAndTypes()
 				tiles[i *heightInTiles + j]->walkable = false;
 				tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize));
 			}
+			/*if ((i < 4 || i>5) && (j>2 && j<13)) {
+				tiles[i *heightInTiles + j]->type = TileType::fire;
+				tiles[i *heightInTiles + j]->walkable = false;
+				tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 10.f, tileSize));
+			}
+			else {
+				tiles[i *heightInTiles + j]->type = TileType::grass;
+				tiles[i *heightInTiles + j]->walkable = true;
+			}*/
 		}
 	}
 }
@@ -92,10 +101,10 @@ void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceVie
 	for each (shared_ptr<MapTile> tile in tiles)
 	{
 		if (tile->walkable) {
-			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::Green, roomTex.Get());
+			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::DimGray, roomTex.Get());
 		}
 		else {
-			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::Red, roomTex.Get());
+			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::Black, roomTex.Get());
 		}
 	}
 }
@@ -107,6 +116,9 @@ bool Terrain::CanWalk(dxmath::Vector3 position)
 
 		shared_ptr<MapTile> tempPtr = this->GetTileWithPosition(position);
 		if (tempPtr != nullptr) {
+			if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.1f) {
+				return true;
+			}
 			return tempPtr->walkable;
 		}
 		else {
@@ -173,7 +185,7 @@ vector<shared_ptr<MapTile>> Terrain::GetPath(shared_ptr<MapTile> start, shared_p
 
 	start->g = 0;
 	start->f = this->HexDistance(start->worldPosition, goal->worldPosition);
-	
+
 	//openv2.insert(start);
 	open.insert(pair<shared_ptr<MapTile>, float>(start, start->f));
 
@@ -203,14 +215,14 @@ vector<shared_ptr<MapTile>> Terrain::GetPath(shared_ptr<MapTile> start, shared_p
 			}
 			if (open.find(neighbor) != open.end() && cost < neighbor->g) {
 				open.erase(neighbor);
-			//if (openv2.find(neighbor) != openv2.end() && cost < neighbor->g) {
-			//	openv2.erase(neighbor);
+				//if (openv2.find(neighbor) != openv2.end() && cost < neighbor->g) {
+				//	openv2.erase(neighbor);
 			}
 			if (closed.find(neighbor) != closed.end() && cost < neighbor->g) {
 				closed.erase(neighbor);
 			}
 			if (open.find(neighbor) == open.end() && closed.find(neighbor) == closed.end()) {
-			//if (openv2.find(neighbor) == openv2.end() && closed.find(neighbor) == closed.end()) {
+				//if (openv2.find(neighbor) == openv2.end() && closed.find(neighbor) == closed.end()) {
 				neighbor->g = cost;
 				float f = cost + this->HexDistance(neighbor->worldPosition, goal->worldPosition); //heurystyka
 				open.insert(pair<shared_ptr<MapTile>, float>(neighbor, f));
@@ -228,14 +240,14 @@ vector<shared_ptr<MapTile>> Terrain::GetPath(shared_ptr<MapTile> start, shared_p
 	}
 
 	reverse(path.begin(), path.end());
-	return path;	
+	return path;
 }
 
 float Terrain::EuklideanDistance(Vector3 point1, Vector3 point2) {
 	float dx = point1.x - point2.x;
 	float dy = point1.y - point2.y;
 	float dz = point1.z - point2.z;
-	return sqrt(dx*dx + dy*dy + dz*dz);
+	return sqrt(dx*dx + dy * dy + dz * dz);
 }
 
 float Terrain::ManhattanDistance(Vector3 start, Vector3 goal) {

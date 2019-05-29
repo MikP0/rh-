@@ -278,7 +278,7 @@ void Game::UpdateObjects(float elapsedTime)
 	tracker.Update(mouse); // Player Component -> Player System
 	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD) {
 		Vector3 destination = Raycast::GetPointOnGround(camera);
-		navMesh->SetDestination(destination);
+		navMesh->SetDestination(destination, camera);
 	}
 	navMesh->Move(); // Player Component -> Player System
 
@@ -292,7 +292,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
+	//myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 
 	if (mouse.rightButton)
@@ -302,6 +302,7 @@ void Game::UpdateObjects(float elapsedTime)
 	}
 
 	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
+
 
 	if (octrTreeBounding.Contains(colliderBoundingCup1->GetBounding()) != CONTAINS)
 	{
@@ -595,12 +596,12 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	// Setting up transform parameters of entities  --------------------------------------------------
 	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(0.35f, 0.35f, 0.35f);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
-	myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
-
+	//myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
+	myEntity1->GetTransform()->SetPosition(Vector3(2.0f, 0.2f, 2.0f));
 
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
-
+	//myEntity2->GetTransform()->SetPosition(Vector3(2.0f, 1.0f, 2.0f));
 
 	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
@@ -677,7 +678,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 
 	//Setting up NavMesh ------------------------------------------------------------------------------
-	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);
+	navMesh = std::make_shared<NavMesh>(mSkinModelTransform, collisionSystem);
 	navMesh->terrain = this->terrain;
 
 	//Setting up UI -----------------------------------------------------------------------------------
