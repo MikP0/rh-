@@ -412,6 +412,7 @@
     <None Include="content\Shaders\Include\ShadowMap.fx">
       <Filter>Inc\Shaders\Include</Filter>
     </None>
+    <None Include="x64\Debug\tinyxml2.dll" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">

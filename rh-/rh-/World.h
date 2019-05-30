@@ -147,7 +147,7 @@ public:
 		for (; it != iterpair.second; ++it) {
 			if (typeid(*it->second) == typeid(TComponent))
 			{
-				return _entityComponentMap[it];
+				return *it->second;
 			}
 		}
 	}

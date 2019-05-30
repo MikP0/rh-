@@ -107,7 +107,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <AdditionalIncludeDirectories>E:\Studia\PBL\rh-\tinyxml2-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Studia\PBL\rh-\rh-\rh-\x64\Debug;E:\Studia\PBL\rh-\tinyxml2-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -358,6 +358,7 @@
     <None Include="FloorToRoom.cmo" />
     <None Include="FloorToRoom.mtl" />
     <None Include="packages.config" />
+    <None Include="x64\Debug\tinyxml2.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="content\Shaders\Include\ShadowMap.fx">
