@@ -35,6 +35,8 @@ public:
 	virtual void Initialize() override;
 	virtual void Iterate() override;
 
+	vector<ColliderBasePtr> GetColliders();
+
 private:
 	Vector3 _sceneCenter;
 	float _sceneCubeDimension;

@@ -292,7 +292,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-	//myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
+	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 
 	if (mouse.rightButton)
@@ -381,6 +381,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
+	terrain->Update(collisionSystem->GetColliders());
 	terrain->Draw(camera, m_roomTex);
 
 	if (debugDraw) //REMOVE
@@ -600,8 +601,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity1->GetTransform()->SetPosition(Vector3(2.0f, 0.2f, 2.0f));
 
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
-	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
-	//myEntity2->GetTransform()->SetPosition(Vector3(2.0f, 1.0f, 2.0f));
+	//myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
+	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, 0.2f, 6.0f));
 
 	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));

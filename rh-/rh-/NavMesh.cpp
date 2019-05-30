@@ -106,10 +106,9 @@ void NavMesh::Move()
 
 		for each(shared_ptr<Collision> coll in collisionsWithRay)
 		{
-			/*if (coll->OriginObject->GetId() == colliderCup1->GetParent()->GetId())
-				collisionCup1WithRay = coll;*/
-
-			OutputDebugStringA("Jest colider\n");
+			Vector3 colpoint = DirectX::XMVector3Transform(Vector3::Zero, coll->OriginObject->GetWorldMatrix());
+			terrain->MakeOcupied(colpoint);
+			//coll->OriginObject
 		}
 	}
 }

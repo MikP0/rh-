@@ -31,7 +31,7 @@ void Terrain::ResetTileMap()
 	widthInTiles = 10;
 	heightInTiles = 20;
 	for (int i = 0; i < widthInTiles*heightInTiles; i++) {
-		tiles.push_back(shared_ptr<MapTile>(new MapTile()));
+		tiles.push_back(MapTilePtr(new MapTile()));
 		tiles[i]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize), false, true);
 	}
 }
@@ -42,15 +42,15 @@ void Terrain::SetTilePositionsAndTypes()
 		for (int j = 0; j < heightInTiles; j++) {
 			tiles[i *heightInTiles + j]->worldPosition = Vector3(i*1.f, 0.f, j*1.f);
 			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
-			if (i*j % 15 < 10) {
+			//if (i*j % 15 < 10) {
 				tiles[i *heightInTiles + j]->type = TileType::grass;
 				tiles[i *heightInTiles + j]->walkable = true;
-			}
-			else {
-				tiles[i *heightInTiles + j]->type = TileType::fire;
-				tiles[i *heightInTiles + j]->walkable = false;
-				tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize));
-			}
+			//}
+			//else {
+			//	tiles[i *heightInTiles + j]->type = TileType::fire;
+			//	tiles[i *heightInTiles + j]->walkable = false;
+			//	tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize));
+			//}
 			/*if ((i < 4 || i>5) && (j>2 && j<13)) {
 				tiles[i *heightInTiles + j]->type = TileType::fire;
 				tiles[i *heightInTiles + j]->walkable = false;
@@ -66,13 +66,13 @@ void Terrain::SetTilePositionsAndTypes()
 
 void Terrain::ConnectNeighboringTiles()
 {
-	for each (shared_ptr<MapTile> tile in tiles)
+	for each (MapTilePtr tile in tiles)
 	{
 		Vector3 base = tile->worldPosition;
 		int k = 0;
 		for (int i = 1; i >= -1; i--) {
 			for (int j = 1; j >= -1; j--) {
-				shared_ptr<MapTile> temp = this->GetTileWithPosition(base + Vector3(i, 0, j));
+				MapTilePtr temp = this->GetTileWithPosition(base + Vector3(i, 0, j));
 				if (temp == tile) {
 					continue;
 				}
@@ -98,7 +98,7 @@ void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceVie
 	view = camera.GetViewMatrix();
 	projection = camera.GetProjectionMatrix();
 	tex = roomTex;
-	for each (shared_ptr<MapTile> tile in tiles)
+	for each (MapTilePtr tile in tiles)
 	{
 		if (tile->walkable) {
 			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::DimGray, roomTex.Get());
@@ -109,12 +109,48 @@ void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceVie
 	}
 }
 
+void Terrain::MakeOcupied(dxmath::Vector3 position)
+{
+	MapTilePtr tile = this->GetTileWithPosition(position);
+	if (tile != nullptr)
+	{
+		tile->walkable = false;
+	}
+}
+
+void Terrain::Update(vector<ColliderBasePtr> colliders)
+{
+	typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
+	typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
+	//this->ClearTiles();
+	for each (ColliderBasePtr collider in colliders)
+	{
+		if (collider->Type == AABB) {
+			ColliderAABBptr colliderr = dynamic_pointer_cast<ColliderAABB>(collider);
+			this->MakeOcupied(colliderr->GetCenter());
+			continue;
+		}
+		if (collider->Type == Sphere) {
+			ColliderSpherePtr colliderr = dynamic_pointer_cast<ColliderSphere>(collider);
+			this->MakeOcupied(colliderr->GetCenter());
+			continue;
+		}
+	}
+}
+
+void Terrain::ClearTiles() {
+	for each (MapTilePtr tile in tiles)
+	{
+		tile->walkable = true;
+	}
+}
+
 bool Terrain::CanWalk(dxmath::Vector3 position)
 {
 	if ((position.x > (tiles.front()->worldPosition.x - (tileSize / 2.f))) && (position.x < (tiles.back()->worldPosition.x + (tileSize / 2.f)))
 		&& (position.z > (tiles.front()->worldPosition.z - (tileSize / 2.f))) && (position.z < (tiles.back()->worldPosition.z + (tileSize / 2.f)))) {
 
-		shared_ptr<MapTile> tempPtr = this->GetTileWithPosition(position);
+		MapTilePtr tempPtr = this->GetTileWithPosition(position);
 		if (tempPtr != nullptr) {
 			if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.1f) {
 				return true;
@@ -130,18 +166,18 @@ bool Terrain::CanWalk(dxmath::Vector3 position)
 	}
 }
 
-bool Terrain::Within(shared_ptr<MapTile> tile)
+bool Terrain::Within(MapTilePtr tile)
 {
 	return (tile->worldPosition.x > (tiles.front()->worldPosition.x - (tileSize / 2.f))) && (tile->worldPosition.x < (tiles.back()->worldPosition.x + (tileSize / 2.f)))
 		&& (tile->worldPosition.z > (tiles.front()->worldPosition.z - (tileSize / 2.f))) && (tile->worldPosition.z < (tiles.back()->worldPosition.z + (tileSize / 2.f)));
 
 }
 
-shared_ptr<MapTile> Terrain::GetTileWithPosition(dxmath::Vector3 position)
+MapTilePtr Terrain::GetTileWithPosition(dxmath::Vector3 position)
 {
 	float x = position.x;
 	float z = position.z;
-	for each (shared_ptr<MapTile> tile in tiles)
+	for each (MapTilePtr tile in tiles)
 	{
 		if (x < (tile->worldPosition.x + (tileSize / 2.f)) && x >(tile->worldPosition.x - (tileSize / 2.f))
 			&& z < (tile->worldPosition.z + (tileSize / 2.f)) && z >(tile->worldPosition.z - (tileSize / 2.f))) {
@@ -151,55 +187,45 @@ shared_ptr<MapTile> Terrain::GetTileWithPosition(dxmath::Vector3 position)
 	return nullptr;
 }
 
-vector<shared_ptr<MapTile>> Terrain::GetPath(shared_ptr<MapTile> start, shared_ptr<MapTile> goal)
+vector<MapTilePtr> Terrain::GetPath(MapTilePtr start, MapTilePtr goal)
 {
 	if (start == nullptr || goal == nullptr || start == goal || !this->Within(start) || !this->Within(goal)) {
 		return vector<shared_ptr<MapTile>>();
 	}
 
 	if (!start->walkable || !goal->walkable) {
-		return vector<shared_ptr<MapTile>>();
+		return vector<MapTilePtr>();
 	}
 
-	for each (shared_ptr<MapTile> tile in tiles)
+	for each (MapTilePtr tile in tiles)
 	{
 		tile->f = std::numeric_limits<float>::max();
 		tile->g = std::numeric_limits<float>::max();
 	}
 
 	struct classcomp {
-		bool operator() (const shared_ptr<MapTile> lhs, const shared_ptr<MapTile> rhs) const
+		bool operator() (const MapTilePtr lhs, const MapTilePtr rhs) const
 		{
 			return lhs->g > rhs->g;
 		}
 	};
 
-	auto cmp = [](shared_ptr<MapTile> left, shared_ptr<MapTile> right) { return left->f > right->f; };
-	//std::priority_queue<int, std::vector<int>, decltype(cmp)> q3(cmp);
+	auto cmp = [](MapTilePtr left, MapTilePtr right) { return left->f > right->f; };
 
-	//set<shared_ptr<MapTile>, decltype(cmp)> openv2 = set<shared_ptr<MapTile>, decltype(cmp)>(cmp);
-
-
-	multimap<shared_ptr<MapTile>, float, classcomp> open = multimap<shared_ptr<MapTile>, float, classcomp>();
-	unordered_set<shared_ptr<MapTile>> closed = unordered_set<shared_ptr<MapTile>>();
+	multimap<MapTilePtr, float, classcomp> open = multimap<MapTilePtr, float, classcomp>();
+	unordered_set<MapTilePtr> closed = unordered_set<MapTilePtr>();
 
 	start->g = 0;
 	start->f = this->HexDistance(start->worldPosition, goal->worldPosition);
 
-	//openv2.insert(start);
-	open.insert(pair<shared_ptr<MapTile>, float>(start, start->f));
+	open.insert(pair<MapTilePtr, float>(start, start->f));
 
-	shared_ptr<MapTile> current = nullptr;
+	MapTilePtr current = nullptr;
 
-	//while(!openv2.empty() && current != goal){
 	while (!open.empty() && current != goal) {
-		multimap<shared_ptr<MapTile>, float>::iterator iter = open.begin();
+		multimap<MapTilePtr, float>::iterator iter = open.begin();
 		current = iter->first;
 		open.erase(iter);
-
-		//set<shared_ptr<MapTile>>::iterator iter = openv2.begin();
-		//current = *iter;
-		//openv2.erase(iter);
 
 		closed.insert(current);
 
@@ -208,31 +234,27 @@ vector<shared_ptr<MapTile>> Terrain::GetPath(shared_ptr<MapTile> start, shared_p
 			if (edge == nullptr) {
 				continue;
 			}
-			shared_ptr<MapTile> neighbor = edge->node2;
+			MapTilePtr neighbor = edge->node2;
 			float cost = current->g + edge->cost;
 			if (!neighbor->walkable) {
 				continue;
 			}
 			if (open.find(neighbor) != open.end() && cost < neighbor->g) {
 				open.erase(neighbor);
-				//if (openv2.find(neighbor) != openv2.end() && cost < neighbor->g) {
-				//	openv2.erase(neighbor);
 			}
 			if (closed.find(neighbor) != closed.end() && cost < neighbor->g) {
 				closed.erase(neighbor);
 			}
 			if (open.find(neighbor) == open.end() && closed.find(neighbor) == closed.end()) {
-				//if (openv2.find(neighbor) == openv2.end() && closed.find(neighbor) == closed.end()) {
 				neighbor->g = cost;
 				float f = cost + this->HexDistance(neighbor->worldPosition, goal->worldPosition); //heurystyka
 				open.insert(pair<shared_ptr<MapTile>, float>(neighbor, f));
-				//openv2.insert(neighbor);
 				neighbor->parent = current;
 			}
 		}
 	}
 
-	vector<shared_ptr<MapTile>> path = vector<shared_ptr<MapTile>>();
+	vector<MapTilePtr> path = vector<MapTilePtr>();
 
 	while (current != start) {
 		path.push_back(current);
