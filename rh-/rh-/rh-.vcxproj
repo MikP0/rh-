@@ -211,6 +211,7 @@
     <ClInclude Include="VectorHelper.h" />
     <ClInclude Include="VertexDeclarations.h" />
     <ClInclude Include="World.h" />
+    <ClInclude Include="WorldLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationClip.cpp">
@@ -334,6 +335,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="World.cpp" />
+    <ClCompile Include="WorldLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -396,6 +398,11 @@
   <ItemGroup>
     <Media Include="Resources\Audio\Explo1.wav" />
     <Media Include="Resources\Audio\Happyrock.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\tinyxml2-master\tinyxml2\tinyxml2.vcxproj">
+      <Project>{d1c528b6-aa02-4d29-9d61-dc08e317a70d}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
