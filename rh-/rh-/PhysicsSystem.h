@@ -18,6 +18,8 @@ typedef shared_ptr<OctTree> OctTreePtr;
 class PhysicsSystem : public System
 {
 public:
+	vector<CollisionPtr> AllCollisions;
+
 	PhysicsSystem(Vector3 sceneCenter, float cubeDimension);
 	~PhysicsSystem();
 
@@ -28,6 +30,7 @@ public:
 	vector<CollisionPtr> GetCurrentCollisions();
 	vector<CollisionPtr> GetCollisionsWithRay(ColliderRayPtr ray);
 	vector<CollisionPtr> GetCollisionsWithFrustum(ColliderFrustumPtr frustum);
+	vector<CollisionPtr> GetCollisionsForEntity(int entityID);
 
 	bool CheckIfShouldUpdateTree();
 	void ResetAllUpdatePositionFlags();

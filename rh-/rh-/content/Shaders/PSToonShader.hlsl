@@ -1,5 +1,4 @@
 #include "Include\\Common.fxh"
-#include "Include\\ShadowMap.fx"
 
 #define MAX_NUMBER_OF_LIGHT 10
 
@@ -30,8 +29,6 @@ cbuffer DynamicBuffer : register(b1)
 	float4x4 WorldViewProjection;
 	float3 CameraPosition;
 	float IsTextured;
-
-	float4x4 ShadowMapTransform;
 };
 
 //------------------------------------------------------------------------------
@@ -43,16 +40,13 @@ struct PixelShaderInput
 	float3 normal : NORMAL;
 	float2 texCoord : TEXCOORD0;
 	float3 worldPosition : TEXCOORD1;
-	float4 shadowPosition : TEXCOORD2;
 };
 
 //------------------------------------------------------------------------------
 // Textures and Samplers
 //------------------------------------------------------------------------------
 Texture2D ColorMap : register(t0);
-Texture2D<float2> ShadowMap : register(t1);
-//Texture2D NormalMap : register(t2);
-
+//Texture2D NormalMap : register(t1);
 
 SamplerState ColorSampler
 {
@@ -60,45 +54,6 @@ SamplerState ColorSampler
 	AddressU = WRAP;
 	AddressV = WRAP;
 };
-
-SamplerState samShadow
-{
-	Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	AddressU = BORDER;
-	AddressV = BORDER;
-	AddressW = BORDER;
-	BorderColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
-
-	ComparisonFunc = LESS;
-};
-
-
-
-
-
-
-//SamplerState ColorSampler  : register(s0)
-//{
-//	Filter = MIN_MAG_MIP_LINEAR;
-//	AddressU = WRAP;
-//	AddressV = WRAP;
-//};
-//
-//SamplerComparisonState samShadow  : register(s1);
-//{
-//	Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-//	AddressU = BORDER;
-//	AddressV = BORDER;
-//	AddressW = BORDER;
-//	BorderColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
-//
-//	ComparisonFunc = LESS;
-//};
-
-
-
-
-
 
 //------------------------------------------------------------------------------
 // A pass-through function for the (interpolated) color data.
@@ -109,10 +64,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
 
 	float3 normal = normalize(input.normal);
 	float3 viewDirection = normalize(CameraPosition - input.worldPosition);
-
-
-	float3 shadow = float3(1.0f, 1.0f, 1.0f);
-	shadow[0] = CalcShadowFactor(samShadow, ShadowMap, input.shadowPosition);
 
 
 	float4 color;
@@ -171,17 +122,20 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float n_dot_l;
 	float3 diffuse;
 
-	for (int i = 0; i < NumOfLights.y; i++)
+	float4 tempcolor = { 1.0, 1.0, 1.0, 1.0 };
+	float3 tempdir = { 2.0, -2.0, 0 };
+
+	for (int i = 0; i < 1; i++)
 	{
-		lightDirection = normalize(-DirectionalLight[i].Direction);
+		lightDirection = normalize(-tempdir);
 		n_dot_l = dot(lightDirection, normal);
 		diffuse = (float3)0;
 		if (n_dot_l > 0)
 		{
-			diffuse = DirectionalLight[i].Color.rgb * DirectionalLight[i].Color.a * n_dot_l * color.rgb;// *shadow[i];
+			diffuse = tempcolor.rgb * tempcolor.a * n_dot_l * color.rgb;
 		}
 
-		totalLightContribution += diffuse * shadow[i];
+		totalLightContribution += diffuse;
 	}
 
 	// SPOT LIGHTS

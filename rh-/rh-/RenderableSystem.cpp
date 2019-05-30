@@ -10,11 +10,18 @@ RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* 
 	_device = device;
 	_context = context;
 
-	_states = std::make_shared<DirectX::CommonStates>(_device);
+	_states = std::make_unique<DirectX::CommonStates>(_device);
 
-	_fxFactory = std::make_shared<ToonFactory>(_device);
+	_fxFactory = std::make_shared<ShadowFactory>(_device);
 
 	DebugDrawAction = std::make_unique<DebugDraw>(_device, _context);
+
+	_shadowMap = std::make_unique<ShadowMap>(device, 1024, 1024);
+
+	_renderTargetView = nullptr;
+	_depthStencilView = nullptr;
+
+	isSent = false;
 }
 
 RenderableSystem::~RenderableSystem()
@@ -23,7 +30,40 @@ RenderableSystem::~RenderableSystem()
 
 void RenderableSystem::Iterate()
 {
+	_shadowMap->BuildShadowTransform();
+	_shadowMap->BindDsvAndSetNullRenderTarget(_context);
+	_fxFactory->SetRenderingShadowMap(true);
 
+	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
+	{
+		if (renderableComponent->_model != nullptr) {
+			renderableComponent->_model->Draw(
+				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+				_shadowMap->_lightView,
+				_shadowMap->_lightProj
+			);
+		}
+		else
+		{
+			renderableComponent->_modelSkinned->DrawModel(
+				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+				_shadowMap->_lightView,
+				_shadowMap->_lightProj
+			);
+		}
+	}
+
+	_shadowMap->UnbindTargetAndViewport(_context);
+
+	_context->RSSetState(0);
+	_context->ClearRenderTargetView(_renderTargetView, Colors::Silver);
+	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	_fxFactory->SetShadowMapEnabled(true);
+	_fxFactory->SetShadowMap(_shadowMap->GetDepthMapSRV());
+	_fxFactory->SetRenderingShadowMap(false);
+	_fxFactory->SetShadowMapTransform(_shadowMap->_lightShadowTransform);
+	
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
 		if (renderableComponent->_model != nullptr) {
@@ -33,7 +73,7 @@ void RenderableSystem::Iterate()
 				renderableComponent->_camera->GetProjectionMatrix()
 			);
 		}
-		else 
+		else
 		{
 			renderableComponent->_modelSkinned->DrawModel(
 				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
@@ -59,7 +99,16 @@ void RenderableSystem::Initialize()
 		{
 			renderableComponent->_modelSkinned =
 				std::make_unique<ModelSkinned>(_device, converter.to_bytes(renderableComponent->_modelPath.c_str()), _context);
-
 		}
+	}
+}
+
+void RenderableSystem::SentDeviceResources(ID3D11RenderTargetView * renderTargetView, ID3D11DepthStencilView * depthStencilView)
+{
+	if (!isSent)
+	{
+		_renderTargetView = renderTargetView;
+		_depthStencilView = depthStencilView;
+		isSent = true;
 	}
 }

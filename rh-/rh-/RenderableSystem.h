@@ -6,6 +6,9 @@
 #include "ToonFactory.h"
 #include "DebugDraw.h"
 
+#include "ShadowMap.h"
+#include "ShadowFactory.h"
+
 class RenderableSystem :
 	public System
 {
@@ -19,13 +22,20 @@ public:
 
 	//Fields
 	std::unique_ptr<DX::DeviceResources> _deviceResources;
-	std::shared_ptr<DirectX::CommonStates> _states;
-	std::shared_ptr<ToonFactory> _fxFactory;
+	std::unique_ptr<DirectX::CommonStates> _states;
+	std::shared_ptr<ShadowFactory> _fxFactory;
 
 	ID3D11Device1* _device;
 	ID3D11DeviceContext1* _context;
 
 	bool Debug;
 	std::unique_ptr<DebugDraw> DebugDrawAction;
+
+	std::unique_ptr<ShadowMap> _shadowMap;
+	ID3D11RenderTargetView* _renderTargetView;
+	ID3D11DepthStencilView* _depthStencilView;
+	bool isSent;
+
+	void SentDeviceResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView);
 };
 

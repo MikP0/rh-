@@ -283,7 +283,7 @@ void ToonEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 	deviceContext->PSSetConstantBuffers(
 		1, 1, m_dynamicConstantBuffer.GetAddressOf());
 
-	ID3D11ShaderResourceView* textures[2];
+	ID3D11ShaderResourceView* textures[1];
 
 	if (m_isTextured)
 	{
@@ -294,17 +294,17 @@ void ToonEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		textures[0] = nullptr;
 	}
 
-	if (m_isNormalMapped)
+	/*if (m_isNormalMapped)
 	{
 		textures[1] = m_normalMap.Get();
 	}
 	else
 	{
 		textures[1] = nullptr;
-	}
+	}*/
 
 	deviceContext->PSSetShaderResources(
-		0, static_cast<UINT>(2), textures);
+		0, static_cast<UINT>(1), textures);
 
 	deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
@@ -321,14 +321,14 @@ HRESULT ToonEffect::Impl::loadShaders(ID3D11Device* device)
 {
 	try
 	{
-		m_VSBytecode = DX::ReadData(L"VertexShader.cso");
+		m_VSBytecode = DX::ReadData(L"VSToonShader.cso");
 		DX::ThrowIfFailed(device->CreateVertexShader(
 			m_VSBytecode.data(),
 			m_VSBytecode.size(),
 			nullptr,
 			m_vertexShader.ReleaseAndGetAddressOf()));
 
-		auto psData = DX::ReadData(L"PixelShader.cso");
+		auto psData = DX::ReadData(L"PSToonShader.cso");
 		DX::ThrowIfFailed(device->CreatePixelShader(
 			psData.data(),
 			psData.size(),

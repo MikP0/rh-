@@ -7,6 +7,7 @@ PhysicsSystem::PhysicsSystem(Vector3 sceneCenter, float cubeDimension) : System(
 	_sceneCubeDimension = cubeDimension;
 	ColliderAABBptr region = make_shared<ColliderAABB>(XMFLOAT3(_sceneCenter), XMFLOAT3(Vector3(_sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f, _sceneCubeDimension / 2.0f)));
 	_octTree = make_shared<OctTree>(region);
+	AllCollisions.reserve(30);
 }
 
 
@@ -84,6 +85,31 @@ vector<CollisionPtr> PhysicsSystem::GetCollisionsWithFrustum(ColliderFrustumPtr 
 	return vector<CollisionPtr>(collisionList.begin(), collisionList.end());
 }
 
+vector<CollisionPtr> PhysicsSystem::GetCollisionsForEntity(int entityID)
+{
+	vector<CollisionPtr> result;
+
+	for each(auto collision in AllCollisions)
+	{
+		if (collision->OriginObject->GetId() == entityID)
+		{
+			result.push_back(collision);
+			continue;
+		}
+
+		if (collision->CollidingObject->GetId() == entityID)
+		{
+			CollisionPtr coll = make_shared<Collision>(collision);
+			swap(coll->OriginObject, coll->CollidingObject);
+			result.push_back(coll);
+			continue;
+		}
+	}
+
+	return result;
+}
+
+
 bool PhysicsSystem::CheckIfShouldUpdateTree()
 {
 	for (auto component : _world->GetComponents<PhysicsComponent>())
@@ -116,6 +142,7 @@ void PhysicsSystem::Initialize()
 
 void PhysicsSystem::Iterate()
 {
+	AllCollisions.clear();
 	UpdateCollidersPositions();
 
 	if (CheckIfShouldUpdateTree())
@@ -131,14 +158,11 @@ void PhysicsSystem::Iterate()
 		_octTree->UnloadContent();
 		_octTree->InsertIntoTree(activeComponents);
 		_octTree->BuildTree();
+		AllCollisions = GetCurrentCollisions();
 		ResetAllUpdatePositionFlags();
 	}
 
-	/*vector<CollisionPtr> testCollisions = GetCurrentCollisions();
-	if (testCollisions.size() > 0)
-	{
-		bool presentCollisions = true;
-	}*/
+	
 }
 
 vector<ColliderBasePtr> PhysicsSystem::GetColliders()
