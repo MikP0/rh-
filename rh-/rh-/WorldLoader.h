@@ -4,8 +4,11 @@
 
 #include "World.h"
 #include "Camera.h"
+
 #include "RenderableComponent.h"
 #include "LightComponent.h"
+#include "AudioComponent.h"
+#include "PhysicsComponent.h"
 
 class WorldLoader
 {

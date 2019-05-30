@@ -358,7 +358,6 @@
     <None Include="FloorToRoom.cmo" />
     <None Include="FloorToRoom.mtl" />
     <None Include="packages.config" />
-    <None Include="x64\Debug\tinyxml2.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="content\Shaders\Include\ShadowMap.fx">

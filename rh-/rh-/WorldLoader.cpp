@@ -24,70 +24,331 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 	tx::XMLError eResult = xmlLevel.LoadFile(filename.c_str());
 	if (eResult != tx::XML_SUCCESS) return;
 
-	tx::XMLNode* root = xmlLevel.FirstChild();
-	if (root != nullptr) 
+	tx::XMLNode * root = xmlLevel.FirstChild();
+	if (root != nullptr)
 	{
 		tx::XMLElement* eEntities = root->FirstChildElement("Entities");
-		if (eEntities != nullptr) 
+		if (eEntities != nullptr)
 		{
 			tx::XMLElement* eEntity = eEntities->FirstChildElement("Entity");
-			while(eEntity)
+			while (eEntity)
 			{
 				auto oEntity = _world->CreateEntity(eEntity->FirstAttribute()->Value());
-				
+
 				tx::XMLElement* eXCoord = eEntity->FirstChildElement("x");
-				if (eXCoord != nullptr) 
+				if (eXCoord != nullptr)
 				{
 					oEntity->GetTransform()->SetX(atof(eXCoord->GetText()));
 				}
 
 				tx::XMLElement* eYCoord = eEntity->FirstChildElement("y");
-				if(eYCoord != nullptr)
+				if (eYCoord != nullptr)
 				{
 					oEntity->GetTransform()->SetY(atof(eYCoord->GetText()));
 				}
 
 				tx::XMLElement* eZCoord = eEntity->FirstChildElement("z");
-				if(eZCoord != nullptr)
+				if (eZCoord != nullptr)
 				{
 					oEntity->GetTransform()->SetZ(atof(eZCoord->GetText()));
 				}
 
 				tx::XMLElement* eComponents = eEntity->FirstChildElement("Components");
-				if(eComponents != nullptr)
+				if (eComponents != nullptr)
 				{
 					tx::XMLElement* eRenderableComponent = eComponents->FirstChildElement("RenderableComponent");
-					if (eRenderableComponent != nullptr) 
+					if (eRenderableComponent != nullptr)
 					{
 						tx::XMLElement* eRenderableComponentPath = eRenderableComponent->FirstChildElement("Path");
-						if(eRenderableComponentPath != nullptr)
+						if (eRenderableComponentPath != nullptr)
 						{
 							std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
 							oEntity->AddComponent<RenderableComponent>(converter.from_bytes(eRenderableComponentPath->GetText()), _camera);
 						}
 					}
-					
+
 					tx::XMLElement* eLightComponent = eComponents->FirstChildElement("LightComponent");
 					if (eLightComponent != nullptr)
 					{
-						if(eLightComponent->FirstAttribute()->Value() == "DirectLight")
+						if (eLightComponent->FirstAttribute()->Value() == "DirectLight")
 						{
-							//oEntity->AddComponent<LightComponent>();
+							DirectX::XMFLOAT4 aColor;
+							DirectX::XMFLOAT3 aDirection;
+
+							tx::XMLElement* eLightComponentColor = eLightComponent->FirstChildElement("Color");
+							if (eLightComponentColor != nullptr)
+							{
+								tx::XMLElement* eLightComponentColor_x = eLightComponentColor->FirstChildElement("x");
+								if (eLightComponentColor_x != nullptr)
+								{
+									aColor.x = atof(eLightComponentColor_x->GetText());
+								}
+								tx::XMLElement* eLightComponentColor_y = eLightComponentColor->FirstChildElement("y");
+								if (eLightComponentColor_y != nullptr)
+								{
+									aColor.y = atof(eLightComponentColor_y->GetText());
+								}
+								tx::XMLElement* eLightComponentColor_z = eLightComponentColor->FirstChildElement("z");
+								if (eLightComponentColor_z != nullptr)
+								{
+									aColor.z = atof(eLightComponentColor_z->GetText());
+								}
+								tx::XMLElement* eLightComponentColor_w = eLightComponentColor->FirstChildElement("w");
+								if (eLightComponentColor_w != nullptr)
+								{
+									aColor.w = atof(eLightComponentColor_w->GetText());
+								}
+
+							}
+							tx::XMLElement* eLightComponentDirection = eLightComponent->FirstChildElement("Direction");
+							if (eLightComponentDirection != nullptr)
+							{
+								tx::XMLElement* eLightComponentDirection_x = eLightComponentDirection->FirstChildElement("x");
+								if (eLightComponentDirection_x != nullptr)
+								{
+									aDirection.x = atof(eLightComponentDirection_x->GetText());
+								}
+								tx::XMLElement* eLightComponentDirection_y = eLightComponentDirection->FirstChildElement("y");
+								if (eLightComponentDirection_y != nullptr)
+								{
+									aDirection.y = atof(eLightComponentDirection_y->GetText());
+								}
+								tx::XMLElement* eLightComponentDirection_z = eLightComponentDirection->FirstChildElement("z");
+								if (eLightComponentDirection_z != nullptr)
+								{
+									aDirection.z = atof(eLightComponentDirection_z->GetText());
+								}
+							}
+							oEntity->AddComponent<LightComponent>(aColor, aDirection);
 						}
 						else if (eLightComponent->FirstAttribute()->Value() == "SpotLight")
 						{
+							DirectX::XMFLOAT4 aColor;
+							DirectX::XMFLOAT3 aDirection;
+							float aOuterAngle;
+							DirectX::XMFLOAT3 aPosition;
+							float aInnerAngle;
+							float aRadius;
+							bool aUpdatable;
 
+							tx::XMLElement* eLightComponentColor = eLightComponent->FirstChildElement("Color");
+							if (eLightComponentColor != nullptr)
+							{
+								tx::XMLElement* eLightComponentColor_x = eLightComponentColor->FirstChildElement("x");
+								if (eLightComponentColor_x != nullptr)
+								{
+									aColor.x = atof(eLightComponentColor_x->GetText());
+								}
+								tx::XMLElement* eLightComponentColor_y = eLightComponentColor->FirstChildElement("y");
+								if (eLightComponentColor_y != nullptr)
+								{
+									aColor.y = atof(eLightComponentColor_y->GetText());
+								}
+								tx::XMLElement* eLightComponentColor_z = eLightComponentColor->FirstChildElement("z");
+								if (eLightComponentColor_z != nullptr)
+								{
+									aColor.z = atof(eLightComponentColor_z->GetText());
+								}
+								tx::XMLElement* eLightComponentColor_w = eLightComponentColor->FirstChildElement("w");
+								if (eLightComponentColor_w != nullptr)
+								{
+									aColor.w = atof(eLightComponentColor_w->GetText());
+								}
+							}
+							tx::XMLElement* eLightComponentDirection = eLightComponent->FirstChildElement("Direction");
+							if (eLightComponentDirection != nullptr)
+							{
+								tx::XMLElement* eLightComponentDirection_x = eLightComponentDirection->FirstChildElement("x");
+								if (eLightComponentDirection_x != nullptr)
+								{
+									aDirection.x = atof(eLightComponentDirection_x->GetText());
+								}
+								tx::XMLElement* eLightComponentDirection_y = eLightComponentDirection->FirstChildElement("y");
+								if (eLightComponentDirection_y != nullptr)
+								{
+									aDirection.y = atof(eLightComponentDirection_y->GetText());
+								}
+								tx::XMLElement* eLightComponentDirection_z = eLightComponentDirection->FirstChildElement("z");
+								if (eLightComponentDirection_z != nullptr)
+								{
+									aDirection.z = atof(eLightComponentDirection_z->GetText());
+								}
+							}
+							tx::XMLElement* eLightComponentOuterAngle = eLightComponent->FirstChildElement("OuterAngle");
+							if (eLightComponentOuterAngle != nullptr)
+							{
+								aOuterAngle = atof(eLightComponentOuterAngle->GetText());
+							}
+							tx::XMLElement* eLightComponentPosition = eLightComponent->FirstChildElement("Position");
+							if (eLightComponentPosition != nullptr)
+							{
+								tx::XMLElement* eLightComponentPosition_x = eLightComponent->FirstChildElement("x");
+								if (eLightComponentPosition_x != nullptr)
+								{
+									aPosition.x = atof(eLightComponentPosition_x->GetText());
+								}
+								tx::XMLElement* eLightComponentPosition_y = eLightComponent->FirstChildElement("y");
+								if (eLightComponentPosition_y != nullptr)
+								{
+									aPosition.y = atof(eLightComponentPosition_y->GetText());
+								}
+								tx::XMLElement* eLightComponentPosition_z = eLightComponent->FirstChildElement("z");
+								if (eLightComponentPosition_z != nullptr)
+								{
+									aPosition.z = atof(eLightComponentPosition_z->GetText());
+								}
+							}
+							tx::XMLElement* eLightComponentInnerAngle = eLightComponent->FirstChildElement("InnerAngle");
+							if (eLightComponentInnerAngle != nullptr)
+							{
+								aInnerAngle = atof(eLightComponentInnerAngle->GetText());
+							}
+							tx::XMLElement* eLightComponentRadius = eLightComponent->FirstChildElement("Radius");
+							if (eLightComponentRadius != nullptr)
+							{
+								aRadius = atof(eLightComponentRadius->GetText());
+							}
+							tx::XMLElement* eLightComponentUpdatable = eLightComponent->FirstChildElement("Updatable");
+							if (eLightComponentUpdatable != nullptr)
+							{
+								aUpdatable = atoi(eLightComponentUpdatable->GetText());
+							}
+							oEntity->AddComponent<LightComponent>(aColor, aDirection, aOuterAngle, aPosition, aInnerAngle, aRadius, aUpdatable);
 						}
+
+
 						else if (eLightComponent->FirstAttribute()->Value() == "PointLight")
 						{
+							DirectX::XMFLOAT4 aColor;
+							DirectX::XMFLOAT3 aPosition;
+							float aRadius;
+							bool aUpdatable;
 
+							tx::XMLElement* eLightComponentColor = eLightComponent->FirstChildElement("Color");
+							if (eLightComponentColor != nullptr)
+							{
+								tx::XMLElement* eLightComponentColor_x = eLightComponentColor->FirstChildElement("x");
+								if (eLightComponentColor_x != nullptr)
+								{
+									aColor.x = atof(eLightComponentColor_x->GetText());
+								}
+								tx::XMLElement* eLightComponentColor_y = eLightComponentColor->FirstChildElement("y");
+								if (eLightComponentColor_y != nullptr)
+								{
+									aColor.y = atof(eLightComponentColor_y->GetText());
+								}
+								tx::XMLElement* eLightComponentColor_z = eLightComponentColor->FirstChildElement("z");
+								if (eLightComponentColor_z != nullptr)
+								{
+									aColor.z = atof(eLightComponentColor_z->GetText());
+								}
+								tx::XMLElement* eLightComponentColor_w = eLightComponentColor->FirstChildElement("w");
+								if (eLightComponentColor_w != nullptr)
+								{
+									aColor.w = atof(eLightComponentColor_w->GetText());
+								}
+							}
+							tx::XMLElement* eLightComponentPosition = eLightComponent->FirstChildElement("Position");
+							if (eLightComponentPosition != nullptr)
+							{
+								tx::XMLElement* eLightComponentPosition_x = eLightComponent->FirstChildElement("x");
+								if (eLightComponentPosition_x != nullptr)
+								{
+									aPosition.x = atof(eLightComponentPosition_x->GetText());
+								}
+								tx::XMLElement* eLightComponentPosition_y = eLightComponent->FirstChildElement("y");
+								if (eLightComponentPosition_y != nullptr)
+								{
+									aPosition.y = atof(eLightComponentPosition_y->GetText());
+								}
+								tx::XMLElement* eLightComponentPosition_z = eLightComponent->FirstChildElement("z");
+								if (eLightComponentPosition_z != nullptr)
+								{
+									aPosition.z = atof(eLightComponentPosition_z->GetText());
+								}
+							}
+							tx::XMLElement* eLightComponentRadius = eLightComponent->FirstChildElement("Radius");
+							if (eLightComponentRadius != nullptr)
+							{
+								aRadius = atof(eLightComponentRadius->GetText());
+							}
+							tx::XMLElement* eLightComponentUpdatable = eLightComponent->FirstChildElement("Updatable");
+							if (eLightComponentUpdatable != nullptr)
+							{
+								aUpdatable = atoi(eLightComponentUpdatable->GetText());
+							}
+							oEntity->AddComponent<LightComponent>(aColor, aPosition, aRadius, aUpdatable);
 						}
+					}
+
+					tx::XMLElement* eAudioComponent = eComponents->FirstChildElement("AudioComponent");
+					if (eAudioComponent != nullptr) 
+					{
+						tx::XMLElement* eAudioComponentPath = eAudioComponent->FirstChildElement("Path");
+						if(eAudioComponentPath != nullptr)
+						{
+							oEntity->AddComponent<AudioComponent>(eAudioComponentPath->GetText());
+						}
+					}
+
+					tx::XMLElement* ePhysicsComponent = eComponents->FirstChildElement("PhysicsComponent");
+					if(ePhysicsComponent != nullptr)
+					{
+						DirectX::SimpleMath::Vector3 aPositionOffset;
+						DirectX::XMFLOAT3 aExtents;
+						bool aIsTriggered;
+
+						tx::XMLElement* ePhysicsComponentPositionOffset = ePhysicsComponent->FirstChildElement("PositionOffset");
+						if(ePhysicsComponentPositionOffset != nullptr)
+						{
+							tx::XMLElement* ePhysicsComponentPositionOffset_x = ePhysicsComponent->FirstChildElement("x");
+							if(ePhysicsComponentPositionOffset_x != nullptr)
+							{
+								aPositionOffset.x = atof(ePhysicsComponentPositionOffset_x->GetText());
+							}
+							tx::XMLElement* ePhysicsComponentPositionOffset_y = ePhysicsComponent->FirstChildElement("y");
+							if (ePhysicsComponentPositionOffset_y != nullptr)
+							{
+								aPositionOffset.y = atof(ePhysicsComponentPositionOffset_y->GetText());
+							}
+							tx::XMLElement* ePhysicsComponentPositionOffset_z = ePhysicsComponent->FirstChildElement("z");
+							if (ePhysicsComponentPositionOffset_z != nullptr)
+							{
+								aPositionOffset.z = atof(ePhysicsComponentPositionOffset_z->GetText());
+							}
+						}
+
+						tx::XMLElement* ePhysicsComponentExtents = ePhysicsComponent->FirstChildElement("Extents");
+						if(ePhysicsComponentExtents != nullptr)
+						{
+							tx::XMLElement* ePhysicsComponentExtents_x = ePhysicsComponentExtents->FirstChildElement("x");
+							if(ePhysicsComponentExtents_x != nullptr)
+							{
+								aExtents.x = atof(ePhysicsComponentExtents_x->GetText());
+							}
+							tx::XMLElement* ePhysicsComponentExtents_y = ePhysicsComponentExtents->FirstChildElement("y");
+							if (ePhysicsComponentExtents_y != nullptr)
+							{
+								aExtents.y = atof(ePhysicsComponentExtents_y->GetText());
+							}
+							tx::XMLElement* ePhysicsComponentExtents_z = ePhysicsComponentExtents->FirstChildElement("z");
+							if (ePhysicsComponentExtents_z != nullptr)
+							{
+								aExtents.z = atof(ePhysicsComponentExtents_z->GetText());
+							}
+						}
+
+						tx::XMLElement* ePhysicsComponentIsTriggered = ePhysicsComponent->FirstChildElement("IsTriggered");
+						if(ePhysicsComponentIsTriggered != nullptr)
+						{
+							aIsTriggered = atoi(ePhysicsComponentIsTriggered->GetText());
+						}
+
+						oEntity->AddComponent<PhysicsComponent>(aPositionOffset, aExtents, aIsTriggered);
 					}
 				}
 				eEntity = eEntity->NextSiblingElement("Entity");
 			}
 		}
 	}
-	
-
 }
