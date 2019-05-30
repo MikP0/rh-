@@ -53,10 +53,10 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					oEntity->GetTransform()->SetZ(atof(eZCoord->GetText()));
 				}
 
-				tx::XMLElement* eComponent = eEntity->FirstChildElement("Component");
-				while(eComponent)
+				tx::XMLElement* eComponents = eEntity->FirstChildElement("Components");
+				if(eComponents != nullptr)
 				{
-					tx::XMLElement* eRenderableComponent = eComponent->FirstChildElement("RenderableComponent");
+					tx::XMLElement* eRenderableComponent = eComponents->FirstChildElement("RenderableComponent");
 					if (eRenderableComponent != nullptr) 
 					{
 						tx::XMLElement* eRenderableComponentPath = eRenderableComponent->FirstChildElement("Path");
@@ -66,7 +66,23 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							oEntity->AddComponent<RenderableComponent>(converter.from_bytes(eRenderableComponentPath->GetText()), _camera);
 						}
 					}
-					eComponent = eComponent->NextSiblingElement("Component");
+					
+					tx::XMLElement* eLightComponent = eComponents->FirstChildElement("LightComponent");
+					if (eLightComponent != nullptr)
+					{
+						if(eLightComponent->FirstAttribute()->Value() == "DirectLight")
+						{
+							//oEntity->AddComponent<LightComponent>();
+						}
+						else if (eLightComponent->FirstAttribute()->Value() == "SpotLight")
+						{
+
+						}
+						else if (eLightComponent->FirstAttribute()->Value() == "PointLight")
+						{
+
+						}
+					}
 				}
 				eEntity = eEntity->NextSiblingElement("Entity");
 			}

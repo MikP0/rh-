@@ -4,12 +4,22 @@
             <x>0</x>
             <y>3</y>
             <z>0</z>
-            <Component>
+            <Components>
                 <RenderableComponent>
                     <Path>cup.cmo</Path>
                 </RenderableComponent>
-            </Component>
+            </Components>
         </Entity>
 
+        <Entity name="cup2">
+            <x>2</x>
+            <y>3</y>
+            <z>0</z>
+            <Components>
+                <RenderableComponent>
+                    <Path>cup.cmo</Path>
+                </RenderableComponent>
+            </Components>
+        </Entity>
     </Entities>
 </Level>
