@@ -620,6 +620,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), false);
 	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
 
+	worldLoader = std::make_shared<WorldLoader>(world, &camera);
+
+	worldLoader->LoadWorldFromXML("testLevel.xml");
 
 	// Creation of renderable components
 	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);

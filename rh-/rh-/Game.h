@@ -29,6 +29,8 @@
 #include "NavMesh.h"
 #include "Terrain.h"
 
+#include "WorldLoader.h"
+
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 
@@ -212,4 +214,7 @@ private:
 
 	//World
 	std::shared_ptr<World> world;
+
+	//World Loader
+	std::shared_ptr<WorldLoader> worldLoader;
 };

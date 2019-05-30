@@ -444,4 +444,7 @@
       <Filter>Assets</Filter>
     </Media>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="testLevel.xml" />
+  </ItemGroup>
 </Project>

@@ -1,0 +1,15 @@
+<Level>
+    <Entities>
+        <Entity name="cup1">
+            <x>0</x>
+            <y>3</y>
+            <z>0</z>
+            <Component>
+                <RenderableComponent>
+                    <Path>cup.cmo</Path>
+                </RenderableComponent>
+            </Component>
+        </Entity>
+
+    </Entities>
+</Level>
