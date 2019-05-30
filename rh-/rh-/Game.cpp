@@ -123,6 +123,7 @@ void Game::Update(DX::StepTimer const& timer)
 						component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
 						component->_modelSkinned->SetInMove(true);
 						component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+						isDancing = true;
 					}
 				}
 			}
@@ -137,6 +138,7 @@ void Game::Update(DX::StepTimer const& timer)
 						component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
 						component->_modelSkinned->SetInMove(true);
 						component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+						isDancing = true;
 					}
 				}
 			}
@@ -144,6 +146,15 @@ void Game::Update(DX::StepTimer const& timer)
 			if (*iter == playBackground)
 			{
 				audioBackgroundSound->Mute = false;
+
+				//for (auto component : world->GetComponents<RenderableComponent>())
+				//{
+				//	if (strcmp(component->GetParent()->GetName().c_str(),
+				//		"Player") == 0)
+				//	{
+				//		component->_modelSkinned->GetAnimatorPlayer()->Update(elapsedTime); // -> Renderable System -> Iterate()
+				//	}
+				//}
 			}
 
 			if (*iter == playSound1)
@@ -152,6 +163,17 @@ void Game::Update(DX::StepTimer const& timer)
 
 				if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
 					healthBarHealthPos.x -= 5.f;
+
+
+				for (auto component : world->GetComponents<RenderableComponent>())
+				{
+					if (strcmp(component->GetParent()->GetName().c_str(),
+						"Player") == 0)
+					{
+						component->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
+					}
+				}
+
 			}
 
 			if (*iter == freeCamera) {
@@ -180,8 +202,11 @@ void Game::Update(DX::StepTimer const& timer)
 				if (strcmp(component->GetParent()->GetName().c_str(),
 					"Player") == 0)
 				{
-					component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-					component->_modelSkinned->SetInMove(true);
+					if (!isDancing)
+					{
+						component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+						component->_modelSkinned->SetInMove(true);
+					}
 				}
 			}
 		}
@@ -328,7 +353,7 @@ void Game::UpdateObjects(float elapsedTime)
 	if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
-		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.5f, posOnGround.z));
+		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
 	}
 
 	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
@@ -366,7 +391,7 @@ void Game::UpdateObjects(float elapsedTime)
 		}
 	}
 
-	// skinned model
+	//// skinned model
 	for (auto component : world->GetComponents<RenderableComponent>())
 	{
 		if (strcmp(component->GetParent()->GetName().c_str(),
@@ -535,7 +560,7 @@ void Game::OnNewAudioDevice()
 void Game::GetDefaultSize(int& width, int& height)
 {
 	// TODO: Change to desired default window size (note minimum size is 320x200).
-	int w = 800, h = 600;
+	int w = 1450, h = 1024;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
 	width = w;
@@ -782,6 +807,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"Player") == 0)
 		{
+			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Idle.fbx", "Idle");
+			component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+			//component->_modelSkinned->GetAnimatorPlayer()->PauseClip();
 			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
 			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
 			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");

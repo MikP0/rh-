@@ -14,6 +14,7 @@ class AnimationClip
 
 public:
 	~AnimationClip();
+	AnimationClip(const AnimationClip &clip);
 
 	const std::string& Name() const;
 	void SetName(std::string name);
@@ -35,9 +36,9 @@ public:
 
 	AnimationClip(ModelSK& model, aiAnimation& animation);
 
-private:
+//private:
 	AnimationClip();
-	AnimationClip(const AnimationClip& rhs);
+	//AnimationClip(const AnimationClip& rhs);
 	AnimationClip& operator=(const AnimationClip& rhs);
 
 	std::string mName;

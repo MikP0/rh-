@@ -212,4 +212,9 @@ private:
 
 	//World
 	std::shared_ptr<World> world;
+
+
+
+
+	bool isDancing = false;
 };
