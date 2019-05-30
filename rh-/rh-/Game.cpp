@@ -115,16 +115,30 @@ void Game::Update(DX::StepTimer const& timer)
 
 			if (*iter == special1)
 			{
-				mSkinModel->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
-				mSkinModel->SetInMove(true);
-				mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+				for (auto component : world->GetComponents<RenderableComponent>())
+				{
+					if (strcmp(component->GetParent()->GetName().c_str(),
+						"Player") == 0)
+					{
+						component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
+						component->_modelSkinned->SetInMove(true);
+						component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+					}
+				}
 			}
 
 			if (*iter == special2)
 			{
-				mSkinModel->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
-				mSkinModel->SetInMove(true);
-				mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+				for (auto component : world->GetComponents<RenderableComponent>())
+				{
+					if (strcmp(component->GetParent()->GetName().c_str(),
+						"Player") == 0)
+					{
+						component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
+						component->_modelSkinned->SetInMove(true);
+						component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+					}
+				}
 			}
 
 			if (*iter == playBackground)
@@ -161,14 +175,29 @@ void Game::Update(DX::StepTimer const& timer)
 
 		if (!navMesh->isMoving)
 		{
-			mSkinModel->GetAnimatorPlayer()->StartClip("Idle");
-			mSkinModel->SetInMove(true);
+			for (auto component : world->GetComponents<RenderableComponent>())
+			{
+				if (strcmp(component->GetParent()->GetName().c_str(),
+					"Player") == 0)
+				{
+					component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+					component->_modelSkinned->SetInMove(true);
+				}
+			}
 		}
 
-		else {
-			mSkinModel->GetAnimatorPlayer()->StartClip("Walk");
-			mSkinModel->SetInMove(true);
-			mSkinModel->GetAnimatorPlayer()->SetDirection(true);
+		else 
+		{
+			for (auto component : world->GetComponents<RenderableComponent>())
+			{
+				if (strcmp(component->GetParent()->GetName().c_str(),
+					"Player") == 0)
+				{
+					component->_modelSkinned->GetAnimatorPlayer()->StartClip("Walk");
+					component->_modelSkinned->SetInMove(true);
+					component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+				}
+			}
 		}
 	}
 
@@ -212,8 +241,8 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 
 		else {
-			camera.SetPosition(mSkinModelTransform->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom())); //FIXME: Change to Entity Transform
-			camera.SetLookAtPos(mSkinModelTransform->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
+			camera.SetPosition(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom())); //FIXME: Change to Entity Transform
+			camera.SetLookAtPos(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
 			camera.SetPitch(0);
 			camera.SetYaw(0);
 		}
@@ -337,8 +366,14 @@ void Game::UpdateObjects(float elapsedTime)
 	}
 
 	// skinned model
-	mSkinModel->GetAnimatorPlayer()->Update(elapsedTime); // -> Renderable System -> Iterate()
-	
+	for (auto component : world->GetComponents<RenderableComponent>())
+	{
+		if (strcmp(component->GetParent()->GetName().c_str(),
+			"Player") == 0)
+		{
+			component->_modelSkinned->GetAnimatorPlayer()->Update(elapsedTime); // -> Renderable System -> Iterate()
+		}
+	}
 }
 
 #pragma endregion
@@ -384,18 +419,14 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	terrain->Draw(camera, m_roomTex);
 
-	//if (debugDraw) //REMOVE
-	//	renderableSystem->DebugDrawAction->DrawOctTree(
-	//		collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
-
-	// skinned model
-	mSkinModel->DrawModel(context, *m_states, mSkinModelTransform->GetTransformMatrix(), cameraView, cameraProjection); // Player Entity -> Renderable Component
-
+	if (debugDraw) //REMOVE
+		renderableSystem->DebugDrawAction->DrawOctTree(
+			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
 	uiSpriteBatch->Begin(); // TODO: UI System
 
 	// show depth map
-	uiSpriteBatch->Draw(renderableSystem->_shadowMap->GetDepthMapSRV(), Vector2(450, 250), nullptr, Colors::White, 0.f, Vector2(0, 0), 0.3f);
+	//uiSpriteBatch->Draw(renderableSystem->_shadowMap->GetDepthMapSRV(), Vector2(450, 250), nullptr, Colors::White, 0.f, Vector2(0, 0), 0.3f);
 
 	uiSpriteBatch->Draw(healthBarTex.Get(), healthBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.25f);
@@ -578,6 +609,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	spotLightEntity1 = world->CreateEntity("SpotLight1");
 	directLightEntity1 = world->CreateEntity("DirectLight1");
 	myEntityFloor = world->CreateEntity("FloorForShadows");
+	playerEntity = world->CreateEntity("Player");
 
 	// Creation of audio components ------------------------------------------------------------------
 	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
@@ -594,6 +626,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntityFloor->AddComponent<RenderableComponent>(L"FloorToRoom.cmo", &camera);
+	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
 
 	// Creation of light components ------------------------------------------------------------------
 	//pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
@@ -620,9 +653,10 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
 
 	myEntityFloor->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
-	myEntityFloor->GetTransform()->SetPosition(Vector3(0.0f, 2.52f, 0.0f));
+	myEntityFloor->GetTransform()->SetPosition(Vector3(-3.5f, 2.52f, -3.5f));
 
-
+	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 
 	// Setting up parameters of audio -- REMOVE
 	for (auto component : world->GetComponents<AudioComponent>())
@@ -672,25 +706,12 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	// Setting up terrain tile map -------------------------------------------------------------------
 	terrain->InitTileMap(context);
 	
-	// Initialization of systems ---------------------------------------------------------------------
-
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"roomtexture.dds",
 			nullptr, m_roomTex.ReleaseAndGetAddressOf())); //REMOVE
-
-	//Setting up skinned model -----------------------------------------------------------------------
-	mSkinModel = std::make_shared<ModelSkinned>(device, "content\\Models\\Hero.fbx", context); // Player Entity
-	mSkinModel->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk"); // -> Other Components
-	mSkinModel->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
-	mSkinModel->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
-	mSkinModelTransform = std::make_shared<Transform>();
-	mSkinModelTransform->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-	mSkinModelTransform->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
-
-
 	//Setting up NavMesh ------------------------------------------------------------------------------
-	navMesh = std::make_shared<NavMesh>(mSkinModelTransform);
+	navMesh = std::make_shared<NavMesh>(playerEntity->GetTransform());
 	navMesh->terrain = this->terrain;
 
 	//Setting up UI -----------------------------------------------------------------------------------
@@ -744,10 +765,27 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	menuIsOn = false;
 
+
+	// Initialization of systems ---------------------------------------------------------------------
 	world->InitializeSystem<AudioSystem>();
 	world->InitializeSystem<PhysicsSystem>();
 	world->InitializeSystem<RenderableSystem>();
 	world->InitializeSystem<LightSystem>();
+
+
+	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
+
+	//Setting up skinned model -----------------------------------------------------------------------
+	for (auto component : world->GetComponents<RenderableComponent>())
+	{
+		if (strcmp(component->GetParent()->GetName().c_str(),
+			"Player") == 0)
+		{
+			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
+			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
+			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
+		}
+	}
 
 	//world->RefreshWorld();
 }

@@ -103,6 +103,8 @@ private:
 	std::shared_ptr<Entity> myEntity5;
 	std::shared_ptr<Entity> myEntity6;
 
+	std::shared_ptr<Entity> playerEntity;
+
 	// floor for shadows
 	std::shared_ptr<Entity> myEntityFloor;
 
@@ -155,10 +157,6 @@ private:
 	// mouse settings
 	float m_pitch;
 	float m_yaw;
-
-	// skinned model
-	std::shared_ptr<ModelSkinned> mSkinModel;
-	std::shared_ptr<Transform> mSkinModelTransform;
 
 	// billboarding
 	std::shared_ptr<DirectX::GeometricPrimitive> m_plane;

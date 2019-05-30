@@ -63,7 +63,7 @@ void RenderableSystem::Iterate()
 	_fxFactory->SetShadowMap(_shadowMap->GetDepthMapSRV());
 	_fxFactory->SetRenderingShadowMap(false);
 	_fxFactory->SetShadowMapTransform(_shadowMap->_lightShadowTransform);
-
+	
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
 		if (renderableComponent->_model != nullptr) {
