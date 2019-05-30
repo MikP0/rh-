@@ -43,8 +43,8 @@ void Terrain::SetTilePositionsAndTypes()
 			tiles[i *heightInTiles + j]->worldPosition = Vector3(i*1.f, 0.f, j*1.f);
 			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
 			//if (i*j % 15 < 10) {
-				tiles[i *heightInTiles + j]->type = TileType::grass;
-				tiles[i *heightInTiles + j]->walkable = true;
+			tiles[i *heightInTiles + j]->type = TileType::grass;
+			tiles[i *heightInTiles + j]->walkable = true;
 			//}
 			//else {
 			//	tiles[i *heightInTiles + j]->type = TileType::fire;
@@ -122,12 +122,33 @@ void Terrain::Update(vector<ColliderBasePtr> colliders)
 {
 	typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 	typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
-	//this->ClearTiles();
+	this->ClearTiles();
 	for each (ColliderBasePtr collider in colliders)
 	{
 		if (collider->Type == AABB) {
 			ColliderAABBptr colliderr = dynamic_pointer_cast<ColliderAABB>(collider);
-			this->MakeOcupied(colliderr->GetCenter());
+			Vector3 center = colliderr->GetCenter();
+			Vector3 a = center + colliderr->GetExtents();
+			Vector3 b = center - colliderr->GetExtents();
+			Vector3 temp1 = a;
+			Vector3 temp2 = Vector3(temp1.x, temp1.y, b.z);
+			for (temp1.x; temp1.x > b.x; temp1.x -= tileSize / 3.f) {
+				temp2.x = temp1.x;
+				this->MakeOcupied(temp1);
+				this->MakeOcupied(temp2);
+			}
+			temp1 = a;
+			temp2 = Vector3(b.x, temp1.y, temp1.z);
+			for (temp1.z; temp1.z > b.z; temp1.z -= tileSize / 3.f) {
+				temp2.z = temp1.z;
+				this->MakeOcupied(temp1);
+				this->MakeOcupied(temp2);
+			}
+			this->MakeOcupied(center);
+			this->MakeOcupied(a);
+			this->MakeOcupied(b);
+
+
 			continue;
 		}
 		if (collider->Type == Sphere) {
@@ -145,6 +166,19 @@ void Terrain::ClearTiles() {
 	}
 }
 
+void Terrain::CoverTilesInRange(dxmath::Vector3 position, float range)
+{
+	MapTilePtr tile = GetTileWithPosition(position);
+	if (tile != nullptr) {
+		for each (shared_ptr<MapEdge> edge in tile->edges)
+		{
+
+			//abs(edge->node2->worldPosition-)
+			//if(edge->node2)
+		}
+	}
+}
+
 bool Terrain::CanWalk(dxmath::Vector3 position)
 {
 	if ((position.x > (tiles.front()->worldPosition.x - (tileSize / 2.f))) && (position.x < (tiles.back()->worldPosition.x + (tileSize / 2.f)))
@@ -152,7 +186,7 @@ bool Terrain::CanWalk(dxmath::Vector3 position)
 
 		MapTilePtr tempPtr = this->GetTileWithPosition(position);
 		if (tempPtr != nullptr) {
-			if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.1f) {
+			if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.07f) {
 				return true;
 			}
 			return tempPtr->walkable;
@@ -185,6 +219,22 @@ MapTilePtr Terrain::GetTileWithPosition(dxmath::Vector3 position)
 		}
 	}
 	return nullptr;
+}
+
+Vector3 Terrain::GetNearestNeighbor(dxmath::Vector3 position)
+{
+	MapTilePtr tile = this->GetTileWithPosition(position);
+	float distance = 100.f;
+	MapTilePtr returnTile = nullptr;
+	for each (shared_ptr<MapEdge> edge in tile->edges)
+	{
+		float temp = sqrtf(pow(edge->node2->worldPosition.x - position.x,2) + pow(edge->node2->worldPosition.y - position.y,2) + pow(edge->node2->worldPosition.z - position.z,2));
+		if (temp < distance) {
+			distance = temp;
+			returnTile = edge->node2;
+		}
+	}
+	return returnTile->worldPosition;
 }
 
 vector<MapTilePtr> Terrain::GetPath(MapTilePtr start, MapTilePtr goal)

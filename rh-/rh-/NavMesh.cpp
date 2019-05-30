@@ -15,14 +15,13 @@ NavMesh::NavMesh()
 
 }
 
-NavMesh::NavMesh(std::shared_ptr<Transform> transform, std::shared_ptr<PhysicsSystem> collision)
+NavMesh::NavMesh(std::shared_ptr<Transform> transform)
 {
 	this->transform = transform;
 	destination = dxmath::Vector3::Zero;
-	speed = 30.f;
+	speed = 25.f;
 	isMoving = false;
 	step = dxmath::Vector3::Zero;
-	this->collisionSystem = collision;
 }
 
 NavMesh::~NavMesh()
@@ -52,6 +51,17 @@ void NavMesh::Move()
 {
 	if (isMoving)
 	{
+		/*if (!terrain->GetTileWithPosition(localDestination)->walkable) {
+			localDestination = terrain->GetNearestNeighbor(transform->GetPosition());
+			float dot = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).x + transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).z;
+			float cross = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).z - transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).x;
+			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159265f) + 180.0f;
+			transform->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+
+			step = localDestination - transform->GetPosition();
+			step = step / step.Length() / speed;
+			OutputDebugStringA("you shall not pass");
+		}*/
 		if (!XMVector3NearEqual(localDestination, transform->GetPosition(), Vector3(.1f, .1f, .1f)))
 		{
 			if (terrain->CanWalk(transform->GetPosition() + step)) {
@@ -63,9 +73,6 @@ void NavMesh::Move()
 				shared_ptr<MapTile> goal = terrain->GetTileWithPosition(destination);
 
 				currentPath = terrain->GetPath(start, goal);
-				//localDestination = currentPath.front()->worldPosition;
-				//transform->SetPosition(start->worldPosition);
-				//currentPath.erase(currentPath.begin());
 				localDestination = start->worldPosition;
 				float dot = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).x + transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).z;
 				float cross = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).z - transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).x;
@@ -94,21 +101,6 @@ void NavMesh::Move()
 			{
 				isMoving = false;
 			}
-		}
-		XMVECTOR startPoint = DirectX::XMVector3Transform(Vector3::Zero, transform->GetTransformMatrix());
-		Vector3 diff = localDestination - Vector3(startPoint);
-		Vector3 direction = XMVector3Normalize(diff);
-
-		XMVECTOR destPoint = Vector4(direction.x, direction.y, direction.z, 0.0f);
-		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(startPoint, destPoint));
-
-		vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-		for each(shared_ptr<Collision> coll in collisionsWithRay)
-		{
-			Vector3 colpoint = DirectX::XMVector3Transform(Vector3::Zero, coll->OriginObject->GetWorldMatrix());
-			terrain->MakeOcupied(colpoint);
-			//coll->OriginObject
 		}
 	}
 }

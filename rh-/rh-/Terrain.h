@@ -23,6 +23,7 @@ public:
 	void MakeOcupied(dxmath::Vector3);
 	void Update(vector<ColliderBasePtr>);
 	void ClearTiles();
+	void CoverTilesInRange(dxmath::Vector3, float);
 
 	float EuklideanDistance(dxmath::Vector3, dxmath::Vector3);
 	float ManhattanDistance(dxmath::Vector3, dxmath::Vector3);
@@ -34,6 +35,7 @@ public:
 	bool CanWalk(dxmath::Vector3);
 	bool Within(MapTilePtr);
 	MapTilePtr GetTileWithPosition(dxmath::Vector3);
+	Vector3 GetNearestNeighbor(dxmath::Vector3);
 
 	ID3D11DeviceContext1* context;
 	std::vector<MapTilePtr> tiles;

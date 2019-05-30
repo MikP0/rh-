@@ -11,7 +11,7 @@ class NavMesh
 {
 public:
 	NavMesh();
-	NavMesh(std::shared_ptr<Transform>, std::shared_ptr<PhysicsSystem>);
+	NavMesh(std::shared_ptr<Transform>);
 	virtual ~NavMesh();
 	void Move();
 	void SetDestination(dxmath::Vector3, Camera);
