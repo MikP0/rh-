@@ -70,7 +70,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					tx::XMLElement* eLightComponent = eComponents->FirstChildElement("LightComponent");
 					if (eLightComponent != nullptr)
 					{
-						if (eLightComponent->FirstAttribute()->Value() == "DirectLight")
+						if (eLightComponent->FirstAttribute()->Value() == std::string("DirectLight"))
 						{
 							DirectX::XMFLOAT4 aColor;
 							DirectX::XMFLOAT3 aDirection;
@@ -121,7 +121,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							}
 							oEntity->AddComponent<LightComponent>(aColor, aDirection);
 						}
-						else if (eLightComponent->FirstAttribute()->Value() == "SpotLight")
+						else if (eLightComponent->FirstAttribute()->Value() == std::string("SpotLight"))
 						{
 							DirectX::XMFLOAT4 aColor;
 							DirectX::XMFLOAT3 aDirection;
@@ -215,9 +215,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							}
 							oEntity->AddComponent<LightComponent>(aColor, aDirection, aOuterAngle, aPosition, aInnerAngle, aRadius, aUpdatable);
 						}
-
-
-						else if (eLightComponent->FirstAttribute()->Value() == "PointLight")
+						else if (eLightComponent->FirstAttribute()->Value() == std::string("PointLight"))
 						{
 							DirectX::XMFLOAT4 aColor;
 							DirectX::XMFLOAT3 aPosition;

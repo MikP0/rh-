@@ -2,12 +2,25 @@
   <Entities>
     <Entity name="cup1">
       <x>0</x>
-      <y>3</y>
+      <y>2</y>
       <z>0</z>
       <Components>
         <RenderableComponent>
           <Path>cup.cmo</Path>
         </RenderableComponent>
+        <LightComponent type='DirectLight'>
+          <Color>
+            <x>0.6</x>
+            <y>0.6</y>
+            <z>0.6</z>
+            <w>1.0</w>
+          </Color>
+          <Direction>
+            <x>2.0</x>
+            <y>-2.0</y>
+            <z>0.0</z>
+          </Direction>
+        </LightComponent>
       </Components>
     </Entity>
     
