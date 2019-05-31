@@ -266,7 +266,7 @@ private:
 	//World
 	std::shared_ptr<World> world;
 
-	bool isDancing = false;
+	
 
 
 	// enemy
@@ -275,4 +275,21 @@ private:
 	bool attack = false;
 
 	Coroutine attackCorutine;
+
+
+	bool isDancing = false;
+	bool playerWalking = false;
+	bool playerAttack = false;
+	bool enemyClicked = false;
+	int attackType = 0;
+
+	Coroutine playerAttackCorutine;
+
+	float playerAttackDistance = 1.0f;
+	shared_ptr<Entity> targetedEnemy;
+
+
+	float playerHealth = 100.0f;
+	float enemyHealth = 50.f;
+	
 };
