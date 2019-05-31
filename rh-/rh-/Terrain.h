@@ -39,6 +39,7 @@ public:
 
 	ID3D11DeviceContext1* context;
 	std::vector<MapTilePtr> tiles;
+	std::vector<MapTilePtr> ocuppiedTiles;
 	int widthInTiles;
 	int heightInTiles;
 	const int tileSize = 1.f;

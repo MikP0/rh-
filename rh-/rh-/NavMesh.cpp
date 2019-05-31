@@ -60,7 +60,6 @@ void NavMesh::Move()
 
 			step = localDestination - transform->GetPosition();
 			step = step / step.Length() / speed;
-			OutputDebugStringA("you shall not pass");
 		}*/
 		if (!XMVector3NearEqual(localDestination, transform->GetPosition(), Vector3(.1f, .1f, .1f)))
 		{

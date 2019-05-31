@@ -173,8 +173,6 @@ void Terrain::CoverTilesInRange(dxmath::Vector3 position, float range)
 		for each (shared_ptr<MapEdge> edge in tile->edges)
 		{
 
-			//abs(edge->node2->worldPosition-)
-			//if(edge->node2)
 		}
 	}
 }
@@ -228,10 +226,12 @@ Vector3 Terrain::GetNearestNeighbor(dxmath::Vector3 position)
 	MapTilePtr returnTile = nullptr;
 	for each (shared_ptr<MapEdge> edge in tile->edges)
 	{
-		float temp = sqrtf(pow(edge->node2->worldPosition.x - position.x,2) + pow(edge->node2->worldPosition.y - position.y,2) + pow(edge->node2->worldPosition.z - position.z,2));
-		if (temp < distance) {
-			distance = temp;
-			returnTile = edge->node2;
+		if (edge != nullptr && edge->node2->walkable) {
+			float temp = sqrtf(pow(edge->node2->worldPosition.x - position.x, 2) + pow(edge->node2->worldPosition.y - position.y, 2) + pow(edge->node2->worldPosition.z - position.z, 2));
+			if (temp < distance) {
+				distance = temp;
+				returnTile = edge->node2;
+			}
 		}
 	}
 	return returnTile->worldPosition;
