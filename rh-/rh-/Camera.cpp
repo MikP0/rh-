@@ -24,6 +24,7 @@ void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float near
 	this->nearZ = nearZplane;
 	this->farZ = farZplane;
 	this->projectionMatrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(fovDegrees, aspectRatio, nearZ, farZ);
+	this->projectionLhMatrix = XMMatrixPerspectiveFovLH(fovDegrees, aspectRatio, nearZ, farZ);
 }
 
 const XMMATRIX & Camera::GetViewMatrix() const
@@ -34,6 +35,16 @@ const XMMATRIX & Camera::GetViewMatrix() const
 const XMMATRIX & Camera::GetProjectionMatrix() const
 {
 	return this->projectionMatrix;
+}
+
+const XMMATRIX Camera::GetProjectionLhMatrix() const
+{
+	return this->projectionLhMatrix;
+}
+
+const XMMATRIX Camera::GetViewLhMatrix() const
+{
+	return viewLhMatrix;
 }
 
 const XMVECTOR & Camera::GetPositionVector() const
@@ -273,10 +284,8 @@ void Camera::UpdateViewMatrix() //Updates view matrix and also updates the movem
 
 	XMVECTOR lookAt = meme + DirectX::SimpleMath::Vector3(x, y, z);
 
-	XMMATRIX view = XMMatrixLookAtRH(meme, lookAt, DirectX::SimpleMath::Vector3::Up);
-
-	this->viewMatrix = view;
-
+	this->viewMatrix = XMMatrixLookAtRH(meme, lookAt, DirectX::SimpleMath::Vector3::Up);
+	this->viewLhMatrix = XMMatrixLookAtLH(meme, lookAt, DirectX::SimpleMath::Vector3::Up);
 
 	XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, this->rot.y, 0.0f);
 	this->vec_forward = XMVector3TransformCoord(this->DEFAULT_FORWARD_VECTOR, vecRotationMatrix);

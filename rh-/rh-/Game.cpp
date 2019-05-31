@@ -585,8 +585,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
-	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
-	renderableSystem = std::make_shared<RenderableSystem>(device, context);
+	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
+	renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
 	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 	
 	// Adding systems to world ------------------------------------------------------------------
@@ -630,6 +630,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntityFloor->AddComponent<RenderableComponent>(L"FloorToRoom.cmo", &camera);
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
+	//playerEntity->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(1.0f, 1.5f, 1.0f), false);
 
 	// Creation of light components ------------------------------------------------------------------
 	//pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);

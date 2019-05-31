@@ -5,7 +5,7 @@
 #include <codecvt>
 #include <locale>
 
-RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* context)
+RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* context, shared_ptr<PhysicsSystem> physicsSystem)
 {
 	_device = device;
 	_context = context;
@@ -22,6 +22,8 @@ RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* 
 	_depthStencilView = nullptr;
 
 	isSent = false;
+
+	_physicsSystem = physicsSystem;
 }
 
 RenderableSystem::~RenderableSystem()
@@ -36,21 +38,36 @@ void RenderableSystem::Iterate()
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		if (renderableComponent->_model != nullptr) {
-			renderableComponent->_model->Draw(
-				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-				_shadowMap->_lightView,
-				_shadowMap->_lightProj
-			);
-		}
+		vector<int> objectsToRender = _physicsSystem->GetEntitiesIDWithinFrustum();
+		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+
+		/*if (objectsToRender.size() == 0)
+			OutputDebugStringW(L"Zero\n");
 		else
-		{
-			renderableComponent->_modelSkinned->DrawModel(
-				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-				_shadowMap->_lightView,
-				_shadowMap->_lightProj
-			);
-		}
+			if (objectsToRender.size() == 1)
+				OutputDebugStringW(L"Jeden\n");
+			else
+				if (objectsToRender.size() == 2)
+					OutputDebugStringW(L"Dwa\n");*/
+
+		//if (it != objectsToRender.end())
+		//{
+			if (renderableComponent->_model != nullptr) {
+				renderableComponent->_model->Draw(
+					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+					_shadowMap->_lightView,
+					_shadowMap->_lightProj
+				);
+			}
+			else
+			{
+				renderableComponent->_modelSkinned->DrawModel(
+					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+					_shadowMap->_lightView,
+					_shadowMap->_lightProj
+				);
+			}
+		//}
 	}
 
 	_shadowMap->UnbindTargetAndViewport(_context);
@@ -66,21 +83,27 @@ void RenderableSystem::Iterate()
 	
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		if (renderableComponent->_model != nullptr) {
-			renderableComponent->_model->Draw(
-				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-				renderableComponent->_camera->GetViewMatrix(),
-				renderableComponent->_camera->GetProjectionMatrix()
-			);
-		}
-		else
-		{
-			renderableComponent->_modelSkinned->DrawModel(
-				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-				renderableComponent->_camera->GetViewMatrix(),
-				renderableComponent->_camera->GetProjectionMatrix()
-			);
-		}
+		vector<int> objectsToRender = _physicsSystem->GetEntitiesIDWithinFrustum();
+		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+
+		//if (it != objectsToRender.end())
+		//{
+			if (renderableComponent->_model != nullptr) {
+				renderableComponent->_model->Draw(
+					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+					renderableComponent->_camera->GetViewMatrix(),
+					renderableComponent->_camera->GetProjectionMatrix()
+				);
+			}
+			else
+			{
+				renderableComponent->_modelSkinned->DrawModel(
+					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+					renderableComponent->_camera->GetViewMatrix(),
+					renderableComponent->_camera->GetProjectionMatrix()
+				);
+			}
+		//}
 	}
 }
 

@@ -270,11 +270,14 @@ private:
 class ColliderFrustum : public ColliderBase
 {
 public:
-	ColliderFrustum() : ColliderBase(Frustum) {};
-
 	ColliderFrustum(XMMATRIX xmProj) : ColliderBase(Frustum)
 	{
 		BoundingFrustum::CreateFromMatrix(_bounding, xmProj);
+	};
+
+	ColliderFrustum(BoundingFrustum bounding) : ColliderBase(Frustum)
+	{
+		_bounding = bounding;
 	};
 
 	~ColliderFrustum() {};
@@ -307,6 +310,13 @@ public:
 	void SetOrientation(XMFLOAT4 orientation)
 	{
 		_bounding.Orientation = orientation;
+	}
+
+	void Transform(FXMMATRIX matrix)
+	{
+		XMVECTOR det;
+		XMMATRIX InvViewMatrixLH = XMMatrixInverse(&det, matrix);
+		_bounding.Transform(_bounding, InvViewMatrixLH);
 	}
 
 private:
