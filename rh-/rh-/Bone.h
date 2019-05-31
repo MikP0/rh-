@@ -20,7 +20,7 @@ public:
 
 	void AddWeight(float weight, UINT boneIndex);
 
-	static const UINT MaxBoneWeightsPerVertex = 4U;
+	static const UINT MaxBoneWeightsPerVertex = 10U;
 
 private:
 	std::vector<VertexWeight> mWeights;

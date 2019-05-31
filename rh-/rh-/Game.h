@@ -32,6 +32,52 @@
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 
+
+struct Coroutine
+{
+	float waitTime;
+	bool active;
+
+	Coroutine()
+	{
+		this->waitTime = 0;
+		this->active = false;
+	}
+
+	Coroutine(float time)
+	{
+		this->waitTime = time;
+		this->active = true;
+	}
+
+	// return TRUE if still active and waitTime > 0
+	bool Update(float elapsedTime)
+	{
+		if (waitTime > 0)
+		{
+			this->waitTime -= elapsedTime;
+			return true;
+		}
+		else
+		{
+			this->active = false;
+			return false;
+		}
+	}
+
+	float GetTime()
+	{
+		return this->waitTime;
+	}
+
+	void Restart(float time)
+	{
+		this->waitTime = time;
+		this->active = true;
+	}
+};
+
+
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
 class Game : public DX::IDeviceNotify
@@ -66,6 +112,8 @@ private:
 
 	void Update(DX::StepTimer const& timer);
 	void UpdateObjects(float elapsedTime);
+	void UpdateAnimations(float elapsedTime);
+	void UpdateCoroutines(float elapsedTime);
 	void Render();
 	void RenderObjects(ID3D11DeviceContext1 *context);
 
@@ -104,6 +152,8 @@ private:
 	std::shared_ptr<Entity> myEntity6;
 
 	std::shared_ptr<Entity> playerEntity;
+
+	std::shared_ptr<Entity> enemyEntity1;
 
 	// floor for shadows
 	std::shared_ptr<Entity> myEntityFloor;
@@ -183,6 +233,9 @@ private:
 	std::shared_ptr<Terrain> terrain;
 	std::shared_ptr<LightSystem> lightSystem;
 
+
+	std::shared_ptr<NavMesh> navMeshEnemy;
+
 	Mouse::ButtonStateTracker tracker;
 	bool freeCameraLook = false;
 
@@ -213,8 +266,13 @@ private:
 	//World
 	std::shared_ptr<World> world;
 
-
-
-
 	bool isDancing = false;
+
+
+	// enemy
+	float followPlayerDistance = 10.f;
+	bool walking = false;
+	bool attack = false;
+
+	Coroutine attackCorutine;
 };
