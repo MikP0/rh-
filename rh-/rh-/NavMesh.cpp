@@ -28,7 +28,7 @@ NavMesh::~NavMesh()
 {
 }
 
-void NavMesh::SetDestination(dxmath::Vector3 dest, Camera camera)
+void NavMesh::SetDestination(dxmath::Vector3 dest)
 {
 	if (dest != transform->GetPosition() && terrain->CanWalk(dest))
 	{

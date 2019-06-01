@@ -317,21 +317,21 @@ void Game::UpdateObjects(float elapsedTime)
 		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
 		vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
 
-		for each(shared_ptr<Collision> coll in collisionsWithRay)
-		{
-			if (coll->OriginObject->GetName() == "Enemy1")		// change to TAG
-			{
-				attackType = 1;
-				enemyClicked = true;
-				targetedEnemy = coll->OriginObject;
-			}
-			else
-			{
-				enemyClicked = false;
-				targetedEnemy = nullptr;
-				playerAttackCorutine.active = false;
-			}
-		}
+		//for each(shared_ptr<Collision> coll in collisionsWithRay)
+		//{
+		//	if (coll->OriginObject->GetName() == "Enemy1")		// change to TAG
+		//	{
+		//		attackType = 1;
+		//		enemyClicked = true;
+		//		targetedEnemy = coll->OriginObject;
+		//	}
+		//	else
+		//	{
+		//		enemyClicked = false;
+		//		targetedEnemy = nullptr;
+		//		playerAttackCorutine.active = false;
+		//	}
+		//}
 
 		///////////////////////
 
@@ -518,8 +518,8 @@ void Game::UpdateAnimations(float elapsedTime)
 			}
 
 			component->_modelSkinned->GetAnimatorPlayer()->Update(elapsedTime); // -> Renderable System -> Iterate()
-			// to mo�na by w sumie przenie�� do Iterate i dla np AnimationPlayer w stringu ustawia� jaka ma teraz sie
-			// animacja odpali�, a w game tylko tego stringa ustawiac
+			// to mozna by w sumie przeniesc do Iterate i dla np AnimationPlayer w stringu ustawiac jaka ma teraz sie
+			// animacja odpalic, a w game tylko tego stringa ustawiac
 		}
 	}
 }

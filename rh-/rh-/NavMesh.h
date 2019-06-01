@@ -14,7 +14,7 @@ public:
 	NavMesh(std::shared_ptr<Transform>);
 	virtual ~NavMesh();
 	void Move();
-	void SetDestination(dxmath::Vector3, Camera);
+	void SetDestination(dxmath::Vector3);
 
 
 	bool isMoving;
