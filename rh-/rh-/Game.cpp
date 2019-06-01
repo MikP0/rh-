@@ -390,7 +390,7 @@ void Game::UpdateObjects(float elapsedTime)
 		}
 		else if (!XMVector3NearEqual(enemyEntity1->GetTransform()->GetPosition(), playerEntity->GetTransform()->GetPosition(), Vector3(1.0f, .1f, 1.0f)))
 		{
-			navMeshEnemy->SetDestination(playerEntity->GetTransform()->GetPosition());
+			navMeshEnemy->SetEnemyDestination(playerEntity->GetTransform()->GetPosition());
 			navMeshEnemy->Move();
 			walking = true;
 			attack = false;
