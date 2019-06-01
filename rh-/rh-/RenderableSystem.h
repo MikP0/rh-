@@ -5,6 +5,7 @@
 #include "StepTimer.h"
 #include "ToonFactory.h"
 #include "DebugDraw.h"
+#include "PhysicsSystem.h"
 
 #include "ShadowMap.h"
 #include "ShadowFactory.h"
@@ -14,7 +15,7 @@ class RenderableSystem :
 {
 public:
 	
-	RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* context);
+	RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* context, shared_ptr<PhysicsSystem> physicsSystem);
 	~RenderableSystem();
 
 	virtual void Iterate() override;
@@ -37,5 +38,8 @@ public:
 	bool isSent;
 
 	void SentDeviceResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView);
+
+private:
+	shared_ptr<PhysicsSystem> _physicsSystem;
 };
 

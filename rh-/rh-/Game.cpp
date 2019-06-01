@@ -416,7 +416,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
+	//myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 
 	if (mouse.rightButton)
@@ -426,6 +426,7 @@ void Game::UpdateObjects(float elapsedTime)
 	}
 
 	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
+
 
 	if (octrTreeBounding.Contains(colliderBoundingCup1->GetBounding()) != CONTAINS)
 	{
@@ -517,8 +518,8 @@ void Game::UpdateAnimations(float elapsedTime)
 			}
 
 			component->_modelSkinned->GetAnimatorPlayer()->Update(elapsedTime); // -> Renderable System -> Iterate()
-			// to mo¿na by w sumie przenieœæ do Iterate i dla np AnimationPlayer w stringu ustawiaæ jaka ma teraz sie
-			// animacja odpaliæ, a w game tylko tego stringa ustawiac
+			// to moï¿½na by w sumie przenieï¿½ï¿½ do Iterate i dla np AnimationPlayer w stringu ustawiaï¿½ jaka ma teraz sie
+			// animacja odpaliï¿½, a w game tylko tego stringa ustawiac
 		}
 	}
 }
@@ -608,6 +609,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
+	terrain->Update(collisionSystem->GetColliders());
 	terrain->Draw(camera, m_roomTex);
 
 	if (debugDraw) //REMOVE
@@ -773,8 +775,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
-	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
-	renderableSystem = std::make_shared<RenderableSystem>(device, context);
+	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
+	renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
 	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
 	// Adding systems to world ------------------------------------------------------------------
@@ -817,7 +819,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
 
 	// Creation of physics components ----------------------------------------------------------------
-	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), false);
+	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
 	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
 
 	enemyEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);;
@@ -833,12 +835,10 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	// Setting up transform parameters of entities  --------------------------------------------------
 	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
-	myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
-
+	myEntity1->GetTransform()->SetPosition(Vector3(7.0f, 1.25f, 4.0f));
 
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
-	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
-
+	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, 0.2f, 6.0f));
 
 	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
@@ -848,7 +848,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	world->GetEntity(4)->GetTransform()->SetScale(scaleEntity4);
 	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
 
-	myEntityFloor->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
+	myEntityFloor->GetTransform()->SetScale(Vector3(0.5f, 0.5f, 0.5f));
 	myEntityFloor->GetTransform()->SetPosition(Vector3(-3.5f, 2.52f, -3.5f));
 
 	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));

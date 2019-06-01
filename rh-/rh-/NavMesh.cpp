@@ -2,6 +2,9 @@
 #include "NavMesh.h"
 #include <thread>
 #include <chrono>
+#include "ColliderTypes.h"
+#include "Collision.h"
+#include "Raycast.h"
 
 using namespace std;
 using namespace DirectX;
@@ -16,7 +19,7 @@ NavMesh::NavMesh(std::shared_ptr<Transform> transform)
 {
 	this->transform = transform;
 	destination = dxmath::Vector3::Zero;
-	speed = 30.f;
+	speed = 25.f;
 	isMoving = false;
 	step = dxmath::Vector3::Zero;
 }
@@ -25,7 +28,7 @@ NavMesh::~NavMesh()
 {
 }
 
-void NavMesh::SetDestination(dxmath::Vector3 dest)
+void NavMesh::SetDestination(dxmath::Vector3 dest, Camera camera)
 {
 	if (dest != transform->GetPosition() && terrain->CanWalk(dest))
 	{
@@ -40,28 +43,36 @@ void NavMesh::SetDestination(dxmath::Vector3 dest)
 		step = localDestination - transform->GetPosition();
 		step = step / step.Length() / speed;
 
-		isMoving = true;
+		isMoving = true;		
 	}
 }
 
 void NavMesh::Move()
 {
-	if (isMoving) 
+	if (isMoving)
 	{
+		/*if (!terrain->GetTileWithPosition(localDestination)->walkable) {
+			localDestination = terrain->GetNearestNeighbor(transform->GetPosition());
+			float dot = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).x + transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).z;
+			float cross = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).z - transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).x;
+			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159265f) + 180.0f;
+			transform->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+
+			step = localDestination - transform->GetPosition();
+			step = step / step.Length() / speed;
+			OutputDebugStringA("you shall not pass");
+		}*/
 		if (!XMVector3NearEqual(localDestination, transform->GetPosition(), Vector3(.1f, .1f, .1f)))
 		{
 			if (terrain->CanWalk(transform->GetPosition() + step)) {
 				transform->SetPosition(transform->GetPosition() + step);
 			}
-			else 
+			else
 			{
 				shared_ptr<MapTile> start = terrain->GetTileWithPosition(transform->GetPosition());
 				shared_ptr<MapTile> goal = terrain->GetTileWithPosition(destination);
 
 				currentPath = terrain->GetPath(start, goal);
-				//localDestination = currentPath.front()->worldPosition;
-				//transform->SetPosition(start->worldPosition);
-				//currentPath.erase(currentPath.begin());
 				localDestination = start->worldPosition;
 				float dot = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).x + transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).z;
 				float cross = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).z - transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).x;

@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "Terrain.h"
 #include "MapTile.h"
+#include "PhysicsSystem.h"
 
 namespace dxmath = DirectX::SimpleMath;
 
@@ -13,7 +14,7 @@ public:
 	NavMesh(std::shared_ptr<Transform>);
 	virtual ~NavMesh();
 	void Move();
-	void SetDestination(dxmath::Vector3);
+	void SetDestination(dxmath::Vector3, Camera);
 
 
 	bool isMoving;
@@ -25,4 +26,6 @@ public:
 	float speed;	
 	dxmath::Vector3 step;
 	std::vector<std::shared_ptr<MapTile>> currentPath;
+
+	std::shared_ptr<PhysicsSystem> collisionSystem;
 };
