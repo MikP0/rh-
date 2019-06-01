@@ -317,21 +317,22 @@ void Game::UpdateObjects(float elapsedTime)
 		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
 		vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
 
-		//for each(shared_ptr<Collision> coll in collisionsWithRay)
-		//{
-		//	if (coll->OriginObject->GetName() == "Enemy1")		// change to TAG
-		//	{
-		//		attackType = 1;
-		//		enemyClicked = true;
-		//		targetedEnemy = coll->OriginObject;
-		//	}
-		//	else
-		//	{
-		//		enemyClicked = false;
-		//		targetedEnemy = nullptr;
-		//		playerAttackCorutine.active = false;
-		//	}
-		//}
+		for each(shared_ptr<Collision> coll in collisionsWithRay)
+		{
+			if (coll->OriginObject->GetTag() == Tags::ENEMY)
+			{
+				attackType = 1;
+				enemyClicked = true;
+				targetedEnemy = coll->OriginObject;
+			}
+			else
+			{
+				enemyClicked = false;
+				targetedEnemy = nullptr;
+				playerAttackCorutine.active = false;
+				playerAttack = false;
+			}
+		}
 
 		///////////////////////
 
@@ -344,6 +345,7 @@ void Game::UpdateObjects(float elapsedTime)
 			enemyClicked = false;
 			targetedEnemy = nullptr;
 			playerAttackCorutine.active = false;
+			playerAttack = false;
 		}
 	}
 
@@ -609,7 +611,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
-	terrain->Update(collisionSystem->GetColliders());
+	//terrain->Update(collisionSystem->GetColliders());
 	terrain->Draw(camera, m_roomTex);
 
 	if (debugDraw) //REMOVE
@@ -856,6 +858,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	enemyEntity1->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 5.0f));
 	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
+	enemyEntity1->SetTag(Tags::ENEMY);
 
 	// Setting up parameters of audio -- REMOVE
 	for (auto component : world->GetComponents<AudioComponent>())
