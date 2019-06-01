@@ -34,8 +34,9 @@ public:
 
 	bool CanWalk(dxmath::Vector3);
 	bool Within(MapTilePtr);
-	MapTilePtr GetTileWithPosition(dxmath::Vector3);
-	Vector3 GetNearestNeighbor(dxmath::Vector3);
+	MapTilePtr GetTileWithPosition(Vector3);
+	Vector3 GetNearestNeighbor(Vector3);
+	Vector3 FallBack(Vector3, Vector3);
 
 	ID3D11DeviceContext1* context;
 	std::vector<MapTilePtr> tiles;

@@ -65,10 +65,7 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 	}
 
 	mAnimationPlayer = new AnimationPlayer(myGameTemp, *mSkinnedModel, false);
-	mAnimationPlayer->AddAnimationClip(mSkinnedModel->Animations().at(0), "Idle");
-	mAnimationPlayer->StartClip("Idle");
 
-	mAnimationPlayer->PauseClip();
 	mAnimationPlayer->SetInterpolationEnabled(!mAnimationPlayer->InterpolationEnabled());
 	inMove = false;
 }
