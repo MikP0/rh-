@@ -202,7 +202,7 @@ void Game::Update(DX::StepTimer const& timer)
 				}
 			}
 		}*/
-	//}
+		//}
 
 
 	if (!menuIsOn)
@@ -241,7 +241,7 @@ void Game::Update(DX::StepTimer const& timer)
 			camera.SetYaw(m_yaw);
 		}
 
-		else 
+		else
 		{
 			camera.SetPosition(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom())); //FIXME: Change to Entity Transform
 			camera.SetLookAtPos(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
@@ -310,7 +310,7 @@ void Game::UpdateObjects(float elapsedTime)
 	// states for player
 	//NavMesh
 	tracker.Update(mouse); // Player Component -> Player System
-	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD) 
+	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD)
 	{
 		// !!!!!!!!!!!!!!!!    HOLD wylaczyc z atakowania - atakowanie tylko PRESSED
 
@@ -320,8 +320,8 @@ void Game::UpdateObjects(float elapsedTime)
 		for each(shared_ptr<Collision> coll in collisionsWithRay)
 		{
 			if (coll->OriginObject->GetName() == "Enemy1")		// change to TAG
-			{			
-				attackType = 1; 
+			{
+				attackType = 1;
 				enemyClicked = true;
 				targetedEnemy = coll->OriginObject;
 			}
@@ -329,9 +329,10 @@ void Game::UpdateObjects(float elapsedTime)
 			{
 				enemyClicked = false;
 				targetedEnemy = nullptr;
+				playerAttackCorutine.active = false;
 			}
 		}
-		
+
 		///////////////////////
 
 		if ((!enemyClicked) || (collisionsWithRay.size() == 0))
@@ -342,6 +343,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 			enemyClicked = false;
 			targetedEnemy = nullptr;
+			playerAttackCorutine.active = false;
 		}
 	}
 
@@ -450,11 +452,11 @@ void Game::UpdateObjects(float elapsedTime)
 
 		for each(shared_ptr<Collision> coll in collisionsWithRay)
 		{
-if (coll->OriginObject->GetId() == colliderCup1->GetParent()->GetId())
-collisionCup1WithRay = coll;
+			if (coll->OriginObject->GetId() == colliderCup1->GetParent()->GetId())
+				collisionCup1WithRay = coll;
 
-if (coll->OriginObject->GetId() == colliderCup2->GetParent()->GetId())
-collisionCup2WithRay = coll;
+			if (coll->OriginObject->GetId() == colliderCup2->GetParent()->GetId())
+				collisionCup2WithRay = coll;
 		}
 	}
 }
@@ -532,7 +534,7 @@ void Game::UpdateCoroutines(float elapsedTime)
 			if (XMVector3NearEqual(enemyEntity1->GetTransform()->GetPosition(), playerEntity->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
 			{
 				playerHealth -= 10.0f;
-			}	
+			}
 		}
 	}
 
@@ -547,7 +549,7 @@ void Game::UpdateCoroutines(float elapsedTime)
 				enemyHealth -= 10.0f;
 			}
 			enemyClicked = false;
-			targetedEnemy = nullptr;			
+			targetedEnemy = nullptr;
 		}
 	}
 
@@ -575,6 +577,8 @@ void Game::Render()
 		return;
 	}
 
+	renderableSystem->SentDeviceResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView());
+
 	Clear();
 
 	m_deviceResources->PIXBeginEvent(L"Render");
@@ -582,7 +586,7 @@ void Game::Render()
 
 	// TODO: Add your rendering code here.
 
-	renderableSystem->SentDeviceResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView());
+	
 
 	world->RefreshWorld();
 
@@ -998,6 +1002,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 			component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
 			component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
 			component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
+			component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
 		}
 	}
 

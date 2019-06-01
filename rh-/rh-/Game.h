@@ -29,53 +29,10 @@
 #include "NavMesh.h"
 #include "Terrain.h"
 
+#include "Coroutine.h"
+
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
-
-
-struct Coroutine
-{
-	float waitTime;
-	bool active;
-
-	Coroutine()
-	{
-		this->waitTime = 0;
-		this->active = false;
-	}
-
-	Coroutine(float time)
-	{
-		this->waitTime = time;
-		this->active = true;
-	}
-
-	// return TRUE if still active and waitTime > 0
-	bool Update(float elapsedTime)
-	{
-		if (waitTime > 0)
-		{
-			this->waitTime -= elapsedTime;
-			return true;
-		}
-		else
-		{
-			this->active = false;
-			return false;
-		}
-	}
-
-	float GetTime()
-	{
-		return this->waitTime;
-	}
-
-	void Restart(float time)
-	{
-		this->waitTime = time;
-		this->active = true;
-	}
-};
 
 
 // A basic game implementation that creates a D3D11 device and
