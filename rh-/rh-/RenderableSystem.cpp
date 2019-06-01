@@ -61,6 +61,9 @@ void RenderableSystem::Iterate()
 			}
 			else
 			{
+				renderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip(renderableComponent->_modelSkinned->currentAnimation);
+				renderableComponent->_modelSkinned->GetAnimatorPlayer()->Update(Coroutine::GetElapsedTime());	// update animation
+
 				renderableComponent->_modelSkinned->DrawModel(
 					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
 					_shadowMap->_lightView,

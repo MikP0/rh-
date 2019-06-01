@@ -39,6 +39,8 @@ public:
 
 	DirectX::SimpleMath::Matrix character_world;
 
+	std::string currentAnimation;
+
 private:
 	SkinnedModelMaterial* mMaterial;
 	EffectSK* mEffect;

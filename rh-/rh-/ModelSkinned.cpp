@@ -68,6 +68,8 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 
 	mAnimationPlayer->SetInterpolationEnabled(!mAnimationPlayer->InterpolationEnabled());
 	inMove = false;
+
+	currentAnimation = "Idle";
 }
 
 ModelSkinned::~ModelSkinned()

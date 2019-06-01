@@ -27,6 +27,7 @@ public:
 	bool walking;
 	bool attack;
 	bool hit;
-	//Coroutine attackCorutine;
+
+	Coroutine attackCorutine;
 };
 

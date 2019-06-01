@@ -15,13 +15,15 @@ EnemyComponent::EnemyComponent()
 	this->hit = false;
 
 	this->navMesh = nullptr;
+
+	this->attackCorutine.active = false;
 }
 
 EnemyComponent::EnemyComponent(float Health, float Speed , float AttackLength, float Damage, float DistanceToAttack)
 {
-	this->health = health;
+	this->health = Health;
 	this->originHealth = this->health;
-	this->speed = speed;
+	this->speed = Speed;
 	this->attackLength = AttackLength;
 	this->damage = Damage;
 	this->distanceToAttack = DistanceToAttack;
@@ -31,6 +33,8 @@ EnemyComponent::EnemyComponent(float Health, float Speed , float AttackLength, f
 	this->hit = false;
 
 	this->navMesh = nullptr;
+
+	this->attackCorutine.active = false;
 }
 
 

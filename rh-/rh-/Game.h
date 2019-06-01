@@ -30,6 +30,8 @@
 #include "Terrain.h"
 
 #include "Coroutine.h"
+#include "EnemyComponent.h"
+#include "EnemySystem.h"
 
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
@@ -184,6 +186,10 @@ private:
 	std::shared_ptr<AudioComponent> audioSound1;
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
+
+
+	//Enemy
+	std::shared_ptr<EnemySystem> enemySystem;
 
 	//NavMesh
 	std::shared_ptr<NavMesh> navMesh;

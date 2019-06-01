@@ -5,6 +5,8 @@
 #include "EnemyComponent.h"
 #include "Terrain.h"
 #include "NavMesh.h"
+#include "Coroutine.h"
+#include "RenderableComponent.h"
 
 class EnemySystem : public System
 {
@@ -14,12 +16,8 @@ public:
 
 	virtual void Iterate() override;
 	virtual void Initialize() override;
-	void MyInitialization(std::shared_ptr<Entity> Player, std::shared_ptr<Terrain> Terrain);
-
-	float elapsedTime;
-	void setElapsedTime(float Time);
+	void AdditionalInitialization(std::shared_ptr<Entity> Player, std::shared_ptr<Terrain> Terrain);
 
 	std::shared_ptr<Entity> player;
-	void setPlayer(std::shared_ptr<Entity> Player);
 };
 
