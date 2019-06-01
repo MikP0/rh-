@@ -15,6 +15,7 @@ public:
 	virtual ~NavMesh();
 	void Move();
 	void SetDestination(dxmath::Vector3);
+	void SetEnemyDestination(dxmath::Vector3);
 
 
 	bool isMoving;
@@ -23,6 +24,7 @@ public:
 	std::shared_ptr<Transform> transform;
 	dxmath::Vector3 destination;
 	dxmath::Vector3 localDestination;
+	dxmath::Vector3 previousPosition;
 	float speed;	
 	dxmath::Vector3 step;
 	std::vector<std::shared_ptr<MapTile>> currentPath;
