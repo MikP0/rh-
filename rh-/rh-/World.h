@@ -152,6 +152,8 @@ public:
 		}
 	}
 
+	void KillAllEntities();
+
 private:
 	std::map<std::size_t, std::shared_ptr<Entity>> _entityPoolMap;
 	std::map<std::size_t, std::shared_ptr<System>> _systemPoolMap;

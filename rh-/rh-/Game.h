@@ -33,6 +33,8 @@
 #include "EnemyComponent.h"
 #include "EnemySystem.h"
 
+#include "WorldLoader.h"
+
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 
@@ -263,4 +265,7 @@ private:
 	int vampireAbility = 0;
 
 	void StopEnemies();
+
+	//World Loader
+	std::shared_ptr<WorldLoader> worldLoader;
 };

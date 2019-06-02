@@ -214,6 +214,9 @@
     <ClInclude Include="Coroutine.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="WorldLoader.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -384,6 +387,9 @@
     <ClCompile Include="Coroutine.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="WorldLoader.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -455,5 +461,8 @@
     <Media Include="Resources\Audio\Happyrock.wav">
       <Filter>Assets</Filter>
     </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="testLevel.xml" />
   </ItemGroup>
 </Project>
