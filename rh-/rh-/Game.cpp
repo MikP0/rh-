@@ -750,6 +750,36 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 	uiSpriteBatch->Draw(healthBarHeroTex.Get(), healthBarHeroPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.35f);
 
+	if (!vampireMode)
+	{
+		uiSpriteBatch->Draw(normalAttackTex.Get(), normalAttackPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), normalAttackScale);
+
+		uiSpriteBatch->Draw(powerAttackTex.Get(), powerAttackPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), powerAttackScale);
+
+		uiSpriteBatch->Draw(spinAttackTex.Get(), spinAttackPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), spinAttackScale);
+
+		uiSpriteBatch->Draw(biteAttackTex.Get(), biteAttackPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), biteAttackScale);
+	}
+	else
+	{
+		uiSpriteBatch->Draw(dashTex.Get(), dashPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), dashScale);
+
+		uiSpriteBatch->Draw(ripTex.Get(), ripAttackPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), ripAttackScale);
+
+		uiSpriteBatch->Draw(swapAttackTex.Get(), swapAttackPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), swapAttackScale);
+
+		uiSpriteBatch->Draw(aoeAttackTex.Get(), aoeAttackPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), aoeAttackScale);
+	}
+
+
 	if (vampireMode)
 		uiSpriteBatch->Draw(redBorderTex.Get(), redBorderPos, nullptr, Colors::White,
 			0.f, Vector2(0, 0), redBorderScale);
@@ -1084,7 +1114,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			healthBarTex.ReleaseAndGetAddressOf()));
 
 	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\hero.dds",
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Hero_Circle.dds",
 			nullptr,
 			healthBarHeroTex.ReleaseAndGetAddressOf()));
 
@@ -1097,6 +1127,53 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\red_border.dds",
 			nullptr,
 			redBorderTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Normal_Attack.dds",
+			nullptr,
+			normalAttackTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Power_Attack.dds",
+			nullptr,
+			powerAttackTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Spin.dds",
+			nullptr,
+			spinAttackTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Bite.dds",
+			nullptr,
+			biteAttackTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Dash.dds",
+			nullptr,
+			dashTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Rip.dds",
+			nullptr,
+			ripTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Swap.dds",
+			nullptr,
+			swapAttackTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Aoe.dds",
+			nullptr,
+			aoeAttackTex.ReleaseAndGetAddressOf()));
+
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\Hero_Circle.dds",
+			nullptr,
+			heroCircleTex.ReleaseAndGetAddressOf()));
+
 
 	healthBarPos.x = 0.f;
 	healthBarPos.y = 0.f;
@@ -1113,6 +1190,49 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	redBorderPos.y = 0.0f;
 	redBorderScale.x = 1.91f;
 	redBorderScale.y = 1.36f;
+
+	skillSetPosition.x = 650.0f;
+	skillSetPosition.y = 800.0f;
+
+	normalAttackPos.x = skillSetPosition.x + 0.0f;
+	normalAttackPos.y = skillSetPosition.y + 0.0f;
+	normalAttackScale.x = 0.3f;
+	normalAttackScale.y = 0.3f;
+
+	powerAttackPos.x = skillSetPosition.x + 150.0f;
+	powerAttackPos.y = skillSetPosition.y + 0.0f;
+	powerAttackScale.x = 0.3f;
+	powerAttackScale.y = 0.3f;
+
+	spinAttackPos.x = skillSetPosition.x + 300.0f;
+	spinAttackPos.y = skillSetPosition.y + 0.0f;
+	spinAttackScale.x = 0.3f;
+	spinAttackScale.y = 0.3f;
+
+	biteAttackPos.x = skillSetPosition.x + 450.0f;
+	biteAttackPos.y = skillSetPosition.y + 0.0f;
+	biteAttackScale.x = 0.3f;
+	biteAttackScale.y = 0.3f;
+
+	dashPos.x = skillSetPosition.x + 0.0f;
+	dashPos.y = skillSetPosition.y + 0.0f;
+	dashScale.x = 0.3f;
+	dashScale.y = 0.3f;
+
+	ripAttackPos.x = skillSetPosition.x + 150.0f;
+	ripAttackPos.y = skillSetPosition.y + 0.0f;
+	ripAttackScale.x = 0.3f;
+	ripAttackScale.y = 0.3f;
+
+	swapAttackPos.x = skillSetPosition.x + 300.0f;
+	swapAttackPos.y = skillSetPosition.y + 0.0f;
+	swapAttackScale.x = 0.3f;
+	swapAttackScale.y = 0.3f;
+
+	aoeAttackPos.x = skillSetPosition.x + 450.0f;
+	aoeAttackPos.y = skillSetPosition.y + 0.0f;
+	aoeAttackScale.x = 0.3f;
+	aoeAttackScale.y = 0.3f;
 
 
 	DX::ThrowIfFailed(
