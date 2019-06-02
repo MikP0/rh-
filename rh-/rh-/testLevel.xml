@@ -1646,7 +1646,7 @@
       </Components>
     </Entity>
 
-    <Entity name="wall38">
+    <!--<Entity name="wall38">
       <Scale>
         <x>0.05</x>
         <y>0.05</y>
@@ -1748,9 +1748,9 @@
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
       </Components>
-    </Entity>
+    </Entity>-->
 
-    <Entity name="wall41">
+    <!--<Entity name="wall41">
       <Scale>
         <x>0.05</x>
         <y>0.05</y>
@@ -1852,7 +1852,7 @@
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
       </Components>
-    </Entity>
+    </Entity>-->
 
     <Entity name="wall45">
       <Scale>
@@ -2168,7 +2168,7 @@
     
     <!--COFFINS-->
 
-    <Entity name="coffin1">
+    <!--<Entity name="coffin1">
       <Scale>
         <x>0.04</x>
         <y>0.04</y>
@@ -2350,7 +2350,7 @@
       </Components>
     </Entity>
     
-    <!--COLUMNS-->
+    --><!--COLUMNS--><!--
     <Entity name="column1">
       <Scale>
         <x>0.04</x>
@@ -2505,7 +2505,7 @@
           <Path>Collumn.cmo</Path>
         </RenderableComponent>
       </Components>
-    </Entity>
+    </Entity>-->
 
   </Entities>
 </Level>
