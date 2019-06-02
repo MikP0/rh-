@@ -106,15 +106,9 @@ void RenderableSystem::Iterate()
 		{
 			if (renderableComponent->_modelSkinned->isVisible)
 			{
+
 				if (renderableComponent->_modelSkinned->playingAnimation)
 				{
-
-					renderableComponent->_modelSkinned->DrawModel(
-						_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-						renderableComponent->_camera->GetViewMatrix(),
-						renderableComponent->_camera->GetProjectionMatrix()
-					);
-
 					renderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip(renderableComponent->_modelSkinned->currentAnimation);
 					renderableComponent->_modelSkinned->GetAnimatorPlayer()->Update(Coroutine::GetElapsedTime());	// update animation
 

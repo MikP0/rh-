@@ -1011,7 +1011,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
-	enemyEntity1->GetTransform()->SetPosition(Vector3(18.0f, 0.0f, 22.0f));
+	enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 22.0f));
 	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity1->SetTag(Tags::ENEMY);
 
