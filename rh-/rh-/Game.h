@@ -29,8 +29,13 @@
 #include "NavMesh.h"
 #include "Terrain.h"
 
+#include "Coroutine.h"
+#include "EnemyComponent.h"
+#include "EnemySystem.h"
+
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
+
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -66,6 +71,8 @@ private:
 
 	void Update(DX::StepTimer const& timer);
 	void UpdateObjects(float elapsedTime);
+	void UpdateAnimations(float elapsedTime);
+	void UpdateCoroutines(float elapsedTime);
 	void Render();
 	void RenderObjects(ID3D11DeviceContext1 *context);
 
@@ -104,6 +111,8 @@ private:
 	std::shared_ptr<Entity> myEntity6;
 
 	std::shared_ptr<Entity> playerEntity;
+
+	std::shared_ptr<Entity> enemyEntity1;
 
 	// floor for shadows
 	std::shared_ptr<Entity> myEntityFloor;
@@ -178,11 +187,17 @@ private:
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
 
+
+	//Enemy
+	std::shared_ptr<EnemySystem> enemySystem;
+
 	//NavMesh
 	std::shared_ptr<NavMesh> navMesh;
 	std::shared_ptr<Terrain> terrain;
+
 	std::shared_ptr<LightSystem> lightSystem;
 
+	Keyboard::KeyboardStateTracker keyboardTracker;
 	Mouse::ButtonStateTracker tracker;
 	bool freeCameraLook = false;
 
@@ -193,6 +208,7 @@ private:
 	DirectX::SimpleMath::Vector2 healthBarPos;
 	DirectX::SimpleMath::Vector2 healthBarHeroPos;
 	DirectX::SimpleMath::Vector2 healthBarHealthPos;
+	DirectX::SimpleMath::Vector2 healthBarHealthScale;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> fpsBarTex;
 	DirectX::SimpleMath::Vector2 fpsBarPos;
@@ -212,4 +228,39 @@ private:
 
 	//World
 	std::shared_ptr<World> world;
+
+
+	//Player
+	bool isDancing = false;
+	bool playerWalking = false;
+	bool playerAttack = false;
+	bool playerBite = false;
+	bool enemyClicked = false;
+	int attackType = 0;
+
+	bool playerHealed = false;
+
+	Coroutine playerAttackCorutine;
+	Coroutine playerBiteCorutine;
+
+	Coroutine enemyHittedCorutine;
+	shared_ptr<Entity> hittedEnemy;
+
+	Coroutine playerHittedCorutine;
+
+	Coroutine playerHealedCorutine;
+
+	float playerBiteDistance = 1.0f;
+	float playerAttackDistance = 1.0f;
+	shared_ptr<Entity> targetedEnemy;
+
+	std::shared_ptr<float> playerHealth;
+	float playerHealthOrigin = 100.0f;
+
+	//Vampire Mode
+	bool vampireMode = false;
+
+	int vampireAbility = 0;
+
+	void StopEnemies();
 };

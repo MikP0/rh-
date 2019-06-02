@@ -72,30 +72,8 @@ SamplerState samShadow
 	ComparisonFunc = LESS;
 };
 
-
-
-
-
-
-//SamplerState ColorSampler  : register(s0)
-//{
-//	Filter = MIN_MAG_MIP_LINEAR;
-//	AddressU = WRAP;
-//	AddressV = WRAP;
-//};
-//
-//SamplerComparisonState samShadow  : register(s1);
-//{
-//	Filter = COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-//	AddressU = BORDER;
-//	AddressV = BORDER;
-//	AddressW = BORDER;
-//	BorderColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
-//
-//	ComparisonFunc = LESS;
-//};
-
-
+//SamplerComparisonState samShadow  : register(s0);
+//SamplerState ColorSampler  : register(s1);
 
 
 
@@ -110,10 +88,13 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 normal = normalize(input.normal);
 	float3 viewDirection = normalize(CameraPosition - input.worldPosition);
 
-
 	float3 shadow = float3(1.0f, 1.0f, 1.0f);
 	shadow[0] = CalcShadowFactor(samShadow, ShadowMap, input.shadowPosition);
 
+	if (shadow[0] < 1)
+	{
+		shadow[0] = 0.25;
+	}
 
 	float4 color;
 
@@ -144,7 +125,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	//	color = float4(0.2, 0.2, 0.2, 1.0) * color;
 	//else
 	//	color = float4(0.1, 0.1, 0.1, 1.0) * color;
-
 
 
 	// POINT LIGHTS
@@ -178,10 +158,10 @@ float4 main(PixelShaderInput input) : SV_TARGET
 		diffuse = (float3)0;
 		if (n_dot_l > 0)
 		{
-			diffuse = DirectionalLight[i].Color.rgb * DirectionalLight[i].Color.a * n_dot_l * color.rgb;// *shadow[i];
+			diffuse = DirectionalLight[i].Color.rgb * DirectionalLight[i].Color.a * n_dot_l * color.rgb;
 		}
 
-		totalLightContribution += diffuse * shadow[i];
+		totalLightContribution += diffuse *shadow[i];
 	}
 
 	// SPOT LIGHTS

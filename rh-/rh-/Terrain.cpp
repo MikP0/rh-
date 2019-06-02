@@ -45,12 +45,12 @@ void Terrain::SetTilePositionsAndTypes()
 			//if (i*j % 15 < 10) {
 			tiles[i *heightInTiles + j]->type = TileType::grass;
 			tiles[i *heightInTiles + j]->walkable = true;
-			//}
-			//else {
-			//	tiles[i *heightInTiles + j]->type = TileType::fire;
-			//	tiles[i *heightInTiles + j]->walkable = false;
-			//	tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize));
-			//}
+			/*}
+			else {
+				tiles[i *heightInTiles + j]->type = TileType::fire;
+				tiles[i *heightInTiles + j]->walkable = false;
+				tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize));
+			}*/
 			/*if ((i < 4 || i>5) && (j>2 && j<13)) {
 				tiles[i *heightInTiles + j]->type = TileType::fire;
 				tiles[i *heightInTiles + j]->walkable = false;
@@ -237,10 +237,24 @@ Vector3 Terrain::GetNearestNeighbor(dxmath::Vector3 position)
 	return returnTile->worldPosition;
 }
 
+Vector3 Terrain::FallBack(Vector3 current, Vector3 previous)
+{
+	Vector3 diff = previous - current;
+	MapTilePtr result =nullptr;
+	for (int i = 1; i < 15; i++) {
+		result = this->GetTileWithPosition(current + (diff*i));
+		if (result->walkable)
+		{
+			return result->worldPosition;
+		}
+	}
+	return previous+(20*diff);
+}
+
 vector<MapTilePtr> Terrain::GetPath(MapTilePtr start, MapTilePtr goal)
 {
 	if (start == nullptr || goal == nullptr || start == goal || !this->Within(start) || !this->Within(goal)) {
-		return vector<shared_ptr<MapTile>>();
+		return vector<MapTilePtr>();
 	}
 
 	if (!start->walkable || !goal->walkable) {

@@ -39,6 +39,16 @@ public:
 
 	DirectX::SimpleMath::Matrix character_world;
 
+	std::string currentAnimation;
+	bool playingAnimation;
+
+	void SetCurrentAnimation(std::string animName);
+
+	bool isHitted = false;
+
+	bool isHealed = false;
+
+
 private:
 	SkinnedModelMaterial* mMaterial;
 	EffectSK* mEffect;

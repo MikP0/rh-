@@ -21,6 +21,7 @@ class SkinnedModelMaterial : public MaterialSK
 		MATERIAL_VARIABLE_DECLARATION(ColorTexture)
 		MATERIAL_VARIABLE_DECLARATION(View)
 		MATERIAL_VARIABLE_DECLARATION(Projection)
+		MATERIAL_VARIABLE_DECLARATION(Hitted)
 
 public:
 	SkinnedModelMaterial();

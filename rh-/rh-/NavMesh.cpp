@@ -19,16 +19,18 @@ NavMesh::NavMesh(std::shared_ptr<Transform> transform)
 {
 	this->transform = transform;
 	destination = dxmath::Vector3::Zero;
+	localDestination = Vector3::Zero;
 	speed = 25.f;
 	isMoving = false;
 	step = dxmath::Vector3::Zero;
+	previousPosition = Vector3::Zero;
 }
 
 NavMesh::~NavMesh()
 {
 }
 
-void NavMesh::SetDestination(dxmath::Vector3 dest, Camera camera)
+void NavMesh::SetDestination(dxmath::Vector3 dest)
 {
 	if (dest != transform->GetPosition() && terrain->CanWalk(dest))
 	{
@@ -43,7 +45,28 @@ void NavMesh::SetDestination(dxmath::Vector3 dest, Camera camera)
 		step = localDestination - transform->GetPosition();
 		step = step / step.Length() / speed;
 
-		isMoving = true;		
+		isMoving = true;
+	}
+}
+
+void NavMesh::SetEnemyDestination(dxmath::Vector3 dest)
+{
+	if (dest != transform->GetPosition() && terrain->CanWalk(dest))
+	{
+		if (currentPath.empty()) {
+			destination = dest;
+			localDestination = dest;
+
+			float dot = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).x + transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).z;
+			float cross = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).z - transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).x;
+			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
+			transform->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+
+			step = localDestination - transform->GetPosition();
+			step = step / step.Length() / speed;
+
+			isMoving = true;
+		}
 	}
 }
 
@@ -51,8 +74,9 @@ void NavMesh::Move()
 {
 	if (isMoving)
 	{
-		/*if (!terrain->GetTileWithPosition(localDestination)->walkable) {
-			localDestination = terrain->GetNearestNeighbor(transform->GetPosition());
+		if (!terrain->GetTileWithPosition(localDestination)->walkable) {
+			//localDestination = terrain->GetNearestNeighbor(transform->GetPosition());
+			localDestination = terrain->FallBack(transform->GetPosition(), previousPosition);
 			float dot = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).x + transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).z;
 			float cross = transform->GetTransformMatrix().Forward().x * (localDestination - transform->GetPosition()).z - transform->GetTransformMatrix().Forward().z * (localDestination - transform->GetPosition()).x;
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159265f) + 180.0f;
@@ -60,12 +84,12 @@ void NavMesh::Move()
 
 			step = localDestination - transform->GetPosition();
 			step = step / step.Length() / speed;
-			OutputDebugStringA("you shall not pass");
-		}*/
+		}
 		if (!XMVector3NearEqual(localDestination, transform->GetPosition(), Vector3(.1f, .1f, .1f)))
 		{
 			if (terrain->CanWalk(transform->GetPosition() + step)) {
-				transform->SetPosition(transform->GetPosition() + step);
+				previousPosition = transform->GetPosition();
+				transform->SetPosition(transform->GetPosition() + step);				
 			}
 			else
 			{
