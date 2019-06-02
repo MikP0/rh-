@@ -92,6 +92,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalIncludeDirectories>C:\Users\Marcin\Documents\GitHub\rh-\rh-\tinyxml2-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,7 +108,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <AdditionalIncludeDirectories>E:\Studia\PBL\rh-\rh-\rh-\x64\Debug;E:\Studia\PBL\rh-\tinyxml2-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Marcin\Documents\GitHub\rh-\rh-\tinyxml2-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -417,12 +418,12 @@
     <Media Include="Resources\Audio\Happyrock.wav" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\tinyxml2-master\tinyxml2\tinyxml2.vcxproj">
-      <Project>{d1c528b6-aa02-4d29-9d61-dc08e317a70d}</Project>
-    </ProjectReference>
+    <Xml Include="testLevel.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="testLevel.xml" />
+    <ProjectReference Include="..\tinyxml2-master\tinyxml2\tinyxml2.vcxproj">
+      <Project>{d1c528b6-aa02-4d29-9d61-dc08e317a70d}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

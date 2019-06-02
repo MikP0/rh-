@@ -727,7 +727,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
 	//terrain->Update(collisionSystem->GetColliders());
-	terrain->Draw(camera, m_roomTex);
+	//terrain->Draw(camera, m_roomTex);
 
 	if (debugDraw) //REMOVE
 		renderableSystem->DebugDrawAction->DrawOctTree(
@@ -947,6 +947,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntityFloor->AddComponent<RenderableComponent>(L"FloorToRoom.cmo", &camera);
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
+	//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Annabelle.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 
 	// Creation of audio components ------------------------------------------------------------------
@@ -1153,6 +1154,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	////Setting up skinned model -----------------------------------------------------------------------
 	auto component = playerEntity->GetComponent<RenderableComponent>();
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Idle.fbx", "Idle");
+	//component->_modelSkinned->AddAnimationClip("content\\Models\\Annabelle_Idle.fbx", "Idle");
 	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
