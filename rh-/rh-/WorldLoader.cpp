@@ -35,22 +35,89 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 			{
 				auto oEntity = _world->CreateEntity(eEntity->FirstAttribute()->Value());
 
-				tx::XMLElement* eXCoord = eEntity->FirstChildElement("x");
-				if (eXCoord != nullptr)
+				
+
+				tx::XMLElement* ePosition = eEntity->FirstChildElement("Position");
+				if(ePosition != nullptr)
 				{
-					oEntity->GetTransform()->SetX(atof(eXCoord->GetText()));
+					tx::XMLElement* eXCoord = ePosition->FirstChildElement("x");
+					if (eXCoord != nullptr)
+					{
+						oEntity->GetTransform()->SetX(atof(eXCoord->GetText()));
+					}
+
+					tx::XMLElement* eYCoord = ePosition->FirstChildElement("y");
+					if (eYCoord != nullptr)
+					{
+						oEntity->GetTransform()->SetY(atof(eYCoord->GetText()));
+					}
+
+					tx::XMLElement* eZCoord = ePosition->FirstChildElement("z");
+					if (eZCoord != nullptr)
+					{
+						oEntity->GetTransform()->SetZ(atof(eZCoord->GetText()));
+					}
 				}
 
-				tx::XMLElement* eYCoord = eEntity->FirstChildElement("y");
-				if (eYCoord != nullptr)
+				tx::XMLElement* eRotation = eEntity->FirstChildElement("Rotation");
+				if(eRotation != nullptr)
 				{
-					oEntity->GetTransform()->SetY(atof(eYCoord->GetText()));
-				}
+					DirectX::SimpleMath::Vector3 aAxis;
+					float aAngle;
 
-				tx::XMLElement* eZCoord = eEntity->FirstChildElement("z");
-				if (eZCoord != nullptr)
+					tx::XMLElement* eAxis = eRotation->FirstChildElement("Axis");
+					if(eAxis != nullptr)
+					{
+						tx::XMLElement* eXRotation = eAxis->FirstChildElement("x");
+						if (eXRotation != nullptr)
+						{
+							aAxis.x = atof(eXRotation->GetText());
+						}
+
+						tx::XMLElement* eYRotation = eAxis->FirstChildElement("y");
+						if (eYRotation != nullptr)
+						{
+							aAxis.y = atof(eYRotation->GetText());
+						}
+
+						tx::XMLElement* eZRotation = eAxis->FirstChildElement("z");
+						if (eZRotation != nullptr)
+						{
+							aAxis.z = atof(eZRotation->GetText());
+						}
+					}
+
+					tx::XMLElement* eAngle = eRotation->FirstChildElement("Angle");
+					if(eAngle != nullptr)
+					{
+						aAngle = DirectX::XMConvertToRadians(atof(eAngle->GetText()));
+					}
+					
+					oEntity->GetTransform()->Rotate(aAxis, aAngle);
+				}
+				
+				tx::XMLElement* eScale = eEntity->FirstChildElement("Scale");
+				if (eScale != nullptr)
 				{
-					oEntity->GetTransform()->SetZ(atof(eZCoord->GetText()));
+					DirectX::SimpleMath::Vector3 aScale;
+					tx::XMLElement* eXScale = eScale->FirstChildElement("x");
+					if (eXScale != nullptr)
+					{
+						aScale.x = atof(eXScale->GetText());
+					}
+
+					tx::XMLElement* eYScale = eScale->FirstChildElement("y");
+					if (eYScale != nullptr)
+					{
+						aScale.y = atof(eYScale->GetText());
+					}
+
+					tx::XMLElement* eZScale = eScale->FirstChildElement("z");
+					if (eZScale != nullptr)
+					{
+						aScale.z = atof(eZScale->GetText());
+					}
+					oEntity->GetTransform()->SetScale(aScale);
 				}
 
 				tx::XMLElement* eComponents = eEntity->FirstChildElement("Components");
@@ -275,7 +342,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							{
 								aUpdatable = atoi(eLightComponentUpdatable->GetText());
 							}
-							oEntity->AddComponent<LightComponent>(aColor, aPosition, aRadius, aUpdatable);
+							oEntity->AddComponent<LightComponent>(aColor, oEntity->GetTransform()->GetPosition(), aRadius, aUpdatable);
 						}
 					}
 

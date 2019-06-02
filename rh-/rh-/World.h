@@ -147,10 +147,12 @@ public:
 		for (; it != iterpair.second; ++it) {
 			if (typeid(*it->second) == typeid(TComponent))
 			{
-				return *it->second;
+				return std::dynamic_pointer_cast<TComponent>(it->second);
 			}
 		}
 	}
+
+	void KillAllEntities();
 
 private:
 	std::map<std::size_t, std::shared_ptr<Entity>> _entityPoolMap;

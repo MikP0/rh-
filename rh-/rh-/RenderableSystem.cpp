@@ -56,7 +56,8 @@ void RenderableSystem::Iterate()
 	_shadowMap->UnbindTargetAndViewport(_context);
 
 	_context->RSSetState(0);
-	_context->ClearRenderTargetView(_renderTargetView, Colors::Silver);
+	XMVECTORF32 myColor = { { { 0.0f, 0.0f, 0.0f, 1.000000000f } } };
+	_context->ClearRenderTargetView(_renderTargetView, myColor);
 	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	_fxFactory->SetShadowMapEnabled(true);
@@ -86,6 +87,7 @@ void RenderableSystem::Iterate()
 
 void RenderableSystem::Initialize()
 {
+
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())

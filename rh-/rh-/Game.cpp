@@ -143,7 +143,30 @@ void Game::Update(DX::StepTimer const& timer)
 
 			if (*iter == playBackground)
 			{
-				audioBackgroundSound->Mute = false;
+				world->ClearWorld();
+				
+
+				//renderableSystem = std::make_shared<RenderableSystem>(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
+				//lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
+				
+				// Adding systems to world ------------------------------------------------------------------
+				world->AddSystem<PhysicsSystem>(collisionSystem, 0);
+				world->AddSystem<LightSystem>(lightSystem, 1);
+				world->AddSystem<AudioSystem>(audioSystem, 2);
+				world->AddSystem<RenderableSystem>(renderableSystem, 3);
+
+				playerEntity = world->CreateEntity("Player");
+
+
+				worldLoader->LoadWorldFromXML("testLevel.xml");
+
+				world->InitializeSystem<AudioSystem>();
+				world->InitializeSystem<PhysicsSystem>();
+				world->InitializeSystem<LightSystem>();
+				world->InitializeSystem<RenderableSystem>();
+				
+				
+				//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
 			}
 
 			if (*iter == playSound1)
@@ -173,7 +196,7 @@ void Game::Update(DX::StepTimer const& timer)
 	if (!menuIsOn)
 	{
 
-		if (!navMesh->isMoving)
+		/*if (!navMesh->isMoving)
 		{
 			for (auto component : world->GetComponents<RenderableComponent>())
 			{
@@ -198,7 +221,7 @@ void Game::Update(DX::StepTimer const& timer)
 					component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
 				}
 			}
-		}
+		}*/
 	}
 
 	//Audio
@@ -304,12 +327,12 @@ void Game::UpdateObjects(float elapsedTime)
 
 
 	//NavMesh
-	tracker.Update(mouse); // Player Component -> Player System
-	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD) {
-		Vector3 destination = Raycast::GetPointOnGround(camera);
-		navMesh->SetDestination(destination);
-	}
-	navMesh->Move(); // Player Component -> Player System
+	//tracker.Update(mouse); // Player Component -> Player System
+	//if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD) {
+	//	Vector3 destination = Raycast::GetPointOnGround(camera);
+	//	navMesh->SetDestination(destination);
+	//}
+	//navMesh->Move(); // Player Component -> Player System
 
 
 	// check collisions
@@ -322,7 +345,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-	myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
+	/*myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 
 	if (mouse.rightButton)
@@ -349,7 +372,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 		if (colliderBoundingCup2->GetCenter().x <= 0.0f)
 			dir2.x = 1.0f;
-	}
+	}*/
 
 	if (keyboard.M)
 	{
@@ -367,14 +390,14 @@ void Game::UpdateObjects(float elapsedTime)
 	}
 
 	// skinned model
-	for (auto component : world->GetComponents<RenderableComponent>())
-	{
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"Player") == 0)
-		{
-			component->_modelSkinned->GetAnimatorPlayer()->Update(elapsedTime); // -> Renderable System -> Iterate()
-		}
-	}
+	//for (auto component : world->GetComponents<RenderableComponent>())
+	//{
+	//	if (strcmp(component->GetParent()->GetName().c_str(),
+	//		"Player") == 0)
+	//	{
+	//		component->_modelSkinned->GetAnimatorPlayer()->Update(elapsedTime); // -> Renderable System -> Iterate()
+	//	}
+	//}
 }
 
 #pragma endregion
@@ -415,8 +438,8 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	DirectX::XMMATRIX cameraView = camera.GetViewMatrix(); // ?? FIXME
 	DirectX::XMMATRIX cameraProjection = camera.GetProjectionMatrix();
 
-	XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
-	XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
+	//XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
+	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
 	terrain->Draw(camera, m_roomTex);
 
@@ -535,7 +558,7 @@ void Game::OnNewAudioDevice()
 void Game::GetDefaultSize(int& width, int& height)
 {
 	// TODO: Change to desired default window size (note minimum size is 320x200).
-	int w = 800, h = 600;
+	int w = 1200, h = 820;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
 	width = w;
@@ -593,122 +616,122 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	world->AddSystem<AudioSystem>(audioSystem, 2);
 	world->AddSystem<RenderableSystem>(renderableSystem, 3);
 	
-	/* 
-		FILL WORLD OBJECT
-	*/
-	
-	// Creation of entities ------------------------------------------------------------------
-	myEntity1 = world->CreateEntity("Cup1");
-	myEntity2 = world->CreateEntity("Cup2");
-	myEntity3 = world->CreateEntity("Cup3");
-	myEntity4 = world->CreateEntity("Cup4");
-	myEntity5 = world->CreateEntity("BackgroundAudioEntity");
-	myEntity6 = world->CreateEntity("Sound1AudioEntity");
-	pointLightEntity1 = world->CreateEntity("PointLight1");
-	pointLightEntity2 = world->CreateEntity("PointLight2");
-	pointLightEntity3 = world->CreateEntity("PointLight3");
-	spotLightEntity1 = world->CreateEntity("SpotLight1");
-	directLightEntity1 = world->CreateEntity("DirectLight1");
-	myEntityFloor = world->CreateEntity("FloorForShadows");
 	playerEntity = world->CreateEntity("Player");
-
-	// Creation of audio components ------------------------------------------------------------------
-	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
-	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
-
-	// Creation of physics components ----------------------------------------------------------------
-	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), false);
-	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
+	//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
 
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
-
 	worldLoader->LoadWorldFromXML("testLevel.xml");
 
-	// Creation of renderable components
-	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntityFloor->AddComponent<RenderableComponent>(L"FloorToRoom.cmo", &camera);
-	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
-
-	// Creation of light components ------------------------------------------------------------------
-	//pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
-	//pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
-	//pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
-	//spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
-	directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -2.0f, 0.0f));
-	// Setting up transform parameters of entities  --------------------------------------------------
-	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
-	myEntity1->GetTransform()->SetScale(scaleEntity1);
-	myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
+	// Creation of entities ------------------------------------------------------------------
+	//myEntity1 = world->CreateEntity("Cup1");
+	//myEntity2 = world->CreateEntity("Cup2");
+	//myEntity3 = world->CreateEntity("Cup3");
+	//myEntity4 = world->CreateEntity("Cup4");
+	//myEntity5 = world->CreateEntity("BackgroundAudioEntity");
+	//myEntity6 = world->CreateEntity("Sound1AudioEntity");
+	//pointLightEntity1 = world->CreateEntity("PointLight1");
+	//pointLightEntity2 = world->CreateEntity("PointLight2");
+	//pointLightEntity3 = world->CreateEntity("PointLight3");
+	//spotLightEntity1 = world->CreateEntity("SpotLight1");
+	//directLightEntity1 = world->CreateEntity("DirectLight1");
+	//myEntityFloor = world->CreateEntity("FloorForShadows");
 
 
-	myEntity2->GetTransform()->SetScale(scaleEntity2);
-	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
+	//// Creation of audio components ------------------------------------------------------------------
+	//myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
+	//myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+
+	//// Creation of physics components ----------------------------------------------------------------
+	//myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), false);
+	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
 
 
-	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
-	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
-	myEntity1->AddChild(myEntity3);
+	//// Creation of renderable components
+	//myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	//myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	//myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	//myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	//myEntityFloor->AddComponent<RenderableComponent>(L"FloorToRoom.cmo", &camera);
 
-	world->GetEntity(4)->GetTransform()->SetScale(scaleEntity4);
-	myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
 
-	myEntityFloor->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
-	myEntityFloor->GetTransform()->SetPosition(Vector3(-3.5f, 2.52f, -3.5f));
+	//// Creation of light components ------------------------------------------------------------------
+	////pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
+	////pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
+	////pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
+	////spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
+	//directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -2.0f, 0.0f));
+	//// Setting up transform parameters of entities  --------------------------------------------------
+	//Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
+	//myEntity1->GetTransform()->SetScale(scaleEntity1);
+	//myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
+
+
+	//myEntity2->GetTransform()->SetScale(scaleEntity2);
+	//myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
+
+
+	//world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
+	//myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
+
+	//myEntity1->AddChild(myEntity3);
+
+	//world->GetEntity(4)->GetTransform()->SetScale(scaleEntity4);
+	//myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
+
+	//myEntityFloor->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
+	//myEntityFloor->GetTransform()->SetPosition(Vector3(-3.5f, 2.52f, -3.5f));
 
 	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 
-	// Setting up parameters of audio -- REMOVE
-	for (auto component : world->GetComponents<AudioComponent>())
-	{
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"BackgroundAudioEntity") == 0)
-		{
-			audioBackgroundSound = component;
-			audioBackgroundSound->Loop = true;
-			continue;
-		}
+	//// Setting up parameters of audio -- REMOVE
+	//for (auto component : world->GetComponents<AudioComponent>())
+	//{
+	//	if (strcmp(component->GetParent()->GetName().c_str(),
+	//		"BackgroundAudioEntity") == 0)
+	//	{
+	//		audioBackgroundSound = component;
+	//		audioBackgroundSound->Loop = true;
+	//		continue;
+	//	}
 
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"Sound1AudioEntity") == 0)
-		{
-			audioSound1 = component;
-			continue;
-		}
-	}
+	//	if (strcmp(component->GetParent()->GetName().c_str(),
+	//		"Sound1AudioEntity") == 0)
+	//	{
+	//		audioSound1 = component;
+	//		continue;
+	//	}
+	//}
 
-	// Setting up parameters of colliders ----------------------------------------------------------------
+	//// Setting up parameters of colliders ----------------------------------------------------------------
 
-	for (auto physicsComponent : world->GetComponents<PhysicsComponent>())
-	{
-		if (strcmp(physicsComponent->GetParent()->GetName().c_str(), "Cup1") == 0)
-		{
-			colliderCup1 = physicsComponent;
-			continue;
-		}
+	//for (auto physicsComponent : world->GetComponents<PhysicsComponent>())
+	//{
+	//	if (strcmp(physicsComponent->GetParent()->GetName().c_str(), "Cup1") == 0)
+	//	{
+	//		colliderCup1 = physicsComponent;
+	//		continue;
+	//	}
 
-		if (strcmp(physicsComponent->GetParent()->GetName().c_str(), "Cup2") == 0)
-		{
-			colliderCup2 = physicsComponent;
-			continue;
-		}
-	}
+	//	if (strcmp(physicsComponent->GetParent()->GetName().c_str(), "Cup2") == 0)
+	//	{
+	//		colliderCup2 = physicsComponent;
+	//		continue;
+	//	}
+	//}
 
-	colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
-	colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
+	//colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
+	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
 
-	// Setting up positions of lights ----------------------------------------------------------------
-	pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
-	pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 0.0f, 2.0f));
-	pointLightEntity3->GetTransform()->SetPosition(Vector3(2.0f, -1.0f, 1.0f));
-	spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
-	directLightEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
+	//// Setting up positions of lights ----------------------------------------------------------------
+	//pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
+	//pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 0.0f, 2.0f));
+	//pointLightEntity3->GetTransform()->SetPosition(Vector3(2.0f, -1.0f, 1.0f));
+	//spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
+	//directLightEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
 	// Setting up terrain tile map -------------------------------------------------------------------
-	terrain->InitTileMap(context);
+	//terrain->InitTileMap(context);
 	
 
 	DX::ThrowIfFailed(
@@ -774,6 +797,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	world->InitializeSystem<AudioSystem>();
 	world->InitializeSystem<PhysicsSystem>();
 	world->InitializeSystem<RenderableSystem>();
+	lightSystem->_fxFactory = renderableSystem->_fxFactory;
 	world->InitializeSystem<LightSystem>();
 
 
