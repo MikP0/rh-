@@ -33,5 +33,7 @@ public:
 	bool bited;
 
 	Coroutine attackCorutine;
+
+	Coroutine playerHittedCorutine;
 };
 

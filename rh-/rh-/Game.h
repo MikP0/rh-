@@ -197,7 +197,7 @@ private:
 
 	std::shared_ptr<LightSystem> lightSystem;
 
-
+	Keyboard::KeyboardStateTracker keyboardTracker;
 	Mouse::ButtonStateTracker tracker;
 	bool freeCameraLook = false;
 
@@ -238,8 +238,17 @@ private:
 	bool enemyClicked = false;
 	int attackType = 0;
 
+	bool playerHealed = false;
+
 	Coroutine playerAttackCorutine;
 	Coroutine playerBiteCorutine;
+
+	Coroutine enemyHittedCorutine;
+	shared_ptr<Entity> hittedEnemy;
+
+	Coroutine playerHittedCorutine;
+
+	Coroutine playerHealedCorutine;
 
 	float playerBiteDistance = 1.0f;
 	float playerAttackDistance = 1.0f;
@@ -250,10 +259,8 @@ private:
 
 	//Vampire Mode
 	bool vampireMode = false;
-	bool vampireModeClicked = false;
 
 	int vampireAbility = 0;
 
 	void StopEnemies();
-	
 };

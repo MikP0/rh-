@@ -114,32 +114,35 @@ void Game::Update(DX::StepTimer const& timer)
 					move.z -= 1.f;
 			}
 
-			if (*iter == special1)
+			if (!vampireMode)
 			{
-				for (auto component : world->GetComponents<RenderableComponent>())
+				if (*iter == special1)
 				{
-					if (strcmp(component->GetParent()->GetName().c_str(),
-						"Player") == 0)
+					for (auto component : world->GetComponents<RenderableComponent>())
 					{
-						component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
-						component->_modelSkinned->SetInMove(true);
-						component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
-						isDancing = true;
+						if (strcmp(component->GetParent()->GetName().c_str(),
+							"Player") == 0)
+						{
+							component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
+							component->_modelSkinned->SetInMove(true);
+							component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+							isDancing = true;
+						}
 					}
 				}
-			}
 
-			if (*iter == special2)
-			{
-				for (auto component : world->GetComponents<RenderableComponent>())
+				if (*iter == special2)
 				{
-					if (strcmp(component->GetParent()->GetName().c_str(),
-						"Player") == 0)
+					for (auto component : world->GetComponents<RenderableComponent>())
 					{
-						component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
-						component->_modelSkinned->SetInMove(true);
-						component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
-						isDancing = true;
+						if (strcmp(component->GetParent()->GetName().c_str(),
+							"Player") == 0)
+						{
+							component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
+							component->_modelSkinned->SetInMove(true);
+							component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+							isDancing = true;
+						}
 					}
 				}
 			}
@@ -277,13 +280,14 @@ void Game::UpdateObjects(float elapsedTime)
 	auto keyboard = Input::GetKeyboardState();
 	
 	// states for player		/////////////////////////////////////////////////////
-	//NavMesh
+
+	tracker.Update(mouse); // Player Component -> Player System
+	keyboardTracker.Update(keyboard);
 
 	if (!vampireMode)
 	{
 		if (!playerBiteCorutine.active)
-		{
-			tracker.Update(mouse); // Player Component -> Player System
+		{	
 			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD)
 			{
 				// !!!!!!!!!!!!!!!!    HOLD wylaczyc z atakowania - atakowanie tylko PRESSED
@@ -328,7 +332,7 @@ void Game::UpdateObjects(float elapsedTime)
 				}
 			}
 
-			if (keyboard.E)		// tu te¿ ¿eby nie by³o HOLD tylko PRESSED
+			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::E))
 			{
 				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
 				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
@@ -367,10 +371,10 @@ void Game::UpdateObjects(float elapsedTime)
 				}
 			}
 
-			if ((keyboard.Space) && (!vampireModeClicked))
+
+			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
 			{
 				vampireMode = true;
-				vampireModeClicked = true;
 
        			enemyClicked = false;
 				targetedEnemy = nullptr;
@@ -383,10 +387,6 @@ void Game::UpdateObjects(float elapsedTime)
 				navMesh->isMoving = false;
 
 				StopEnemies();
-			}
-			else
-			{
-				vampireModeClicked = false;
 			}
 		}
 
@@ -443,32 +443,29 @@ void Game::UpdateObjects(float elapsedTime)
 	}
 	else		// VAMPIRE MODE
 	{
-		if ((keyboard.Space) && (!vampireModeClicked))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
 		{
 			vampireMode = false;
-			vampireModeClicked = true;
 			enemySystem->SetVampireMode(false);
 			vampireAbility = 0;
 		}
-		else
-		{
-			vampireModeClicked = false;
-		}
 
-		if (keyboard.D1)
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1))
 		{
 			vampireAbility = 1;
 		}
 
 		if (vampireAbility == 1)
 		{
-			tracker.Update(mouse);
 			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
 				Vector3 destination = Raycast::GetPointOnGround(camera);
 				playerEntity->GetTransform()->SetPosition(destination);
 				vampireAbility = 0;
 				*playerHealth -= 15.0f;
+
+				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
+				playerHittedCorutine.Restart(0.1f);
 			}
 		}	
 	}
@@ -587,9 +584,16 @@ void Game::UpdateCoroutines(float elapsedTime)
 				{
 					targetedEnemy->GetComponent<EnemyComponent>()->health -= 15.0f;
 				}
+
+				hittedEnemy = targetedEnemy;
+
 				enemyClicked = false;
 				targetedEnemy = nullptr;
 				attackType = 0;
+
+
+				hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
+				enemyHittedCorutine.Restart(0.1f);
 			}
 		}
 
@@ -606,12 +610,47 @@ void Game::UpdateCoroutines(float elapsedTime)
 				if (*playerHealth > playerHealthOrigin)
 					*playerHealth = playerHealthOrigin;
 
+				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHealed = true;
+				playerHealedCorutine.Restart(0.1f);
+
+
 				targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
+
+				hittedEnemy = targetedEnemy;
 
 				enemyClicked = false;
 				targetedEnemy = nullptr;
 				attackType = 0;
+
+				hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
+				enemyHittedCorutine.Restart(0.1f);
 			}
+		}		
+	}
+
+
+	if (enemyHittedCorutine.active)
+	{
+		if (!(enemyHittedCorutine.Update()))
+		{
+			hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = false;
+			hittedEnemy = nullptr;
+		}
+	}
+
+	if (playerHittedCorutine.active)
+	{
+		if (!(playerHittedCorutine.Update()))
+		{
+			playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = false;
+		}
+	}
+
+	if (playerHealedCorutine.active)
+	{
+		if (!(playerHealedCorutine.Update()))
+		{
+			playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHealed = false;
 		}
 	}
 }

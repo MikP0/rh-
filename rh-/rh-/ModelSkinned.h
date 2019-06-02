@@ -44,6 +44,11 @@ public:
 
 	void SetCurrentAnimation(std::string animName);
 
+	bool isHitted = false;
+
+	bool isHealed = false;
+
+
 private:
 	SkinnedModelMaterial* mMaterial;
 	EffectSK* mEffect;

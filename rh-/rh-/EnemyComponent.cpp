@@ -19,6 +19,7 @@ EnemyComponent::EnemyComponent()
 	this->navMesh = nullptr;
 
 	this->attackCorutine.active = false;
+	this->playerHittedCorutine.active = false;
 }
 
 EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, float Damage, float DistanceToAttack, float FollowPlayerDistance)
@@ -39,6 +40,7 @@ EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, fl
 	this->navMesh = nullptr;
 
 	this->attackCorutine.active = false;
+	this->playerHittedCorutine.active = false;
 }
 
 

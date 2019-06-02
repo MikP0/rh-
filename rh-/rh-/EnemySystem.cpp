@@ -60,7 +60,20 @@ void EnemySystem::Iterate()
 						if (XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->attackLength + 0.5f, .1f, enemyComponent->attackLength + 0.5f)))
 						{
 							*playerHealth -= enemyComponent->damage;
+
+
+							player->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
+							enemyComponent->playerHittedCorutine.Restart(0.1f);
 						}
+					}
+				}
+
+
+				if (enemyComponent->playerHittedCorutine.active)
+				{
+					if (!(enemyComponent->playerHittedCorutine.Update()))
+					{
+						player->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = false;
 					}
 				}
 			}
