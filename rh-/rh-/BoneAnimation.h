@@ -22,7 +22,7 @@ public:
 	void GetTransformAtKeyframe(UINT keyframeIndex, DirectX::XMFLOAT4X4& transform) const;
 	void GetInteropolatedTransform(float time, DirectX::XMFLOAT4X4& transform) const;
 
-private:
+//private:
 	BoneAnimation(ModelSK& model, aiNodeAnim& nodeAnim);
 
 	BoneAnimation();

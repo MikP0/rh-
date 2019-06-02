@@ -42,6 +42,16 @@ AnimationClip::~AnimationClip()
 	}
 }
 
+AnimationClip::AnimationClip(const AnimationClip & clip)
+{
+	mName = clip.mName;
+	mTicksPerSecond = clip.mTicksPerSecond;
+	mBoneAnimations = clip.mBoneAnimations;
+	mBoneAnimationsByBone = clip.mBoneAnimationsByBone;
+	mDuration = clip.mDuration;
+	mKeyframeCount = clip.mKeyframeCount;
+}
+
 const std::string& AnimationClip::Name() const
 {
 	return mName;

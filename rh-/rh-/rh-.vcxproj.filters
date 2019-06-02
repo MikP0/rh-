@@ -205,6 +205,15 @@
     <ClInclude Include="ShadowMap.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="EnemySystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Coroutine.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
     <ClInclude Include="WorldLoader.h">
       <Filter>Inc</Filter>
     </ClInclude>
@@ -367,6 +376,15 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="ShadowMap.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemySystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Coroutine.cpp">
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="WorldLoader.cpp">

@@ -71,6 +71,7 @@ void Game::Update(DX::StepTimer const& timer)
 	float time = float(timer.GetTotalSeconds());
 	float fps = timer.GetFramesPerSecond();
 
+	Coroutine::UpdateElapsedTime(elapsedTime);
 
 	// TODO: Add your game logic here.
 
@@ -113,30 +114,35 @@ void Game::Update(DX::StepTimer const& timer)
 					move.z -= 1.f;
 			}
 
-			if (*iter == special1)
+			if (!vampireMode)
 			{
-				for (auto component : world->GetComponents<RenderableComponent>())
+				if (*iter == special1)
 				{
-					if (strcmp(component->GetParent()->GetName().c_str(),
-						"Player") == 0)
+					for (auto component : world->GetComponents<RenderableComponent>())
 					{
-						component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
-						component->_modelSkinned->SetInMove(true);
-						component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+						if (strcmp(component->GetParent()->GetName().c_str(),
+							"Player") == 0)
+						{
+							component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
+							component->_modelSkinned->SetInMove(true);
+							component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+							isDancing = true;
+						}
 					}
 				}
-			}
 
-			if (*iter == special2)
-			{
-				for (auto component : world->GetComponents<RenderableComponent>())
+				if (*iter == special2)
 				{
-					if (strcmp(component->GetParent()->GetName().c_str(),
-						"Player") == 0)
+					for (auto component : world->GetComponents<RenderableComponent>())
 					{
-						component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
-						component->_modelSkinned->SetInMove(true);
-						component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+						if (strcmp(component->GetParent()->GetName().c_str(),
+							"Player") == 0)
+						{
+							component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
+							component->_modelSkinned->SetInMove(true);
+							component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+							isDancing = true;
+						}
 					}
 				}
 			}
@@ -173,8 +179,8 @@ void Game::Update(DX::StepTimer const& timer)
 			{
 				audioSound1->Mute = false;
 
-				if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
-					healthBarHealthPos.x -= 5.f;
+				//if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
+				//	healthBarHealthPos.x -= 5.f;
 			}
 
 			if (*iter == freeCamera) {
@@ -193,42 +199,9 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 	}
 
-	if (!menuIsOn)
-	{
-
-		/*if (!navMesh->isMoving)
-		{
-			for (auto component : world->GetComponents<RenderableComponent>())
-			{
-				if (strcmp(component->GetParent()->GetName().c_str(),
-					"Player") == 0)
-				{
-					component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-					component->_modelSkinned->SetInMove(true);
-				}
-			}
-		}
-
-		else 
-		{
-			for (auto component : world->GetComponents<RenderableComponent>())
-			{
-				if (strcmp(component->GetParent()->GetName().c_str(),
-					"Player") == 0)
-				{
-					component->_modelSkinned->GetAnimatorPlayer()->StartClip("Walk");
-					component->_modelSkinned->SetInMove(true);
-					component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
-				}
-			}
-		}*/
-	}
-
-	//Audio
 
 	if (!menuIsOn)
 	{
-
 		//Camera Movement
 		if (freeCameraLook) {
 			if (mouse.positionMode == Mouse::MODE_RELATIVE)
@@ -263,12 +236,14 @@ void Game::Update(DX::StepTimer const& timer)
 			camera.SetYaw(m_yaw);
 		}
 
-		else {
+		else
+		{
 			camera.SetPosition(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom())); //FIXME: Change to Entity Transform
 			camera.SetLookAtPos(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
 			camera.SetPitch(0);
 			camera.SetYaw(0);
 		}
+
 
 		//CameraZoom
 		if (mouse.scrollWheelValue > 0) {
@@ -288,6 +263,8 @@ void Game::Update(DX::StepTimer const& timer)
 	if (!menuIsOn)
 	{
 		UpdateObjects(elapsedTime);
+		UpdateAnimations(elapsedTime);
+		UpdateCoroutines(elapsedTime);
 	}
 	else
 	{
@@ -301,7 +278,7 @@ void Game::Update(DX::StepTimer const& timer)
 				{
 					//menuIsOn = false;
 					ExitGame();
-				}	
+				}
 				else if ((mouse.y >= 160) && (mouse.y <= 220))
 				{
 					menuIsOn = false;
@@ -312,7 +289,7 @@ void Game::Update(DX::StepTimer const& timer)
 				if ((mouse.y >= 160) && (mouse.y <= 220))
 				{
 					menuIsOn = false;
-				}			
+				}
 			}
 		}
 	}
@@ -324,15 +301,199 @@ void Game::UpdateObjects(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
 	auto keyboard = Input::GetKeyboardState();
+	
+	// states for player		/////////////////////////////////////////////////////
+
+	tracker.Update(mouse); // Player Component -> Player System
+	keyboardTracker.Update(keyboard);
+
+	if (!vampireMode)
+	{
+		if (!playerBiteCorutine.active)
+		{	
+			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD)
+			{
+				// !!!!!!!!!!!!!!!!    HOLD wylaczyc z atakowania - atakowanie tylko PRESSED
+
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				for each(shared_ptr<Collision> coll in collisionsWithRay)
+				{
+					if (coll->OriginObject->GetTag() == Tags::ENEMY)
+					{
+						attackType = 1;
+						enemyClicked = true;
+						targetedEnemy = coll->OriginObject;
+					}
+					else
+					{
+						enemyClicked = false;
+						targetedEnemy = nullptr;
+						playerAttackCorutine.active = false;
+						playerBiteCorutine.active = false;
+						playerAttack = false;
+						attackType = 0;
+					}
+				}
+
+				///////////////////////
+
+				if ((!enemyClicked) || (collisionsWithRay.size() == 0))
+				{
+					Vector3 destination = Raycast::GetPointOnGround(camera);
+					navMesh->SetDestination(destination);
+					playerWalking = true;
+
+					enemyClicked = false;
+					targetedEnemy = nullptr;
+					playerAttackCorutine.active = false;
+					playerBiteCorutine.active = false;
+					playerAttack = false;
+					playerBite = false;
+					attackType = 0;
+				}
+			}
+
+			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::E))
+			{
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				for each(shared_ptr<Collision> coll in collisionsWithRay)
+				{
+					if (coll->OriginObject->GetTag() == Tags::ENEMY)
+					{
+						attackType = 5;
+						enemyClicked = true;
+						targetedEnemy = coll->OriginObject;
+					}
+					else
+					{
+						enemyClicked = false;
+						targetedEnemy = nullptr;
+						playerAttackCorutine.active = false;
+						playerBiteCorutine.active = false;
+						playerAttack = false;
+						playerBite = false;
+						attackType = 0;
+					}
+				}
+
+				///////////////////////
+
+				if ((!enemyClicked) || (collisionsWithRay.size() == 0))
+				{
+					enemyClicked = false;
+					targetedEnemy = nullptr;
+					playerAttackCorutine.active = false;
+					playerBiteCorutine.active = false;
+					playerAttack = false;
+					playerBite = false;
+					attackType = 0;
+				}
+			}
 
 
-	//NavMesh
-	//tracker.Update(mouse); // Player Component -> Player System
-	//if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD) {
-	//	Vector3 destination = Raycast::GetPointOnGround(camera);
-	//	navMesh->SetDestination(destination);
-	//}
-	//navMesh->Move(); // Player Component -> Player System
+			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
+			{
+				vampireMode = true;
+
+       			enemyClicked = false;
+				targetedEnemy = nullptr;
+				playerAttackCorutine.active = false;
+				playerBiteCorutine.active = false;
+				playerAttack = false;
+				playerBite = false;
+				playerWalking = false;
+				attackType = 0;
+				navMesh->isMoving = false;
+
+				StopEnemies();
+			}
+		}
+
+
+		if (enemyClicked)
+		{
+			if ((!playerAttackCorutine.active) && (!playerBiteCorutine.active))
+			{
+				if (attackType == 1)
+				{
+					if (!XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), targetedEnemy->GetTransform()->GetPosition(), Vector3(playerAttackDistance, .1f, playerAttackDistance)))
+					{
+						navMesh->SetDestination(targetedEnemy->GetTransform()->GetPosition());
+						playerWalking = true;
+					}
+					else
+					{
+						navMesh->isMoving = false;
+						playerWalking = false;
+						playerAttack = true;
+						playerBite = false;
+						playerAttackCorutine.Restart(1.5f);
+					}
+				}
+				else if (attackType == 5)
+				{
+					if (!XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), targetedEnemy->GetTransform()->GetPosition(), Vector3(playerBiteDistance, .1f, playerBiteDistance)))
+					{
+						navMesh->SetDestination(targetedEnemy->GetTransform()->GetPosition());
+						playerWalking = true;
+					}
+					else
+					{
+						navMesh->isMoving = false;
+						playerWalking = false;
+						playerAttack = false;
+						playerBite = true;
+						targetedEnemy->GetComponent<EnemyComponent>()->bited = true;
+						playerBiteCorutine.Restart(4.1f);
+					}
+				}
+			}
+		}
+
+		if (playerWalking)
+		{
+			navMesh->Move(); // Player Component -> Player System
+
+			if (!navMesh->isMoving)
+			{
+				playerWalking = false;
+			}
+		}
+	}
+	else		// VAMPIRE MODE
+	{
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
+		{
+			vampireMode = false;
+			enemySystem->SetVampireMode(false);
+			vampireAbility = 0;
+		}
+
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1))
+		{
+			vampireAbility = 1;
+		}
+
+		if (vampireAbility == 1)
+		{
+			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+			{
+				Vector3 destination = Raycast::GetPointOnGround(camera);
+				playerEntity->GetTransform()->SetPosition(destination);
+				vampireAbility = 0;
+				*playerHealth -= 15.0f;
+
+				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
+				playerHittedCorutine.Restart(0.1f);
+			}
+		}	
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	// check collisions
@@ -345,16 +506,17 @@ void Game::UpdateObjects(float elapsedTime)
 
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-	/*myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
+	//myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 
 	if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
-		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.5f, posOnGround.z));
+		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
 	}
 
 	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
+
 
 	if (octrTreeBounding.Contains(colliderBoundingCup1->GetBounding()) != CONTAINS)
 	{
@@ -388,16 +550,132 @@ void Game::UpdateObjects(float elapsedTime)
 				collisionCup2WithRay = coll;
 		}
 	}
+}
 
-	// skinned model
-	//for (auto component : world->GetComponents<RenderableComponent>())
-	//{
-	//	if (strcmp(component->GetParent()->GetName().c_str(),
-	//		"Player") == 0)
-	//	{
-	//		component->_modelSkinned->GetAnimatorPlayer()->Update(elapsedTime); // -> Renderable System -> Iterate()
-	//	}
-	//}
+void Game::UpdateAnimations(float elapsedTime)
+{
+	// Update and set player animations
+
+	auto component = playerEntity->GetComponent<RenderableComponent>();
+
+	if (vampireMode)
+	{
+		component->_modelSkinned->currentAnimation = "Idle";
+	}
+	else
+	{
+		if (playerWalking)
+		{
+			component->_modelSkinned->currentAnimation = "Walk";
+		}
+		else if ((!playerWalking) && (playerAttack))
+		{
+			float dot = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x + playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z;
+			float cross = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z - playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x;
+			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
+			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+
+			component->_modelSkinned->currentAnimation = "Attack";
+		}
+		else if ((!playerWalking) && (playerBite))
+		{
+			float dot = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x + playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z;
+			float cross = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z - playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x;
+			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
+			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+
+			component->_modelSkinned->currentAnimation = "Bite";
+		}
+		else if ((!playerWalking) && (!playerAttack) && (!playerBite))
+		{
+			component->_modelSkinned->currentAnimation = "Idle";
+		}
+	}
+}
+
+void Game::UpdateCoroutines(float elapsedTime)
+{
+	if (!vampireMode)
+	{
+		if (playerAttackCorutine.active)
+		{
+			if (!(playerAttackCorutine.Update()))
+			{
+				playerAttack = false;
+
+				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), targetedEnemy->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
+				{
+					targetedEnemy->GetComponent<EnemyComponent>()->health -= 15.0f;
+				}
+
+				hittedEnemy = targetedEnemy;
+
+				enemyClicked = false;
+				targetedEnemy = nullptr;
+				attackType = 0;
+
+
+				hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
+				enemyHittedCorutine.Restart(0.1f);
+			}
+		}
+
+		if (playerBiteCorutine.active)
+		{
+			if (!(playerBiteCorutine.Update()))
+			{
+				playerBite = false;
+
+				targetedEnemy->GetComponent<EnemyComponent>()->health -= 20.0f;
+
+				*playerHealth += 15.0f;
+
+				if (*playerHealth > playerHealthOrigin)
+					*playerHealth = playerHealthOrigin;
+
+				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHealed = true;
+				playerHealedCorutine.Restart(0.1f);
+
+
+				targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
+
+				hittedEnemy = targetedEnemy;
+
+				enemyClicked = false;
+				targetedEnemy = nullptr;
+				attackType = 0;
+
+				hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
+				enemyHittedCorutine.Restart(0.1f);
+			}
+		}		
+	}
+
+
+	if (enemyHittedCorutine.active)
+	{
+		if (!(enemyHittedCorutine.Update()))
+		{
+			hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = false;
+			hittedEnemy = nullptr;
+		}
+	}
+
+	if (playerHittedCorutine.active)
+	{
+		if (!(playerHittedCorutine.Update()))
+		{
+			playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = false;
+		}
+	}
+
+	if (playerHealedCorutine.active)
+	{
+		if (!(playerHealedCorutine.Update()))
+		{
+			playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHealed = false;
+		}
+	}
 }
 
 #pragma endregion
@@ -414,12 +692,14 @@ void Game::Render()
 
 	Clear();
 
+	renderableSystem->SentDeviceResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView());
+
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// TODO: Add your rendering code here.
 
-	renderableSystem->SentDeviceResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView());
+
 
 	world->RefreshWorld();
 
@@ -441,6 +721,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	//XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
+	//terrain->Update(collisionSystem->GetColliders());
 	terrain->Draw(camera, m_roomTex);
 
 	if (debugDraw) //REMOVE
@@ -450,13 +731,21 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	uiSpriteBatch->Begin(); // TODO: UI System
 
 	// show depth map
-	//uiSpriteBatch->Draw(renderableSystem->_shadowMap->GetDepthMapSRV(), Vector2(450, 250), nullptr, Colors::White, 0.f, Vector2(0, 0), 0.3f);
+	//uiSpriteBatch->Draw(renderableSystem->_shadowMap->GetDepthMapSRV(), Vector2(850, 650), nullptr, Colors::White, 0.f, Vector2(0, 0), 0.3f);
 
 	uiSpriteBatch->Draw(healthBarTex.Get(), healthBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.25f);
 
+
+	healthBarHealthScale.x = ((healthBarHealthScale.y * (*playerHealth))/playerHealthOrigin);
+	if (healthBarHealthScale.x < 0)
+		healthBarHealthScale.x = 0;
+	else if (healthBarHealthScale.x > playerHealthOrigin)
+		healthBarHealthScale.x = healthBarHealthScale.y;
+
+
 	uiSpriteBatch->Draw(healthBarHealthTex.Get(), healthBarHealthPos, nullptr, Colors::White,
-		0.f, Vector2(0, 0), 0.25f);
+		0.f, Vector2(0, 0), healthBarHealthScale);
 
 	uiSpriteBatch->Draw(healthBarHeroTex.Get(), healthBarHeroPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.35f);
@@ -558,7 +847,7 @@ void Game::OnNewAudioDevice()
 void Game::GetDefaultSize(int& width, int& height)
 {
 	// TODO: Change to desired default window size (note minimum size is 320x200).
-	int w = 1200, h = 820;
+	int w = 1450, h = 1024;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
 	width = w;
@@ -604,56 +893,81 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	terrain = std::make_shared<Terrain>();
 	world = std::make_shared<World>();
 
+	playerHealth = std::make_shared<float>(playerHealthOrigin);
+
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
-	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE);
-	renderableSystem = std::make_shared<RenderableSystem>(device, context);
+	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
+	renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
 	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
-	
+	enemySystem = std::make_shared<EnemySystem>();
+
 	// Adding systems to world ------------------------------------------------------------------
 	world->AddSystem<PhysicsSystem>(collisionSystem, 0);
 	world->AddSystem<LightSystem>(lightSystem, 1);
 	world->AddSystem<AudioSystem>(audioSystem, 2);
-	world->AddSystem<RenderableSystem>(renderableSystem, 3);
-	
-	playerEntity = world->CreateEntity("Player");
-	//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
+	world->AddSystem<EnemySystem>(enemySystem, 3);
+	world->AddSystem<RenderableSystem>(renderableSystem, 4);
 
-	worldLoader = std::make_shared<WorldLoader>(world, &camera);
-	worldLoader->LoadWorldFromXML("testLevel.xml");
+	/*
+		FILL WORLD OBJECT
+	*/
 
 	// Creation of entities ------------------------------------------------------------------
-	//myEntity1 = world->CreateEntity("Cup1");
-	//myEntity2 = world->CreateEntity("Cup2");
-	//myEntity3 = world->CreateEntity("Cup3");
-	//myEntity4 = world->CreateEntity("Cup4");
-	//myEntity5 = world->CreateEntity("BackgroundAudioEntity");
-	//myEntity6 = world->CreateEntity("Sound1AudioEntity");
-	//pointLightEntity1 = world->CreateEntity("PointLight1");
-	//pointLightEntity2 = world->CreateEntity("PointLight2");
-	//pointLightEntity3 = world->CreateEntity("PointLight3");
-	//spotLightEntity1 = world->CreateEntity("SpotLight1");
-	//directLightEntity1 = world->CreateEntity("DirectLight1");
-	//myEntityFloor = world->CreateEntity("FloorForShadows");
+	myEntity1 = world->CreateEntity("Cup1");
+	myEntity2 = world->CreateEntity("Cup2");
+	myEntity3 = world->CreateEntity("Cup3");
+	myEntity4 = world->CreateEntity("Cup4");
+	myEntity5 = world->CreateEntity("BackgroundAudioEntity");
+	myEntity6 = world->CreateEntity("Sound1AudioEntity");
+	pointLightEntity1 = world->CreateEntity("PointLight1");
+	pointLightEntity2 = world->CreateEntity("PointLight2");
+	pointLightEntity3 = world->CreateEntity("PointLight3");
+	spotLightEntity1 = world->CreateEntity("SpotLight1");
+	directLightEntity1 = world->CreateEntity("DirectLight1");
+	myEntityFloor = world->CreateEntity("FloorForShadows");
+	playerEntity = world->CreateEntity("Player");
+	enemyEntity1 = world->CreateEntity("Enemy1");
+
+	// Creation of renderable components
+	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	myEntityFloor->AddComponent<RenderableComponent>(L"FloorToRoom.cmo", &camera);
+	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
+	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+
+	// Creation of audio components ------------------------------------------------------------------
+	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
+	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+
+	// Creation of physics components ----------------------------------------------------------------
+	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
+	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
+	enemyEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);;
+
+	// Creation of enemy components ------------------------------------------------------------------
+	enemyEntity1->AddComponent<EnemyComponent>(50.f);
 
 
-	//// Creation of audio components ------------------------------------------------------------------
-	//myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
-	//myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
 
-	//// Creation of physics components ----------------------------------------------------------------
-	//myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), false);
-	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
+	// Creation of light components ------------------------------------------------------------------
+	//pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
+	pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 8.0f);
+	//pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
+	//spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
+	directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -2.0f, 0.0f));
+	// Setting up transform parameters of entities  --------------------------------------------------
+	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
+	myEntity1->GetTransform()->SetScale(scaleEntity1);
+	myEntity1->GetTransform()->SetPosition(Vector3(7.0f, 1.25f, 4.0f));
 
+	myEntity2->GetTransform()->SetScale(scaleEntity2);
+	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, 0.2f, 6.0f));
 
-
-	//// Creation of renderable components
-	//myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	//myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	//myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	//myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	//myEntityFloor->AddComponent<RenderableComponent>(L"FloorToRoom.cmo", &camera);
-
+	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
+	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
 	//// Creation of light components ------------------------------------------------------------------
 	////pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
@@ -667,8 +981,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
 
 
-	//myEntity2->GetTransform()->SetScale(scaleEntity2);
-	//myEntity2->GetTransform()->SetPosition(Vector3(6.0f, -6.0f, 6.0f));
+	myEntityFloor->GetTransform()->SetScale(Vector3(0.5f, 0.5f, 0.5f));
+	myEntityFloor->GetTransform()->SetPosition(Vector3(-3.5f, 2.52f, -3.5f));
 
 
 	//world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
@@ -684,17 +998,22 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+	playerEntity->SetTag(Tags::PLAYER);
 
-	//// Setting up parameters of audio -- REMOVE
-	//for (auto component : world->GetComponents<AudioComponent>())
-	//{
-	//	if (strcmp(component->GetParent()->GetName().c_str(),
-	//		"BackgroundAudioEntity") == 0)
-	//	{
-	//		audioBackgroundSound = component;
-	//		audioBackgroundSound->Loop = true;
-	//		continue;
-	//	}
+	enemyEntity1->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 5.0f));
+	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
+	enemyEntity1->SetTag(Tags::ENEMY);
+
+	// Setting up parameters of audio -- REMOVE
+	for (auto component : world->GetComponents<AudioComponent>())
+	{
+		if (strcmp(component->GetParent()->GetName().c_str(),
+			"BackgroundAudioEntity") == 0)
+		{
+			audioBackgroundSound = component;
+			audioBackgroundSound->Loop = true;
+			continue;
+		}
 
 	//	if (strcmp(component->GetParent()->GetName().c_str(),
 	//		"Sound1AudioEntity") == 0)
@@ -731,8 +1050,8 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
 	//directLightEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
 	// Setting up terrain tile map -------------------------------------------------------------------
-	//terrain->InitTileMap(context);
-	
+	terrain->InitTileMap(context);
+
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"roomtexture.dds",
@@ -740,6 +1059,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//Setting up NavMesh ------------------------------------------------------------------------------
 	navMesh = std::make_shared<NavMesh>(playerEntity->GetTransform());
 	navMesh->terrain = this->terrain;
+
 
 	//Setting up UI -----------------------------------------------------------------------------------
 	uiSpriteBatch = std::make_shared<SpriteBatch>(context); // UI Component, UISystem->Initialize()
@@ -767,6 +1087,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	healthBarHealthPos.x = 135.f;
 	healthBarHealthPos.y = 30.f;
+	healthBarHealthScale.x = 0.25f;
+	healthBarHealthScale.y = 0.25f;
+
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\fpsbar.dds",
@@ -799,21 +1122,29 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	world->InitializeSystem<RenderableSystem>();
 	lightSystem->_fxFactory = renderableSystem->_fxFactory;
 	world->InitializeSystem<LightSystem>();
+	world->InitializeSystem<EnemySystem>();
 
 
 	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
 
-	//Setting up skinned model -----------------------------------------------------------------------
-	for (auto component : world->GetComponents<RenderableComponent>())
-	{
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"Player") == 0)
-		{
-			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
-			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
-			component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
-		}
-	}
+	enemySystem->AdditionalInitialization(playerEntity, terrain, playerHealth);
+
+	////Setting up skinned model -----------------------------------------------------------------------
+	auto component = playerEntity->GetComponent<RenderableComponent>();
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Idle.fbx", "Idle");
+	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Attack.fbx", "Attack");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Bite.fbx", "Bite");
+
+	component = enemyEntity1->GetComponent<RenderableComponent>();
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
+	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
 
 	//world->RefreshWorld();
 }
@@ -850,4 +1181,11 @@ void Game::OnDeviceRestored()
 
 	CreateWindowSizeDependentResources();
 }
+
+void Game::StopEnemies()
+{
+	enemySystem->SetVampireMode(true);
+}
+
+
 #pragma endregion

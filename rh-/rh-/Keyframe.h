@@ -17,6 +17,8 @@ public:
 
 	DirectX::XMMATRIX Transform() const;
 
+	float mTime;
+
 private:
 	Keyframe(float time, const DirectX::XMFLOAT3& translation, const DirectX::XMFLOAT4& rotationQuaternion, const DirectX::XMFLOAT3& scale);
 
@@ -24,7 +26,7 @@ private:
 	Keyframe(const Keyframe& rhs);
 	Keyframe& operator=(const Keyframe& rhs);
 
-	float mTime;
+	
 	DirectX::XMFLOAT3 mTranslation;
 	DirectX::XMFLOAT4 mRotationQuaternion;
 	DirectX::XMFLOAT3 mScale;

@@ -441,6 +441,9 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		//ID3D11SamplerState* samplers[] = { myComparisonSampler.Get(), mySimpleSampler.Get() };
 		//deviceContext->PSSetSamplers(0, _countof(samplers), samplers);
 
+		//deviceContext->PSSetSamplers(0, 1, &myComparisonSampler);
+		//->PSSetSamplers(1, 1, &mySimpleSampler);
+
 		deviceContext->VSSetShader(m_vertexShaderShadow.Get(), nullptr, 0);
 		deviceContext->PSSetShader(m_pixelShaderShadow.Get(), nullptr, 0);
 	}

@@ -12,10 +12,12 @@ class Camera
 public:
 	Camera();
 	virtual ~Camera();
-	void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZplane, float farZplane);
+	void SetProjectionValues(float fovDegreesPlane, float aspectRatioPlane, float nearZplane, float farZplane);
 
 	const XMMATRIX & GetViewMatrix() const;
 	const XMMATRIX & GetProjectionMatrix() const;
+	const XMMATRIX GetProjectionLhMatrix() const;
+	const XMMATRIX GetViewLhMatrix() const;
 
 	const XMVECTOR & GetPositionVector() const;
 	const XMFLOAT3 & GetPositionFloat3() const;
@@ -60,8 +62,8 @@ private:
 	XMVECTOR rotVector;
 	XMFLOAT3 pos;
 	XMFLOAT3 rot;
-	XMMATRIX viewMatrix;
-	XMMATRIX projectionMatrix;
+	XMMATRIX viewMatrix, viewLhMatrix;
+	XMMATRIX projectionMatrix, projectionLhMatrix;
 
 	const XMVECTOR DEFAULT_FORWARD_VECTOR = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	const XMVECTOR DEFAULT_UP_VECTOR = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
