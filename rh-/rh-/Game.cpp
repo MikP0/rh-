@@ -41,6 +41,7 @@ void Game::Initialize(HWND window, int width, int height)
 {
 
 	m_deviceResources->SetWindow(window, width, height);
+	
 
 	m_deviceResources->CreateDeviceResources();
 	CreateDeviceDependentResources();
@@ -788,6 +789,7 @@ void Game::Clear()
 	// Set the viewport.
 	auto viewport = m_deviceResources->GetScreenViewport();
 	context->RSSetViewports(1, &viewport);
+	
 
 	m_deviceResources->PIXEndEvent();
 }
@@ -854,6 +856,7 @@ void Game::GetDefaultSize(int& width, int& height)
 	int w = 1920, h = 1080;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
+	
 	width = w;
 	height = h;
 }
@@ -868,7 +871,7 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	// TODO: Initialize device dependent objects here (independent of window size).
 
-
+	
 	m_states = std::make_unique<CommonStates>(device); //REMOVE
 
 	m_fxFactory = std::make_unique<EffectFactory>(device); //REMOVE
