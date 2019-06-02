@@ -29,8 +29,8 @@ void Terrain::InitTileMap(ID3D11DeviceContext1* context, vector<ColliderBasePtr>
 
 void Terrain::ResetTileMap()
 {
-	widthInTiles = 10;
-	heightInTiles = 20;
+	widthInTiles = 50;
+	heightInTiles = 50;
 	for (int i = 0; i < widthInTiles*heightInTiles; i++) {
 		tiles.push_back(MapTilePtr(new MapTile()));
 		tiles[i]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize), false, true);
@@ -39,19 +39,24 @@ void Terrain::ResetTileMap()
 
 void Terrain::SetTilePositionsAndTypes()
 {
+	int beginW = -15;
+	int beginH = 0;
 	for (int i = 0; i < widthInTiles; i++) {
-		for (int j = 0; j < heightInTiles; j++) {
-			tiles[i *heightInTiles + j]->worldPosition = Vector3(i*1.f, 0.f, j*1.f);
+		beginH = 0;
+		for (int j = 0; j < heightInTiles; j++) {			
+			tiles[i *heightInTiles + j]->worldPosition = Vector3(beginW*1.f, 0.f, beginH*1.f);
 			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
-			if (i*j % 15 < 10) {
+			//if (i*j % 15 < 10) {
 			tiles[i *heightInTiles + j]->type = TileType::grass;
 			tiles[i *heightInTiles + j]->walkable = true;
-			}
-			else {
-				tiles[i *heightInTiles + j]->type = TileType::fire;
-				tiles[i *heightInTiles + j]->walkable = false;
-				tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize));
-			}
+
+			beginH++;
+			//}
+			//else {
+			//	tiles[i *heightInTiles + j]->type = TileType::fire;
+			//	tiles[i *heightInTiles + j]->walkable = false;
+			//	tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize));
+			//}
 			/*if ((i < 4 || i>5) && (j>2 && j<13)) {
 				tiles[i *heightInTiles + j]->type = TileType::fire;
 				tiles[i *heightInTiles + j]->walkable = false;
@@ -62,6 +67,7 @@ void Terrain::SetTilePositionsAndTypes()
 				tiles[i *heightInTiles + j]->walkable = true;
 			}*/
 		}
+		beginW++;
 	}
 }
 

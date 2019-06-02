@@ -1062,7 +1062,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
 	//directLightEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
 	// Setting up terrain tile map -------------------------------------------------------------------
-	terrain->InitTileMap(context);
+	terrain->InitTileMap(context, collisionSystem->GetColliders());
 
 
 	DX::ThrowIfFailed(

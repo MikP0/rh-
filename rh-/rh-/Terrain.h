@@ -45,7 +45,7 @@ public:
 	std::vector<MapTilePtr> ocuppiedTiles;
 	int widthInTiles;
 	int heightInTiles;
-	const int tileSize = 1.f;
+	const float tileSize = 1.f;
 
 	DirectX::SimpleMath::Matrix view;
 	DirectX::SimpleMath::Matrix projection;

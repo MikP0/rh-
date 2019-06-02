@@ -22,7 +22,7 @@ NavMesh::NavMesh(std::shared_ptr<Transform> transform)
 	localDestination = Vector3::Zero;
 	previousPosition = Vector3::Zero;
 	step = dxmath::Vector3::Zero;
-	speed = 25.f;
+	speed = 15.f;
 	isMoving = false;
 }
 
