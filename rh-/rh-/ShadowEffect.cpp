@@ -2,7 +2,7 @@
 
 using namespace DirectX;
 
-#define MAX_NUMBER_OF_LIGHT 12
+#define MAX_NUMBER_OF_LIGHT 20
 
 struct POINT_LIGHT
 {
