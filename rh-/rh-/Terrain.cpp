@@ -18,12 +18,13 @@ Terrain::~Terrain()
 {
 }
 
-void Terrain::InitTileMap(ID3D11DeviceContext1* context)
+void Terrain::InitTileMap(ID3D11DeviceContext1* context, vector<ColliderBasePtr> colliders)
 {
 	this->context = context;
 	ResetTileMap();
 	SetTilePositionsAndTypes();
 	ConnectNeighboringTiles();
+	//SetStaticObjects(colliders);
 }
 
 void Terrain::ResetTileMap()
@@ -42,15 +43,15 @@ void Terrain::SetTilePositionsAndTypes()
 		for (int j = 0; j < heightInTiles; j++) {
 			tiles[i *heightInTiles + j]->worldPosition = Vector3(i*1.f, 0.f, j*1.f);
 			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
-			//if (i*j % 15 < 10) {
+			if (i*j % 15 < 10) {
 			tiles[i *heightInTiles + j]->type = TileType::grass;
 			tiles[i *heightInTiles + j]->walkable = true;
-			/*}
+			}
 			else {
 				tiles[i *heightInTiles + j]->type = TileType::fire;
 				tiles[i *heightInTiles + j]->walkable = false;
 				tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize));
-			}*/
+			}
 			/*if ((i < 4 || i>5) && (j>2 && j<13)) {
 				tiles[i *heightInTiles + j]->type = TileType::fire;
 				tiles[i *heightInTiles + j]->walkable = false;
@@ -93,6 +94,46 @@ void Terrain::ConnectNeighboringTiles()
 	}
 }
 
+void Terrain::SetStaticObjects(vector<ColliderBasePtr> colliders)
+{
+	typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
+	typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
+	for each (ColliderBasePtr collider in colliders)
+	{
+		if (collider->Type == AABB) {
+			ColliderAABBptr colliderr = dynamic_pointer_cast<ColliderAABB>(collider);
+			Vector3 center = colliderr->GetCenter();
+			Vector3 a = center + colliderr->GetExtents();
+			Vector3 b = center - colliderr->GetExtents();
+			Vector3 temp1 = a;
+			Vector3 temp2 = Vector3(temp1.x, temp1.y, b.z);
+			for (temp1.x; temp1.x > b.x; temp1.x -= tileSize / 3.f) {
+				temp2.x = temp1.x;
+				this->MakeOcupied(temp1);
+				this->MakeOcupied(temp2);
+			}
+			temp1 = a;
+			temp2 = Vector3(b.x, temp1.y, temp1.z);
+			for (temp1.z; temp1.z > b.z; temp1.z -= tileSize / 3.f) {
+				temp2.z = temp1.z;
+				this->MakeOcupied(temp1);
+				this->MakeOcupied(temp2);
+			}
+			this->MakeOcupied(center);
+			this->MakeOcupied(a);
+			this->MakeOcupied(b);
+
+
+			continue;
+		}
+		if (collider->Type == Sphere) {
+			ColliderSpherePtr colliderr = dynamic_pointer_cast<ColliderSphere>(collider);
+			this->MakeOcupied(colliderr->GetCenter());
+			continue;
+		}
+	}
+}
+
 void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roomTex)
 {
 	view = camera.GetViewMatrix();
@@ -111,10 +152,11 @@ void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceVie
 
 void Terrain::MakeOcupied(dxmath::Vector3 position)
 {
-	MapTilePtr tile = this->GetTileWithPosition(position);
+	MapTilePtr tile = this->GetTileWithPosition(position);	
 	if (tile != nullptr)
 	{
 		tile->walkable = false;
+		ocuppiedTiles.push_back(tile);
 	}
 }
 
