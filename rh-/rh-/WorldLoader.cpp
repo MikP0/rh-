@@ -285,7 +285,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 						else if (eLightComponent->FirstAttribute()->Value() == std::string("PointLight"))
 						{
 							DirectX::XMFLOAT4 aColor;
-							DirectX::XMFLOAT3 aPosition;
+							DirectX::SimpleMath::Vector3 aPosition2;
 							float aRadius;
 							bool aUpdatable;
 
@@ -316,20 +316,20 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							tx::XMLElement* eLightComponentPosition = eLightComponent->FirstChildElement("Position");
 							if (eLightComponentPosition != nullptr)
 							{
-								tx::XMLElement* eLightComponentPosition_x = eLightComponent->FirstChildElement("x");
+								tx::XMLElement* eLightComponentPosition_x = eLightComponentPosition->FirstChildElement("x");
 								if (eLightComponentPosition_x != nullptr)
 								{
-									aPosition.x = atof(eLightComponentPosition_x->GetText());
+									aPosition2.x = atof(eLightComponentPosition_x->GetText());
 								}
-								tx::XMLElement* eLightComponentPosition_y = eLightComponent->FirstChildElement("y");
+								tx::XMLElement* eLightComponentPosition_y = eLightComponentPosition->FirstChildElement("y");
 								if (eLightComponentPosition_y != nullptr)
 								{
-									aPosition.y = atof(eLightComponentPosition_y->GetText());
+									aPosition2.y = atof(eLightComponentPosition_y->GetText());
 								}
-								tx::XMLElement* eLightComponentPosition_z = eLightComponent->FirstChildElement("z");
+								tx::XMLElement* eLightComponentPosition_z = eLightComponentPosition->FirstChildElement("z");
 								if (eLightComponentPosition_z != nullptr)
 								{
-									aPosition.z = atof(eLightComponentPosition_z->GetText());
+									aPosition2.z = atof(eLightComponentPosition_z->GetText());
 								}
 							}
 							tx::XMLElement* eLightComponentRadius = eLightComponent->FirstChildElement("Radius");
@@ -342,7 +342,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							{
 								aUpdatable = atoi(eLightComponentUpdatable->GetText());
 							}
-							oEntity->AddComponent<LightComponent>(aColor, oEntity->GetTransform()->GetPosition(), aRadius, aUpdatable);
+							oEntity->AddComponent<LightComponent>(aColor, oEntity->GetTransform()->GetPosition() + aPosition2, aRadius, aUpdatable);
 						}
 					}
 
