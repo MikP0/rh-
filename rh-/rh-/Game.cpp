@@ -518,7 +518,7 @@ void Game::UpdateObjects(float elapsedTime)
 	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
 
 
-	if (octrTreeBounding.Contains(colliderBoundingCup1->GetBounding()) != CONTAINS)
+	/*if (octrTreeBounding.Contains(colliderBoundingCup1->GetBounding()) != CONTAINS)
 	{
 		if (colliderBoundingCup1->GetCenter().x >= 0.0f)
 			dir1.x = -1.0f;
@@ -847,7 +847,7 @@ void Game::OnNewAudioDevice()
 void Game::GetDefaultSize(int& width, int& height)
 {
 	// TODO: Change to desired default window size (note minimum size is 320x200).
-	int w = 1450, h = 1024;
+	int w = 1920, h = 1080;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
 	width = w;
@@ -892,8 +892,10 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 {
 	terrain = std::make_shared<Terrain>();
 	world = std::make_shared<World>();
-
+	worldLoader = std::make_shared<WorldLoader>(world, &camera);
 	playerHealth = std::make_shared<float>(playerHealthOrigin);
+
+	worldLoader->LoadWorldFromXML("testLevel.xml");
 
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
@@ -957,7 +959,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 8.0f);
 	//pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
 	//spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
-	directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -2.0f, 0.0f));
+	//directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -2.0f, 0.0f));
 	// Setting up transform parameters of entities  --------------------------------------------------
 	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
@@ -1014,7 +1016,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 			audioBackgroundSound->Loop = true;
 			continue;
 		}
-
+	}
 	//	if (strcmp(component->GetParent()->GetName().c_str(),
 	//		"Sound1AudioEntity") == 0)
 	//	{

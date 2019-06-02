@@ -430,6 +430,7 @@
     <None Include="content\Shaders\Include\ShadowMap.fx">
       <Filter>Inc\Shaders\Include</Filter>
     </None>
+    <None Include="floor_big.cmo" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\Shaders\PixelShader.hlsl">

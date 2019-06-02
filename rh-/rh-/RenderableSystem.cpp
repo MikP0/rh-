@@ -95,21 +95,27 @@ void RenderableSystem::Iterate()
 
 		//if (it != objectsToRender.end())
 		//{
-			if (renderableComponent->_model != nullptr) {
-				renderableComponent->_model->Draw(
-					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-					renderableComponent->_camera->GetViewMatrix(),
-					renderableComponent->_camera->GetProjectionMatrix()
-				);
-			}
-			else
+		if (renderableComponent->_model != nullptr) {
+			renderableComponent->_model->Draw(
+				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+				renderableComponent->_camera->GetViewMatrix(),
+				renderableComponent->_camera->GetProjectionMatrix()
+			);
+		}
+		else
+		{
+
+			if (renderableComponent->_modelSkinned->playingAnimation)
 			{
-				renderableComponent->_modelSkinned->DrawModel(
-					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-					renderableComponent->_camera->GetViewMatrix(),
-					renderableComponent->_camera->GetProjectionMatrix()
-				);
+				renderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip(renderableComponent->_modelSkinned->currentAnimation);
+				renderableComponent->_modelSkinned->GetAnimatorPlayer()->Update(Coroutine::GetElapsedTime());	// update animation
 			}
+			renderableComponent->_modelSkinned->DrawModel(
+				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+				renderableComponent->_camera->GetViewMatrix(),
+				renderableComponent->_camera->GetProjectionMatrix()
+			);
+		}
 		//}
 	}
 }
@@ -121,12 +127,12 @@ void RenderableSystem::Initialize()
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		if (renderableComponent->_modelPath.find(L".cmo") != std::wstring::npos) 
+		if (renderableComponent->_modelPath.find(L".cmo") != std::wstring::npos)
 		{
 			renderableComponent->_model =
 				DirectX::Model::CreateFromCMO(_device, renderableComponent->_modelPath.c_str(), *_fxFactory);
 		}
-		else 
+		else
 		{
 			renderableComponent->_modelSkinned =
 				std::make_unique<ModelSkinned>(_device, converter.to_bytes(renderableComponent->_modelPath.c_str()), _context);
@@ -134,7 +140,7 @@ void RenderableSystem::Initialize()
 	}
 }
 
-void RenderableSystem::SentDeviceResources(ID3D11RenderTargetView * renderTargetView, ID3D11DepthStencilView * depthStencilView)
+void RenderableSystem::SentDeviceResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView)
 {
 	if (!isSent)
 	{

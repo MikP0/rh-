@@ -372,6 +372,7 @@
     <None Include="cup.cmo" />
     <None Include="FloorToRoom.cmo" />
     <None Include="FloorToRoom.mtl" />
+    <None Include="floor_big.cmo" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
