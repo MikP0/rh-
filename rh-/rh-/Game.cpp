@@ -299,9 +299,12 @@ void Game::UpdateObjects(float elapsedTime)
 				{
 					if (coll->OriginObject->GetTag() == Tags::ENEMY)
 					{
-						attackType = 1;
-						enemyClicked = true;
-						targetedEnemy = coll->OriginObject;
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+						{
+							attackType = 1;
+							enemyClicked = true;
+							targetedEnemy = coll->OriginObject;
+						}
 					}
 					else
 					{
@@ -341,9 +344,12 @@ void Game::UpdateObjects(float elapsedTime)
 				{
 					if (coll->OriginObject->GetTag() == Tags::ENEMY)
 					{
-						attackType = 5;
-						enemyClicked = true;
-						targetedEnemy = coll->OriginObject;
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+						{
+							attackType = 5;
+							enemyClicked = true;
+							targetedEnemy = coll->OriginObject;
+						}
 					}
 					else
 					{
@@ -471,6 +477,8 @@ void Game::UpdateObjects(float elapsedTime)
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	if (keyboardTracker)
 
 
 	// check collisions
@@ -1102,6 +1110,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
 
 	//world->RefreshWorld();
 }

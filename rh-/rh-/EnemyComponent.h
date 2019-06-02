@@ -32,7 +32,11 @@ public:
 	bool hit;
 	bool bited;
 
+	bool dying;
+
 	Coroutine attackCorutine;
+
+	Coroutine dyingCorutine;
 
 	Coroutine playerHittedCorutine;
 };

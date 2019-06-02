@@ -15,11 +15,14 @@ EnemyComponent::EnemyComponent()
 	this->attack = false;
 	this->hit = false;
 	this->bited = false;
+	
+	this->dying = false;
 
 	this->navMesh = nullptr;
 
 	this->attackCorutine.active = false;
 	this->playerHittedCorutine.active = false;
+	this->dyingCorutine.active = false;
 }
 
 EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, float Damage, float DistanceToAttack, float FollowPlayerDistance)
@@ -37,10 +40,13 @@ EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, fl
 	this->hit = false;
 	this->bited = false;
 
+	this->dying = false;
+
 	this->navMesh = nullptr;
 
 	this->attackCorutine.active = false;
 	this->playerHittedCorutine.active = false;
+	this->dyingCorutine.active = false;
 }
 
 

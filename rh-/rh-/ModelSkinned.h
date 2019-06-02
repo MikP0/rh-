@@ -48,6 +48,8 @@ public:
 
 	bool isHealed = false;
 
+	bool isVisible = true;
+
 
 private:
 	SkinnedModelMaterial* mMaterial;
