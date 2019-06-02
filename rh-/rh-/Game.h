@@ -33,6 +33,8 @@
 #include "EnemyComponent.h"
 #include "EnemySystem.h"
 
+#include "WorldLoader.h"
+
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 
@@ -205,10 +207,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> healthBarTex;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> healthBarHeroTex;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> healthBarHealthTex;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> redBorderTex;
 	DirectX::SimpleMath::Vector2 healthBarPos;
 	DirectX::SimpleMath::Vector2 healthBarHeroPos;
 	DirectX::SimpleMath::Vector2 healthBarHealthPos;
 	DirectX::SimpleMath::Vector2 healthBarHealthScale;
+	DirectX::SimpleMath::Vector2 redBorderPos;
+	DirectX::SimpleMath::Vector2 redBorderScale;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> fpsBarTex;
 	DirectX::SimpleMath::Vector2 fpsBarPos;
@@ -263,4 +268,7 @@ private:
 	int vampireAbility = 0;
 
 	void StopEnemies();
+
+	//World Loader
+	std::shared_ptr<WorldLoader> worldLoader;
 };

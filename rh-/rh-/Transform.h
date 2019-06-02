@@ -30,6 +30,10 @@ public:
 	std::shared_ptr<Transform> SetRotation(const dxmath::Quaternion rotation);
 	std::shared_ptr<Transform> SetScale(const dxmath::Vector3 scale);
 
+	void SetX(float x);
+	void SetY(float y);
+	void SetZ(float z);
+
 	void SetUpdatedMoveFlag(bool state);
 	
 private:
