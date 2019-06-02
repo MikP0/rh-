@@ -20,6 +20,8 @@ cbuffer CBufferPerObject
     float SpecularPower : SPECULARPOWER  = 25.0f;
 	float4x4 View : VIEW;
 	float4x4 Projection : PROJECTION;
+
+	float4 Hitted : HITTED;
 }
 
 cbuffer CBufferSkinning
@@ -159,6 +161,16 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
     float3 ambient = get_vector_color_contribution(AmbientColor, color.rgb);
     float3 diffuse = get_vector_color_contribution(LightColor, lightCoefficients.y * color.rgb) * IN.Attenuation;
     float3 specular = get_scalar_color_contribution(SpecularColor, min(lightCoefficients.z, color.w)) * IN.Attenuation;
+
+	if (Hitted.x == 1.0f)
+	{
+		diffuse = float3(7.0f, 0.0f, 0.0f);
+	}
+	else if (Hitted.x == 0.5f)
+	{
+		diffuse = float3(0.0f, 1.0f, 0.0f);
+	}
+
 
 	OUT.rgb = ambient + diffuse;// +specular;
     OUT.a = 1.0f;

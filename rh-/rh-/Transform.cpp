@@ -86,6 +86,21 @@ std::shared_ptr<Transform> Transform::SetScale(const dxmath::Vector3 scale)
 	return shared_from_this();
 }
 
+void Transform::SetX(float x)
+{
+	_position.x = x;
+}
+
+void Transform::SetY(float y)
+{
+	_position.y = y;
+}
+
+void Transform::SetZ(float z)
+{
+	_position.z = z;
+}
+
 void Transform::SetUpdatedMoveFlag(bool state)
 {
 	_updatedMoveFlag = state;

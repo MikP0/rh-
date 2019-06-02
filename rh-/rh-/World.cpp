@@ -84,8 +84,8 @@ void World::RefreshWorld()
 
 void World::ClearWorld()
 {
-	_systemPoolMap.clear();
 	_entityComponentMap.clear();
+	_systemPoolMap.clear();
 	_entityPoolMap.clear();
 }
 
@@ -107,6 +107,12 @@ std::map<std::size_t, std::shared_ptr<Entity>> World::GetAllEntities()
 std::shared_ptr<Entity> World::GetEntity(std::size_t index)
 {
 	return _entityPoolMap[index];
+}
+
+void World::KillAllEntities()
+{
+	_entityComponentMap.clear();
+	_entityPoolMap.clear();
 }
 
 

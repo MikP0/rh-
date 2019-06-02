@@ -1,0 +1,45 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 02.06.2019 15:20:42
+
+newmtl Coroded_Metal
+	Ns 65.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0706 0.0431 0.0000
+	Kd 0.2118 0.2118 0.2118
+	Ks 0.1593 0.1593 0.1593
+	Ke 0.0000 0.0000 0.0000
+	map_bump C:\Users\mpopi\Documents\OLDMETAL.jpg
+	bump C:\Users\mpopi\Documents\OLDMETAL.jpg
+
+newmtl Leaded_Bumpy_Glass
+	Ns 0.0000
+	Ni 1.6000
+	d 0.9000
+	Tr 0.1000
+	Tf 0.9000 0.9000 0.9000 
+	illum 2
+	Ka 0.9412 1.0000 0.0000
+	Kd 0.9882 1.0000 0.0000
+	Ks 0.9059 0.9059 0.9059
+	Ke 0.8510 0.8549 0.4824
+	map_bump C:\Users\mpopi\Documents\GRAVEL1.gif
+	bump C:\Users\mpopi\Documents\GRAVEL1.gif
+	map_refl Tex__7_Reflect_Refract.tga
+
+newmtl nagel
+	Ns 65.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0706 0.0431 0.0000
+	Kd 0.1569 0.1216 0.0784
+	Ks 0.1593 0.1593 0.1593
+	Ke 0.0000 0.0000 0.0000
+	map_bump C:\Users\mpopi\Documents\OLDMETAL.jpg
+	bump C:\Users\mpopi\Documents\OLDMETAL.jpg

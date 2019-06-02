@@ -9,6 +9,7 @@
 
 #include "ShadowMap.h"
 #include "ShadowFactory.h"
+#include "Coroutine.h"
 
 class RenderableSystem :
 	public System

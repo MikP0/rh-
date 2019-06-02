@@ -9,7 +9,7 @@ class EnemyComponent : public Component
 {
 public:
 	EnemyComponent();
-	EnemyComponent(float Health, float Speed = 40.0f, float AttackLength = 1.9f, float Damage = 10.f, float DistanceToAttack = 1.f);
+	EnemyComponent(float Health, float Speed = 40.0f, float AttackLength = 1.9f, float Damage = 10.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 10.f);
 	virtual ~EnemyComponent();
 
 
@@ -23,10 +23,21 @@ public:
 
 	std::shared_ptr<NavMesh> navMesh;
 
-	float followPlayerDistance = 10.f;
+	float followPlayerDistance;
+
+
 	bool walking;
 	bool attack;
+
 	bool hit;
-	//Coroutine attackCorutine;
+	bool bited;
+
+	bool dying;
+
+	Coroutine attackCorutine;
+
+	Coroutine dyingCorutine;
+
+	Coroutine playerHittedCorutine;
 };
 

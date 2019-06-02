@@ -68,6 +68,9 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 
 	mAnimationPlayer->SetInterpolationEnabled(!mAnimationPlayer->InterpolationEnabled());
 	inMove = false;
+
+	currentAnimation = "Idle";
+	playingAnimation = true;
 }
 
 ModelSkinned::~ModelSkinned()
@@ -139,6 +142,22 @@ void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonSta
 
 	DirectX::XMVECTOR ambientColor = XMLoadColor(&mAmbientColor);
 
+
+	DirectX::XMVECTOR mHitted;
+
+	if (isHitted)
+	{
+		mHitted = { 1.0f, 0.0, 0.0, 0.0f };
+	}
+	else if (isHealed)
+	{
+		mHitted = { 0.5f, 0.0, 0.0, 0.0f };
+	}
+	else
+	{
+		mHitted = { 0.0f, 0.0, 0.0, 0.0f };
+	}
+
 	UINT stride = mMaterial->VertexSize();
 	UINT offset = 0;
 
@@ -159,6 +178,7 @@ void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonSta
 		mMaterial->BoneTransforms() << mAnimationPlayer->BoneTransforms();
 		mMaterial->View() << viewMat;
 		mMaterial->Projection() << projMat;
+		mMaterial->Hitted() << mHitted;
 
 		pass->Apply(0, deviceContext);
 		//pass2->Apply(1, deviceContext);
@@ -201,4 +221,10 @@ bool ModelSkinned::AddAnimationClip(std::string path, std::string clipName)
 	}
 
 	return true;
+}
+
+void ModelSkinned::SetCurrentAnimation(std::string animName)
+{
+	currentAnimation = animName;
+	playingAnimation = true;
 }

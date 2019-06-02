@@ -65,7 +65,7 @@ public:
 	template<typename TComponent>
 	std::shared_ptr<TComponent> GetComponent()
 	{
-		_world->GetComponent(_id);
+		return _world->GetComponent<TComponent>(_id);
 	}
 
 	void SetWorld(std::shared_ptr<World> world);

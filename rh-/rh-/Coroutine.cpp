@@ -1,5 +1,7 @@
 #include "Coroutine.h"
 
+float Coroutine::elapsedTime = 0;
+
 Coroutine::~Coroutine()
 {
 }
@@ -16,11 +18,11 @@ Coroutine::Coroutine(float time)
 	this->active = true;
 }
 
-bool Coroutine::Update(float elapsedTime)
+bool Coroutine::Update()
 {
 	if (waitTime > 0)
 	{
-		this->waitTime -= elapsedTime;
+		this->waitTime -= Coroutine::GetElapsedTime();
 		return true;
 	}
 	else
@@ -39,4 +41,14 @@ void Coroutine::Restart(float time)
 {
 	this->waitTime = time;
 	this->active = true;
+}
+
+void Coroutine::UpdateElapsedTime(float Time)
+{
+	Coroutine::elapsedTime = Time;
+}
+
+float Coroutine::GetElapsedTime()
+{
+	return Coroutine::elapsedTime;
 }
