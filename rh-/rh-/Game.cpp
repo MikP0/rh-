@@ -722,7 +722,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
 	//terrain->Update(collisionSystem->GetColliders());
-	terrain->Draw(camera, m_roomTex);
+	//terrain->Draw(camera, m_roomTex);
 
 	if (debugDraw) //REMOVE
 		renderableSystem->DebugDrawAction->DrawOctTree(
