@@ -478,9 +478,6 @@ void Game::UpdateObjects(float elapsedTime)
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	if (keyboardTracker)
-
-
 	// check collisions
 	vector<CollisionPtr> currentCollisions = collisionSystem->AllCollisions;
 	vector<CollisionPtr> collisionsForEntity1 = collisionSystem->GetCollisionsForEntity(1);
