@@ -194,10 +194,9 @@ private:
 	//NavMesh
 	std::shared_ptr<NavMesh> navMesh;
 	std::shared_ptr<Terrain> terrain;
+
 	std::shared_ptr<LightSystem> lightSystem;
 
-
-	std::shared_ptr<NavMesh> navMeshEnemy;
 
 	Mouse::ButtonStateTracker tracker;
 	bool freeCameraLook = false;
@@ -229,30 +228,23 @@ private:
 	//World
 	std::shared_ptr<World> world;
 
-	
-
-
-	// enemy
-	float followPlayerDistance = 10.f;
-	bool walking = false;
-	bool attack = false;
-
-	Coroutine attackCorutine;
-
 
 	bool isDancing = false;
 	bool playerWalking = false;
 	bool playerAttack = false;
+	bool playerBite = false;
 	bool enemyClicked = false;
 	int attackType = 0;
 
 	Coroutine playerAttackCorutine;
+	Coroutine playerBiteCorutine;
 
+	float playerBiteDistance = 1.0f;
 	float playerAttackDistance = 1.0f;
 	shared_ptr<Entity> targetedEnemy;
 
+	std::shared_ptr<float> playerHealth;
+	float playerHealthOrigin = 100.0f;
 
-	float playerHealth = 100.0f;
-	float enemyHealth = 50.f;
 	
 };

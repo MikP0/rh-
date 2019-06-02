@@ -70,6 +70,7 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 	inMove = false;
 
 	currentAnimation = "Idle";
+	playingAnimation = true;
 }
 
 ModelSkinned::~ModelSkinned()
@@ -203,4 +204,10 @@ bool ModelSkinned::AddAnimationClip(std::string path, std::string clipName)
 	}
 
 	return true;
+}
+
+void ModelSkinned::SetCurrentAnimation(std::string animName)
+{
+	currentAnimation = animName;
+	playingAnimation = true;
 }

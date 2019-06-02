@@ -12,49 +12,64 @@ void EnemySystem::Iterate()
 {
 	for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 	{
-		if (!enemyComponent->attackCorutine.active)
+		// state
+
+		if (enemyComponent->bited)
 		{
-			if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance, .1f, enemyComponent->followPlayerDistance)))
-			{
-				enemyComponent->navMesh->isMoving = false;
-				enemyComponent->walking = false;
-				enemyComponent->attack = false;
-			}
-			else if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->attackLength, .1f, enemyComponent->attackLength)))
-			{
-				enemyComponent->navMesh->SetDestination(player->GetTransform()->GetPosition());
-				enemyComponent->navMesh->Move();
-				enemyComponent->walking = true;
-				enemyComponent->attack = false;
-			}
-			else
-			{
-				enemyComponent->navMesh->isMoving = false;
-				enemyComponent->walking = false;
-				enemyComponent->attack = true;
-				enemyComponent->attackCorutine.Restart(enemyComponent->attackLength);
-			}
+			enemyComponent->navMesh->isMoving = false;
+			enemyComponent->walking = false;
+			enemyComponent->attack = false;
+			enemyComponent->attackCorutine.active = false;
 		}
-
-
-		if (enemyComponent->attackCorutine.active)
+		else
 		{
-			if (!(enemyComponent->attackCorutine.Update()))
+			if (!enemyComponent->attackCorutine.active)
 			{
-				enemyComponent->attack = false;
-
-				if (XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->attackLength + 0.5f, .1f, enemyComponent->attackLength + 0.5f)))
+				if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance, .1f, enemyComponent->followPlayerDistance)))
 				{
-					//playerHealth -= 10.0f;	-- deal Damage 
-					//player->getcomponetnt->playercomponent->health-10
-					int a = 5;
+					enemyComponent->navMesh->isMoving = false;
+					enemyComponent->walking = false;
+					enemyComponent->attack = false;
+				}
+				else if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->distanceToAttack, .1f, enemyComponent->distanceToAttack)))
+				{
+					enemyComponent->navMesh->SetDestination(player->GetTransform()->GetPosition());
+					enemyComponent->navMesh->Move();
+					enemyComponent->walking = true;
+					enemyComponent->attack = false;
+				}
+				else
+				{
+					enemyComponent->navMesh->isMoving = false;
+					enemyComponent->walking = false;
+					enemyComponent->attack = true;
+					enemyComponent->attackCorutine.Restart(enemyComponent->attackLength);
+				}
+			}
+
+
+			if (enemyComponent->attackCorutine.active)
+			{
+				if (!(enemyComponent->attackCorutine.Update()))
+				{
+					enemyComponent->attack = false;
+
+					if (XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->attackLength + 0.5f, .1f, enemyComponent->attackLength + 0.5f)))
+					{
+						*playerHealth -= enemyComponent->damage;
+					}
 				}
 			}
 		}
 
-		if (enemyComponent->walking)
+		// animations and position
+		if (enemyComponent->bited)
 		{
-			enemyComponent->GetParent()->GetComponent<RenderableComponent>()->_modelSkinned->currentAnimation = "Walk";
+			enemyComponent->GetParent()->GetComponent<RenderableComponent>()->_modelSkinned->playingAnimation = false;
+		}
+		else if (enemyComponent->walking)
+		{
+			enemyComponent->GetParent()->GetComponent<RenderableComponent>()->_modelSkinned->SetCurrentAnimation("Walk");
 		}
 		else if ((!enemyComponent->walking) && (enemyComponent->attack))
 		{
@@ -63,7 +78,7 @@ void EnemySystem::Iterate()
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 			enemyComponent->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-			enemyComponent->GetParent()->GetComponent<RenderableComponent>()->_modelSkinned->currentAnimation = "Attack";
+			enemyComponent->GetParent()->GetComponent<RenderableComponent>()->_modelSkinned->SetCurrentAnimation("Attack");
 		}
 		else if ((!enemyComponent->walking) && (!enemyComponent->attack))
 		{
@@ -72,7 +87,7 @@ void EnemySystem::Iterate()
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 			enemyComponent->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-			enemyComponent->GetParent()->GetComponent<RenderableComponent>()->_modelSkinned->currentAnimation = "Idle";
+			enemyComponent->GetParent()->GetComponent<RenderableComponent>()->_modelSkinned->SetCurrentAnimation("Idle");
 		}
 	}
 }
@@ -82,9 +97,10 @@ void EnemySystem::Initialize()
 	//Nothing
 }
 
-void EnemySystem::AdditionalInitialization(std::shared_ptr<Entity> Player, std::shared_ptr<Terrain> Terrain)
+void EnemySystem::AdditionalInitialization(std::shared_ptr<Entity> Player, std::shared_ptr<Terrain> Terrain, std::shared_ptr<float> PlayerHealth)
 {
 	player = Player;
+	playerHealth = PlayerHealth;
 
 	for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 	{

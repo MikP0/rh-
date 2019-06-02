@@ -40,6 +40,9 @@ public:
 	DirectX::SimpleMath::Matrix character_world;
 
 	std::string currentAnimation;
+	bool playingAnimation;
+
+	void SetCurrentAnimation(std::string animName);
 
 private:
 	SkinnedModelMaterial* mMaterial;

@@ -16,8 +16,9 @@ public:
 
 	virtual void Iterate() override;
 	virtual void Initialize() override;
-	void AdditionalInitialization(std::shared_ptr<Entity> Player, std::shared_ptr<Terrain> Terrain);
+	void AdditionalInitialization(std::shared_ptr<Entity> Player, std::shared_ptr<Terrain> Terrain, std::shared_ptr<float> PlayerHealth);
 
 	std::shared_ptr<Entity> player;
+	std::shared_ptr<float> playerHealth;
 };
 
