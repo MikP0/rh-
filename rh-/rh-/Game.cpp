@@ -153,8 +153,8 @@ void Game::Update(DX::StepTimer const& timer)
 			{
 				audioSound1->Mute = false;
 
-				if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
-					healthBarHealthPos.x -= 5.f;
+				//if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
+				//	healthBarHealthPos.x -= 5.f;
 			}
 
 			if (*iter == freeCamera) {
@@ -275,146 +275,202 @@ void Game::UpdateObjects(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
 	auto keyboard = Input::GetKeyboardState();
-
+	
 	// states for player		/////////////////////////////////////////////////////
 	//NavMesh
 
-	if (!playerBiteCorutine.active)
+	if (!vampireMode)
 	{
-		tracker.Update(mouse); // Player Component -> Player System
-		if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD)
+		if (!playerBiteCorutine.active)
 		{
-			// !!!!!!!!!!!!!!!!    HOLD wylaczyc z atakowania - atakowanie tylko PRESSED
-
-			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			for each(shared_ptr<Collision> coll in collisionsWithRay)
+			tracker.Update(mouse); // Player Component -> Player System
+			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD)
 			{
-				if (coll->OriginObject->GetTag() == Tags::ENEMY)
+				// !!!!!!!!!!!!!!!!    HOLD wylaczyc z atakowania - atakowanie tylko PRESSED
+
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				for each(shared_ptr<Collision> coll in collisionsWithRay)
 				{
-					attackType = 1;
-					enemyClicked = true;
-					targetedEnemy = coll->OriginObject;
+					if (coll->OriginObject->GetTag() == Tags::ENEMY)
+					{
+						attackType = 1;
+						enemyClicked = true;
+						targetedEnemy = coll->OriginObject;
+					}
+					else
+					{
+						enemyClicked = false;
+						targetedEnemy = nullptr;
+						playerAttackCorutine.active = false;
+						playerBiteCorutine.active = false;
+						playerAttack = false;
+						attackType = 0;
+					}
 				}
-				else
+
+				///////////////////////
+
+				if ((!enemyClicked) || (collisionsWithRay.size() == 0))
+				{
+					Vector3 destination = Raycast::GetPointOnGround(camera);
+					navMesh->SetDestination(destination);
+					playerWalking = true;
+
+					enemyClicked = false;
+					targetedEnemy = nullptr;
+					playerAttackCorutine.active = false;
+					playerBiteCorutine.active = false;
+					playerAttack = false;
+					playerBite = false;
+					attackType = 0;
+				}
+			}
+
+			if (keyboard.E)		// tu te¿ ¿eby nie by³o HOLD tylko PRESSED
+			{
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				for each(shared_ptr<Collision> coll in collisionsWithRay)
+				{
+					if (coll->OriginObject->GetTag() == Tags::ENEMY)
+					{
+						attackType = 5;
+						enemyClicked = true;
+						targetedEnemy = coll->OriginObject;
+					}
+					else
+					{
+						enemyClicked = false;
+						targetedEnemy = nullptr;
+						playerAttackCorutine.active = false;
+						playerBiteCorutine.active = false;
+						playerAttack = false;
+						playerBite = false;
+						attackType = 0;
+					}
+				}
+
+				///////////////////////
+
+				if ((!enemyClicked) || (collisionsWithRay.size() == 0))
 				{
 					enemyClicked = false;
 					targetedEnemy = nullptr;
 					playerAttackCorutine.active = false;
 					playerBiteCorutine.active = false;
 					playerAttack = false;
+					playerBite = false;
 					attackType = 0;
 				}
 			}
 
-			///////////////////////
+			if ((keyboard.Space) && (!vampireModeClicked))
+			{
+				vampireMode = true;
+				vampireModeClicked = true;
 
-			if ((!enemyClicked) || (collisionsWithRay.size() == 0))
+       			enemyClicked = false;
+				targetedEnemy = nullptr;
+				playerAttackCorutine.active = false;
+				playerBiteCorutine.active = false;
+				playerAttack = false;
+				playerBite = false;
+				playerWalking = false;
+				attackType = 0;
+				navMesh->isMoving = false;
+
+				StopEnemies();
+			}
+			else
+			{
+				vampireModeClicked = false;
+			}
+		}
+
+
+		if (enemyClicked)
+		{
+			if ((!playerAttackCorutine.active) && (!playerBiteCorutine.active))
+			{
+				if (attackType == 1)
+				{
+					if (!XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), targetedEnemy->GetTransform()->GetPosition(), Vector3(playerAttackDistance, .1f, playerAttackDistance)))
+					{
+						navMesh->SetDestination(targetedEnemy->GetTransform()->GetPosition());
+						playerWalking = true;
+					}
+					else
+					{
+						navMesh->isMoving = false;
+						playerWalking = false;
+						playerAttack = true;
+						playerBite = false;
+						playerAttackCorutine.Restart(1.5f);
+					}
+				}
+				else if (attackType == 5)
+				{
+					if (!XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), targetedEnemy->GetTransform()->GetPosition(), Vector3(playerBiteDistance, .1f, playerBiteDistance)))
+					{
+						navMesh->SetDestination(targetedEnemy->GetTransform()->GetPosition());
+						playerWalking = true;
+					}
+					else
+					{
+						navMesh->isMoving = false;
+						playerWalking = false;
+						playerAttack = false;
+						playerBite = true;
+						targetedEnemy->GetComponent<EnemyComponent>()->bited = true;
+						playerBiteCorutine.Restart(4.1f);
+					}
+				}
+			}
+		}
+
+		if (playerWalking)
+		{
+			navMesh->Move(); // Player Component -> Player System
+
+			if (!navMesh->isMoving)
+			{
+				playerWalking = false;
+			}
+		}
+	}
+	else		// VAMPIRE MODE
+	{
+		if ((keyboard.Space) && (!vampireModeClicked))
+		{
+			vampireMode = false;
+			vampireModeClicked = true;
+			enemySystem->SetVampireMode(false);
+			vampireAbility = 0;
+		}
+		else
+		{
+			vampireModeClicked = false;
+		}
+
+		if (keyboard.D1)
+		{
+			vampireAbility = 1;
+		}
+
+		if (vampireAbility == 1)
+		{
+			tracker.Update(mouse);
+			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
 				Vector3 destination = Raycast::GetPointOnGround(camera);
-				navMesh->SetDestination(destination);
-				playerWalking = true;
-
-				enemyClicked = false;
-				targetedEnemy = nullptr;
-				playerAttackCorutine.active = false;
-				playerBiteCorutine.active = false;
-				playerAttack = false;
-				playerBite = false;
-				attackType = 0;
+				playerEntity->GetTransform()->SetPosition(destination);
+				vampireAbility = 0;
+				*playerHealth -= 15.0f;
 			}
-		}
-
-		if (keyboard.E)
-		{
-			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			for each(shared_ptr<Collision> coll in collisionsWithRay)
-			{
-				if (coll->OriginObject->GetTag() == Tags::ENEMY)
-				{
-					attackType = 5;
-					enemyClicked = true;
-					targetedEnemy = coll->OriginObject;
-				}
-				else
-				{
-					enemyClicked = false;
-					targetedEnemy = nullptr;
-					playerAttackCorutine.active = false;
-					playerBiteCorutine.active = false;
-					playerAttack = false;
-					playerBite = false;
-					attackType = 0;
-				}
-			}
-
-			///////////////////////
-
-			if ((!enemyClicked) || (collisionsWithRay.size() == 0))
-			{
-				enemyClicked = false;
-				targetedEnemy = nullptr;
-				playerAttackCorutine.active = false;
-				playerBiteCorutine.active = false;
-				playerAttack = false;
-				playerBite = false;
-				attackType = 0;
-			}
-		}
-	}
-
-
-	if (enemyClicked)
-	{
-		if ((!playerAttackCorutine.active) && (!playerBiteCorutine.active))
-		{
-			if (attackType == 1)
-			{
-				if (!XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), targetedEnemy->GetTransform()->GetPosition(), Vector3(playerAttackDistance, .1f, playerAttackDistance)))
-				{
-					navMesh->SetDestination(targetedEnemy->GetTransform()->GetPosition());
-					playerWalking = true;
-				}
-				else
-				{
-					navMesh->isMoving = false;
-					playerWalking = false;
-					playerAttack = true;
-					playerBite = false;
-					playerAttackCorutine.Restart(1.5f);
-				}
-			}
-			else if (attackType == 5)
-			{
-				if (!XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), targetedEnemy->GetTransform()->GetPosition(), Vector3(playerBiteDistance, .1f, playerBiteDistance)))
-				{
-					navMesh->SetDestination(targetedEnemy->GetTransform()->GetPosition());
-					playerWalking = true;
-				}
-				else
-				{
-					navMesh->isMoving = false;
-					playerWalking = false;
-					playerAttack = false;
-					playerBite = true;
-					targetedEnemy->GetComponent<EnemyComponent>()->bited = true;
-					playerBiteCorutine.Restart(4.1f);
-				}
-			}
-		}
-	}
-
-	if (playerWalking)
-	{
-		navMesh->Move(); // Player Component -> Player System
-
-		if (!navMesh->isMoving)
-		{
-			playerWalking = false;
-		}
+		}	
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -482,70 +538,80 @@ void Game::UpdateAnimations(float elapsedTime)
 
 	auto component = playerEntity->GetComponent<RenderableComponent>();
 
-	if (playerWalking)
-	{
-		component->_modelSkinned->currentAnimation = "Walk";
-	}
-	else if ((!playerWalking) && (playerAttack))
-	{
-		float dot = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x + playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z;
-		float cross = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z - playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x;
-		float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
-		playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
-
-		component->_modelSkinned->currentAnimation = "Attack";
-	}
-	else if ((!playerWalking) && (playerBite))
-	{
-		float dot = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x + playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z;
-		float cross = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z - playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x;
-		float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
-		playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
-
-		component->_modelSkinned->currentAnimation = "Bite";
-	}
-	else if ((!playerWalking) && (!playerAttack) && (!playerBite))
+	if (vampireMode)
 	{
 		component->_modelSkinned->currentAnimation = "Idle";
+	}
+	else
+	{
+		if (playerWalking)
+		{
+			component->_modelSkinned->currentAnimation = "Walk";
+		}
+		else if ((!playerWalking) && (playerAttack))
+		{
+			float dot = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x + playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z;
+			float cross = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z - playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x;
+			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
+			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+
+			component->_modelSkinned->currentAnimation = "Attack";
+		}
+		else if ((!playerWalking) && (playerBite))
+		{
+			float dot = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x + playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z;
+			float cross = playerEntity->GetTransform()->GetTransformMatrix().Forward().x * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).z - playerEntity->GetTransform()->GetTransformMatrix().Forward().z * (targetedEnemy->GetTransform()->GetPosition() - playerEntity->GetTransform()->GetPosition()).x;
+			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
+			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+
+			component->_modelSkinned->currentAnimation = "Bite";
+		}
+		else if ((!playerWalking) && (!playerAttack) && (!playerBite))
+		{
+			component->_modelSkinned->currentAnimation = "Idle";
+		}
 	}
 }
 
 void Game::UpdateCoroutines(float elapsedTime)
 {
-	if (playerAttackCorutine.active)
+	if (!vampireMode)
 	{
-		if (!(playerAttackCorutine.Update()))
+		if (playerAttackCorutine.active)
 		{
-			playerAttack = false;
-
-			if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), targetedEnemy->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
+			if (!(playerAttackCorutine.Update()))
 			{
-				targetedEnemy->GetComponent<EnemyComponent>()->health -= 15.0f;
+				playerAttack = false;
+
+				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), targetedEnemy->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
+				{
+					targetedEnemy->GetComponent<EnemyComponent>()->health -= 15.0f;
+				}
+				enemyClicked = false;
+				targetedEnemy = nullptr;
+				attackType = 0;
 			}
-			enemyClicked = false;
-			targetedEnemy = nullptr;
-			attackType = 0;
 		}
-	}
 
-	if (playerBiteCorutine.active)
-	{
-		if (!(playerBiteCorutine.Update()))
+		if (playerBiteCorutine.active)
 		{
-			playerBite = false;
+			if (!(playerBiteCorutine.Update()))
+			{
+				playerBite = false;
 
-			targetedEnemy->GetComponent<EnemyComponent>()->health -= 20.0f;
+				targetedEnemy->GetComponent<EnemyComponent>()->health -= 20.0f;
 
-			*playerHealth += 15.0f;
+				*playerHealth += 15.0f;
 
-			if (*playerHealth > playerHealthOrigin)
-				*playerHealth = playerHealthOrigin;
+				if (*playerHealth > playerHealthOrigin)
+					*playerHealth = playerHealthOrigin;
 
-			targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
+				targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
 
-			enemyClicked = false;
-			targetedEnemy = nullptr;
-			attackType = 0;
+				enemyClicked = false;
+				targetedEnemy = nullptr;
+				attackType = 0;
+			}
 		}
 	}
 }
@@ -608,8 +674,16 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	uiSpriteBatch->Draw(healthBarTex.Get(), healthBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.25f);
 
+
+	healthBarHealthScale.x = ((healthBarHealthScale.y * (*playerHealth))/playerHealthOrigin);
+	if (healthBarHealthScale.x < 0)
+		healthBarHealthScale.x = 0;
+	else if (healthBarHealthScale.x > playerHealthOrigin)
+		healthBarHealthScale.x = healthBarHealthScale.y;
+
+
 	uiSpriteBatch->Draw(healthBarHealthTex.Get(), healthBarHealthPos, nullptr, Colors::White,
-		0.f, Vector2(0, 0), 0.25f);
+		0.f, Vector2(0, 0), healthBarHealthScale);
 
 	uiSpriteBatch->Draw(healthBarHeroTex.Get(), healthBarHeroPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.35f);
@@ -932,6 +1006,9 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 
 	healthBarHealthPos.x = 135.f;
 	healthBarHealthPos.y = 30.f;
+	healthBarHealthScale.x = 0.25f;
+	healthBarHealthScale.y = 0.25f;
+
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\fpsbar.dds",
@@ -1022,4 +1099,11 @@ void Game::OnDeviceRestored()
 
 	CreateWindowSizeDependentResources();
 }
+
+void Game::StopEnemies()
+{
+	enemySystem->SetVampireMode(true);
+}
+
+
 #pragma endregion

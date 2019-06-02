@@ -208,6 +208,7 @@ private:
 	DirectX::SimpleMath::Vector2 healthBarPos;
 	DirectX::SimpleMath::Vector2 healthBarHeroPos;
 	DirectX::SimpleMath::Vector2 healthBarHealthPos;
+	DirectX::SimpleMath::Vector2 healthBarHealthScale;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> fpsBarTex;
 	DirectX::SimpleMath::Vector2 fpsBarPos;
@@ -229,6 +230,7 @@ private:
 	std::shared_ptr<World> world;
 
 
+	//Player
 	bool isDancing = false;
 	bool playerWalking = false;
 	bool playerAttack = false;
@@ -246,5 +248,12 @@ private:
 	std::shared_ptr<float> playerHealth;
 	float playerHealthOrigin = 100.0f;
 
+	//Vampire Mode
+	bool vampireMode = false;
+	bool vampireModeClicked = false;
+
+	int vampireAbility = 0;
+
+	void StopEnemies();
 	
 };

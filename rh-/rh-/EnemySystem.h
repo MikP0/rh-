@@ -20,5 +20,8 @@ public:
 
 	std::shared_ptr<Entity> player;
 	std::shared_ptr<float> playerHealth;
+
+	bool vampireMode;
+	void SetVampireMode(bool mode);
 };
 
