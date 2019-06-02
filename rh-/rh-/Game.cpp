@@ -57,9 +57,9 @@ void Game::Initialize(HWND window, int width, int height)
 void Game::Tick()
 {
 	m_timer.Tick([&]()
-	{
-		Update(m_timer);
-	});
+		{
+			Update(m_timer);
+		});
 
 	Render();
 }
@@ -150,11 +150,11 @@ void Game::Update(DX::StepTimer const& timer)
 			if (*iter == playBackground)
 			{
 				world->ClearWorld();
-				
+
 
 				//renderableSystem = std::make_shared<RenderableSystem>(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
 				//lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
-				
+
 				// Adding systems to world ------------------------------------------------------------------
 				world->AddSystem<PhysicsSystem>(collisionSystem, 0);
 				world->AddSystem<LightSystem>(lightSystem, 1);
@@ -170,8 +170,8 @@ void Game::Update(DX::StepTimer const& timer)
 				world->InitializeSystem<PhysicsSystem>();
 				world->InitializeSystem<LightSystem>();
 				world->InitializeSystem<RenderableSystem>();
-				
-				
+
+
 				//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
 			}
 
@@ -301,7 +301,7 @@ void Game::UpdateObjects(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
 	auto keyboard = Input::GetKeyboardState();
-	
+
 	// states for player		/////////////////////////////////////////////////////
 
 	tracker.Update(mouse); // Player Component -> Player System
@@ -310,7 +310,7 @@ void Game::UpdateObjects(float elapsedTime)
 	if (!vampireMode)
 	{
 		if (!playerBiteCorutine.active)
-		{	
+		{
 			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED || tracker.leftButton == Mouse::ButtonStateTracker::HELD)
 			{
 				// !!!!!!!!!!!!!!!!    HOLD wylaczyc z atakowania - atakowanie tylko PRESSED
@@ -318,16 +318,13 @@ void Game::UpdateObjects(float elapsedTime)
 				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
 				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
 
-				for each(shared_ptr<Collision> coll in collisionsWithRay)
+				for each (shared_ptr<Collision> coll in collisionsWithRay)
 				{
 					if (coll->OriginObject->GetTag() == Tags::ENEMY)
 					{
-						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
-						{
-							attackType = 1;
-							enemyClicked = true;
-							targetedEnemy = coll->OriginObject;
-						}
+						attackType = 1;
+						enemyClicked = true;
+						targetedEnemy = coll->OriginObject;
 					}
 					else
 					{
@@ -363,16 +360,13 @@ void Game::UpdateObjects(float elapsedTime)
 				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
 				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
 
-				for each(shared_ptr<Collision> coll in collisionsWithRay)
+				for each (shared_ptr<Collision> coll in collisionsWithRay)
 				{
 					if (coll->OriginObject->GetTag() == Tags::ENEMY)
 					{
-						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
-						{
-							attackType = 5;
-							enemyClicked = true;
-							targetedEnemy = coll->OriginObject;
-						}
+						attackType = 5;
+						enemyClicked = true;
+						targetedEnemy = coll->OriginObject;
 					}
 					else
 					{
@@ -405,7 +399,7 @@ void Game::UpdateObjects(float elapsedTime)
 			{
 				vampireMode = true;
 
-       			enemyClicked = false;
+				enemyClicked = false;
 				targetedEnemy = nullptr;
 				playerAttackCorutine.active = false;
 				playerBiteCorutine.active = false;
@@ -496,10 +490,11 @@ void Game::UpdateObjects(float elapsedTime)
 				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
 				playerHittedCorutine.Restart(0.1f);
 			}
-		}	
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 	// check collisions
 	vector<CollisionPtr> currentCollisions = collisionSystem->AllCollisions;
@@ -546,7 +541,7 @@ void Game::UpdateObjects(float elapsedTime)
 		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
 		vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
 
-		for each(shared_ptr<Collision> coll in collisionsWithRay)
+		for each (shared_ptr<Collision> coll in collisionsWithRay)
 		{
 			if (coll->OriginObject->GetId() == colliderCup1->GetParent()->GetId())
 				collisionCup1WithRay = coll;
@@ -636,7 +631,7 @@ void Game::UpdateCoroutines(float elapsedTime)
 				*playerHealth += 15.0f;
 
 				if (*playerHealth > playerHealthOrigin)
-					*playerHealth = playerHealthOrigin;
+					* playerHealth = playerHealthOrigin;
 
 				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHealed = true;
 				playerHealedCorutine.Restart(0.1f);
@@ -653,7 +648,7 @@ void Game::UpdateCoroutines(float elapsedTime)
 				hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
 				enemyHittedCorutine.Restart(0.1f);
 			}
-		}		
+		}
 	}
 
 
@@ -718,7 +713,7 @@ void Game::Render()
 	m_deviceResources->Present();
 }
 
-void Game::RenderObjects(ID3D11DeviceContext1 *context)
+void Game::RenderObjects(ID3D11DeviceContext1 * context)
 {
 	DirectX::XMMATRIX cameraView = camera.GetViewMatrix(); // ?? FIXME
 	DirectX::XMMATRIX cameraProjection = camera.GetProjectionMatrix();
@@ -742,7 +737,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 		0.f, Vector2(0, 0), 0.25f);
 
 
-	healthBarHealthScale.x = ((healthBarHealthScale.y * (*playerHealth))/playerHealthOrigin);
+	healthBarHealthScale.x = ((healthBarHealthScale.y * (*playerHealth)) / playerHealthOrigin);
 	if (healthBarHealthScale.x < 0)
 		healthBarHealthScale.x = 0;
 	else if (healthBarHealthScale.x > playerHealthOrigin)
@@ -757,7 +752,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 
 	if (vampireMode)
 		uiSpriteBatch->Draw(redBorderTex.Get(), redBorderPos, nullptr, Colors::White,
-		0.f, Vector2(0, 0), redBorderScale);
+			0.f, Vector2(0, 0), redBorderScale);
 
 	uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.15f);
@@ -897,7 +892,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	camera.SetZoom(XMFLOAT3(0.f, 0.f, 0.f));
 }
 
-void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *context)
+void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
 	terrain = std::make_shared<Terrain>();
 	world = std::make_shared<World>();
@@ -939,6 +934,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	myEntityFloor = world->CreateEntity("FloorForShadows");
 	playerEntity = world->CreateEntity("Player");
 	enemyEntity1 = world->CreateEntity("Enemy1");
+	enemyEntity2 = world->CreateEntity("Enemy2");
 
 	// Creation of renderable components
 	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
@@ -949,6 +945,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Erika.fbx", &camera);
 	//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Annabelle.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 
 	// Creation of audio components ------------------------------------------------------------------
 	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
@@ -957,10 +954,12 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
 	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
-	enemyEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);;
+	enemyEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
+	enemyEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
 
 	// Creation of enemy components ------------------------------------------------------------------
 	enemyEntity1->AddComponent<EnemyComponent>(50.f);
+	enemyEntity2->AddComponent<EnemyComponent>(50.f);
 
 
 
@@ -1012,9 +1011,13 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
-	enemyEntity1->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 5.0f));
+	enemyEntity1->GetTransform()->SetPosition(Vector3(18.0f, 0.0f, 22.0f));
 	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity1->SetTag(Tags::ENEMY);
+
+	enemyEntity2->GetTransform()->SetPosition(Vector3(-7.0f, 0.0f, 20.0f));
+	enemyEntity2->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
+	enemyEntity2->SetTag(Tags::ENEMY);
 
 	// Setting up parameters of audio -- REMOVE
 	for (auto component : world->GetComponents<AudioComponent>())
@@ -1062,7 +1065,7 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	//spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
 	//directLightEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
 	// Setting up terrain tile map -------------------------------------------------------------------
-	terrain->InitTileMap(context);
+	terrain->InitTileMap(context, collisionSystem->GetColliders());
 
 
 	DX::ThrowIfFailed(
@@ -1174,7 +1177,13 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
+
+	component = enemyEntity2->GetComponent<RenderableComponent>();
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
+	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
 
 	//world->RefreshWorld();
 }

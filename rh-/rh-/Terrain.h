@@ -15,12 +15,14 @@ public:
 	Terrain();
 	virtual ~Terrain();
 
-	void InitTileMap(ID3D11DeviceContext1*);
+	void InitTileMap(ID3D11DeviceContext1*, vector<ColliderBasePtr>);
 	void ResetTileMap();
 	void SetTilePositionsAndTypes();
 	void ConnectNeighboringTiles();
-	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
+	void SetStaticObjects(vector<ColliderBasePtr>);
 	void MakeOcupied(dxmath::Vector3);
+
+	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
 	void Update(vector<ColliderBasePtr>);
 	void ClearTiles();
 	void CoverTilesInRange(dxmath::Vector3, float);
@@ -40,9 +42,10 @@ public:
 
 	ID3D11DeviceContext1* context;
 	std::vector<MapTilePtr> tiles;
+	std::vector<MapTilePtr> ocuppiedTiles;
 	int widthInTiles;
 	int heightInTiles;
-	const int tileSize = 1.f;
+	const float tileSize = 1.f;
 
 	DirectX::SimpleMath::Matrix view;
 	DirectX::SimpleMath::Matrix projection;
