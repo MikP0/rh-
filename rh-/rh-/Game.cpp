@@ -727,6 +727,10 @@ void Game::RenderObjects(ID3D11DeviceContext1 *context)
 	uiSpriteBatch->Draw(healthBarHeroTex.Get(), healthBarHeroPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.35f);
 
+	if (vampireMode)
+		uiSpriteBatch->Draw(redBorderTex.Get(), redBorderPos, nullptr, Colors::White,
+		0.f, Vector2(0, 0), redBorderScale);
+
 	uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.15f);
 
@@ -824,7 +828,7 @@ void Game::OnNewAudioDevice()
 void Game::GetDefaultSize(int& width, int& height)
 {
 	// TODO: Change to desired default window size (note minimum size is 320x200).
-	int w = 1450, h = 1024;
+	int w = 1920, h = 1080;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
 	width = w;
@@ -1037,6 +1041,11 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 			nullptr,
 			healthBarHealthTex.ReleaseAndGetAddressOf()));
 
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Resources\\UISprites\\red_border.dds",
+			nullptr,
+			redBorderTex.ReleaseAndGetAddressOf()));
+
 	healthBarPos.x = 0.f;
 	healthBarPos.y = 0.f;
 
@@ -1047,6 +1056,11 @@ void Game::InitializeObjects(ID3D11Device1 *device, ID3D11DeviceContext1 *contex
 	healthBarHealthPos.y = 30.f;
 	healthBarHealthScale.x = 0.25f;
 	healthBarHealthScale.y = 0.25f;
+
+	redBorderPos.x = 0.0f;
+	redBorderPos.y = 0.0f;
+	redBorderScale.x = 1.91f;
+	redBorderScale.y = 1.36f;
 
 
 	DX::ThrowIfFailed(
