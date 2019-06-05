@@ -459,7 +459,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 		if (playerWalking)
 		{
-			navMesh->Move(); // Player Component -> Player System
+			navMesh->Move(elapsedTime); // Player Component -> Player System
 
 			if (!navMesh->isMoving)
 			{
@@ -1017,7 +1017,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, 0.2f, 6.0f));
 
-	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
+	//world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
 	//// Creation of light components ------------------------------------------------------------------
@@ -1047,7 +1047,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	//myEntityFloor->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
 	//myEntityFloor->GetTransform()->SetPosition(Vector3(-3.5f, 2.52f, -3.5f));
 
-	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 15.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 

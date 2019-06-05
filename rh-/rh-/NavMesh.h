@@ -16,7 +16,7 @@ public:
 	void SetDestination(dxmath::Vector3);
 	void SetEnemyDestination(dxmath::Vector3);
 	void RotateAndSetStep();
-	void Move();
+	void Move(float);
 
 
 	bool isMoving;
