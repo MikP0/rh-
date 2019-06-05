@@ -30,6 +30,8 @@ namespace
 	const XMVECTORF32 PLANE_BOUNDS = { 1.5f, 1.5f, 1.5f, 0.f }; //REMOVE
 }
 
+bool initTerrain = false;
+
 Game::Game() noexcept(false) : m_pitch(0.f), m_yaw(0.f)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -703,7 +705,10 @@ void Game::Render()
 
 
 	world->RefreshWorld();
-
+	if (!initTerrain) {
+		terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
+		initTerrain = true;
+	}
 	RenderObjects(context);
 
 	context;
@@ -990,6 +995,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
 	enemyEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
 
+	enemyEntity1->GetComponent<PhysicsComponent>()->IsTriggered = true;
+	enemyEntity2->GetComponent<PhysicsComponent>()->IsTriggered = true;
 	// Creation of enemy components ------------------------------------------------------------------
 	enemyEntity1->AddComponent<EnemyComponent>(50.f);
 	enemyEntity2->AddComponent<EnemyComponent>(50.f);

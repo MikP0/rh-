@@ -3,6 +3,7 @@
 #include "MapTile.h"
 #include "Camera.h"
 #include "ColliderTypes.h"
+#include "PhysicsComponent.h"
 
 using namespace std;
 
@@ -19,7 +20,8 @@ public:
 	void ResetTileMap();
 	void SetTilePositionsAndTypes();
 	void ConnectNeighboringTiles();
-	void SetStaticObjects(vector<ColliderBasePtr>);
+	//template<typename TComponent>
+	void SetStaticObjects(vector<std::shared_ptr<PhysicsComponent>>);
 	void MakeOcupied(dxmath::Vector3);
 
 	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);

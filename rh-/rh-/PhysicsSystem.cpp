@@ -74,7 +74,7 @@ vector<ColliderBasePtr> PhysicsSystem::GetColliders()
 	for (auto component : _world->GetComponents<PhysicsComponent>())
 	{
 		//dxmath::Matrix objectMatrix = component->GetParent()->GetWorldMatrix();
-
+		
 		if (component->ColliderBounding->Type == AABB)
 		{
 			ColliderAABBptr collider = dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
