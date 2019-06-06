@@ -13,9 +13,10 @@ public:
 	NavMesh();
 	NavMesh(std::shared_ptr<Transform>);
 	virtual ~NavMesh();
-	void Move();
 	void SetDestination(dxmath::Vector3);
 	void SetEnemyDestination(dxmath::Vector3);
+	void RotateAndSetStep();
+	void Move(float);
 
 
 	bool isMoving;

@@ -30,6 +30,8 @@ namespace
 	const XMVECTORF32 PLANE_BOUNDS = { 1.5f, 1.5f, 1.5f, 0.f }; //REMOVE
 }
 
+bool initTerrain = false;
+
 Game::Game() noexcept(false) : m_pitch(0.f), m_yaw(0.f)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -41,6 +43,7 @@ void Game::Initialize(HWND window, int width, int height)
 {
 
 	m_deviceResources->SetWindow(window, width, height);
+	
 
 	m_deviceResources->CreateDeviceResources();
 	CreateDeviceDependentResources();
@@ -456,7 +459,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 		if (playerWalking)
 		{
-			navMesh->Move(); // Player Component -> Player System
+			navMesh->Move(elapsedTime); // Player Component -> Player System
 
 			if (!navMesh->isMoving)
 			{
@@ -702,7 +705,10 @@ void Game::Render()
 
 
 	world->RefreshWorld();
-
+	if (!initTerrain) {
+		terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
+		initTerrain = true;
+	}
 	RenderObjects(context);
 
 	context;
@@ -722,7 +728,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 
 	//terrain->Update(collisionSystem->GetColliders());
-	terrain->Draw(camera, m_roomTex);
+	//terrain->Draw(camera, m_roomTex);
 
 	if (debugDraw) //REMOVE
 		renderableSystem->DebugDrawAction->DrawOctTree(
@@ -818,6 +824,7 @@ void Game::Clear()
 	// Set the viewport.
 	auto viewport = m_deviceResources->GetScreenViewport();
 	context->RSSetViewports(1, &viewport);
+	
 
 	m_deviceResources->PIXEndEvent();
 }
@@ -884,6 +891,7 @@ void Game::GetDefaultSize(int& width, int& height)
 	int w = 1920, h = 1080;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
+	
 	width = w;
 	height = h;
 }
@@ -898,7 +906,7 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	// TODO: Initialize device dependent objects here (independent of window size).
 
-
+	
 	m_states = std::make_unique<CommonStates>(device); //REMOVE
 
 	m_fxFactory = std::make_unique<EffectFactory>(device); //REMOVE
@@ -972,7 +980,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntityFloor->AddComponent<RenderableComponent>(L"FloorToRoom.cmo", &camera);
-	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
+	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Erika.fbx", &camera);
+	//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Annabelle.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 
@@ -986,6 +995,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
 	enemyEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
 
+	enemyEntity1->GetComponent<PhysicsComponent>()->IsTriggered = true;
+	enemyEntity2->GetComponent<PhysicsComponent>()->IsTriggered = true;
 	// Creation of enemy components ------------------------------------------------------------------
 	enemyEntity1->AddComponent<EnemyComponent>(50.f);
 	enemyEntity2->AddComponent<EnemyComponent>(50.f);
@@ -1006,7 +1017,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, 0.2f, 6.0f));
 
-	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
+	//world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
 	//// Creation of light components ------------------------------------------------------------------
@@ -1036,11 +1047,11 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	//myEntityFloor->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
 	//myEntityFloor->GetTransform()->SetPosition(Vector3(-3.5f, 2.52f, -3.5f));
 
-	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 15.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
-	enemyEntity1->GetTransform()->SetPosition(Vector3(18.0f, 0.0f, 22.0f));
+	enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 22.0f));
 	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity1->SetTag(Tags::ENEMY);
 
@@ -1094,7 +1105,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	//spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
 	//directLightEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
 	// Setting up terrain tile map -------------------------------------------------------------------
-	terrain->InitTileMap(context);
+	terrain->InitTileMap(context, collisionSystem->GetColliders());
 
 
 	DX::ThrowIfFailed(
@@ -1275,13 +1286,20 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	////Setting up skinned model -----------------------------------------------------------------------
 	auto component = playerEntity->GetComponent<RenderableComponent>();
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Idle.fbx", "Idle");
+	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Idle.fbx", "Idle");
+	//component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
+	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
+	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
+	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Attack.fbx", "Attack");
+	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Bite.fbx", "Bite");
+
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Erika_Idle.fbx", "Idle");
 	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Attack.fbx", "Attack");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Bite.fbx", "Bite");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Erika_Run.fbx", "Walk");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Erika_Attack.fbx", "Attack");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Erika_Bite.fbx", "Bite");
+
 
 	component = enemyEntity1->GetComponent<RenderableComponent>();
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
