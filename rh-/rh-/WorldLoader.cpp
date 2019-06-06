@@ -418,7 +418,6 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 						{
 							aIsTriggered = atoi(ePhysicsComponentIsTriggered->GetText());
 						}
-						int m = 15;
 						oEntity->AddComponent<PhysicsComponent>(aPositionOffset, aExtents, aIsTriggered);
 					}
 				}
