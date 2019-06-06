@@ -54,6 +54,8 @@ struct DynamicConstantBuffer
 	float IsTextured;
 
 	DirectX::XMFLOAT4X4 ShadowMapTransform;
+
+	DirectX::XMFLOAT4 IsNormalMap;
 };
 
 struct DynamicConstantShadowBuffer
@@ -81,6 +83,8 @@ public:
 	XMVECTOR SpecularColor;
 	XMVECTOR SpecularPower;
 	XMVECTOR IsTextured;
+
+	XMVECTOR IsNormal;
 
 	bool renderingShadowMap = false;
 	bool shadowEnable = false;
@@ -165,6 +169,8 @@ ShadowEffect::Impl::Impl(_In_ ID3D11Device* device)
 	m_camera.z = 0;
 
 	IsTextured = { 0.0f };
+	IsNormal = { 0.0f , 0.0f, 0.0f, 0.0f };
+
 
 	if (FAILED(loadShaders(device)))
 	{
@@ -362,6 +368,17 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 
 		XMStoreFloat(&m_dynamicData.IsTextured, IsTextured);
 
+		if (m_isNormalMapped)
+		{		
+			IsNormal = { 1.0f , 0.0f, 0.0f, 0.0f };
+		}
+		else
+		{
+			IsNormal = { 0.0f , 0.0f, 0.0f, 0.0f };
+		}
+		XMStoreFloat4(&m_dynamicData.IsNormalMap, IsNormal);
+
+
 
 		deviceContext->UpdateSubresource(
 			m_dynamicConstantBuffer.Get(), 0, NULL, &m_dynamicData, 0, 0);
@@ -371,7 +388,7 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		deviceContext->PSSetConstantBuffers(
 			1, 1, m_dynamicConstantBuffer.GetAddressOf());
 
-		ID3D11ShaderResourceView* textures[2];
+		ID3D11ShaderResourceView* textures[3];
 
 		if (m_isTextured)
 		{
@@ -391,18 +408,18 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 			textures[1] = nullptr;
 		}
 
-		/*if (m_isNormalMapped)
+		if (m_isNormalMapped)
 		{
 			textures[2] = m_normalMap.Get();
 		}
 		else
 		{
 			textures[2] = nullptr;
-		}*/
+		}
 
 
 		deviceContext->PSSetShaderResources(
-			0, static_cast<UINT>(2), textures);
+			0, static_cast<UINT>(3), textures);
 
 		deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 		deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
@@ -442,7 +459,7 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		//deviceContext->PSSetSamplers(0, _countof(samplers), samplers);
 
 		//deviceContext->PSSetSamplers(0, 1, &myComparisonSampler);
-		//->PSSetSamplers(1, 1, &mySimpleSampler);
+		//deviceContext->PSSetSamplers(1, 1, &mySimpleSampler);
 
 		deviceContext->VSSetShader(m_vertexShaderShadow.Get(), nullptr, 0);
 		deviceContext->PSSetShader(m_pixelShaderShadow.Get(), nullptr, 0);

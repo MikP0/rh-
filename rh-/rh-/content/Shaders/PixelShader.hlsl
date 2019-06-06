@@ -32,6 +32,8 @@ cbuffer DynamicBuffer : register(b1)
 	float IsTextured;
 
 	float4x4 ShadowMapTransform;
+
+	float4 IsNormalMap;
 };
 
 //------------------------------------------------------------------------------
@@ -51,7 +53,7 @@ struct PixelShaderInput
 //------------------------------------------------------------------------------
 Texture2D ColorMap : register(t0);
 Texture2D<float2> ShadowMap : register(t1);
-//Texture2D NormalMap : register(t2);
+Texture2D NormalMap : register(t2);
 
 
 SamplerState ColorSampler
@@ -107,6 +109,13 @@ float4 main(PixelShaderInput input) : SV_TARGET
 		color = ColorMap.Sample(ColorSampler, input.texCoord);
 	}
 
+	if (IsNormalMap.x == 1.0)
+	{
+		normal = ((2 * NormalMap.Sample(ColorSampler, input.texCoord)) - 1.0).xyz;
+	}
+
+
+
 	//// TOON
 	//float intensity = dot(normalize(lightDirection), input.normal);
 	//if (intensity < 0)
@@ -142,7 +151,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	{
 		lightContributionData.LightDirection = get_light_data(PointLight[i].Position, input.worldPosition, PointLight[i].Radius);
 		lightContributionData.LightColor = PointLight[i].Color;
-		totalLightContribution += get_light_contribution(lightContributionData);
+		totalLightContribution += get_light_contribution(lightContributionData) * shadow[0];
 	}
 
 

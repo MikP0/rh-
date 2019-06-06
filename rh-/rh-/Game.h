@@ -122,8 +122,6 @@ private:
 
 	// lights
 	std::shared_ptr<Entity> pointLightEntity1;
-	std::shared_ptr<Entity> pointLightEntity2;
-	std::shared_ptr<Entity> pointLightEntity3;
 	std::shared_ptr<Entity> spotLightEntity1;
 	std::shared_ptr<Entity> directLightEntity1;
 

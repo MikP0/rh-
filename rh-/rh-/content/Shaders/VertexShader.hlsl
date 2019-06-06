@@ -32,6 +32,8 @@ cbuffer DynamicBuffer : register(b1)
 	float IsTextured;
 
 	float4x4 ShadowMapTransform;
+
+	float4 IsNormalMap;
 };
 
 //------------------------------------------------------------------------------

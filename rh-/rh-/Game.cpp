@@ -693,7 +693,7 @@ void Game::Render()
 
 	Clear();
 
-	renderableSystem->SentDeviceResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView());
+	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity);
 
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
@@ -732,7 +732,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 	uiSpriteBatch->Begin(); // TODO: UI System
 
 	// show depth map
-	//uiSpriteBatch->Draw(renderableSystem->_shadowMap->GetDepthMapSRV(), Vector2(850, 650), nullptr, Colors::White, 0.f, Vector2(0, 0), 0.3f);
+	uiSpriteBatch->Draw(renderableSystem->_shadowMap->GetDepthMapSRV(), Vector2(1250, 350), nullptr, Colors::White, 0.f, Vector2(0, 0), 0.3f);
 
 	uiSpriteBatch->Draw(healthBarTex.Get(), healthBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.25f);
@@ -785,11 +785,11 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 		uiSpriteBatch->Draw(redBorderTex.Get(), redBorderPos, nullptr, Colors::White,
 			0.f, Vector2(0, 0), redBorderScale);
 
-	uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
+	/*uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.15f);
 
 	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
-		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
+		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));*/
 
 	if (menuIsOn)
 	{
@@ -932,7 +932,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
 	playerHealth = std::make_shared<float>(playerHealthOrigin);
 
-	worldLoader->LoadWorldFromXML("testLevel.xml");
+	//worldLoader->LoadWorldFromXML("testLevel.xml");
 
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
@@ -952,6 +952,9 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 		FILL WORLD OBJECT
 	*/
 
+	
+
+
 	// Creation of entities ------------------------------------------------------------------
 	myEntity1 = world->CreateEntity("Cup1");
 	myEntity2 = world->CreateEntity("Cup2");
@@ -960,10 +963,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity5 = world->CreateEntity("BackgroundAudioEntity");
 	myEntity6 = world->CreateEntity("Sound1AudioEntity");
 	pointLightEntity1 = world->CreateEntity("PointLight1");
-	pointLightEntity2 = world->CreateEntity("PointLight2");
-	pointLightEntity3 = world->CreateEntity("PointLight3");
 	spotLightEntity1 = world->CreateEntity("SpotLight1");
-	directLightEntity1 = world->CreateEntity("DirectLight1");
+	//directLightEntity1 = world->CreateEntity("DirectLight1");
 	myEntityFloor = world->CreateEntity("FloorForShadows");
 	playerEntity = world->CreateEntity("Player");
 	enemyEntity1 = world->CreateEntity("Enemy1");
@@ -974,9 +975,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntityFloor->AddComponent<RenderableComponent>(L"FloorToRoom.cmo", &camera);
+	myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Erika.fbx", &camera);
-	//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Annabelle.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 
@@ -994,14 +994,12 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity1->AddComponent<EnemyComponent>(50.f);
 	enemyEntity2->AddComponent<EnemyComponent>(50.f);
 
-
+	pointLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 3.5f, 2.0f));
 
 	// Creation of light components ------------------------------------------------------------------
-	//pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
-	pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 8.0f);
-	//pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
+	pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 108.0f);
 	//spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
-	//directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -2.0f, 0.0f));
+	//directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, -0.5f));
 	// Setting up transform parameters of entities  --------------------------------------------------
 	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
@@ -1010,35 +1008,10 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, 0.2f, 6.0f));
 
-	world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
-	//// Creation of light components ------------------------------------------------------------------
-	////pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 3.0f, true);
-	////pointLightEntity2->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity2->GetTransform()->GetPosition(), 3.0f);
-	////pointLightEntity3->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity3->GetTransform()->GetPosition(), 3.0f);
-	////spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
-	//directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(2.0f, -2.0f, 0.0f));
-	//// Setting up transform parameters of entities  --------------------------------------------------
-	//Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
-	//myEntity1->GetTransform()->SetScale(scaleEntity1);
-	//myEntity1->GetTransform()->SetPosition(Vector3(-6.0f, -6.0f, 6.0f));
-
-
-	myEntityFloor->GetTransform()->SetScale(Vector3(0.5f, 0.5f, 0.5f));
-	myEntityFloor->GetTransform()->SetPosition(Vector3(-3.5f, 2.52f, -3.5f));
-
-
-	//world->GetEntity(3)->GetTransform()->SetScale(scaleEntity3);
-	//myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
-
-	//myEntity1->AddChild(myEntity3);
-
-	//world->GetEntity(4)->GetTransform()->SetScale(scaleEntity4);
-	//myEntity4->GetTransform()->SetPosition(Vector3(0.0f, -1.0f, -3.0f));
-
-	//myEntityFloor->GetTransform()->SetScale(Vector3(1.5f, 0.5f, 1.5f));
-	//myEntityFloor->GetTransform()->SetPosition(Vector3(-3.5f, 2.52f, -3.5f));
+	myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
+	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
 
 	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
@@ -1091,12 +1064,6 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	//colliderBoundingCup1 = std::dynamic_pointer_cast<ColliderAABB>(colliderCup1->ColliderBounding);
 	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
 
-	//// Setting up positions of lights ----------------------------------------------------------------
-	//pointLightEntity1->GetTransform()->SetPosition(Vector3(1.0f, 0.0f, 0.0f));
-	//pointLightEntity2->GetTransform()->SetPosition(Vector3(-2.0f, 0.0f, 2.0f));
-	//pointLightEntity3->GetTransform()->SetPosition(Vector3(2.0f, -1.0f, 1.0f));
-	//spotLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 2.0f, 0.0f));
-	//directLightEntity1->GetTransform()->SetPosition(Vector3(0, 0, 0));
 	// Setting up terrain tile map -------------------------------------------------------------------
 	terrain->InitTileMap(context, collisionSystem->GetColliders());
 
@@ -1292,7 +1259,6 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Erika_Run.fbx", "Walk");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Erika_Attack.fbx", "Attack");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Erika_Bite.fbx", "Bite");
-
 
 	component = enemyEntity1->GetComponent<RenderableComponent>();
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");

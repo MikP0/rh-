@@ -114,43 +114,15 @@ ID3D11ShaderResourceView * ShadowMap::GetDepthMapSRV()
 	return _depthMapSRV;
 }
 
-void ShadowMap::BuildShadowTransform()
+void ShadowMap::BuildShadowTransform(DirectX::SimpleMath::Vector3 pos)
 {
-	DirectX::XMVECTOR lightDir = DirectX::XMVectorSet(2.0f, -2.0f, 0.0f, 0.0f);
-	DirectX::XMVECTOR eye = -lightDir * 10;
-	DirectX::XMVECTOR at = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	DirectX::XMVECTOR lightDir = DirectX::XMVectorSet(1.0f, -1.0f, -0.5f, 0.0f);
+	DirectX::XMVECTOR eye = -lightDir * 50;
+	DirectX::XMVECTOR at = DirectX::XMVectorSet(pos.x, 0.0f, pos.z, 0.0f);
 	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	DirectX::XMMATRIX smView = DirectX::XMMatrixLookAtLH(eye, at, up);
 	DirectX::XMMATRIX smProjection = DirectX::XMMatrixOrthographicLH(20.f, 20.f, 0.1f, 100.f);
-
-	/*Matrix T;
-	T._11 = 0;
-	T._12 = 0;
-	T._13 = 0;
-	T._14 = 0;
-	T._21 = 0;
-	T._22 = 0;
-	T._23 = 0;
-	T._24 = 0;
-	T._31 = 0;
-	T._32 = 0;
-	T._33 = 0;
-	T._34 = 0;
-	T._41 = 0;
-	T._42 = 0;
-	T._43 = 0;
-	T._44 = 0;
-
-	T._11 = 0.5f;
-	T._22 = -0.5f;
-	T._33 = 1.0f;
-	T._41 = 0.5f;
-	T._42 = 0.5f;
-	T._44 = 1.0f;
-
-	XMMATRIX TT = T;*/
-
 	XMMATRIX res = smView * smProjection;
 
 	_lightShadowTransform = res;

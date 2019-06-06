@@ -14,7 +14,7 @@ public:
 	void BindDsvAndSetNullRenderTarget(ID3D11DeviceContext * context);
 	void UnbindTargetAndViewport(ID3D11DeviceContext * context);
 
-	void BuildShadowTransform();
+	void BuildShadowTransform(DirectX::SimpleMath::Vector3 pos);
 
 	DirectX::XMMATRIX _lightView;
 	DirectX::XMMATRIX _lightProj;
