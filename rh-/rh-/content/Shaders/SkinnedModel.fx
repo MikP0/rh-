@@ -72,6 +72,20 @@ struct VS_OUTPUT
     float Attenuation : TEXCOORD2;
 };
 
+
+struct VS_SHADOW_INPUT
+{
+	float4 ObjectPosition : POSITION;
+	uint4 BoneIndices : BONEINDICES;
+	float4 BoneWeights : WEIGHTS;
+};
+
+struct VS_SHADOW_OUTPUT
+{
+	float4 Position : SV_Position;
+};
+
+
 /************* Vertex Shader *************/
 
 VS_OUTPUT vertex_shader(VS_INPUT IN)
@@ -183,14 +197,12 @@ VS_OUTPUT OutlineVertexShader(VS_INPUT IN)
 {
 	VS_OUTPUT OUT = (VS_OUTPUT)0;
 
-
 	float4x4 skinTransform = (float4x4)0;
     skinTransform += BoneTransforms[IN.BoneIndices.x] * IN.BoneWeights.x;
     skinTransform += BoneTransforms[IN.BoneIndices.y] * IN.BoneWeights.y;
     skinTransform += BoneTransforms[IN.BoneIndices.z] * IN.BoneWeights.z;
     skinTransform += BoneTransforms[IN.BoneIndices.w] * IN.BoneWeights.w;
     
-
 	//float4 original = mul(mul(mul(IN.ObjectPosition, World), View), Projection);
 	float4 normal = mul(mul(mul(IN.Normal, World), View), Projection);
 
@@ -207,9 +219,33 @@ float4 OutlinePixelShader(VS_OUTPUT IN) : SV_Target
 }
 
 
+
+VS_SHADOW_OUTPUT ShadowVertexShader(VS_SHADOW_INPUT IN)
+{
+	VS_SHADOW_OUTPUT OUT = (VS_SHADOW_OUTPUT)0;
+
+	float4x4 skinTransform = (float4x4)0;
+	skinTransform += BoneTransforms[IN.BoneIndices.x] * IN.BoneWeights.x;
+	skinTransform += BoneTransforms[IN.BoneIndices.y] * IN.BoneWeights.y;
+	skinTransform += BoneTransforms[IN.BoneIndices.z] * IN.BoneWeights.z;
+	skinTransform += BoneTransforms[IN.BoneIndices.w] * IN.BoneWeights.w;
+
+	float4 position = mul(IN.ObjectPosition, skinTransform);
+	OUT.Position = mul(position, WorldViewProjection);
+
+	return OUT;
+}
+
+float4 ShadowPixelShader(VS_SHADOW_OUTPUT IN) : SV_Target
+{
+	float4 OUT = float4(0.0, 0.0, 0.0, 1.0);
+	return OUT;
+}
+
+
 /************* Techniques *************/
 
-technique11 main11
+technique11 mainRender
 {
 	pass p0
 	{
@@ -217,12 +253,14 @@ technique11 main11
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, pixel_shader()));
 	}
+}
 
-	/*pass p1
+technique11 mainShadow
+{
+	pass p0
 	{
-		SetVertexShader(CompileShader(vs_5_0, vertex_shader()));
+		SetVertexShader(CompileShader(vs_5_0, ShadowVertexShader()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, pixel_shader()));
-		SetRasterizerState(MyCullNot);
-	}*/
+		SetPixelShader(CompileShader(ps_5_0, ShadowPixelShader()));
+	}
 }

@@ -7,7 +7,7 @@
 RTTI_DEFINITIONS(SkinnedModelMaterial)
 
 SkinnedModelMaterial::SkinnedModelMaterial()
-	: MaterialSK("main11"),
+	: MaterialSK("mainRender"),
 	MATERIAL_VARIABLE_INITIALIZATION(WorldViewProjection), MATERIAL_VARIABLE_INITIALIZATION(World),
 	MATERIAL_VARIABLE_INITIALIZATION(SpecularColor), MATERIAL_VARIABLE_INITIALIZATION(SpecularPower),
 	MATERIAL_VARIABLE_INITIALIZATION(AmbientColor), MATERIAL_VARIABLE_INITIALIZATION(LightColor),
@@ -61,7 +61,7 @@ void SkinnedModelMaterial::Initialize(EffectSK& effect)
 		{ "WEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	CreateInputLayout("main11", "p0", inputElementDescriptions, ARRAYSIZE(inputElementDescriptions));
+	CreateInputLayout("mainRender", "p0", inputElementDescriptions, ARRAYSIZE(inputElementDescriptions));
 }
 
 void SkinnedModelMaterial::CreateVertexBuffer(ID3D11Device* device, const MeshSK& mesh, ID3D11Buffer** vertexBuffer) const

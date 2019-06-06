@@ -217,6 +217,9 @@
     <ClInclude Include="WorldLoader.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowModelMaterial.h">
+      <Filter>Inc\Skinning\Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -389,6 +392,9 @@
     </ClCompile>
     <ClCompile Include="WorldLoader.cpp">
       <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowModelMaterial.cpp">
+      <Filter>Src\Skinning\Effect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

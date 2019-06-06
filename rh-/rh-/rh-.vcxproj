@@ -203,6 +203,7 @@
     <ClInclude Include="ShadowEffect.h" />
     <ClInclude Include="ShadowFactory.h" />
     <ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="ShadowModelMaterial.h" />
     <ClInclude Include="SkinnedModelMaterial.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="System.h" />
@@ -324,6 +325,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ShadowMap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ShadowModelMaterial.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SkinnedModelMaterial.cpp">

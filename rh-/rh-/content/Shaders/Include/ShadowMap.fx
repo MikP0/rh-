@@ -40,7 +40,7 @@ float CalcShadowFactor(
 	{
 		for (int y = -1; y <= 1; ++y)
 		{
-			float pcfDepth = shadowMap.Sample(samShadow, ShadowTexC.xy + float2(x, y) * texelSize).xy;	// texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+			float pcfDepth = shadowMap.Sample(samShadow, ShadowTexC.xy + float2(x, y) * texelSize).xy;
 			shadow += depth - variance > pcfDepth ? 1.0 : 0.0;
 		}
 	}
@@ -72,4 +72,7 @@ float CalcShadowFactor(
 		float p_max = variance / (variance + d * d);
 
 		fPercentLit = pow(p_max, 4);
-	}*/
+	}
+
+	return fPercentLit;
+*/

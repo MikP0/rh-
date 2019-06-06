@@ -69,3 +69,15 @@ typedef struct _VertexSkinnedPositionTextureNormal
 	_VertexSkinnedPositionTextureNormal(const DirectX::XMFLOAT4& position, const DirectX::XMFLOAT2& textureCoordinates, const DirectX::XMFLOAT3& normal, const DirectX::XMUINT4& boneIndices, const DirectX::XMFLOAT4& boneWeights)
 		: Position(position), TextureCoordinates(textureCoordinates), Normal(normal), BoneIndices(boneIndices), BoneWeights(boneWeights) { }
 } VertexSkinnedPositionTextureNormal;
+
+typedef struct _VertexSkinnedPosition
+{
+	DirectX::XMFLOAT4 Position;
+	DirectX::XMUINT4 BoneIndices;
+	DirectX::XMFLOAT4 BoneWeights;
+
+	_VertexSkinnedPosition() { }
+
+	_VertexSkinnedPosition(const DirectX::XMFLOAT4& position, const DirectX::XMUINT4& boneIndices, const DirectX::XMFLOAT4& boneWeights)
+		: Position(position), BoneIndices(boneIndices), BoneWeights(boneWeights) { }
+} VertexSkinnedPosition;

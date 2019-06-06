@@ -9,6 +9,7 @@
 #include "Utility.h"
 #include "AnimationClip.h"
 #include "SkinnedModelMaterial.h"
+#include "ShadowModelMaterial.h"
 #include <sstream>
 #include <iostream>
 #include "ModelSK.h"
@@ -44,15 +45,16 @@ public:
 
 	void SetCurrentAnimation(std::string animName);
 
-	bool isHitted = false;
+	bool isHitted;
+	bool isHealed;
+	bool isVisible;
 
-	bool isHealed = false;
-
-	bool isVisible = true;
-
+	bool drawToShadows;
 
 private:
 	SkinnedModelMaterial* mMaterial;
+	ShadowModelMaterial* mShadowMaterial;
+
 	EffectSK* mEffect;
 	MyGame myGameTemp;
 	ModelSK* mSkinnedModel;
@@ -62,6 +64,7 @@ private:
 	bool inMove;
 	AnimationPlayer* mAnimationPlayer;
 	std::vector<ID3D11Buffer*> mVertexBuffers;
+	std::vector<ID3D11Buffer*> mShadowsVertexBuffers;
 	std::vector<ID3D11Buffer*> mIndexBuffers;
 	std::vector<UINT> mIndexCounts;
 	std::vector<ID3D11ShaderResourceView*> mColorTextures;

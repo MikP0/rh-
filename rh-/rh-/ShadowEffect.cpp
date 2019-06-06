@@ -388,20 +388,7 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		deviceContext->PSSetConstantBuffers(
 			1, 1, m_dynamicConstantShadowBuffer.GetAddressOf());
 
-		ID3D11ShaderResourceView* textures[1];
-
-		if (m_isTextured)
-		{
-			textures[0] = m_texture.Get();
-		}
-		else
-		{
-			textures[0] = nullptr;
-		}
-
-		deviceContext->PSSetShaderResources(
-			0, static_cast<UINT>(1), textures);
-
+	
 		deviceContext->VSSetShader(m_vertexShaderShadow.Get(), nullptr, 0);
 		deviceContext->PSSetShader(m_pixelShaderShadow.Get(), nullptr, 0);
 	}

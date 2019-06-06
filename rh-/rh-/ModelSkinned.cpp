@@ -23,10 +23,14 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 	mMaterial = new SkinnedModelMaterial();
 	mMaterial->Initialize(*mEffect);
 
+	mShadowMaterial = new ShadowModelMaterial();
+	mShadowMaterial->Initialize(*mEffect);
+
 	mVertexBuffers.clear();
 	mIndexBuffers.clear();
 	mVertexBuffers.resize(mSkinnedModel->Meshes().size());
 	mIndexBuffers.resize(mSkinnedModel->Meshes().size());
+	mShadowsVertexBuffers.resize(mSkinnedModel->Meshes().size());
 	mIndexCounts.resize(mSkinnedModel->Meshes().size());
 	mColorTextures.resize(mSkinnedModel->Meshes().size());
 
@@ -38,6 +42,10 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 		ID3D11Buffer* vertexBuffer = nullptr;
 		mMaterial->CreateVertexBuffer(DDevice, *mesh, &vertexBuffer);
 		mVertexBuffers[i] = vertexBuffer;
+
+		ID3D11Buffer* shadowVertexBuffer = nullptr;
+		mShadowMaterial->CreateVertexBuffer(DDevice, *mesh, &shadowVertexBuffer);
+		mShadowsVertexBuffers[i] = shadowVertexBuffer;
 
 		ID3D11Buffer* indexBuffer = nullptr;
 		mesh->CreateIndexBuffer(&indexBuffer);
@@ -71,6 +79,11 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 
 	currentAnimation = "Idle";
 	playingAnimation = true;
+
+	isHitted = false;
+	isHealed = false;
+	isVisible = true;
+	drawToShadows = false;
 }
 
 ModelSkinned::~ModelSkinned()
@@ -129,61 +142,94 @@ void ModelSkinned::PrepareForRendering(ID3D11DeviceContext* deviceContext, const
 
 void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonStates& states, DirectX::XMMATRIX world, DirectX::SimpleMath::Matrix viewMat, DirectX::SimpleMath::Matrix projMat, bool wireframe, bool alpha)
 {
-	character_world = world;
-
-	PrepareForRendering(deviceContext, states, alpha, wireframe);
-
-	Pass* pass = mMaterial->CurrentTechnique()->Passes().at(0);
-	//Pass* pass2 = mMaterial->CurrentTechnique()->Passes().at(1);
-	ID3D11InputLayout* inputLayout = mMaterial->InputLayouts().at(pass);
-	deviceContext->IASetInputLayout(inputLayout);
-
-	DirectX::XMMATRIX wvp = character_world * viewMat * projMat;
-
-	DirectX::XMVECTOR ambientColor = XMLoadColor(&mAmbientColor);
-
-
-	DirectX::XMVECTOR mHitted;
-
-	if (isHitted)
+	if (!drawToShadows)
 	{
-		mHitted = { 1.0f, 0.0, 0.0, 0.0f };
-	}
-	else if (isHealed)
-	{
-		mHitted = { 0.5f, 0.0, 0.0, 0.0f };
+		character_world = world;
+
+		PrepareForRendering(deviceContext, states, alpha, wireframe);
+
+		Pass* pass = mMaterial->CurrentTechnique()->Passes().at(0);
+		ID3D11InputLayout* inputLayout = mMaterial->InputLayouts().at(pass);
+		deviceContext->IASetInputLayout(inputLayout);
+
+		DirectX::XMMATRIX wvp = character_world * viewMat * projMat;
+
+		DirectX::XMVECTOR ambientColor = XMLoadColor(&mAmbientColor);
+
+		DirectX::XMVECTOR mHitted;
+
+		if (isHitted)
+		{
+			mHitted = { 1.0f, 0.0, 0.0, 0.0f };
+		}
+		else if (isHealed)
+		{
+			mHitted = { 0.5f, 0.0, 0.0, 0.0f };
+		}
+		else
+		{
+			mHitted = { 0.0f, 0.0, 0.0, 0.0f };
+		}
+
+		UINT stride = mMaterial->VertexSize();
+		UINT offset = 0;
+
+		for (UINT i = 0; i < mVertexBuffers.size(); i++)
+		{
+			ID3D11Buffer* vertexBuffer = mVertexBuffers[i];
+			ID3D11Buffer* indexBuffer = mIndexBuffers[i];
+			UINT indexCount = mIndexCounts[i];
+			ID3D11ShaderResourceView* colorTexture = mColorTextures[i];
+
+			deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+			deviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+			mMaterial->WorldViewProjection() << wvp;
+			mMaterial->World() << character_world;
+			mMaterial->AmbientColor() << ambientColor;
+			mMaterial->ColorTexture() << colorTexture;
+			mMaterial->BoneTransforms() << mAnimationPlayer->BoneTransforms();
+			mMaterial->View() << viewMat;
+			mMaterial->Projection() << projMat;
+			mMaterial->Hitted() << mHitted;
+
+			pass->Apply(0, deviceContext);
+
+			deviceContext->DrawIndexed(indexCount, 0, 0);
+		}
 	}
 	else
 	{
-		mHitted = { 0.0f, 0.0, 0.0, 0.0f };
-	}
+		character_world = world;
 
-	UINT stride = mMaterial->VertexSize();
-	UINT offset = 0;
+		PrepareForRendering(deviceContext, states, alpha, wireframe);
 
-	for (UINT i = 0; i < mVertexBuffers.size(); i++)
-	{
-		ID3D11Buffer* vertexBuffer = mVertexBuffers[i];
-		ID3D11Buffer* indexBuffer = mIndexBuffers[i];
-		UINT indexCount = mIndexCounts[i];
-		ID3D11ShaderResourceView* colorTexture = mColorTextures[i];
+		Pass* pass = mShadowMaterial->CurrentTechnique()->Passes().at(0);
+		ID3D11InputLayout* inputLayout = mShadowMaterial->InputLayouts().at(pass);
+		deviceContext->IASetInputLayout(inputLayout);
 
-		deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-		deviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		DirectX::XMMATRIX wvp = character_world * viewMat * projMat;
 
-		mMaterial->WorldViewProjection() << wvp;
-		mMaterial->World() << character_world;
-		mMaterial->AmbientColor() << ambientColor;
-		mMaterial->ColorTexture() << colorTexture;
-		mMaterial->BoneTransforms() << mAnimationPlayer->BoneTransforms();
-		mMaterial->View() << viewMat;
-		mMaterial->Projection() << projMat;
-		mMaterial->Hitted() << mHitted;
+		UINT stride = mShadowMaterial->VertexSize();
+		UINT offset = 0;
 
-		pass->Apply(0, deviceContext);
-		//pass2->Apply(1, deviceContext);
+		for (UINT i = 0; i < mShadowsVertexBuffers.size(); i++)
+		{
+			ID3D11Buffer* vertexBuffer = mShadowsVertexBuffers[i];
+			ID3D11Buffer* indexBuffer = mIndexBuffers[i];
+			UINT indexCount = mIndexCounts[i];
+			ID3D11ShaderResourceView* colorTexture = mColorTextures[i];
 
-		deviceContext->DrawIndexed(indexCount, 0, 0);
+			deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+			deviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+			mShadowMaterial->WorldViewProjection() << wvp;
+			mShadowMaterial->BoneTransforms() << mAnimationPlayer->BoneTransforms();
+
+			pass->Apply(0, deviceContext);
+
+			deviceContext->DrawIndexed(indexCount, 0, 0);
+		}
 	}
 }
 

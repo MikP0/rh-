@@ -94,10 +94,10 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	}*/
 
 
-	/*if (shadow <= 0.5)
+	if (shadow <= 0.5)
 	{
 		shadow += 0.4;
-	}*/
+	}
 
 	float4 color;
 

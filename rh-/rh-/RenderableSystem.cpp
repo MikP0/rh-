@@ -39,8 +39,8 @@ void RenderableSystem::Iterate()
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		vector<int> objectsToRender = _physicsSystem->GetEntitiesIDWithinFrustum();
-		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+		//vector<int> objectsToRender = _physicsSystem->GetEntitiesIDWithinFrustum();
+		//std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
 
 		/*if (objectsToRender.size() == 0)
 			OutputDebugStringW(L"Zero\n");
@@ -51,11 +51,15 @@ void RenderableSystem::Iterate()
 				if (objectsToRender.size() == 2)
 					OutputDebugStringW(L"Dwa\n");*/
 
-		//if (it != objectsToRender.end())
-		//{
-			
-			if (renderableComponent->_model == nullptr)
+					//if (it != objectsToRender.end())
+					//{
+
+		if (renderableComponent->_model == nullptr)
+		{
+			if (renderableComponent->_modelSkinned->isVisible)
 			{
+				renderableComponent->_modelSkinned->drawToShadows = true;
+
 				if (renderableComponent->_modelSkinned->playingAnimation)
 				{
 					renderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip(renderableComponent->_modelSkinned->currentAnimation);
@@ -67,12 +71,15 @@ void RenderableSystem::Iterate()
 					_shadowMap->_lightView,
 					_shadowMap->_lightProj
 				);
+				//}
+				renderableComponent->_modelSkinned->drawToShadows = false;
 			}
+		}
 		//}
 	}
 
 	ClearAfterRenderShadows();
-	
+
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
 		vector<int> objectsToRender = _physicsSystem->GetEntitiesIDWithinFrustum();
@@ -144,7 +151,7 @@ void RenderableSystem::PrepareToRenderShadows()
 {
 	_shadowMap->BuildShadowTransform(_player->GetTransform()->GetPosition());
 	_shadowMap->BindDsvAndSetNullRenderTarget(_context);
-	_ShadowsfxFactory->SetRenderingShadowMap(true);
+	//_ShadowsfxFactory->SetRenderingShadowMap(true);
 
 	_context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -160,6 +167,6 @@ void RenderableSystem::ClearAfterRenderShadows()
 
 	_ShadowsfxFactory->SetShadowMapEnabled(true);
 	_ShadowsfxFactory->SetShadowMap(_shadowMap->GetDepthMapSRV());
-	_ShadowsfxFactory->SetRenderingShadowMap(false);
+	//_ShadowsfxFactory->SetRenderingShadowMap(false);
 	_ShadowsfxFactory->SetShadowMapTransform(_shadowMap->_lightShadowTransform);
 }
