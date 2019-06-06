@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "ToonFactory.h"
 #include "ToonEffect.h"
 #include <map>
@@ -70,6 +69,14 @@ _Use_decl_annotations_ std::shared_ptr<IEffect> ToonFactory::Impl::CreateEffect(
 		effect->SetDiffuseColor(info.diffuseColor);
 		effect->SetEmissiveColor(info.emissiveColor);
 		effect->SetAlpha(info.alpha);
+	}
+
+	if (info.normalTexture && *info.normalTexture)
+	{
+		ComPtr<ID3D11ShaderResourceView> srv;
+		factory->CreateTexture(info.normalTexture, deviceContext, srv.GetAddressOf());
+		effect->SetTexture(srv.Get());
+		effect->SetNormalMapEnabled(true);
 	}
 
 	if (mSharing && info.name && *info.name)

@@ -13,12 +13,12 @@ public:
 	RenderableComponent(std::wstring path, Camera* camera);
 	virtual ~RenderableComponent();
 
-
 	//Fields
 	std::unique_ptr<DirectX::Model>	_model;
 	std::unique_ptr<ModelSkinned> _modelSkinned;
 	std::wstring _modelPath;
 	Camera* _camera;
 
+	bool _canRenderShadows;
 };
 

@@ -75,14 +75,10 @@ _Use_decl_annotations_ std::shared_ptr<IEffect> ShadowFactory::Impl::CreateEffec
 	if (info.normalTexture && *info.normalTexture)
 	{
 		ComPtr<ID3D11ShaderResourceView> srv;
-
 		factory->CreateTexture(info.normalTexture, deviceContext, srv.GetAddressOf());
-
 		effect->SetTexture(srv.Get());
 		effect->SetNormalMapEnabled(true);
 	}
-
-
 
 	if (mSharing && info.name && *info.name)
 	{

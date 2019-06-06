@@ -1,6 +1,6 @@
 #include "Include\\Common.fxh"
 
-#define MAX_NUMBER_OF_LIGHT 10
+#define MAX_NUMBER_OF_LIGHT 20
 
 cbuffer StaticBuffer : register(b0)
 {
@@ -29,6 +29,8 @@ cbuffer DynamicBuffer : register(b1)
 	float4x4 WorldViewProjection;
 	float3 CameraPosition;
 	float IsTextured;
+
+	float4 IsNormalMap;
 };
 
 //------------------------------------------------------------------------------
@@ -46,7 +48,7 @@ struct PixelShaderInput
 // Textures and Samplers
 //------------------------------------------------------------------------------
 Texture2D ColorMap : register(t0);
-//Texture2D NormalMap : register(t1);
+Texture2D NormalMap : register(t1);
 
 SamplerState ColorSampler
 {
@@ -76,6 +78,12 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	{
 		color = ColorMap.Sample(ColorSampler, input.texCoord);
 	}
+
+	if (IsNormalMap.x == 1.0)
+	{
+		normal = ((2 * NormalMap.Sample(ColorSampler, input.texCoord)) - 1.0).xyz;
+	}
+
 
 	//// TOON
 	//float intensity = dot(normalize(lightDirection), input.normal);
@@ -122,17 +130,14 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float n_dot_l;
 	float3 diffuse;
 
-	float4 tempcolor = { 1.0, 1.0, 1.0, 1.0 };
-	float3 tempdir = { 2.0, -2.0, 0 };
-
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < NumOfLights.y; i++)
 	{
-		lightDirection = normalize(-tempdir);
+		lightDirection = normalize(-DirectionalLight[i].Direction);
 		n_dot_l = dot(lightDirection, normal);
 		diffuse = (float3)0;
 		if (n_dot_l > 0)
 		{
-			diffuse = tempcolor.rgb * tempcolor.a * n_dot_l * color.rgb;
+			diffuse = DirectionalLight[i].Color.rgb * DirectionalLight[i].Color.a * n_dot_l * color.rgb;
 		}
 
 		totalLightContribution += diffuse;

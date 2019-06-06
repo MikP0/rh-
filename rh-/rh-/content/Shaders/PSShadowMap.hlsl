@@ -29,5 +29,5 @@ float4 main(PixelShaderInput input) : SV_TARGET
 
 	clip(color.a - 0.15f);
 
-	return color;
+	return 0;
 }

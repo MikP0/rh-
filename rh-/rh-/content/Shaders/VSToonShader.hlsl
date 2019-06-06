@@ -29,6 +29,8 @@ cbuffer DynamicBuffer : register(b1)
 	float4x4 WorldViewProjection;
 	float3 CameraPosition;
 	float IsTextured;
+
+	float4 IsNormalMap;
 };
 
 //------------------------------------------------------------------------------

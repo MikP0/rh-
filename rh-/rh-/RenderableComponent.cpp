@@ -8,6 +8,7 @@ RenderableComponent::RenderableComponent(std::wstring path , Camera* camera)
 	_camera = camera;
 	_model = nullptr;
 	_modelSkinned = nullptr;
+	_canRenderShadows = false;
 }
 
 RenderableComponent::~RenderableComponent()

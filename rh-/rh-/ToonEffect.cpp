@@ -2,7 +2,7 @@
 
 using namespace DirectX;
 
-#define MAX_NUMBER_OF_LIGHT 10
+#define MAX_NUMBER_OF_LIGHT 20
 
 
 struct POINT_LIGHT
@@ -53,6 +53,8 @@ struct DynamicConstantBuffer
 	DirectX::XMFLOAT4X4 WorldViewProjection;
 	DirectX::XMFLOAT3 CameraPosition;
 	float IsTextured;
+
+	DirectX::XMFLOAT4 IsNormalMap;
 };
 
 
@@ -74,6 +76,7 @@ public:
 	XMVECTOR SpecularPower;
 	XMVECTOR IsTextured;
 
+	XMVECTOR IsNormal;
 
 	POINT_LIGHT PointLights[MAX_NUMBER_OF_LIGHT];
 	DIRECTIONAL_LIGHT DirectionalLights[MAX_NUMBER_OF_LIGHT];
@@ -138,6 +141,7 @@ ToonEffect::Impl::Impl(_In_ ID3D11Device* device)
 	m_camera.z = 0;
 
 	IsTextured = { 0.0f };
+	IsNormal = { 0.0f , 0.0f, 0.0f, 0.0f };
 
 	if (FAILED(loadShaders(device)))
 	{
@@ -274,6 +278,15 @@ void ToonEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 
 	XMStoreFloat(&m_dynamicData.IsTextured, IsTextured);
 
+	if (m_isNormalMapped)
+	{
+		IsNormal = { 1.0f , 0.0f, 0.0f, 0.0f };
+	}
+	else
+	{
+		IsNormal = { 0.0f , 0.0f, 0.0f, 0.0f };
+	}
+	XMStoreFloat4(&m_dynamicData.IsNormalMap, IsNormal);
 
 	deviceContext->UpdateSubresource(
 		m_dynamicConstantBuffer.Get(), 0, NULL, &m_dynamicData, 0, 0);
@@ -283,7 +296,8 @@ void ToonEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 	deviceContext->PSSetConstantBuffers(
 		1, 1, m_dynamicConstantBuffer.GetAddressOf());
 
-	ID3D11ShaderResourceView* textures[1];
+
+	ID3D11ShaderResourceView* textures[2];
 
 	if (m_isTextured)
 	{
@@ -294,17 +308,17 @@ void ToonEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		textures[0] = nullptr;
 	}
 
-	/*if (m_isNormalMapped)
+	if (m_isNormalMapped)
 	{
 		textures[1] = m_normalMap.Get();
 	}
 	else
 	{
 		textures[1] = nullptr;
-	}*/
+	}
 
 	deviceContext->PSSetShaderResources(
-		0, static_cast<UINT>(1), textures);
+		0, static_cast<UINT>(2), textures);
 
 	deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);

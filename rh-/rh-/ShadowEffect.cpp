@@ -121,9 +121,6 @@ public:
 
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shadowMap;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> mySimpleSampler;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> myComparisonSampler;
-
 
 	StaticConstantBuffer m_staticData;
 	DynamicConstantBuffer m_dynamicData;
@@ -200,56 +197,6 @@ ShadowEffect::Impl::Impl(_In_ ID3D11Device* device)
 	{
 		return;
 	}
-
-
-	D3D11_SAMPLER_DESC simpleSamplerDesc;
-	ZeroMemory(&simpleSamplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	simpleSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	simpleSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	simpleSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	simpleSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	simpleSamplerDesc.MipLODBias = 0.0f;
-	simpleSamplerDesc.MaxAnisotropy = 1;
-	simpleSamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	simpleSamplerDesc.MinLOD = -FLT_MAX;
-	simpleSamplerDesc.MaxLOD = FLT_MAX;
-
-	D3D11_SAMPLER_DESC samplerCompDesc;
-	ZeroMemory(&samplerCompDesc, sizeof(D3D11_SAMPLER_DESC));
-	samplerCompDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	samplerCompDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerCompDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerCompDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerCompDesc.MipLODBias = 0.0f;
-	samplerCompDesc.MaxAnisotropy = 1;
-	samplerCompDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
-	samplerCompDesc.MinLOD = -FLT_MAX;
-	samplerCompDesc.MaxLOD = FLT_MAX;
-	samplerCompDesc.BorderColor[0] = 0.0f;
-	samplerCompDesc.BorderColor[1] = 0.0f;
-	samplerCompDesc.BorderColor[2] = 0.0f;
-	samplerCompDesc.BorderColor[3] = 0.0f;
-	
-	/*D3D11_SAMPLER_DESC samplerCompDesc = { 
-	D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT ,
-	D3D11_TEXTURE_ADDRESS_BORDER, 
-	D3D11_TEXTURE_ADDRESS_BORDER, 
-	D3D11_TEXTURE_ADDRESS_BORDER, 
-	0.0f, 
-	1, 
-	D3D11_COMPARISON_LESS, 
-	{0.0f, 0.0f, 0.0f, 0.0f},
-	-FLT_MAX, 
-	FLT_MAX };*/
-
-
-	DX::ThrowIfFailed(
-		device->CreateSamplerState(&simpleSamplerDesc, &mySimpleSampler)
-	);
-
-	DX::ThrowIfFailed(
-		device->CreateSamplerState(&samplerCompDesc, &myComparisonSampler)
-	);
 
 	m_isInit = true;
 }
@@ -455,12 +402,6 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		deviceContext->PSSetShaderResources(
 			0, static_cast<UINT>(1), textures);
 
-		//ID3D11SamplerState* samplers[] = { myComparisonSampler.Get(), mySimpleSampler.Get() };
-		//deviceContext->PSSetSamplers(0, _countof(samplers), samplers);
-
-		//deviceContext->PSSetSamplers(0, 1, &myComparisonSampler);
-		//deviceContext->PSSetSamplers(1, 1, &mySimpleSampler);
-
 		deviceContext->VSSetShader(m_vertexShaderShadow.Get(), nullptr, 0);
 		deviceContext->PSSetShader(m_pixelShaderShadow.Get(), nullptr, 0);
 	}
@@ -485,14 +426,14 @@ HRESULT ShadowEffect::Impl::loadShaders(ID3D11Device* device)
 {
 	try
 	{
-		m_VSBytecode = DX::ReadData(L"VertexShader.cso");
+		m_VSBytecode = DX::ReadData(L"VSShadowShader.cso");
 		DX::ThrowIfFailed(device->CreateVertexShader(
 			m_VSBytecode.data(),
 			m_VSBytecode.size(),
 			nullptr,
 			m_vertexShader.ReleaseAndGetAddressOf()));
 
-		auto psData = DX::ReadData(L"PixelShader.cso");
+		auto psData = DX::ReadData(L"PSShadowShader.cso");
 		DX::ThrowIfFailed(device->CreatePixelShader(
 			psData.data(),
 			psData.size(),

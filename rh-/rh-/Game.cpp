@@ -693,6 +693,7 @@ void Game::Render()
 
 	Clear();
 
+	// only once
 	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity);
 
 	m_deviceResources->PIXBeginEvent(L"Render");
@@ -732,7 +733,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 	uiSpriteBatch->Begin(); // TODO: UI System
 
 	// show depth map
-	uiSpriteBatch->Draw(renderableSystem->_shadowMap->GetDepthMapSRV(), Vector2(1250, 350), nullptr, Colors::White, 0.f, Vector2(0, 0), 0.3f);
+	//uiSpriteBatch->Draw(renderableSystem->_shadowMap->GetDepthMapSRV(), Vector2(1250, 350), nullptr, Colors::White, 0.f, Vector2(0, 0), 0.3f);
 
 	uiSpriteBatch->Draw(healthBarTex.Get(), healthBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.25f);
@@ -938,7 +939,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	audioSystem = std::make_shared<AudioSystem>();
 	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
 	renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
-	lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
+	lightSystem = std::make_shared<LightSystem>(renderableSystem->_ShadowsfxFactory, renderableSystem->_noShadowsfxFactory);
 	enemySystem = std::make_shared<EnemySystem>();
 
 	// Adding systems to world ------------------------------------------------------------------
@@ -1012,6 +1013,9 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
 	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
+	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;
+
+
 
 	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
@@ -1235,7 +1239,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	world->InitializeSystem<AudioSystem>();
 	world->InitializeSystem<PhysicsSystem>();
 	world->InitializeSystem<RenderableSystem>();
-	lightSystem->_fxFactory = renderableSystem->_fxFactory;
+	//lightSystem->_fxFactory = renderableSystem->_fxFactory;
 	world->InitializeSystem<LightSystem>();
 	world->InitializeSystem<EnemySystem>();
 

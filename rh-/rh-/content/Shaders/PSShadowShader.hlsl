@@ -74,11 +74,6 @@ SamplerState samShadow
 	ComparisonFunc = LESS;
 };
 
-//SamplerComparisonState samShadow  : register(s0);
-//SamplerState ColorSampler  : register(s1);
-
-
-
 
 //------------------------------------------------------------------------------
 // A pass-through function for the (interpolated) color data.
@@ -90,13 +85,19 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 normal = normalize(input.normal);
 	float3 viewDirection = normalize(CameraPosition - input.worldPosition);
 
-	float3 shadow = float3(1.0f, 1.0f, 1.0f);
-	shadow[0] = CalcShadowFactor(samShadow, ShadowMap, input.shadowPosition);
+	float shadow = 1.0f;
+	shadow = CalcShadowFactor(samShadow, ShadowMap, input.shadowPosition);
 
-	if (shadow[0] < 1)
+	/*if (shadow < 1)
 	{
-		shadow[0] = 0.25;
-	}
+		shadow = 0.25;
+	}*/
+
+
+	/*if (shadow <= 0.5)
+	{
+		shadow += 0.4;
+	}*/
 
 	float4 color;
 
@@ -113,7 +114,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	{
 		normal = ((2 * NormalMap.Sample(ColorSampler, input.texCoord)) - 1.0).xyz;
 	}
-
 
 
 	//// TOON
@@ -151,7 +151,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	{
 		lightContributionData.LightDirection = get_light_data(PointLight[i].Position, input.worldPosition, PointLight[i].Radius);
 		lightContributionData.LightColor = PointLight[i].Color;
-		totalLightContribution += get_light_contribution(lightContributionData) * shadow[0];
+		totalLightContribution += get_light_contribution(lightContributionData) * shadow;
 	}
 
 
@@ -170,7 +170,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 			diffuse = DirectionalLight[i].Color.rgb * DirectionalLight[i].Color.a * n_dot_l * color.rgb;
 		}
 
-		totalLightContribution += diffuse *shadow[i];
+		totalLightContribution += diffuse * shadow;
 	}
 
 	// SPOT LIGHTS
@@ -178,7 +178,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	for (int i = 0; i < NumOfLights.z; i++)
 	{
 		result = get_spot_light(SpotLight[i], color, normal, input.worldPosition, viewDirection, SpecularColor, SpecularPower);
-		totalLightContribution += result;
+		totalLightContribution += result * shadow;
 	}
 
 	float3 ambient = get_vector_color_contribution(AmbientColor, color.rgb);

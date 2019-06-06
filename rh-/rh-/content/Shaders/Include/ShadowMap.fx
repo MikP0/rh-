@@ -21,7 +21,40 @@ float CalcShadowFactor(
 
 	float2 mapDepth = shadowMap.Sample(samShadow, ShadowTexC).xy;
 
-	float fPercentLit = 0.0f;
+	//
+
+	float fAvgZ = mapDepth.x;
+	float fAvgZ2 = mapDepth.y;
+
+	float variance = 1;
+
+	if (depth > fAvgZ)
+	{
+		variance = (fAvgZ2)-(fAvgZ * fAvgZ);
+		variance = min(1.0f, max(0.0f, variance + 0.00001f));
+	}
+
+	float shadow = 0.0;
+	float2 texelSize = 1.0 / 1024.0f;;
+	for (int x = -1; x <= 1; ++x)
+	{
+		for (int y = -1; y <= 1; ++y)
+		{
+			float pcfDepth = shadowMap.Sample(samShadow, ShadowTexC.xy + float2(x, y) * texelSize).xy;	// texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+			shadow += depth - variance > pcfDepth ? 1.0 : 0.0;
+		}
+	}
+	shadow /= 9.0;
+
+	if (shadowPosH.z > 1.0)
+		shadow = 0.0;
+
+	shadow = 1 - shadow;
+
+	return shadow;
+}
+
+/*float fPercentLit = 0.0f;
 	float fAvgZ = mapDepth.x;
 	float fAvgZ2 = mapDepth.y;
 
@@ -39,42 +72,4 @@ float CalcShadowFactor(
 		float p_max = variance / (variance + d * d);
 
 		fPercentLit = pow(p_max, 4);
-	}
-
-	return fPercentLit;
-}
-
-/*
-static const float SMAP_SIZE = 2048.0f;
-static const float SMAP_DX = 1.0f / SMAP_SIZE;
-
-float CalcShadowFactor(SamplerComparisonState samShadow,
-	Texture2D shadowMap,
-	float4 shadowPosH)
-{
-	// Complete projection by doing division by w.
-	shadowPosH.xyz /= shadowPosH.w;
-
-	// Depth in NDC space.
-	float depth = shadowPosH.z;
-
-	// Texel size.
-	const float dx = SMAP_DX;
-
-	float percentLit = 0.0f;
-	const float2 offsets[9] =
-	{
-		float2(-dx,  -dx), float2(0.0f,  -dx), float2(dx,  -dx),
-		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
-		float2(-dx,  +dx), float2(0.0f,  +dx), float2(dx,  +dx)
-	};
-
-	[unroll]
-	for (int i = 0; i < 9; ++i)
-	{
-		percentLit += shadowMap.SampleCmpLevelZero(samShadow,
-			shadowPosH.xy + offsets[i], depth).r;
-	}
-
-	return percentLit /= 9.0f;
-}*/
+	}*/

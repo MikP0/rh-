@@ -433,12 +433,6 @@
     <None Include="floor_big.cmo" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="content\Shaders\PixelShader.hlsl">
-      <Filter>Inc\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="content\Shaders\VertexShader.hlsl">
-      <Filter>Inc\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="content\Shaders\SkinnedModel.fx">
       <Filter>Inc\Shaders</Filter>
     </FxCompile>
@@ -452,6 +446,12 @@
       <Filter>Inc\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="content\Shaders\VSToonShader.hlsl">
+      <Filter>Inc\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Shaders\VSShadowShader.hlsl">
+      <Filter>Inc\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Shaders\PSShadowShader.hlsl">
       <Filter>Inc\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

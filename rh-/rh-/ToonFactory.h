@@ -4,7 +4,7 @@
 #include <DirectXMath.h>
 #include <memory>
 
-//------------------------------------------------------------------------------
+
 class ToonFactory : public DirectX::IEffectFactory
 {
 public:
