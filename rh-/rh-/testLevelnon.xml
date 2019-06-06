@@ -844,9 +844,9 @@
             <z>0</z>
           </PositionOffset>
           <Extents>
-            <x>0.5</x>
+            <x>5.5</x>
             <y>0.5</y>
-            <z>0.5</z>
+            <z>5.5</z>
           </Extents>
           <IsTriggered>1</IsTriggered>
         </PhysicsComponent>
@@ -879,14 +879,14 @@
         </RenderableComponent>
 		<PhysicsComponent>
           <PositionOffset>
-            <x>0</x>
+            <x>-30</x>
             <y>0</y>
-            <z>0</z>
+            <z>50</z>
           </PositionOffset>
           <Extents>
-            <x>0.5</x>
-            <y>0.5</y>
-            <z>0.5</z>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
           </Extents>
           <IsTriggered>0</IsTriggered>
         </PhysicsComponent>
@@ -916,6 +916,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -942,6 +955,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -968,6 +994,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.3</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -994,6 +1033,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.5</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1046,6 +1098,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
     
@@ -1072,6 +1137,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1098,6 +1176,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1124,6 +1215,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1150,6 +1254,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1176,6 +1293,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1228,6 +1358,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1254,6 +1397,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1280,6 +1436,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 

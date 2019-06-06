@@ -22,8 +22,8 @@ using Microsoft::WRL::ComPtr;
 namespace
 {
 	const XMVECTORF32 ROOM_BOUNDS = { 1.f, 0.f, 1.f, 0.f }; //REMOVE
-	const float COLLISION_SCENE_RANGE = 15.0f; // Octtree construcor
-	const Vector3 SCENE_CENTER = Vector3::Zero; //Octtree constructor
+	const float COLLISION_SCENE_RANGE = 55.0f; // Octtree construcor
+	const Vector3 SCENE_CENTER = Vector3(20,0,20); //Octtree constructor
 	const float ROTATION_GAIN = 0.008f; // REMOVE
 	const float MOVEMENT_GAIN = 0.07f; // REMOVE
 
@@ -154,24 +154,29 @@ void Game::Update(DX::StepTimer const& timer)
 			{
 				world->ClearWorld();
 
+				auto device = m_deviceResources->GetD3DDevice();
+				auto context = m_deviceResources->GetD3DDeviceContext();
 
+
+				collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
+				renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
 				//renderableSystem = std::make_shared<RenderableSystem>(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
 				//lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
 				// Adding systems to world ------------------------------------------------------------------
 				world->AddSystem<PhysicsSystem>(collisionSystem, 0);
-				world->AddSystem<LightSystem>(lightSystem, 1);
-				world->AddSystem<AudioSystem>(audioSystem, 2);
+				//world->AddSystem<LightSystem>(lightSystem, 1);
+				//world->AddSystem<AudioSystem>(audioSystem, 2);
 				world->AddSystem<RenderableSystem>(renderableSystem, 3);
 
 				playerEntity = world->CreateEntity("Player");
 
 
-				worldLoader->LoadWorldFromXML("testLevel.xml");
+				worldLoader->LoadWorldFromXML("testLevelnon.xml");
 
-				world->InitializeSystem<AudioSystem>();
+				//world->InitializeSystem<AudioSystem>();
 				world->InitializeSystem<PhysicsSystem>();
-				world->InitializeSystem<LightSystem>();
+				//world->InitializeSystem<LightSystem>();
 				world->InitializeSystem<RenderableSystem>();
 
 
@@ -1042,7 +1047,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
 	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;
 
-	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 2.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
