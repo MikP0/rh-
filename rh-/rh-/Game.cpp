@@ -687,6 +687,8 @@ void Game::UpdateCoroutines(float elapsedTime)
 // Draws the scene.
 void Game::Render()
 {
+	auto size = m_deviceResources->GetOutputSize();
+
 	// Don't try to render anything before the first Update.
 	if (m_timer.GetFrameCount() == 0)
 	{
@@ -695,14 +697,32 @@ void Game::Render()
 
 	Clear();
 
-	renderableSystem->SentDeviceResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView());
-
+	renderableSystem->SentDeviceResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), size.right, size.bottom);
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// TODO: Add your rendering code here.
 
+	if (vampireMode)
+	{
+		renderableSystem->BloomBlurParams.size = 25.0f;
+	}
+	else 
+	{
+		renderableSystem->BloomBlurParams.size = 1.0f;
+	}
 
+	if (Input::GetKeyboardState().D7 && brightness > 1.0f )
+	{
+		brightness -= 0.2f;
+	}
+
+	if (Input::GetKeyboardState().D8 && brightness <= 7.0f)
+	{
+		brightness += 0.2f;
+	}
+
+	renderableSystem->BloomBlurParams.brightness = brightness;
 
 	world->RefreshWorld();
 	if (!initTerrain) {
