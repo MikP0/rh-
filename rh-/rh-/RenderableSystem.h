@@ -11,6 +11,13 @@
 #include "ShadowFactory.h"
 #include "Coroutine.h"
 
+struct BloomBlurParams
+{
+	bool horizontal = true;
+	float size = 1.0f;
+	float brightness = 1.0f;
+};
+
 class RenderableSystem :
 	public System
 {
@@ -18,6 +25,8 @@ public:
 	
 	RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* context, shared_ptr<PhysicsSystem> physicsSystem);
 	~RenderableSystem();
+
+	void CreateScreenTextureResources();
 
 	virtual void Iterate() override;
 	virtual void Initialize() override;
@@ -38,9 +47,18 @@ public:
 	ID3D11DepthStencilView* _depthStencilView;
 	bool isSent;
 
-	void SentDeviceResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView);
+	BloomBlurParams BloomBlurParams;
+
+	void SentDeviceResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView, int screenWidth, int screenHeight); void SentDeviceResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView);
+	void BloomBlur();
 
 private:
 	shared_ptr<PhysicsSystem> _physicsSystem;
+	int _screenWidth, _screenHeight;
+	bool _screenSizeChanged;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> _sceneTex;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _sceneSRV;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> _sceneRT;
+	std::unique_ptr<BasicPostProcess> _postProcess;
 };
 

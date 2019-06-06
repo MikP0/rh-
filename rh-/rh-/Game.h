@@ -291,6 +291,8 @@ private:
 	std::shared_ptr<float> playerHealth;
 	float playerHealthOrigin = 100.0f;
 
+	float brightness = 1.0f;
+
 	//Vampire Mode
 	bool vampireMode = false;
 
