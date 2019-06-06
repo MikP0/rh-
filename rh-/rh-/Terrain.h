@@ -3,6 +3,7 @@
 #include "MapTile.h"
 #include "Camera.h"
 #include "ColliderTypes.h"
+#include "PhysicsComponent.h"
 
 using namespace std;
 
@@ -19,13 +20,12 @@ public:
 	void ResetTileMap();
 	void SetTilePositionsAndTypes();
 	void ConnectNeighboringTiles();
-	void SetStaticObjects(vector<ColliderBasePtr>);
+	void SetStaticObjects(vector<std::shared_ptr<PhysicsComponent>>);
 	void MakeOcupied(dxmath::Vector3);
 
 	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
 	void Update(vector<ColliderBasePtr>);
 	void ClearTiles();
-	void CoverTilesInRange(dxmath::Vector3, float);
 
 	float EuklideanDistance(dxmath::Vector3, dxmath::Vector3);
 	float ManhattanDistance(dxmath::Vector3, dxmath::Vector3);
@@ -35,6 +35,7 @@ public:
 	std::vector<MapTilePtr> GetPath(MapTilePtr, MapTilePtr);
 
 	bool CanWalk(dxmath::Vector3);
+	bool CanMove(dxmath::Vector3, dxmath::Vector3);
 	bool Within(MapTilePtr);
 	MapTilePtr GetTileWithPosition(Vector3);
 	Vector3 GetNearestNeighbor(Vector3);
@@ -46,6 +47,7 @@ public:
 	int widthInTiles;
 	int heightInTiles;
 	const float tileSize = 1.f;
+	vector<shared_ptr<PhysicsComponent>> characters;
 
 	DirectX::SimpleMath::Matrix view;
 	DirectX::SimpleMath::Matrix projection;

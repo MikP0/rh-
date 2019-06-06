@@ -66,7 +66,7 @@ void NavMesh::RotateAndSetStep()
 	isMoving = true;
 }
 
-void NavMesh::Move()
+void NavMesh::Move(float deltaTime)
 {
 	if (isMoving)
 	{
@@ -76,9 +76,11 @@ void NavMesh::Move()
 		}
 		if (!XMVector3NearEqual(localDestination, transform->GetPosition(), Vector3(.1f, .1f, .1f)))
 		{
+			//if (terrain->CanWalk(transform->GetPosition() + (step*Vector3(100.f*deltaTime, deltaTime, 100.f*deltaTime)))) {
 			if (terrain->CanWalk(transform->GetPosition() + step)) {
 				previousPosition = transform->GetPosition();
-				transform->SetPosition(transform->GetPosition() + step);				
+				//transform->SetPosition(transform->GetPosition() + (step*Vector3(100.f*deltaTime, deltaTime, 100.f*deltaTime)));
+				transform->SetPosition(transform->GetPosition() + step);
 			}
 			else
 			{

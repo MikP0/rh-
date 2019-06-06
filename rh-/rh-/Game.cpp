@@ -30,6 +30,8 @@ namespace
 	const XMVECTORF32 PLANE_BOUNDS = { 1.5f, 1.5f, 1.5f, 0.f }; //REMOVE
 }
 
+bool initTerrain = false;
+
 Game::Game() noexcept(false) : m_pitch(0.f), m_yaw(0.f)
 {
 	m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -457,7 +459,7 @@ void Game::UpdateObjects(float elapsedTime)
 
 		if (playerWalking)
 		{
-			navMesh->Move(); // Player Component -> Player System
+			navMesh->Move(elapsedTime); // Player Component -> Player System
 
 			if (!navMesh->isMoving)
 			{
@@ -685,6 +687,8 @@ void Game::UpdateCoroutines(float elapsedTime)
 // Draws the scene.
 void Game::Render()
 {
+	auto size = m_deviceResources->GetOutputSize();
+
 	// Don't try to render anything before the first Update.
 	if (m_timer.GetFrameCount() == 0)
 	{
@@ -693,18 +697,39 @@ void Game::Render()
 
 	Clear();
 
-	// only once
-	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity);
+	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom);
 
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// TODO: Add your rendering code here.
 
+	if (vampireMode)
+	{
+		renderableSystem->BloomBlurParams.size = 25.0f;
+	}
+	else 
+	{
+		renderableSystem->BloomBlurParams.size = 1.0f;
+	}
 
+	if (Input::GetKeyboardState().D7 && brightness > 1.0f )
+	{
+		brightness -= 0.2f;
+	}
+
+	if (Input::GetKeyboardState().D8 && brightness <= 7.0f)
+	{
+		brightness += 0.2f;
+	}
+
+	renderableSystem->BloomBlurParams.brightness = brightness;
 
 	world->RefreshWorld();
-
+	if (!initTerrain) {
+		terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
+		initTerrain = true;
+	}
 	RenderObjects(context);
 
 	context;
@@ -991,6 +1016,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
 	enemyEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
 
+	enemyEntity1->GetComponent<PhysicsComponent>()->IsTriggered = true;
+	enemyEntity2->GetComponent<PhysicsComponent>()->IsTriggered = true;
 	// Creation of enemy components ------------------------------------------------------------------
 	enemyEntity1->AddComponent<EnemyComponent>(50.f);
 	enemyEntity2->AddComponent<EnemyComponent>(50.f);
@@ -1015,8 +1042,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
 	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;
 
-
-	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 10.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 

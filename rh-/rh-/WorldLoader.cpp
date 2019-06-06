@@ -35,7 +35,43 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 			{
 				auto oEntity = _world->CreateEntity(eEntity->FirstAttribute()->Value());
 
-				
+				tx::XMLElement* eRotation = eEntity->FirstChildElement("Rotation");
+				if (eRotation != nullptr)
+				{
+					DirectX::SimpleMath::Vector3 aAxis;
+					float aAngle;
+
+					tx::XMLElement* eAxis = eRotation->FirstChildElement("Axis");
+					if (eAxis != nullptr)
+					{
+						tx::XMLElement* eXRotation = eAxis->FirstChildElement("x");
+						if (eXRotation != nullptr)
+						{
+							aAxis.x = atof(eXRotation->GetText());
+						}
+
+						tx::XMLElement* eYRotation = eAxis->FirstChildElement("y");
+						if (eYRotation != nullptr)
+						{
+							aAxis.y = atof(eYRotation->GetText());
+						}
+
+						tx::XMLElement* eZRotation = eAxis->FirstChildElement("z");
+						if (eZRotation != nullptr)
+						{
+							aAxis.z = atof(eZRotation->GetText());
+						}
+					}
+
+					tx::XMLElement* eAngle = eRotation->FirstChildElement("Angle");
+					if (eAngle != nullptr)
+					{
+						aAngle = DirectX::XMConvertToRadians(atof(eAngle->GetText()));
+					}
+					oEntity->GetTransform()->Rotate(DirectX::SimpleMath::Vector3(0,1,0), DirectX::XMConvertToRadians(180));
+					if(aAngle != 0)
+						oEntity->GetTransform()->Rotate(aAxis, aAngle);
+				}
 
 				tx::XMLElement* ePosition = eEntity->FirstChildElement("Position");
 				if(ePosition != nullptr)
@@ -59,43 +95,6 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					}
 				}
 
-				tx::XMLElement* eRotation = eEntity->FirstChildElement("Rotation");
-				if(eRotation != nullptr)
-				{
-					DirectX::SimpleMath::Vector3 aAxis;
-					float aAngle;
-
-					tx::XMLElement* eAxis = eRotation->FirstChildElement("Axis");
-					if(eAxis != nullptr)
-					{
-						tx::XMLElement* eXRotation = eAxis->FirstChildElement("x");
-						if (eXRotation != nullptr)
-						{
-							aAxis.x = atof(eXRotation->GetText());
-						}
-
-						tx::XMLElement* eYRotation = eAxis->FirstChildElement("y");
-						if (eYRotation != nullptr)
-						{
-							aAxis.y = atof(eYRotation->GetText());
-						}
-
-						tx::XMLElement* eZRotation = eAxis->FirstChildElement("z");
-						if (eZRotation != nullptr)
-						{
-							aAxis.z = atof(eZRotation->GetText());
-						}
-					}
-
-					tx::XMLElement* eAngle = eRotation->FirstChildElement("Angle");
-					if(eAngle != nullptr)
-					{
-						aAngle = DirectX::XMConvertToRadians(atof(eAngle->GetText()));
-					}
-					
-					oEntity->GetTransform()->Rotate(aAxis, aAngle);
-				}
-				
 				tx::XMLElement* eScale = eEntity->FirstChildElement("Scale");
 				if (eScale != nullptr)
 				{
