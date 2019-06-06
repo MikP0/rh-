@@ -252,7 +252,7 @@ void RenderableSystem::SentDeviceResources(ID3D11RenderTargetView* renderTargetV
 
 void RenderableSystem::BloomBlur()
 {
-	_context->OMSetRenderTargets(1, &_renderTargetView, nullptr);
+	_context->OMSetRenderTargets(1, &_renderTargetView, _depthStencilView);
 	_postProcess->SetEffect(BasicPostProcess::BloomBlur);
 	_postProcess->SetBloomBlurParameters(BloomBlurParams.horizontal, BloomBlurParams.size, BloomBlurParams.brightness);
 	_postProcess->SetSourceTexture(_sceneSRV.Get());
