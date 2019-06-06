@@ -53,7 +53,7 @@ public:
 	std::unique_ptr<ShadowMap> _shadowMap;
 	ID3D11RenderTargetView* _renderTargetView;
 	ID3D11DepthStencilView* _depthStencilView;
-	bool isSent;
+	bool _isSent;
 
 	BloomBlurParams BloomBlurParams;
 	

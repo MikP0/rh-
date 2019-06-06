@@ -811,11 +811,11 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 		uiSpriteBatch->Draw(redBorderTex.Get(), redBorderPos, nullptr, Colors::White,
 			0.f, Vector2(0, 0), redBorderScale);
 
-	/*uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
+	uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.15f);
 
 	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
-		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));*/
+		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
 
 	if (menuIsOn)
 	{
@@ -958,7 +958,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
 	playerHealth = std::make_shared<float>(playerHealthOrigin);
 
-	//worldLoader->LoadWorldFromXML("testLevel.xml");
+	worldLoader->LoadWorldFromXML("testLevelnon.xml");
 
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
@@ -1013,8 +1013,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
 	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
-	enemyEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
-	enemyEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.5f, 2.0f, 0.5f), false);
+	enemyEntity1->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), false);
+	enemyEntity2->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), false);
 
 	enemyEntity1->GetComponent<PhysicsComponent>()->IsTriggered = true;
 	enemyEntity2->GetComponent<PhysicsComponent>()->IsTriggered = true;
@@ -1031,7 +1031,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	// Setting up transform parameters of entities  --------------------------------------------------
 	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
 	myEntity1->GetTransform()->SetScale(scaleEntity1);
-	myEntity1->GetTransform()->SetPosition(Vector3(7.0f, 1.25f, 4.0f));
+	myEntity1->GetTransform()->SetPosition(Vector3(-30.0f, 1.25f, 20.0f));
 
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, 0.2f, 6.0f));
@@ -1042,7 +1042,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
 	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;
 
-	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 10.0f));
+	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 

@@ -60,33 +60,23 @@ void RenderableSystem::CreateScreenTextureResources()
 
 void RenderableSystem::Iterate()
 {
-	
 	if (_screenSizeChanged)
 	{
 		CreateScreenTextureResources();
 		_screenSizeChanged = false;
 	}
-	
-	
+
 	PrepareToRenderShadows();
+
+	vector<int> objectsToRender = _physicsSystem->GetEntitiesIDWithinFrustum();
+
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		//vector<int> objectsToRender = _physicsSystem->GetEntitiesIDWithinFrustum();
 		//std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
 
-		/*if (objectsToRender.size() == 0)
-			OutputDebugStringW(L"Zero\n");
-		else
-			if (objectsToRender.size() == 1)
-				OutputDebugStringW(L"Jeden\n");
-			else
-				if (objectsToRender.size() == 2)
-					OutputDebugStringW(L"Dwa\n");*/
-
-					//if (it != objectsToRender.end())
-					//{
-
+		//if (it != objectsToRender.end())
+		//{
 		if (renderableComponent->_model == nullptr)
 		{
 			if (renderableComponent->_modelSkinned->isVisible)
@@ -104,7 +94,7 @@ void RenderableSystem::Iterate()
 					_shadowMap->_lightView,
 					_shadowMap->_lightProj
 				);
-				//}
+				
 				renderableComponent->_modelSkinned->drawToShadows = false;
 			}
 		}
@@ -113,101 +103,44 @@ void RenderableSystem::Iterate()
 
 	ClearAfterRenderShadows();
 
-	vector<int> objectsToRender = _physicsSystem->GetEntitiesIDWithinFrustum();
-
-	XMVECTORF32 myColor = { { { 0.0f, 0.0f, 0.0f, 1.000000000f } } };
-	//_context->ClearRenderTargetView(_renderTargetView, myColor);
-	//_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	_context->ClearRenderTargetView(_sceneRT.Get(), myColor);
-	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	_context->OMSetRenderTargets(1, _sceneRT.GetAddressOf(), _depthStencilView);
-
-	//_fxFactory->SetShadowMapEnabled(true);
-	//_fxFactory->SetShadowMap(_shadowMap->GetDepthMapSRV());
-	//_fxFactory->SetRenderingShadowMap(false);
-	//_fxFactory->SetShadowMapTransform(_shadowMap->_lightShadowTransform);
-	//
-
-	shared_ptr<RenderableComponent> player;
-	vector<shared_ptr<RenderableComponent>> enemies;
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		if (renderableComponent->GetParent()->GetTag() == PLAYER)
-		{
-			player = renderableComponent;
-			continue;
-		}
-
 		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
-
+		
 		//if (it != objectsToRender.end())
 		//{
-		if (renderableComponent->GetParent()->GetTag() == ENEMY)
-		{
-			enemies.push_back(renderableComponent);
-			continue;
-		}
-
-		if (renderableComponent->_model != nullptr) {
-			renderableComponent->_model->Draw(
-				_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-				renderableComponent->_camera->GetViewMatrix(),
-				renderableComponent->_camera->GetProjectionMatrix()
-			);
-		}
-		else
-		{
-			if (renderableComponent->_modelSkinned->isVisible)
-			{
-				renderableComponent->_modelSkinned->DrawModel(
+			if (renderableComponent->_model != nullptr) {
+				renderableComponent->_model->Draw(
 					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
 					renderableComponent->_camera->GetViewMatrix(),
 					renderableComponent->_camera->GetProjectionMatrix()
 				);
 			}
-		}
 		//}
 	}
 
 	BloomBlur();
 
-	// player render
-	//if (it != objectsToRender.end())
-	//{
-	if (player->_modelSkinned->isVisible)
+	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		if (player->_modelSkinned->playingAnimation)
-		{
-			player->_modelSkinned->GetAnimatorPlayer()->StartClip(player->_modelSkinned->currentAnimation);
-			player->_modelSkinned->GetAnimatorPlayer()->Update(Coroutine::GetElapsedTime());	// update animation
+		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
 
-		}
-		player->_modelSkinned->DrawModel(
-			_context, *_states, player->GetParent()->GetWorldMatrix(),
-			player->_camera->GetViewMatrix(),
-			player->_camera->GetProjectionMatrix()
-		);
+		//if (it != objectsToRender.end())
+		//{
+			if (renderableComponent->_model == nullptr)
+			{
+				if (renderableComponent->_modelSkinned->isVisible)
+				{
+					renderableComponent->_modelSkinned->DrawModel(
+						_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+						renderableComponent->_camera->GetViewMatrix(),
+						renderableComponent->_camera->GetProjectionMatrix()
+					);
+				}
+			}
+		//}
 	}
-	//}
-
-
-	// enemies render
-	for (auto enemy : enemies)
-	{
-		if (enemy->_modelSkinned->playingAnimation)
-		{
-			enemy->_modelSkinned->GetAnimatorPlayer()->StartClip(enemy->_modelSkinned->currentAnimation);
-			enemy->_modelSkinned->GetAnimatorPlayer()->Update(Coroutine::GetElapsedTime());	// update animation
-
-		}
-		enemy->_modelSkinned->DrawModel(
-			_context, *_states, enemy->GetParent()->GetWorldMatrix(),
-			enemy->_camera->GetViewMatrix(),
-			enemy->_camera->GetProjectionMatrix()
-		);
-	}
-
 }
 
 void RenderableSystem::Initialize()
@@ -277,6 +210,11 @@ void RenderableSystem::ClearAfterRenderShadows()
 	_ShadowsfxFactory->SetShadowMap(_shadowMap->GetDepthMapSRV());
 	//_ShadowsfxFactory->SetRenderingShadowMap(false);
 	_ShadowsfxFactory->SetShadowMapTransform(_shadowMap->_lightShadowTransform);
+
+
+	_context->ClearRenderTargetView(_sceneRT.Get(), myColor);
+	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	_context->OMSetRenderTargets(1, _sceneRT.GetAddressOf(), _depthStencilView);
 }
 
 void RenderableSystem::BloomBlur()

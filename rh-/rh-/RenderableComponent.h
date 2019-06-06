@@ -11,6 +11,7 @@ class RenderableComponent : public Component
 public:
 	//Methods
 	RenderableComponent(std::wstring path, Camera* camera);
+	RenderableComponent(std::wstring path, Camera* camera, bool Shadow);
 	virtual ~RenderableComponent();
 
 	//Fields

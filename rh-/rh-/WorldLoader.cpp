@@ -68,8 +68,8 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					{
 						aAngle = DirectX::XMConvertToRadians(atof(eAngle->GetText()));
 					}
-					oEntity->GetTransform()->Rotate(DirectX::SimpleMath::Vector3(0,1,0), DirectX::XMConvertToRadians(180));
-					if(aAngle != 0)
+					//oEntity->GetTransform()->Rotate(DirectX::SimpleMath::Vector3(0,1,0), DirectX::XMConvertToRadians(180));
+					//if(aAngle != 0)
 						oEntity->GetTransform()->Rotate(aAxis, aAngle);
 				}
 
@@ -125,12 +125,23 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					tx::XMLElement* eRenderableComponent = eComponents->FirstChildElement("RenderableComponent");
 					if (eRenderableComponent != nullptr)
 					{
+						std::wstring aPath;
+						bool aShadow = false;
+
 						tx::XMLElement* eRenderableComponentPath = eRenderableComponent->FirstChildElement("Path");
 						if (eRenderableComponentPath != nullptr)
 						{
 							std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-							oEntity->AddComponent<RenderableComponent>(converter.from_bytes(eRenderableComponentPath->GetText()), _camera);
+							aPath = converter.from_bytes(eRenderableComponentPath->GetText());
 						}
+
+						tx::XMLElement* eRenderableComponentShadow = eRenderableComponent->FirstChildElement("Shadow");
+						if (eRenderableComponentShadow != nullptr)
+						{
+							aShadow = atoi(eRenderableComponentShadow->GetText());
+						}
+
+						oEntity->AddComponent<RenderableComponent>(aPath, _camera, aShadow);
 					}
 
 					tx::XMLElement* eLightComponent = eComponents->FirstChildElement("LightComponent");
