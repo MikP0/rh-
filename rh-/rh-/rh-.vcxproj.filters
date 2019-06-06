@@ -220,6 +220,9 @@
     <ClInclude Include="ShadowModelMaterial.h">
       <Filter>Inc\Skinning\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -395,6 +398,9 @@
     </ClCompile>
     <ClCompile Include="ShadowModelMaterial.cpp">
       <Filter>Src\Skinning\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
