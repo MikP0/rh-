@@ -16,6 +16,7 @@
 #include "Collision.h"
 #include "PhysicsComponent.h"
 #include "RenderableSystem.h"
+#include "UI.h"
 
 #include "PhysicsSystem.h"
 #include "AudioSystem.h"
@@ -202,57 +203,8 @@ private:
 	Mouse::ButtonStateTracker tracker;
 	bool freeCameraLook = false;
 
-	//UI Sprites
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> healthBarTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> healthBarHeroTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> healthBarHealthTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> redBorderTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalAttackTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> powerAttackTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> spinAttackTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> biteAttackTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> swapAttackTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> aoeAttackTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> dashTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> heroCircleTex;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ripTex;
-	DirectX::SimpleMath::Vector2 healthBarPos;
-	DirectX::SimpleMath::Vector2 healthBarHeroPos;
-	DirectX::SimpleMath::Vector2 healthBarHealthPos;
-	DirectX::SimpleMath::Vector2 healthBarHealthScale;
-	DirectX::SimpleMath::Vector2 redBorderPos;
-	DirectX::SimpleMath::Vector2 redBorderScale;
-	DirectX::SimpleMath::Vector2 normalAttackPos;
-	DirectX::SimpleMath::Vector2 normalAttackScale;
-	DirectX::SimpleMath::Vector2 powerAttackPos;
-	DirectX::SimpleMath::Vector2 powerAttackScale;
-	DirectX::SimpleMath::Vector2 spinAttackPos;
-	DirectX::SimpleMath::Vector2 spinAttackScale;
-	DirectX::SimpleMath::Vector2 biteAttackPos;
-	DirectX::SimpleMath::Vector2 biteAttackScale;
-	DirectX::SimpleMath::Vector2 swapAttackPos;
-	DirectX::SimpleMath::Vector2 swapAttackScale;
-	DirectX::SimpleMath::Vector2 aoeAttackPos;
-	DirectX::SimpleMath::Vector2 aoeAttackScale;
-	DirectX::SimpleMath::Vector2 dashPos;
-	DirectX::SimpleMath::Vector2 dashScale;
-	DirectX::SimpleMath::Vector2 heroCircleAttackPos;
-	DirectX::SimpleMath::Vector2 heroCircleAttackScale;
-	DirectX::SimpleMath::Vector2 ripAttackPos;
-	DirectX::SimpleMath::Vector2 ripAttackScale;
-	DirectX::SimpleMath::Vector2 skillSetPosition;
-
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> fpsBarTex;
-	DirectX::SimpleMath::Vector2 fpsBarPos;
-
-	std::shared_ptr<DirectX::SpriteBatch> uiSpriteBatch;
-
-	std::shared_ptr<DirectX::SpriteFont> fpsFont;
-	DirectX::SimpleMath::Vector2 fpsFontPos;
-	std::wstring fpsFontText;
-
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> menuTex;
-	DirectX::SimpleMath::Vector2 menuPos;
+	//UI
+	shared_ptr<UI> Ui;
 
 	bool menuIsOn;
 	bool debugDraw = false;
