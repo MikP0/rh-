@@ -120,42 +120,16 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
 {
     float4 OUT = (float4)0;
 
+	float3 normal = normalize(IN.Normal);
     float3 lightDirection = LightPosition - IN.WorldPosition;
     lightDirection = normalize(lightDirection);
 
 	float4 color = ColorTexture.Sample(ColorSampler, IN.TextureCoordinate);
 
-	// TOON SHADING
-	float intensity = dot(normalize(lightDirection), IN.Normal);
-	if (intensity < 0)
-		intensity = 0;
-
+	float3 tempColor = color;
+	tempColor = get_toonShading(float4(lightDirection.x, lightDirection.y, lightDirection.z, 1.0f), normal, tempColor);
 	color.a = 1;
-
-	/*if (intensity > 0.95)
-		color = float4(1.0, 1, 1, 1.0) * color;
-	else if (intensity > 0.5)
-		color = float4(0.7, 0.7, 0.7, 1.0) * color;
-	else if (intensity > 0.05)
-		color = float4(0.35, 0.35, 0.35, 1.0) * color;
-	else
-		color = float4(0.1, 0.1, 0.1, 1.0) * color;*/
-
-
-
-	/*if (intensity > 0.95)
-		color = float4(1.0, 1.0, 1.0, 1.0) * color;
-	else if (intensity > 0.8)
-		color = float4(0.8, 0.8, 0.8, 1.0) * color;
-	else if (intensity > 0.6)
-		color = float4(0.6, 0.6, 0.6, 1.0) * color;
-	else if (intensity > 0.4)
-		color = float4(0.4, 0.4, 0.4, 1.0) * color;
-	else if (intensity > 0.2)
-		color = float4(0.2, 0.2, 0.2, 1.0) * color;
-	else
-		color = float4(0.1, 0.1, 0.1, 1.0) * color;*/
-
+	color.xyz = tempColor;
 
 
 	float3 mycam;
@@ -165,7 +139,7 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
 
     float3 viewDirection = normalize(mycam - IN.WorldPosition);
 
-    float3 normal = normalize(IN.Normal);
+    
     float n_dot_l = dot(normal, lightDirection);
     float3 halfVector = normalize(lightDirection + viewDirection);
     float n_dot_h = dot(normal, halfVector);

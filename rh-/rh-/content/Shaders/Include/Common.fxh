@@ -132,5 +132,29 @@ float get_fog_amount(float3 viewDirection, float fogStart, float fogRange)
 	return saturate((length(viewDirection) - fogStart) / (fogRange));
 }
 
-#endif /* _COMMON_FXH */
+float3 get_toonShading(float4 LightDirection, float3 normal, float3 color)
+{
+	float3 toonColor = color;
 
+	float intensity = dot(normalize(LightDirection), normal);
+	if (intensity < 0)
+		intensity = 0;
+
+	if (intensity > 0.95)
+		toonColor = float3(1.0, 1.0, 1.0) * toonColor;
+	else if (intensity > 0.8)
+		toonColor = float3(0.8, 0.8, 0.8) * toonColor;
+	else if (intensity > 0.6)
+		toonColor = float3(0.6, 0.6, 0.6) * toonColor;
+	else if (intensity > 0.4)
+		toonColor = float3(0.4, 0.4, 0.4) * toonColor;
+	else if (intensity > 0.2)
+		toonColor = float3(0.2, 0.2, 0.2) * toonColor;
+	else
+		toonColor = float3(0.1, 0.1, 0.1) * toonColor;
+
+	return toonColor;
+}
+
+
+#endif /* _COMMON_FXH */

@@ -62,6 +62,8 @@ class ToonEffect::Impl
 {
 public:
 
+	std::string materialName;
+
 	XMMATRIX m_world;
 	XMMATRIX m_view;
 	XMMATRIX m_projection;
@@ -494,4 +496,14 @@ void ToonEffect::UpdateSpotLight(int id, DirectX::XMFLOAT3 Position)
 {
 	m_pImpl->SpotLights[id].Position = Position;
 	m_pImpl->isSent = false;
+}
+
+void ToonEffect::SetMaterialName(std::string Name)
+{
+	m_pImpl->materialName = Name;
+}
+
+std::string ToonEffect::GetMaterialName()
+{
+	return m_pImpl->materialName;
 }

@@ -45,6 +45,9 @@ public:
 	void UpdatePointLight(int id, DirectX::XMFLOAT3 Position);
 	void UpdateSpotLight(int id, DirectX::XMFLOAT3 Position);
 
+	void SetMaterialName(std::string Name);
+	std::string GetMaterialName();
+
 private:
 	// Private implementation.
 	class Impl;

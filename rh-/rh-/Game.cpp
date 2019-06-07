@@ -1092,6 +1092,16 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	Ui->Initialize();
 
+
+	// Normal map
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalText;
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"wall_normal.dds",
+			nullptr,
+			normalText.ReleaseAndGetAddressOf()));
+	renderableSystem->_ShadowsfxFactory->SetNormalMap("initialShadingGroup", normalText.Get());
+
+
 	//world->RefreshWorld();
 }
 

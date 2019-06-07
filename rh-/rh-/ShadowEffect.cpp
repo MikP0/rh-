@@ -67,6 +67,7 @@ struct DynamicConstantShadowBuffer
 class ShadowEffect::Impl
 {
 public:
+	std::string materialName;
 
 	XMMATRIX m_world;
 	XMMATRIX m_view;
@@ -612,3 +613,14 @@ void ShadowEffect::SetShadowMap(ID3D11ShaderResourceView * value)
 {
 	m_pImpl->m_shadowMap = value;
 }
+
+void ShadowEffect::SetMaterialName(std::string Name)
+{
+	m_pImpl->materialName = Name;
+}
+
+std::string ShadowEffect::GetMaterialName()
+{
+	return m_pImpl->materialName;
+}
+

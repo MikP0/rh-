@@ -82,6 +82,11 @@ _Use_decl_annotations_ std::shared_ptr<IEffect> ShadowFactory::Impl::CreateEffec
 
 	if (mSharing && info.name && *info.name)
 	{
+		const wchar_t* txt = info.name;
+		std::wstring ws(txt);
+		std::string std(ws.begin(), ws.end());
+		effect->SetMaterialName(std);
+
 		std::lock_guard<std::mutex> lock(mutex);
 		EffectCache::value_type v(info.name, effect);
 		mEffectCache.insert(v);
@@ -325,5 +330,17 @@ void ShadowFactory::SetShadowMap(ID3D11ShaderResourceView * value)
 	for (std::map< std::wstring, std::shared_ptr<ShadowEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
 	{
 		it->second->SetShadowMap(value);
+	}
+}
+
+void ShadowFactory::SetNormalMap(std::string material, ID3D11ShaderResourceView* value)
+{
+	for (std::map< std::wstring, std::shared_ptr<ShadowEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		if (it->second->GetMaterialName() == material)
+		{
+			it->second->SetNormalMapEnabled(true);
+			it->second->SetNormalMap(value);
+		}
 	}
 }
