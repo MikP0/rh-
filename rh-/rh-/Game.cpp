@@ -519,8 +519,8 @@ void Game::UpdateObjects(float elapsedTime)
 
 	if (mouse.rightButton)
 	{
-		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
-		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
+		//XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
+		//myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
 	}
 
 	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
@@ -938,7 +938,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
+	//myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Erika.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
@@ -974,9 +974,9 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
-	myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
+	/*myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
 	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
-	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;
+	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;*/
 
 	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 2.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
