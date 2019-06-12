@@ -980,9 +980,9 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
-	//myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
-	//myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
-	//myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;
+	/*myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
+	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
+	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;*/
 
 	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 2.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
