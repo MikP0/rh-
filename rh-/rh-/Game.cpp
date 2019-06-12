@@ -22,8 +22,8 @@ using Microsoft::WRL::ComPtr;
 namespace
 {
 	const XMVECTORF32 ROOM_BOUNDS = { 1.f, 0.f, 1.f, 0.f }; //REMOVE
-	const float COLLISION_SCENE_RANGE = 15.0f; // Octtree construcor
-	const Vector3 SCENE_CENTER = Vector3::Zero; //Octtree constructor
+	const float COLLISION_SCENE_RANGE = 55.0f; // Octtree construcor
+	const Vector3 SCENE_CENTER = Vector3(20,0,20); //Octtree constructor
 	const float ROTATION_GAIN = 0.008f; // REMOVE
 	const float MOVEMENT_GAIN = 0.07f; // REMOVE
 
@@ -154,24 +154,29 @@ void Game::Update(DX::StepTimer const& timer)
 			{
 				world->ClearWorld();
 
+				auto device = m_deviceResources->GetD3DDevice();
+				auto context = m_deviceResources->GetD3DDeviceContext();
 
+
+				collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
+				renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
 				//renderableSystem = std::make_shared<RenderableSystem>(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
 				//lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
 				// Adding systems to world ------------------------------------------------------------------
 				world->AddSystem<PhysicsSystem>(collisionSystem, 0);
-				world->AddSystem<LightSystem>(lightSystem, 1);
-				world->AddSystem<AudioSystem>(audioSystem, 2);
+				//world->AddSystem<LightSystem>(lightSystem, 1);
+				//world->AddSystem<AudioSystem>(audioSystem, 2);
 				world->AddSystem<RenderableSystem>(renderableSystem, 3);
 
 				playerEntity = world->CreateEntity("Player");
 
 
-				worldLoader->LoadWorldFromXML("testLevel.xml");
+				worldLoader->LoadWorldFromXML("testLevelnon.xml");
 
-				world->InitializeSystem<AudioSystem>();
+				//world->InitializeSystem<AudioSystem>();
 				world->InitializeSystem<PhysicsSystem>();
-				world->InitializeSystem<LightSystem>();
+				//world->InitializeSystem<LightSystem>();
 				world->InitializeSystem<RenderableSystem>();
 
 
@@ -514,8 +519,8 @@ void Game::UpdateObjects(float elapsedTime)
 
 	if (mouse.rightButton)
 	{
-		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
-		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
+		//XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
+		//myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
 	}
 
 	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
@@ -747,7 +752,6 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 
 	//XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
-
 	//terrain->Update(collisionSystem->GetColliders());
 	//terrain->Draw(camera, m_roomTex);
 
@@ -934,7 +938,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
+	//myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Erika.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
@@ -946,11 +950,10 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
 	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
-	enemyEntity1->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), false);
-	enemyEntity2->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), false);
+	enemyEntity1->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
+	enemyEntity2->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
+	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
-	enemyEntity1->GetComponent<PhysicsComponent>()->IsTriggered = true;
-	enemyEntity2->GetComponent<PhysicsComponent>()->IsTriggered = true;
 	// Creation of enemy components ------------------------------------------------------------------
 	enemyEntity1->AddComponent<EnemyComponent>(50.f);
 	enemyEntity2->AddComponent<EnemyComponent>(50.f);
@@ -971,11 +974,11 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
-	myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
+	/*myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
 	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
-	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;
+	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;*/
 
-	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 2.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
@@ -1088,6 +1091,16 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
 
 	Ui->Initialize();
+
+
+	// Normal map
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalText;
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"wall_normal.dds",
+			nullptr,
+			normalText.ReleaseAndGetAddressOf()));
+	renderableSystem->_ShadowsfxFactory->SetNormalMap("initialShadingGroup", normalText.Get());
+
 
 	//world->RefreshWorld();
 }

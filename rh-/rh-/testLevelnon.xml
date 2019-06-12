@@ -44,7 +44,7 @@
             <z>1.0</z>
             <w>1.0</w>
           </Color>
-          <Radius>20.0</Radius>
+          <Radius>25.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
       </Components>
@@ -199,7 +199,7 @@
       </Components>
     </Entity>
 
-    <Entity name="Lamp1">
+  <Entity name="Lamp1">
       <Scale>
         <x>0.02</x>
         <y>0.02</y>
@@ -214,16 +214,16 @@
         <LightComponent type='PointLight'>
           <Color>
             <x>1.0</x>
-            <y>1.0</y>
+            <y>0.6</y>
             <z>0.0</z>
             <w>1.0</w>
           </Color>
           <Position>
             <x>-0.2</x>
             <y>-0.5</y>
-            <z>-0.25</z>
+            <z>-3.25</z>
           </Position>
-          <Radius>10.0</Radius>
+          <Radius>40.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -243,7 +243,7 @@
           <IsTriggered>1</IsTriggered>
         </PhysicsComponent>
       </Components>
-    </Entity>
+  </Entity>
 
     <Entity name="Lamp2">
       <Scale>
@@ -260,22 +260,22 @@
         <LightComponent type='PointLight'>
           <Color>
             <x>1.0</x>
-            <y>1.0</y>
+            <y>0.6</y>
             <z>0.0</z>
             <w>1.0</w>
           </Color>
           <Position>
             <x>-0.2</x>
             <y>-0.5</y>
-            <z>-0.25</z>
+            <z>-3.25</z>
           </Position>
-          <Radius>10.0</Radius>
+          <Radius>40.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
           <Path>lamp.cmo</Path>
         </RenderableComponent>
-		<PhysicsComponent>
+		    <PhysicsComponent>
           <PositionOffset>
             <x>0</x>
             <y>0</y>
@@ -323,7 +323,7 @@
             <y>-0.5</y>
             <z>-0.25</z>
           </Position>
-          <Radius>10.0</Radius>
+          <Radius>20.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -377,7 +377,7 @@
             <y>-0.5</y>
             <z>-0.25</z>
           </Position>
-          <Radius>5.0</Radius>
+          <Radius>7.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -431,7 +431,7 @@
             <y>-0.5</y>
             <z>-0.25</z>
           </Position>
-          <Radius>5.0</Radius>
+          <Radius>7.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -485,7 +485,7 @@
             <y>-0.5</y>
             <z>-0.25</z>
           </Position>
-          <Radius>5.0</Radius>
+          <Radius>7.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -539,7 +539,7 @@
             <y>-0.5</y>
             <z>-0.25</z>
           </Position>
-          <Radius>5.0</Radius>
+          <Radius>7.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -593,7 +593,7 @@
             <y>-0.5</y>
             <z>-0.25</z>
           </Position>
-          <Radius>5.0</Radius>
+          <Radius>7.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -647,7 +647,7 @@
             <y>-0.5</y>
             <z>-0.25</z>
           </Position>
-          <Radius>5.0</Radius>
+          <Radius>7.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -687,14 +687,14 @@
             <x>1.0</x>
             <y>1.0</y>
             <z>0.0</z>
-            <w>1.0</w>
+            <w>0.6</w>
           </Color>
           <Position>
             <x>-0.2</x>
             <y>-0.5</y>
-            <z>-0.25</z>
+            <z>-3.25</z>
           </Position>
-          <Radius>15.0</Radius>
+          <Radius>30.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -715,6 +715,53 @@
         </PhysicsComponent>
       </Components>
     </Entity>
+    
+
+      <Entity name="Lamp1">
+      <Scale>
+        <x>0.02</x>
+        <y>0.02</y>
+        <z>0.02</z>
+      </Scale>
+      <Position>
+        <x>4</x>
+        <y>4</y>
+        <z>12</z>
+      </Position>
+      <Components>
+        <LightComponent type='PointLight'>
+          <Color>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>0.0</z>
+            <w>1.0</w>
+          </Color>
+          <Position>
+            <x>-0.2</x>
+            <y>-0.5</y>
+            <z>-0.25</z>
+          </Position>
+          <Radius>60.0</Radius>
+          <Updatable>0</Updatable>
+        </LightComponent>
+        <RenderableComponent>
+          <Path>lamp.cmo</Path>
+        </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>0</x>
+            <y>0</y>
+            <z>0</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.5</x>
+            <y>0.5</y>
+            <z>0.5</z>
+          </Extents>
+          <IsTriggered>1</IsTriggered>
+        </PhysicsComponent>
+      </Components>
+  </Entity>
 
     <Entity name="Prison">
       <Scale>
@@ -844,9 +891,9 @@
             <z>0</z>
           </PositionOffset>
           <Extents>
-            <x>0.5</x>
+            <x>5.5</x>
             <y>0.5</y>
-            <z>0.5</z>
+            <z>5.5</z>
           </Extents>
           <IsTriggered>1</IsTriggered>
         </PhysicsComponent>
@@ -879,14 +926,14 @@
         </RenderableComponent>
 		<PhysicsComponent>
           <PositionOffset>
-            <x>0</x>
+            <x>-30</x>
             <y>0</y>
-            <z>0</z>
+            <z>50</z>
           </PositionOffset>
           <Extents>
-            <x>0.5</x>
-            <y>0.5</y>
-            <z>0.5</z>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
           </Extents>
           <IsTriggered>0</IsTriggered>
         </PhysicsComponent>
@@ -916,6 +963,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -942,6 +1002,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -968,6 +1041,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.3</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -994,6 +1080,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.5</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1046,6 +1145,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
     
@@ -1072,6 +1184,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1098,6 +1223,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1124,6 +1262,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1150,6 +1301,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1176,6 +1340,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-30</x>
+            <y>0</y>
+            <z>50</z>
+          </PositionOffset>
+          <Extents>
+            <x>0.2</x>
+            <y>1.0</y>
+            <z>1.8</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1228,6 +1405,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1254,6 +1444,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 
@@ -1280,6 +1483,19 @@
         <RenderableComponent>
           <Path>Wall_1.cmo</Path>
         </RenderableComponent>
+		<PhysicsComponent>
+          <PositionOffset>
+            <x>-40</x>
+            <y>0</y>
+            <z>40</z>
+          </PositionOffset>
+          <Extents>
+            <x>1.8</x>
+            <y>1.0</y>
+            <z>0.2</z>
+          </Extents>
+          <IsTriggered>0</IsTriggered>
+        </PhysicsComponent>
       </Components>
     </Entity>
 

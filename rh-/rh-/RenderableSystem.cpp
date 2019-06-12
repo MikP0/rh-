@@ -106,7 +106,7 @@ void RenderableSystem::Iterate()
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+		//std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
 		
 		//if (it != objectsToRender.end())
 		//{
@@ -124,7 +124,7 @@ void RenderableSystem::Iterate()
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+		//std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
 
 		//if (it != objectsToRender.end())
 		//{
@@ -224,5 +224,4 @@ void RenderableSystem::BloomBlur()
 	_postProcess->SetBloomBlurParameters(BloomBlurParams.horizontal, BloomBlurParams.size, BloomBlurParams.brightness);
 	_postProcess->SetSourceTexture(_sceneSRV.Get());
 	_postProcess->Process(_context);
-
 }

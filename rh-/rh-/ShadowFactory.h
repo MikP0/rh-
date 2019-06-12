@@ -43,6 +43,8 @@ public:
 	void SetShadowMapEnabled(bool value);
 	void SetShadowMap(_In_opt_ ID3D11ShaderResourceView* value);
 
+	void SetNormalMap(std::string material, ID3D11ShaderResourceView* value);
+
 private:
 	// Private implementation.
 	class Impl;

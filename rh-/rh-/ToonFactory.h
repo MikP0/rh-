@@ -38,6 +38,8 @@ public:
 	void UpdatePointLight(int id, DirectX::XMFLOAT3 Position);
 	void UpdateSpotLight(int id, DirectX::XMFLOAT3 Position);
 
+	void SetNormalMap(std::string material, ID3D11ShaderResourceView* value);
+
 private:
 	// Private implementation.
 	class Impl;

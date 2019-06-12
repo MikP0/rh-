@@ -369,24 +369,24 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					tx::XMLElement* ePhysicsComponent = eComponents->FirstChildElement("PhysicsComponent");
 					if(ePhysicsComponent != nullptr)
 					{
-						DirectX::SimpleMath::Vector3 aPositionOffset;
+						DirectX::SimpleMath::Vector3 aPositionOffset = DirectX::SimpleMath::Vector3::Zero;
 						DirectX::XMFLOAT3 aExtents;
 						bool aIsTriggered;
 
 						tx::XMLElement* ePhysicsComponentPositionOffset = ePhysicsComponent->FirstChildElement("PositionOffset");
 						if(ePhysicsComponentPositionOffset != nullptr)
 						{
-							tx::XMLElement* ePhysicsComponentPositionOffset_x = ePhysicsComponent->FirstChildElement("x");
+							tx::XMLElement* ePhysicsComponentPositionOffset_x = ePhysicsComponentPositionOffset->FirstChildElement("x");
 							if(ePhysicsComponentPositionOffset_x != nullptr)
 							{
 								aPositionOffset.x = atof(ePhysicsComponentPositionOffset_x->GetText());
 							}
-							tx::XMLElement* ePhysicsComponentPositionOffset_y = ePhysicsComponent->FirstChildElement("y");
+							tx::XMLElement* ePhysicsComponentPositionOffset_y = ePhysicsComponentPositionOffset->FirstChildElement("y");
 							if (ePhysicsComponentPositionOffset_y != nullptr)
 							{
 								aPositionOffset.y = atof(ePhysicsComponentPositionOffset_y->GetText());
 							}
-							tx::XMLElement* ePhysicsComponentPositionOffset_z = ePhysicsComponent->FirstChildElement("z");
+							tx::XMLElement* ePhysicsComponentPositionOffset_z = ePhysicsComponentPositionOffset->FirstChildElement("z");
 							if (ePhysicsComponentPositionOffset_z != nullptr)
 							{
 								aPositionOffset.z = atof(ePhysicsComponentPositionOffset_z->GetText());
@@ -418,7 +418,6 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 						{
 							aIsTriggered = atoi(ePhysicsComponentIsTriggered->GetText());
 						}
-
 						oEntity->AddComponent<PhysicsComponent>(aPositionOffset, aExtents, aIsTriggered);
 					}
 				}

@@ -58,7 +58,7 @@ void EnemySystem::Iterate()
 						}
 						else if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->distanceToAttack, .1f, enemyComponent->distanceToAttack)))
 						{
-							enemyComponent->navMesh->SetDestination(player->GetTransform()->GetPosition());
+							enemyComponent->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
 							enemyComponent->navMesh->Move(Coroutine::elapsedTime);
 							enemyComponent->walking = true;
 							enemyComponent->attack = false;

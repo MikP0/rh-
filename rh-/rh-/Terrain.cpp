@@ -229,7 +229,7 @@ bool Terrain::CanWalk(dxmath::Vector3 position)
 
 		MapTilePtr tempPtr = this->GetTileWithPosition(position);
 		if (tempPtr != nullptr) {
-			if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.07f) {
+			if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.05f) {
 				return true;
 			}
 
