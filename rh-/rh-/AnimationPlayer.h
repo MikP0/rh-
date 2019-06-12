@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "MyGame.h"
+#include "Bone.h"
 #include <map>
 
 
@@ -40,7 +41,6 @@ public:
 
 	AnimationClip* tempClip;
 	AnimationClip* orgClip = nullptr;
-	void UpAnim();
 	bool blendingisdone = true;
 	bool textnow = false;
 

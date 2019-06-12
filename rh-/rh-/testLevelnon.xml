@@ -223,7 +223,7 @@
             <y>-0.5</y>
             <z>-0.25</z>
           </Position>
-          <Radius>10.0</Radius>
+          <Radius>80.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>
@@ -269,7 +269,7 @@
             <y>-0.5</y>
             <z>-0.25</z>
           </Position>
-          <Radius>10.0</Radius>
+          <Radius>80.0</Radius>
           <Updatable>0</Updatable>
         </LightComponent>
         <RenderableComponent>

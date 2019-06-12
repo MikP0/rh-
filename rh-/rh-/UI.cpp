@@ -234,11 +234,11 @@ void UI::Draw(bool vampireMode, bool menuIsOn)
 			0.f, Vector2(0, 0), aoeAttackScale);
 	}
 
-	uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
+	/*uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
 		0.f, Vector2(0, 0), 0.15f);
 
 	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
-		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
+		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));*/
 
 	if (menuIsOn)
 	{

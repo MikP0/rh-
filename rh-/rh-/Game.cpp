@@ -517,11 +517,11 @@ void Game::UpdateObjects(float elapsedTime)
 	//myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 
-	if (mouse.rightButton)
+	/*if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
 		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
-	}
+	}*/
 
 	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
 
@@ -709,6 +709,11 @@ void Game::Render()
 
 	// TODO: Add your rendering code here.
 
+
+
+	AnimationPlayer *aa = playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer();
+	int c = 5;
+
 	if (vampireMode)
 	{
 		renderableSystem->BloomBlurParams.size = 25.0f;
@@ -882,7 +887,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f); // TODO: Move to camera function
-	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 100.f);
+	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 400.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
 	camera.SetZoom(XMFLOAT3(0.f, 0.f, 0.f));
@@ -933,12 +938,13 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity1 = world->CreateEntity("Enemy1");
 	enemyEntity2 = world->CreateEntity("Enemy2");
 
+
 	// Creation of renderable components
 	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
+	//myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Erika.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
@@ -974,9 +980,9 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	myEntity3->GetTransform()->SetPosition(Vector3(0.0f, -1.5f, 0.0f));
 
-	myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
-	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
-	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;
+	//myEntityFloor->GetTransform()->SetScale(Vector3(0.3f, 0.3f, 0.3f));
+	//myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
+	//myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;
 
 	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 2.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
