@@ -197,6 +197,9 @@ void ModelSkinned::DrawModel(ID3D11DeviceContext* deviceContext, const CommonSta
 			pass->Apply(0, deviceContext);
 
 			deviceContext->DrawIndexed(indexCount, 0, 0);
+
+			/*if (!mAnimationPlayer->blendingisdone)
+				mAnimationPlayer->blendingisdone = true;*/
 		}
 	}
 	else

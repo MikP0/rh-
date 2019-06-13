@@ -121,32 +121,37 @@ void Game::Update(DX::StepTimer const& timer)
 			{
 				if (*iter == special1)
 				{
-					for (auto component : world->GetComponents<RenderableComponent>())
-					{
-						if (strcmp(component->GetParent()->GetName().c_str(),
-							"Player") == 0)
-						{
-							component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
-							component->_modelSkinned->SetInMove(true);
-							component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
-							isDancing = true;
-						}
-					}
+					//playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
+
+					//for (auto component : world->GetComponents<RenderableComponent>())
+					//{
+					//	if (strcmp(component->GetParent()->GetName().c_str(),
+					//		"Player") == 0)
+					//	{
+					//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
+					//		component->_modelSkinned->SetInMove(true);
+					//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+					//		isDancing = true;
+					//	}
+					//}
 				}
 
 				if (*iter == special2)
 				{
-					for (auto component : world->GetComponents<RenderableComponent>())
-					{
-						if (strcmp(component->GetParent()->GetName().c_str(),
-							"Player") == 0)
-						{
-							component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
-							component->_modelSkinned->SetInMove(true);
-							component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
-							isDancing = true;
-						}
-					}
+					//playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(false);
+
+
+					//for (auto component : world->GetComponents<RenderableComponent>())
+					//{
+					//	if (strcmp(component->GetParent()->GetName().c_str(),
+					//		"Player") == 0)
+					//	{
+					//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
+					//		component->_modelSkinned->SetInMove(true);
+					//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+					//		isDancing = true;
+					//	}
+					//}
 				}
 			}
 
@@ -418,6 +423,22 @@ void Game::UpdateObjects(float elapsedTime)
 				navMesh->isMoving = false;
 
 				StopEnemies();
+
+				//playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->Update(Coroutine::elapsedTime);
+
+
+
+			}
+
+
+			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Tab))
+			{
+				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
+			}
+
+			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::LeftShift))
+			{
+				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(false);
 			}
 		}
 
@@ -887,7 +908,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f); // TODO: Move to camera function
-	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.01f, 400.f);
+	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.1f, 30.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
 	camera.SetZoom(XMFLOAT3(0.f, 0.f, 0.f));
@@ -984,7 +1005,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
 	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;*/
 
-	playerEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 2.0f));
+	playerEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 4.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
@@ -1045,7 +1066,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	//Setting up NavMesh ------------------------------------------------------------------------------
 	navMesh = std::make_shared<NavMesh>(playerEntity->GetTransform());
 	navMesh->terrain = this->terrain;
-
+	//navMesh->speed = 100.f;
 
 	//Setting up UI -----------------------------------------------------------------------------------
 	Ui = make_shared<UI>(device, context, playerHealthOrigin, playerHealth);
@@ -1106,6 +1127,13 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			nullptr,
 			normalText.ReleaseAndGetAddressOf()));
 	renderableSystem->_ShadowsfxFactory->SetNormalMap("initialShadingGroup", normalText.Get());
+
+
+
+
+	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->myModelName = "Player";
+
+
 
 
 	//world->RefreshWorld();

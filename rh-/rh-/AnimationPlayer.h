@@ -16,11 +16,13 @@ class AnimationPlayer
 public:
 	AnimationPlayer(MyGame& game, ModelSK& model, bool interpolationEnabled = true);
 
+	std::string myModelName = "";
+
 	const ModelSK& GetModel() const;
 	const AnimationClip* CurrentClip() const;
 	float CurrentTime() const;
 	UINT CurrentKeyframe() const;
-	const std::vector<DirectX::XMFLOAT4X4>& BoneTransforms() const;
+	 std::vector<DirectX::XMFLOAT4X4>& BoneTransforms() ;
 
 	bool InterpolationEnabled() const;
 	bool IsPlayingClip() const;
@@ -43,6 +45,21 @@ public:
 	AnimationClip* orgClip = nullptr;
 	bool blendingisdone = true;
 	bool textnow = false;
+
+	std::vector<DirectX::XMFLOAT4X4> mblendTransforms;
+	
+	std::vector<DirectX::XMFLOAT4X4> tempTransforms;
+
+
+	std::vector<DirectX::XMFLOAT4X4> myRemTransforms;
+
+	float remGameTime;
+
+	void resetBlend();
+
+	float lerpValue;// = 0.1f;
+
+	DirectX::XMFLOAT4X4 multiIT(DirectX::XMFLOAT4X4 t1, DirectX::XMFLOAT4X4 t2);
 
 private:
 	AnimationPlayer();
