@@ -707,16 +707,9 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	// TODO: Add your rendering code here.
+	float vampireModeBrightness = brightness + 20.0f;
 
-	if (vampireMode)
-	{
-		renderableSystem->BloomBlurParams.size = 25.0f;
-	}
-	else 
-	{
-		renderableSystem->BloomBlurParams.size = 1.0f;
-	}
+	// TODO: Add your rendering code here.
 
 	if (Input::GetKeyboardState().D7 && brightness > 1.0f )
 	{
@@ -728,7 +721,16 @@ void Game::Render()
 		brightness += 0.2f;
 	}
 
-	renderableSystem->BloomBlurParams.brightness = brightness;
+	if (!vampireMode)
+	{
+		renderableSystem->BloomBlurParams.size = 1.0f;
+		renderableSystem->BloomBlurParams.brightness = brightness;
+	}
+	else
+	{
+		renderableSystem->BloomBlurParams.size = 120.0f;
+		renderableSystem->BloomBlurParams.brightness = vampireModeBrightness;
+	}
 
 	world->RefreshWorld();
 	if (!initTerrain) {
