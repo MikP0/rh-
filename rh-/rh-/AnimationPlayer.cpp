@@ -13,17 +13,13 @@ AnimationPlayer::AnimationPlayer(MyGame& game, ModelSK& model, bool interpolatio
 {
 	mFinalTransforms.resize(model.Bones().size());
 
-	mIsMovingForward = true;
 
 	mIsBlended = false;
+	blendingIsDone = true;
 
 	remGameTime = 0.0f;
 
-
 	lerpValue = 0.2f;
-
-
-	myRemTransforms.clear();
 }
 
 const ModelSK& AnimationPlayer::GetModel() const
@@ -67,8 +63,6 @@ DirectX::XMFLOAT4X4 AnimationPlayer::multiIT(DirectX::XMFLOAT4X4 t1, DirectX::XM
 	DirectX::XMMatrixDecompose(&sca1, &rot1, &pos1, m1);
 	DirectX::XMMatrixDecompose(&sca2, &rot2, &pos2, m2);
 
-
-	//float lerpValue = 0.1f;
 	DirectX::XMVECTOR translation = DirectX::XMVectorLerp(pos1, pos2, lerpValue);
 	DirectX::XMVECTOR rotationQuaternion = DirectX::XMQuaternionSlerp(rot1, rot2, lerpValue);
 	DirectX::XMVECTOR scale = DirectX::XMVectorLerp(sca1, sca2, lerpValue);
@@ -82,9 +76,9 @@ DirectX::XMFLOAT4X4 AnimationPlayer::multiIT(DirectX::XMFLOAT4X4 t1, DirectX::XM
 }
 
 
- std::vector<DirectX::XMFLOAT4X4>& AnimationPlayer::BoneTransforms() 
+std::vector<DirectX::XMFLOAT4X4>& AnimationPlayer::BoneTransforms()
 {
-	if (blendingisdone)
+	if (blendingIsDone)
 	{
 		return mFinalTransforms;
 	}
@@ -94,44 +88,23 @@ DirectX::XMFLOAT4X4 AnimationPlayer::multiIT(DirectX::XMFLOAT4X4 t1, DirectX::XM
 
 		for (int i = 0; i < mFinalTransforms.size(); i++)
 		{
-			/*DirectX::XMMATRIX t1 = DirectX::XMLoadFloat4x4(&mFinalTransforms.at(i));
-			DirectX::XMMATRIX t2 = DirectX::XMLoadFloat4x4(&mblendTransforms.at(i));
-			DirectX::XMMATRIX res = DirectX::XMMatrixMultiply(t1, t2);
-
-			DirectX::XMStoreFloat4x4(&mFinalTransforms.at(i), res);*/
-
-			//mFinalTransforms.at(i) = mFinalTransforms.at(i).
-			
-			
-			//mFinalTransforms[i] = (multiIT(mFinalTransforms.at(i), mblendTransforms.at(i)));
-
-			//mFinalTransforms.at(i) = multiIT(mFinalTransforms.at(i), mblendTransforms.at(i));
-
-
 			DirectX::XMFLOAT4X4 res = (multiIT(mFinalTransforms.at(i), mblendTransforms.at(i)));
-
 			tempTransforms.push_back(res);
 		}
-
-		//myRemTransforms = tempTransforms;
 
 		if (lerpValue >= 0.95)
 		{
 			lerpValue = 0.2f;
-			blendingisdone = true;
+			blendingIsDone = true;
 		}
 		else
 		{
 			lerpValue += 0.035f;
 		}
 
- 		return tempTransforms;
- 		//return myRemTransforms;
+		return tempTransforms;
 	}
 }
-
-
-
 
 bool AnimationPlayer::InterpolationEnabled() const
 {
@@ -155,18 +128,16 @@ void AnimationPlayer::SetInterpolationEnabled(bool interpolationEnabled)
 
 void AnimationPlayer::StartClip(std::string clipName)
 {
-	if (mCurrentClip != nullptr)
+	if (blendingIsDone)
 	{
-		if (mCurrentClip->Name() != clipName)
+		if (mCurrentClip != nullptr)
 		{
-			for (int i = 0; i < animationClips.size(); i++)
+			if (mCurrentClip->Name() != clipName)
 			{
-				if (animationClips[i]->Name() == clipName)
+				for (int i = 0; i < animationClips.size(); i++)
 				{
-					if (blendingisdone)
+					if (animationClips[i]->Name() == clipName)
 					{
-						//StartClip(*animationClips[i]);
-
 						if (!mIsBlended)
 						{
 							StartClip(*animationClips[i]);
@@ -182,24 +153,19 @@ void AnimationPlayer::StartClip(std::string clipName)
 				}
 			}
 		}
-	}
-	else
-	{
-		for (int i = 0; i < animationClips.size(); i++)
+		else
 		{
-			if (animationClips[i]->Name() == clipName)
+			for (int i = 0; i < animationClips.size(); i++)
 			{
-				StartClip(*animationClips[i]);
+				if (animationClips[i]->Name() == clipName)
+				{
+					StartClip(*animationClips[i]);
+				}
 			}
 		}
 	}
 }
 
-void AnimationPlayer::resetBlend()
-{
-	blendingisdone = true;
-	mIsBlended = false;
-}
 
 void AnimationPlayer::StartClip(AnimationClip& clip)
 {
@@ -228,24 +194,13 @@ void AnimationPlayer::StartBlendedClip(AnimationClip & clip)
 	mFinalTransforms.clear();
 	mFinalTransforms = tempTransforms;
 
-	//myRemTransforms = mblendTransforms;
-
-	
-	//mIsBlended = false;
-	blendingisdone = false;
+	blendingIsDone = false;
 	tempTransforms.clear();
 
 	mCurrentClip = &clip;
 	mCurrentTime = 0.0f;
 	mCurrentKeyframe = 0;
 	mIsPlayingClip = true;
-
-	
-	//mCurrentClip->mTicksPerSecond += 60.f;
-
-	//DirectX::XMMATRIX inverseRootTransform = XMMatrixInverse(&XMMatrixDeterminant(mModel->RootNode()->TransformMatrix()), mModel->RootNode()->TransformMatrix());
-	//XMStoreFloat4x4(&mInverseRootTransform, inverseRootTransform);
-	//GetBindPose(*(mModel->RootNode()));
 }
 
 
@@ -267,44 +222,26 @@ void AnimationPlayer::Update(float gameTime)
 {
 	remGameTime = gameTime;
 
-	if (blendingisdone)
+	if (blendingIsDone)
 	{
 		if (mIsPlayingClip)
 		{
 			assert(mCurrentClip != nullptr);
 
-			if (mIsMovingForward)
+			mCurrentTime += static_cast<float>(gameTime) * mCurrentClip->TicksPerSecond();
+			if (mCurrentTime >= mCurrentClip->Duration())
 			{
-				mCurrentTime += static_cast<float>(gameTime) * mCurrentClip->TicksPerSecond();
-				if (mCurrentTime >= mCurrentClip->Duration())
+				if (mIsClipLooped)
 				{
-					if (mIsClipLooped)
-					{
-						mCurrentTime = 0.0f;
-					}
-					else
-					{
-						mIsPlayingClip = false;
-						return;
-					}
+					mCurrentTime = 0.0f;
+				}
+				else
+				{
+					mIsPlayingClip = false;
+					return;
 				}
 			}
-			else
-			{
-				mCurrentTime -= static_cast<float>(gameTime) * mCurrentClip->TicksPerSecond();
-				if (mCurrentTime <= 0)
-				{
-					if (mIsClipLooped)
-					{
-						mCurrentTime = mCurrentClip->Duration();
-					}
-					else
-					{
-						mIsPlayingClip = false;
-						return;
-					}
-				}
-			}
+
 
 			if (mInterpolationEnabled)
 			{
@@ -314,32 +251,6 @@ void AnimationPlayer::Update(float gameTime)
 			{
 				GetPose(mCurrentTime, *(mModel->RootNode()));
 			}
-
-
-			/*if ((!blendingisdone) && ((mCurrentTime > 2.0f) && (mCurrentTime < 5.0f)))
-			{
-				mCurrentClip->mDuration -= 6.0f;
-				mCurrentClip->mKeyframeCount -= 6;
-				mCurrentClip->mTicksPerSecond -= 200.0f;
-				for (std::map<Bone*, BoneAnimation*>::const_iterator it = mCurrentClip->mBoneAnimationsByBone.begin(); it != mCurrentClip->mBoneAnimationsByBone.end(); ++it)
-				{
-					it->second->mKeyframes.pop_back();
-					it->second->mKeyframes.pop_back();
-					it->second->mKeyframes.pop_back();
-					it->second->mKeyframes.pop_back();
-					it->second->mKeyframes.pop_back();
-				}
-				blendingisdone = true;
-			}
-
-			if (textnow)
-			{
-				std::string timetext = std::to_string(mCurrentTime) + "\n";
-				char text[350];
-				strcpy(text, timetext.c_str());
-				OutputDebugStringA(text);
-			}*/
-
 		}
 	}
 }
@@ -353,11 +264,6 @@ void AnimationPlayer::SetCurrentKeyFrame(UINT keyframe)
 {
 	mCurrentKeyframe = keyframe;
 	GetPoseAtKeyframe(mCurrentKeyframe, *(mModel->RootNode()));
-}
-
-void AnimationPlayer::SetDirection(bool isForward)
-{
-	mIsMovingForward = isForward;
 }
 
 bool AnimationPlayer::AddAnimationClip(AnimationClip * clip, std::string clipName)

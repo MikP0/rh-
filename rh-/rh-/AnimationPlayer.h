@@ -38,26 +38,16 @@ public:
 	void Update(float gameTime);
 	void SetCurrentKeyFrame(UINT keyframe);
 
-	void SetDirection(bool isForward);
 	void SetBlending(bool isBlended);
+	bool blendingIsDone;
 
-	AnimationClip* tempClip;
-	AnimationClip* orgClip = nullptr;
-	bool blendingisdone = true;
-	bool textnow = false;
-
-	std::vector<DirectX::XMFLOAT4X4> mblendTransforms;
-	
+	std::vector<DirectX::XMFLOAT4X4> mblendTransforms;	
 	std::vector<DirectX::XMFLOAT4X4> tempTransforms;
 
 
-	std::vector<DirectX::XMFLOAT4X4> myRemTransforms;
-
 	float remGameTime;
 
-	void resetBlend();
-
-	float lerpValue;// = 0.1f;
+	float lerpValue;
 
 	DirectX::XMFLOAT4X4 multiIT(DirectX::XMFLOAT4X4 t1, DirectX::XMFLOAT4X4 t2);
 
@@ -88,6 +78,5 @@ private:
 	bool mIsPlayingClip;
 	bool mIsClipLooped;
 
-	bool mIsMovingForward;
 	bool mIsBlended;
 };

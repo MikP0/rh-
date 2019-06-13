@@ -117,12 +117,10 @@ void Game::Update(DX::StepTimer const& timer)
 					move.z -= 1.f;
 			}
 
-			if (!vampireMode)
+			/*if (!vampireMode)
 			{
 				if (*iter == special1)
 				{
-					//playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
-
 					//for (auto component : world->GetComponents<RenderableComponent>())
 					//{
 					//	if (strcmp(component->GetParent()->GetName().c_str(),
@@ -138,9 +136,6 @@ void Game::Update(DX::StepTimer const& timer)
 
 				if (*iter == special2)
 				{
-					//playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(false);
-
-
 					//for (auto component : world->GetComponents<RenderableComponent>())
 					//{
 					//	if (strcmp(component->GetParent()->GetName().c_str(),
@@ -153,9 +148,9 @@ void Game::Update(DX::StepTimer const& timer)
 					//	}
 					//}
 				}
-			}
+			}*/
 
-			if (*iter == playBackground)
+			/*if (*iter == playBackground)
 			{
 				world->ClearWorld();
 
@@ -194,7 +189,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 				//if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
 				//	healthBarHealthPos.x -= 5.f;
-			}
+			}*/
 
 			if (*iter == freeCamera) {
 				freeCameraLook = !freeCameraLook;
@@ -424,22 +419,6 @@ void Game::UpdateObjects(float elapsedTime)
 				navMesh->isMoving = false;
 
 				StopEnemies();
-
-				//playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->Update(Coroutine::elapsedTime);
-
-
-
-			}
-
-
-			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Tab))
-			{
-				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
-			}
-
-			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::LeftShift))
-			{
-				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(false);
 			}
 		}
 
@@ -730,11 +709,6 @@ void Game::Render()
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	float vampireModeBrightness = brightness + 20.0f;
-
-
-
-	AnimationPlayer *aa = playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer();
-	int c = 5;
 
 	if (vampireMode)
 	{
@@ -1139,12 +1113,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	renderableSystem->_ShadowsfxFactory->SetNormalMap("initialShadingGroup", normalText.Get());
 
 
-
-
 	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->myModelName = "Player";
-
-
-
+	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
 
 	//world->RefreshWorld();
 }
