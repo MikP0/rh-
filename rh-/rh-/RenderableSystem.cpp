@@ -212,7 +212,7 @@ void RenderableSystem::ClearAfterRenderShadows()
 	_ShadowsfxFactory->SetShadowMapTransform(_shadowMap->_lightShadowTransform);
 
 
-	_context->ClearRenderTargetView(_sceneRT.Get(), myColor);
+	_context->ClearRenderTargetView(_sceneRT.Get(), Colors::Silver);
 	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	_context->OMSetRenderTargets(1, _sceneRT.GetAddressOf(), _depthStencilView);
 }

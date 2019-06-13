@@ -172,7 +172,7 @@ void Game::Update(DX::StepTimer const& timer)
 				playerEntity = world->CreateEntity("Player");
 
 
-				worldLoader->LoadWorldFromXML("testLevelnon.xml");
+				worldLoader->LoadWorldFromXML("testLevel.xml");
 
 				//world->InitializeSystem<AudioSystem>();
 				world->InitializeSystem<PhysicsSystem>();
@@ -895,7 +895,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
 	playerHealth = std::make_shared<float>(playerHealthOrigin);
 
-	worldLoader->LoadWorldFromXML("testLevelnon.xml");
+	worldLoader->LoadWorldFromXML("testLevel.xml");
 
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
@@ -934,10 +934,10 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity2 = world->CreateEntity("Enemy2");
 
 	// Creation of renderable components
-	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
-	myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	//myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	//myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	//myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	//myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	//myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Erika.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
