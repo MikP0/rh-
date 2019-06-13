@@ -273,7 +273,7 @@
       <Position>
         <x>2.88</x>
         <y>0.477</y>
-        <z>-1.223</z>
+        <z>-4.11</z>
       </Position>
       <Rotation>
         <Axis>
@@ -308,7 +308,7 @@
         <z>1</z>
       </Scale>
       <Position>
-        <x>-2.88</x>
+        <x>-0.45</x>
         <y>0.477</y>
         <z>-1.223</z>
       </Position>
@@ -345,7 +345,7 @@
         <z>0.02</z>
       </Scale>
       <Position>
-        <x>3.23</x>
+        <x>0.02</x>
         <y>-0.61</y>
         <z>-7.63</z>
       </Position>
@@ -382,9 +382,9 @@
         <z>1</z>
       </Scale>
       <Position>
-        <x>-2.62</x>
+        <x>-2.95</x>
         <y>0.477</y>
-        <z>-7.2</z>
+        <z>-4.62</z>
       </Position>
       <Rotation>
         <Axis>
