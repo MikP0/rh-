@@ -15,157 +15,89 @@ UI::~UI()
 
 void UI::Initialize()
 {
+	vector<string> uiNames = {
+		"healthBar", "healthAmount", "heroIcon", "vampireModeBorder",
+		"normalAttack", "powerAttack", "spinAttack", "biteAttack",
+		"teleport", "cleaveAttack", "swap","aoeAttack",
+		"fpsBackground", "popUpMenu" };
+
+	map<string, string> uiNameTexMap = {
+		{uiNames[0], "Resources\\UISprites\\hp_bar.dds"},
+		{uiNames[1], "Resources\\UISprites\\health.dds"},
+		{uiNames[2], "Resources\\UISprites\\Hero_Circle.dds"},
+		{uiNames[3], "Resources\\UISprites\\red_border.dds"},
+		{uiNames[4], "Resources\\UISprites\\Normal_Attack.dds"},
+		{uiNames[5], "Resources\\UISprites\\Power_Attack.dds"},
+		{uiNames[6], "Resources\\UISprites\\Spin.dds"},
+		{uiNames[7], "Resources\\UISprites\\Bite.dds"},
+		{uiNames[8], "Resources\\UISprites\\Dash.dds"},
+		{uiNames[9], "Resources\\UISprites\\Rip.dds"},
+		{uiNames[10], "Resources\\UISprites\\Swap.dds"},
+		{uiNames[11], "Resources\\UISprites\\Aoe.dds"},
+		{uiNames[12], "Resources\\UISprites\\fpsbar.dds"},
+		{uiNames[13], "Resources\\UISprites\\Menu.dds"}
+	};
+
+	skillSetPosition = Vector2(650.0f, 800.0f);
+
+	map<string, Vector2> uiNamePositionMap{
+		{uiNames[0], Vector2(0.0f, 0.0f)},
+		{uiNames[1], Vector2(135.f, 30.0f)},
+		{uiNames[2], Vector2(0.0f, 0.0f)},
+		{uiNames[3], Vector2(0.0f, 0.0f)},
+		{uiNames[4], skillSetPosition},
+		{uiNames[5], Vector2(skillSetPosition.x + 150.0f, skillSetPosition.y)},
+		{uiNames[6], Vector2(skillSetPosition.x + 300.0f, skillSetPosition.y)},
+		{uiNames[7], Vector2(skillSetPosition.x + 450.0f, skillSetPosition.y)},
+		{uiNames[8], skillSetPosition},
+		{uiNames[9], Vector2(skillSetPosition.x + 150.0f, skillSetPosition.y)},
+		{uiNames[10], Vector2(skillSetPosition.x + 300.0f, skillSetPosition.y)},
+		{uiNames[11], Vector2(skillSetPosition.x + 450.0f, skillSetPosition.y)},
+		{uiNames[12], Vector2(710.0f, -5.0f)},
+		{uiNames[13], Vector2(250.0f, 100.0f)},
+	};
+
+	map<string, Vector2> uiNameScaleMap{
+		{uiNames[0], Vector2(0.25f, 0.25f)},
+		{uiNames[1], Vector2(0.3f, 0.3f)},
+		{uiNames[2], Vector2(0.35f, 0.35f)},
+		{uiNames[3], Vector2(1.91f, 1.36f)},
+		{uiNames[4], Vector2(0.3f, 0.3f)},
+		{uiNames[5], Vector2(0.3f, 0.3f)},
+		{uiNames[6], Vector2(0.3f, 0.3f)},
+		{uiNames[7], Vector2(0.3f, 0.3f)},
+		{uiNames[8], Vector2(0.3f, 0.3f)},
+		{uiNames[9], Vector2(0.3f, 0.3f)},
+		{uiNames[10], Vector2(0.3f, 0.3f)},
+		{uiNames[11], Vector2(0.3f, 0.3f)},
+		{uiNames[12], Vector2(0.15f, 0.15f)},
+		{uiNames[13], Vector2(0.6f, 0.6f)},
+	};
+
+
+	for each(string uiElement in uiNames)
+	{
+		_elements[uiElement] = UiElement();
+
+		_elements[uiElement].name = uiElement;
+
+		wstring wide_string = wstring(uiNameTexMap[uiElement].begin(), uiNameTexMap[uiElement].end());
+		const wchar_t* spritePath = wide_string.c_str();
+		DX::ThrowIfFailed(
+			CreateDDSTextureFromFile(_device, spritePath,
+				nullptr,
+				_elements[uiElement].texture.ReleaseAndGetAddressOf()));
+
+		_elements[uiElement].position = uiNamePositionMap[uiElement];
+		_elements[uiElement].scale = uiNameScaleMap[uiElement];
+	}
+
 	uiSpriteBatch = std::make_shared<SpriteBatch>(_context); // UI Component, UISystem->Initialize()
 	uiSpriteBatchBorder = std::make_shared<SpriteBatch>(_context);
 
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\hp_bar.dds",
-			nullptr,
-			healthBarTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Hero_Circle.dds",
-			nullptr,
-			healthBarHeroTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\health.dds",
-			nullptr,
-			healthBarHealthTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\red_border.dds",
-			nullptr,
-			redBorderTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Normal_Attack.dds",
-			nullptr,
-			normalAttackTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Power_Attack.dds",
-			nullptr,
-			powerAttackTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Spin.dds",
-			nullptr,
-			spinAttackTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Bite.dds",
-			nullptr,
-			biteAttackTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Dash.dds",
-			nullptr,
-			dashTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Rip.dds",
-			nullptr,
-			ripTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Swap.dds",
-			nullptr,
-			swapAttackTex.ReleaseAndGetAddressOf()));
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Aoe.dds",
-			nullptr,
-			aoeAttackTex.ReleaseAndGetAddressOf()));
-
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Hero_Circle.dds",
-			nullptr,
-			heroCircleTex.ReleaseAndGetAddressOf()));
-
-
-	healthBarPos.x = 0.f;
-	healthBarPos.y = 0.f;
-
-	healthBarHeroPos.x = 0.f;
-	healthBarHeroPos.y = 0.f;
-
-	healthBarHealthPos.x = 135.f;
-	healthBarHealthPos.y = 30.f;
-	healthBarHealthScale.x = 0.25f;
-	healthBarHealthScale.y = 0.25f;
-
-	redBorderPos.x = 0.0f;
-	redBorderPos.y = 0.0f;
-	redBorderScale.x = 1.91f;
-	redBorderScale.y = 1.36f;
-
-	skillSetPosition.x = 650.0f;
-	skillSetPosition.y = 800.0f;
-
-	normalAttackPos.x = skillSetPosition.x + 0.0f;
-	normalAttackPos.y = skillSetPosition.y + 0.0f;
-	normalAttackScale.x = 0.3f;
-	normalAttackScale.y = 0.3f;
-
-	powerAttackPos.x = skillSetPosition.x + 150.0f;
-	powerAttackPos.y = skillSetPosition.y + 0.0f;
-	powerAttackScale.x = 0.3f;
-	powerAttackScale.y = 0.3f;
-
-	spinAttackPos.x = skillSetPosition.x + 300.0f;
-	spinAttackPos.y = skillSetPosition.y + 0.0f;
-	spinAttackScale.x = 0.3f;
-	spinAttackScale.y = 0.3f;
-
-	biteAttackPos.x = skillSetPosition.x + 450.0f;
-	biteAttackPos.y = skillSetPosition.y + 0.0f;
-	biteAttackScale.x = 0.3f;
-	biteAttackScale.y = 0.3f;
-
-	dashPos.x = skillSetPosition.x + 0.0f;
-	dashPos.y = skillSetPosition.y + 0.0f;
-	dashScale.x = 0.3f;
-	dashScale.y = 0.3f;
-
-	ripAttackPos.x = skillSetPosition.x + 150.0f;
-	ripAttackPos.y = skillSetPosition.y + 0.0f;
-	ripAttackScale.x = 0.3f;
-	ripAttackScale.y = 0.3f;
-
-	swapAttackPos.x = skillSetPosition.x + 300.0f;
-	swapAttackPos.y = skillSetPosition.y + 0.0f;
-	swapAttackScale.x = 0.3f;
-	swapAttackScale.y = 0.3f;
-
-	aoeAttackPos.x = skillSetPosition.x + 450.0f;
-	aoeAttackPos.y = skillSetPosition.y + 0.0f;
-	aoeAttackScale.x = 0.3f;
-	aoeAttackScale.y = 0.3f;
-
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\fpsbar.dds",
-			nullptr,
-			fpsBarTex.ReleaseAndGetAddressOf()));
-
-	fpsBarPos.x = 710.0f;
-	fpsBarPos.y = -5.0f;
-
 	fpsFont = std::make_unique<SpriteFont>(_device, L"Resources\\Fonts\\fpsFont.spritefont");
-
-	fpsFontPos.x = 710.0f;
-	fpsFontPos.y = 10.0f;
+	fpsFontPos = Vector2(710.0f, 10.0f);
 	fpsFontText = std::wstring(L"60");
-
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(_device, L"Resources\\UISprites\\Menu.dds",
-			nullptr,
-			menuTex.ReleaseAndGetAddressOf()));
-
-	menuPos.x = 250.0f;
-	menuPos.y = 100.0f;
 
 }
 
@@ -173,77 +105,71 @@ void UI::DrawRedBorder()
 {
 	uiSpriteBatchBorder->Begin();
 
-	uiSpriteBatchBorder->Draw(redBorderTex.Get(), redBorderPos, nullptr, Colors::White,
-		0.f, Vector2(0, 0), redBorderScale);
+	uiSpriteBatchBorder->Draw(_elements["vampireModeBorder"].texture.Get(), _elements["vampireModeBorder"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _elements["vampireModeBorder"].scale);
 
 	uiSpriteBatchBorder->End();
 }
 
 void UI::Draw(bool vampireMode, bool menuIsOn)
 {
+	_elements["healthAmount"].scale.x = ((_elements["healthAmount"].scale.y * (*_playerHealth)) / _playerHealthOrigin);
+	if (_elements["healthAmount"].scale.x < 0)
+		_elements["healthAmount"].scale.x = 0;
+	else if (_elements["healthAmount"].scale.x > _playerHealthOrigin)
+		_elements["healthAmount"].scale.x = _elements["healthAmount"].scale.y;
+
 	uiSpriteBatch->Begin();
+	uiSpriteBatch->Draw(_elements["healthBar"].texture.Get(), _elements["healthBar"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _elements["healthBar"].scale);
 
-	// show depth map
-	//uiSpriteBatch->Draw(renderableSystem->_shadowMap->GetDepthMapSRV(), Vector2(850, 650), nullptr, Colors::White, 0.f, Vector2(0, 0), 0.3f);
+	uiSpriteBatch->Draw(_elements["healthAmount"].texture.Get(), _elements["healthAmount"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _elements["healthAmount"].scale);
 
-	uiSpriteBatch->Draw(healthBarTex.Get(), healthBarPos, nullptr, Colors::White,
-		0.f, Vector2(0, 0), 0.25f);
-
-
-	healthBarHealthScale.x = ((healthBarHealthScale.y * (*_playerHealth)) / _playerHealthOrigin);
-	if (healthBarHealthScale.x < 0)
-		healthBarHealthScale.x = 0;
-	else if (healthBarHealthScale.x > _playerHealthOrigin)
-		healthBarHealthScale.x = healthBarHealthScale.y;
-
-
-	uiSpriteBatch->Draw(healthBarHealthTex.Get(), healthBarHealthPos, nullptr, Colors::White,
-		0.f, Vector2(0, 0), healthBarHealthScale);
-
-	uiSpriteBatch->Draw(healthBarHeroTex.Get(), healthBarHeroPos, nullptr, Colors::White,
-		0.f, Vector2(0, 0), 0.35f);
+	uiSpriteBatch->Draw(_elements["heroIcon"].texture.Get(), _elements["heroIcon"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _elements["heroIcon"].scale);
 
 	if (!vampireMode)
 	{
-		uiSpriteBatch->Draw(normalAttackTex.Get(), normalAttackPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), normalAttackScale);
+		uiSpriteBatch->Draw(_elements["normalAttack"].texture.Get(), _elements["normalAttack"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["normalAttack"].scale);
 
-		uiSpriteBatch->Draw(powerAttackTex.Get(), powerAttackPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), powerAttackScale);
+		uiSpriteBatch->Draw(_elements["powerAttack"].texture.Get(), _elements["powerAttack"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["powerAttack"].scale);
 
-		uiSpriteBatch->Draw(spinAttackTex.Get(), spinAttackPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), spinAttackScale);
+		uiSpriteBatch->Draw(_elements["spinAttack"].texture.Get(), _elements["spinAttack"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["spinAttack"].scale);
 
-		uiSpriteBatch->Draw(biteAttackTex.Get(), biteAttackPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), biteAttackScale);
+		uiSpriteBatch->Draw(_elements["biteAttack"].texture.Get(), _elements["biteAttack"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["biteAttack"].scale);
 	}
 	else
 	{
 		DrawRedBorder();
 
-		uiSpriteBatch->Draw(dashTex.Get(), dashPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), dashScale);
+		uiSpriteBatch->Draw(_elements["teleport"].texture.Get(), _elements["teleport"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["teleport"].scale);
 
-		uiSpriteBatch->Draw(ripTex.Get(), ripAttackPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), ripAttackScale);
+		uiSpriteBatch->Draw(_elements["cleaveAttack"].texture.Get(), _elements["cleaveAttack"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["cleaveAttack"].scale);
 
-		uiSpriteBatch->Draw(swapAttackTex.Get(), swapAttackPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), swapAttackScale);
+		uiSpriteBatch->Draw(_elements["swap"].texture.Get(), _elements["swap"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["swap"].scale);
 
-		uiSpriteBatch->Draw(aoeAttackTex.Get(), aoeAttackPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), aoeAttackScale);
+		uiSpriteBatch->Draw(_elements["aoeAttack"].texture.Get(), _elements["aoeAttack"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["aoeAttack"].scale);
 	}
 
-	/*uiSpriteBatch->Draw(fpsBarTex.Get(), fpsBarPos, nullptr, Colors::White,
-		0.f, Vector2(0, 0), 0.15f);
+	/*uiSpriteBatch->Draw(_elements["fpsBackground"].texture.Get(), _elements["fpsBackground"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _elements["fpsBackground"].scale);
 
 	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
 		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));*/
 
 	if (menuIsOn)
 	{
-		uiSpriteBatch->Draw(menuTex.Get(), menuPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), 0.6f);
+		uiSpriteBatch->Draw(_elements["popUpMenu"].texture.Get(), _elements["popUpMenu"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["popUpMenu"].scale);
 	}
 
 	uiSpriteBatch->End();
@@ -252,18 +178,12 @@ void UI::Draw(bool vampireMode, bool menuIsOn)
 void UI::Reset()
 {
 	uiSpriteBatch.reset();
-	healthBarTex.Reset();
-	healthBarHeroTex.Reset();
-	healthBarHealthTex.Reset();
-	redBorderTex.Reset();
-	normalAttackTex.Reset();
-	powerAttackTex.Reset();
-	spinAttackTex.Reset();
-	biteAttackTex.Reset();
-	swapAttackTex.Reset();
-	aoeAttackTex.Reset();
-	dashTex.Reset();
-	heroCircleTex.Reset();
-	ripTex.Reset();
+	uiSpriteBatchBorder.reset();
+	fpsFont.reset();
+
+	for (std::map<string, UiElement>::iterator it = _elements.begin(); it != _elements.end(); ++it)
+	{
+		it->second.texture.Reset();
+	}
 }
 

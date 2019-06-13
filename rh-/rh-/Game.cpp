@@ -216,7 +216,8 @@ void Game::Update(DX::StepTimer const& timer)
 	if (!menuIsOn)
 	{
 		//Camera Movement
-		if (freeCameraLook) {
+		if (freeCameraLook) 
+		{
 			if (mouse.positionMode == Mouse::MODE_RELATIVE)
 			{
 				Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f) * ROTATION_GAIN;
@@ -728,7 +729,7 @@ void Game::Render()
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	// TODO: Add your rendering code here.
+	float vampireModeBrightness = brightness + 20.0f;
 
 
 
@@ -754,7 +755,16 @@ void Game::Render()
 		brightness += 0.2f;
 	}
 
-	renderableSystem->BloomBlurParams.brightness = brightness;
+	if (!vampireMode)
+	{
+		renderableSystem->BloomBlurParams.size = 1.0f;
+		renderableSystem->BloomBlurParams.brightness = brightness;
+	}
+	else
+	{
+		renderableSystem->BloomBlurParams.size = 120.0f;
+		renderableSystem->BloomBlurParams.brightness = vampireModeBrightness;
+	}
 
 	world->RefreshWorld();
 	if (!initTerrain) {
