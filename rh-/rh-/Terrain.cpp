@@ -18,37 +18,35 @@ Terrain::~Terrain()
 {
 }
 
-void Terrain::InitTileMap(ID3D11DeviceContext1* context, vector<ColliderBasePtr> colliders)
+void Terrain::Initialize(ID3D11DeviceContext1* context)
 {
 	this->context = context;
 	ResetTileMap();
-	SetTilePositionsAndTypes();
+	SetTilesPosition(-15, 0);
 	ConnectNeighboringTiles();
 	//SetStaticObjects(colliders);
 }
 
 void Terrain::ResetTileMap()
 {
-	widthInTiles = 50;
-	heightInTiles = 50;
+	tiles.clear();
 	for (int i = 0; i < widthInTiles*heightInTiles; i++) {
 		tiles.push_back(MapTilePtr(new MapTile()));
-		tiles[i]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize), false, true);
 	}
 }
 
-void Terrain::SetTilePositionsAndTypes()
+void Terrain::SetTilesPosition(int beginWidth, int beginHeight)
 {
-	int beginW = -15;
-	int beginH = 0;
+	int beginW = beginWidth;
+	int beginH = beginHeight;
 	for (int i = 0; i < widthInTiles; i++) {
-		beginH = 0;
+		beginH = beginHeight;
 		for (int j = 0; j < heightInTiles; j++) {
-			tiles[i *heightInTiles + j]->worldPosition = Vector3(beginW*1.f, 0.f, beginH*1.f);
+			tiles[i *heightInTiles + j]->worldPosition = Vector3(beginW*tileSize, 0.f, beginH*tileSize);
 			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
 			//if (i*j % 15 < 10) {
-			tiles[i *heightInTiles + j]->type = TileType::grass;
-			tiles[i *heightInTiles + j]->walkable = true;
+			//tiles[i *heightInTiles + j]->type = TileType::empty;
+			//tiles[i *heightInTiles + j]->walkable = true;
 
 			beginH++;
 			//}
@@ -100,7 +98,7 @@ void Terrain::ConnectNeighboringTiles()
 		}
 	}
 }
-//template<typename TComponent>
+
 void Terrain::SetStaticObjects(vector<shared_ptr<PhysicsComponent>> colliders)
 {
 	colliders.begin();
@@ -150,7 +148,7 @@ void Terrain::SetStaticObjects(vector<shared_ptr<PhysicsComponent>> colliders)
 
 void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roomTex)
 {
-	view = camera.GetViewMatrix();
+	/*view = camera.GetViewMatrix();
 	projection = camera.GetProjectionMatrix();
 	tex = roomTex;
 	for each (MapTilePtr tile in tiles)
@@ -161,7 +159,7 @@ void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceVie
 		else {
 			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::Black, roomTex.Get());
 		}
-	}
+	}*/
 }
 
 void Terrain::MakeOcupied(dxmath::Vector3 position)
@@ -170,6 +168,7 @@ void Terrain::MakeOcupied(dxmath::Vector3 position)
 	if (tile != nullptr)
 	{
 		tile->walkable = false;
+		tile->type = TileType::staticCollider;
 		//ocuppiedTiles.push_back(tile);
 	}
 }
@@ -178,7 +177,7 @@ void Terrain::Update(vector<ColliderBasePtr> colliders)
 {
 	typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 	typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
-	this->ClearTiles();
+	//this->ClearTiles();
 	for each (ColliderBasePtr collider in colliders)
 	{
 		if (collider->Type == AABB) {

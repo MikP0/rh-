@@ -763,6 +763,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 
 	// TODO: UI System
 	Ui->Draw(vampireMode, menuIsOn);
+
 }
 
 // Helper method to clear the back buffers.
@@ -1032,7 +1033,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
 
 	// Setting up terrain tile map -------------------------------------------------------------------
-	terrain->InitTileMap(context, collisionSystem->GetColliders());
+	terrain->Initialize(context);
 
 
 	DX::ThrowIfFailed(
