@@ -223,6 +223,8 @@
     <ClInclude Include="UI.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="PlayerSystem.h" />
+    <ClInclude Include="PlayerComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -402,6 +404,8 @@
     <ClCompile Include="UI.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerSystem.cpp" />
+    <ClCompile Include="PlayerComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

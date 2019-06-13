@@ -96,7 +96,7 @@ private:
 	DirectX::SimpleMath::Matrix m_view;
 	DirectX::SimpleMath::Matrix m_proj;
 
-	std::unique_ptr<DirectX::CommonStates> m_states;
+	std::shared_ptr<DirectX::CommonStates> m_states;
 
 	//Shaders
 	std::unique_ptr<DirectX::IEffectFactory> m_fxFactory;

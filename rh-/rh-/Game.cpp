@@ -311,6 +311,8 @@ void Game::UpdateObjects(float elapsedTime)
 	auto mouse = Input::GetMouseState();
 	auto keyboard = Input::GetKeyboardState();
 
+
+
 	// states for player		/////////////////////////////////////////////////////
 
 	tracker.Update(mouse); // Player Component -> Player System
@@ -747,6 +749,11 @@ void Game::Render()
 	}
 	RenderObjects(context);
 
+
+
+
+
+
 	context;
 
 	m_deviceResources->PIXEndEvent();
@@ -875,7 +882,7 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 	// TODO: Initialize device dependent objects here (independent of window size).
 
 	
-	m_states = std::make_unique<CommonStates>(device); //REMOVE
+	m_states = std::make_shared<CommonStates>(device); //REMOVE
 
 	m_fxFactory = std::make_unique<EffectFactory>(device); //REMOVE
 
@@ -1139,6 +1146,7 @@ void Game::OnDeviceLost()
 	m_planeTex.Reset();
 
 	Ui->Reset();
+
 }
 
 void Game::OnDeviceRestored()
