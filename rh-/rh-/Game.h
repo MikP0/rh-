@@ -39,7 +39,7 @@
 
 #include "WorldLoader.h"
 
-typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
+//typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 
 
@@ -131,9 +131,9 @@ private:
 	// Collision boundings
 	std::shared_ptr<PhysicsSystem> collisionSystem;
 	std::shared_ptr<PhysicsComponent> colliderCup1;
-	std::shared_ptr<PhysicsComponent> colliderCup2;
+	//std::shared_ptr<PhysicsComponent> colliderCup2;
 	ColliderAABBptr colliderBoundingCup1;
-	ColliderSpherePtr colliderBoundingCup2;
+	//ColliderSpherePtr colliderBoundingCup2;
 
 	// camera
 	Camera camera;
@@ -210,6 +210,9 @@ private:
 
 	//UI
 	shared_ptr<UI> Ui;
+
+	float total_Time;
+	float elapsed_Time;
 
 	bool menuIsOn;
 	bool debugDraw = false;

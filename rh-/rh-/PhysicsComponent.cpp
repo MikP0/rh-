@@ -25,29 +25,29 @@ PhysicsComponent::PhysicsComponent(Vector3 positionOffset, XMFLOAT3 extents, boo
 	IsTriggered = isTriggered;
 }
 
-PhysicsComponent::PhysicsComponent(float radius)
-{
-	ColliderBounding = make_shared<ColliderSphere>(Vector3::Zero, radius);
-	IsTriggered = false;
-}
-
-PhysicsComponent::PhysicsComponent(Vector3 positionOffset, float radius)
-{
-	ColliderBounding = make_shared<ColliderSphere>(positionOffset, Vector3::Zero, radius);
-	IsTriggered = false;
-}
-
-PhysicsComponent::PhysicsComponent(float radius, bool isTriggered)
-{
-	ColliderBounding = make_shared<ColliderSphere>(Vector3::Zero, radius);
-	IsTriggered = isTriggered;
-}
-
-PhysicsComponent::PhysicsComponent(Vector3 positionOffset, float radius, bool isTriggered)
-{
-	ColliderBounding = make_shared<ColliderSphere>(positionOffset, Vector3::Zero, radius);
-	IsTriggered = isTriggered;
-}
+//PhysicsComponent::PhysicsComponent(float radius)
+//{
+//	ColliderBounding = make_shared<ColliderSphere>(Vector3::Zero, radius);
+//	IsTriggered = false;
+//}
+//
+//PhysicsComponent::PhysicsComponent(Vector3 positionOffset, float radius)
+//{
+//	ColliderBounding = make_shared<ColliderSphere>(positionOffset, Vector3::Zero, radius);
+//	IsTriggered = false;
+//}
+//
+//PhysicsComponent::PhysicsComponent(float radius, bool isTriggered)
+//{
+//	ColliderBounding = make_shared<ColliderSphere>(Vector3::Zero, radius);
+//	IsTriggered = isTriggered;
+//}
+//
+//PhysicsComponent::PhysicsComponent(Vector3 positionOffset, float radius, bool isTriggered)
+//{
+//	ColliderBounding = make_shared<ColliderSphere>(positionOffset, Vector3::Zero, radius);
+//	IsTriggered = isTriggered;
+//}
 
 PhysicsComponent::PhysicsComponent(shared_ptr<ColliderBase> collider)
 {

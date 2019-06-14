@@ -9,7 +9,7 @@ using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 typedef shared_ptr<ColliderAABB> ColliderAABBptr;
-typedef shared_ptr<ColliderSphere> ColliderSpherePtr;
+//typedef shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef shared_ptr<OctTree> OctTreePtr;
 
 class DebugDraw
