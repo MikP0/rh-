@@ -75,6 +75,7 @@ void Game::Update(DX::StepTimer const& timer)
 	float fps = timer.GetFramesPerSecond();
 
 	total_Time = time;
+	elapsed_Time = elapsedTime;
 
 	Coroutine::UpdateElapsedTime(elapsedTime);
 
@@ -334,6 +335,7 @@ void Game::UpdateObjects(float elapsedTime)
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
 		{
 			vampireMode = true;
+			Ui->transitionMode = true;
 			playerSystem->SetVampireMode(true);
 			enemySystem->SetVampireMode(true);
 		}
@@ -486,7 +488,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
 	// TODO: UI System
-	Ui->Draw(vampireMode, menuIsOn, total_Time);
+	Ui->Draw(vampireMode, menuIsOn, total_Time, elapsed_Time);
 }
 
 // Helper method to clear the back buffers.

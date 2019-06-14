@@ -26,7 +26,7 @@ public:
 
 	void Initialize();
 	void DrawRedBorder();
-	void Draw(bool vampireMode, bool menuIsOn, float totalTime);
+	void Draw(bool vampireMode, bool menuIsOn, float totalTime, float elapsedTime);
 	void Reset();
 
 
@@ -39,11 +39,13 @@ public:
 	Vector2 fpsFontPos;
 	wstring fpsFontText;
 
+	bool transitionMode;
 
 private:
 	ID3D11Device1 *_device;
 	ID3D11DeviceContext1 *_context;
 	float _playerHealthOrigin;
+	float transitionElapsedTime;
 	shared_ptr<float> _playerHealth;
 	map<string, UiElement> _elements;
 };

@@ -212,6 +212,7 @@ private:
 	shared_ptr<UI> Ui;
 
 	float total_Time;
+	float elapsed_Time;
 
 	bool menuIsOn;
 	bool debugDraw = false;
