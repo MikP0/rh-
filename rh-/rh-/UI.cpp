@@ -16,26 +16,27 @@ UI::~UI()
 void UI::Initialize()
 {
 	vector<string> uiNames = {
-		"healthBar", "healthAmount", "heroIcon", "vampireModeBorder",
-		"normalAttack", "powerAttack", "spinAttack", "biteAttack",
+		"healthBar", "healthAmount", "heroIconNormal", "vampireModeBorder",
+		"normalAttack", "strongAttack", "spinAttack", "biteAttack",
 		"teleport", "cleaveAttack", "swap","aoeAttack",
-		"fpsBackground", "popUpMenu" };
+		"fpsBackground", "popUpMenu", "heroIconVampire"};
 
 	map<string, string> uiNameTexMap = {
 		{uiNames[0], "Resources\\UISprites\\hp_bar.dds"},
 		{uiNames[1], "Resources\\UISprites\\health.dds"},
-		{uiNames[2], "Resources\\UISprites\\Hero_Circle.dds"},
+		{uiNames[2], "Resources\\UISprites\\Hero_Circle_Normal.dds"},
 		{uiNames[3], "Resources\\UISprites\\red_border.dds"},
 		{uiNames[4], "Resources\\UISprites\\Normal_Attack.dds"},
-		{uiNames[5], "Resources\\UISprites\\Power_Attack.dds"},
-		{uiNames[6], "Resources\\UISprites\\Spin.dds"},
-		{uiNames[7], "Resources\\UISprites\\Bite.dds"},
-		{uiNames[8], "Resources\\UISprites\\Dash.dds"},
-		{uiNames[9], "Resources\\UISprites\\Rip.dds"},
+		{uiNames[5], "Resources\\UISprites\\Strong_Attack.dds"},
+		{uiNames[6], "Resources\\UISprites\\Spin_Attack.dds"},
+		{uiNames[7], "Resources\\UISprites\\Bite_Attack.dds"},
+		{uiNames[8], "Resources\\UISprites\\Teleport.dds"},
+		{uiNames[9], "Resources\\UISprites\\Cleave_Attack.dds"},
 		{uiNames[10], "Resources\\UISprites\\Swap.dds"},
-		{uiNames[11], "Resources\\UISprites\\Aoe.dds"},
+		{uiNames[11], "Resources\\UISprites\\Aoe_Attack.dds"},
 		{uiNames[12], "Resources\\UISprites\\fpsbar.dds"},
-		{uiNames[13], "Resources\\UISprites\\Menu.dds"}
+		{uiNames[13], "Resources\\UISprites\\Menu.dds"},
+		{uiNames[14], "Resources\\UISprites\\Hero_Circle_Vampire.dds"}
 	};
 
 	skillSetPosition = Vector2(650.0f, 800.0f);
@@ -55,13 +56,14 @@ void UI::Initialize()
 		{uiNames[11], Vector2(skillSetPosition.x + 450.0f, skillSetPosition.y)},
 		{uiNames[12], Vector2(710.0f, -5.0f)},
 		{uiNames[13], Vector2(250.0f, 100.0f)},
+		{uiNames[14], Vector2(0.0f, 0.0f)},
 	};
 
 	map<string, Vector2> uiNameScaleMap{
 		{uiNames[0], Vector2(0.25f, 0.25f)},
 		{uiNames[1], Vector2(0.3f, 0.3f)},
 		{uiNames[2], Vector2(0.35f, 0.35f)},
-		{uiNames[3], Vector2(1.91f, 1.36f)},
+		{uiNames[3], Vector2(1.0f, 1.0f)},
 		{uiNames[4], Vector2(0.3f, 0.3f)},
 		{uiNames[5], Vector2(0.3f, 0.3f)},
 		{uiNames[6], Vector2(0.3f, 0.3f)},
@@ -72,6 +74,8 @@ void UI::Initialize()
 		{uiNames[11], Vector2(0.3f, 0.3f)},
 		{uiNames[12], Vector2(0.15f, 0.15f)},
 		{uiNames[13], Vector2(0.6f, 0.6f)},
+		{uiNames[14], Vector2(0.35f, 0.35f)},
+
 	};
 
 
@@ -126,16 +130,17 @@ void UI::Draw(bool vampireMode, bool menuIsOn)
 	uiSpriteBatch->Draw(_elements["healthAmount"].texture.Get(), _elements["healthAmount"].position, nullptr, Colors::White,
 		0.f, Vector2(0, 0), _elements["healthAmount"].scale);
 
-	uiSpriteBatch->Draw(_elements["heroIcon"].texture.Get(), _elements["heroIcon"].position, nullptr, Colors::White,
-		0.f, Vector2(0, 0), _elements["heroIcon"].scale);
 
 	if (!vampireMode)
 	{
+		uiSpriteBatch->Draw(_elements["heroIconNormal"].texture.Get(), _elements["heroIconNormal"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["heroIconNormal"].scale);
+
 		uiSpriteBatch->Draw(_elements["normalAttack"].texture.Get(), _elements["normalAttack"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _elements["normalAttack"].scale);
 
-		uiSpriteBatch->Draw(_elements["powerAttack"].texture.Get(), _elements["powerAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["powerAttack"].scale);
+		uiSpriteBatch->Draw(_elements["strongAttack"].texture.Get(), _elements["strongAttack"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["strongAttack"].scale);
 
 		uiSpriteBatch->Draw(_elements["spinAttack"].texture.Get(), _elements["spinAttack"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _elements["spinAttack"].scale);
@@ -146,6 +151,9 @@ void UI::Draw(bool vampireMode, bool menuIsOn)
 	else
 	{
 		DrawRedBorder();
+
+		uiSpriteBatch->Draw(_elements["heroIconVampire"].texture.Get(), _elements["heroIconVampire"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["heroIconVampire"].scale);
 
 		uiSpriteBatch->Draw(_elements["teleport"].texture.Get(), _elements["teleport"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _elements["teleport"].scale);
