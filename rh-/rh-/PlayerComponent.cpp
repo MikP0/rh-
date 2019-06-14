@@ -19,7 +19,7 @@ PlayerComponent::PlayerComponent()
 	targetedEnemy = nullptr;
 
 	playerHealth = std::make_shared<float>(playerHealthOrigin);
-	playerSpeed = 20.f;
+	playerSpeed = 15.f;
 
 	navMesh = nullptr;
 }
