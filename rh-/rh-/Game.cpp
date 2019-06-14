@@ -651,6 +651,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity = world->CreateEntity("Player");
 	enemyEntity1 = world->CreateEntity("Enemy1");
 	enemyEntity2 = world->CreateEntity("Enemy2");
+	enemyEntity3 = world->CreateEntity("Enemy3");
 
 
 	// Creation of renderable components
@@ -662,6 +663,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Anna.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+	enemyEntity3->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+
 
 	// Creation of audio components ------------------------------------------------------------------
 	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
@@ -672,6 +675,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
 	enemyEntity1->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity2->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
+	enemyEntity3->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
 	// Creation of enemy components ------------------------------------------------------------------
@@ -710,6 +714,10 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity1->SetTag(Tags::ENEMY);
 
 	enemyEntity2->GetTransform()->SetPosition(Vector3(-7.0f, 0.0f, 26.0f));
+	enemyEntity2->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
+	enemyEntity2->SetTag(Tags::ENEMY);
+
+	enemyEntity2->GetTransform()->SetPosition(Vector3(15.0f, 0.0f, 43.0f));
 	enemyEntity2->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity2->SetTag(Tags::ENEMY);
 
