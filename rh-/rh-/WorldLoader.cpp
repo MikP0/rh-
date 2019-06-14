@@ -85,7 +85,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					tx::XMLElement* eYCoord = ePosition->FirstChildElement("y");
 					if (eYCoord != nullptr)
 					{
-						oEntity->GetTransform()->SetY(atof(eYCoord->GetText()));
+						oEntity->GetTransform()->SetY(atof(eYCoord->GetText()) + 1.8f);
 					}
 
 					tx::XMLElement* eZCoord = ePosition->FirstChildElement("z");
