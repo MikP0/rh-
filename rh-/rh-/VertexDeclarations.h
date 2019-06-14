@@ -11,16 +11,16 @@ typedef struct _VertexPosition
 		: Position(position) { }
 } VertexPosition;
 
-typedef struct _VertexPositionColor
+typedef struct _VertexPositionColorSkin
 {
 	DirectX::XMFLOAT4 Position;
 	DirectX::XMFLOAT4 Color;
 
-	_VertexPositionColor() { }
+	_VertexPositionColorSkin() { }
 
-	_VertexPositionColor(const DirectX::XMFLOAT4& position, const DirectX::XMFLOAT4& color)
+	_VertexPositionColorSkin(const DirectX::XMFLOAT4& position, const DirectX::XMFLOAT4& color)
 		: Position(position), Color(color) { }
-} VertexPositionColor;
+} VertexPositionColorSkin;
 
 typedef struct _VertexPositionTexture
 {
