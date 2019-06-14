@@ -231,6 +231,9 @@ list<CollisionPtr> OctTree::GetIntersection(list<PhysicsComponentPtr> parentObjs
 			//We let the two objects check for collision against each other. They can figure out how to do the coarse and granular checks.
 			//all we're concerned about is whether or not a collision actually happened.
 
+			if (pObj->IsTriggered || lObj->IsTriggered)
+				break;
+
 			CollisionPtr ir = Collision::CheckCollision(pObj, lObj);
 
 			if (ir != nullptr)
@@ -245,12 +248,20 @@ list<CollisionPtr> OctTree::GetIntersection(list<PhysicsComponentPtr> parentObjs
 	{
 		list<PhysicsComponentPtr> tmp = NodeObjects;
 
-		while (!tmp.empty())
+		bool isThereTriggered = false;
+
+		while (!tmp.empty() && !isThereTriggered)
 		{
 			PhysicsComponentPtr lastElement = tmp.back();
 
 			for each(PhysicsComponentPtr lObj2 in tmp)
 			{
+				if (lObj2->IsTriggered || lastElement->IsTriggered)
+				{
+					isThereTriggered = true;
+					break;
+				}
+
 				if (lastElement == lObj2)
 					continue;
 

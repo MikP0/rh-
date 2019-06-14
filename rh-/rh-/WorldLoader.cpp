@@ -68,8 +68,8 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					{
 						aAngle = DirectX::XMConvertToRadians(atof(eAngle->GetText()));
 					}
-					//oEntity->GetTransform()->Rotate(DirectX::SimpleMath::Vector3(0,1,0), DirectX::XMConvertToRadians(180));
-					//if(aAngle != 0)
+					oEntity->GetTransform()->Rotate(DirectX::SimpleMath::Vector3(0,1,0), DirectX::XMConvertToRadians(180));
+					if(aAngle != 0)
 						oEntity->GetTransform()->Rotate(aAxis, aAngle);
 				}
 
@@ -85,7 +85,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					tx::XMLElement* eYCoord = ePosition->FirstChildElement("y");
 					if (eYCoord != nullptr)
 					{
-						oEntity->GetTransform()->SetY(atof(eYCoord->GetText()));
+						oEntity->GetTransform()->SetY(atof(eYCoord->GetText()) + 1.8f);
 					}
 
 					tx::XMLElement* eZCoord = ePosition->FirstChildElement("z");

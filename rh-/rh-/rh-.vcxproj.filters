@@ -223,6 +223,12 @@
     <ClInclude Include="UI.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="PlayerComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -400,6 +406,12 @@
       <Filter>Src\Skinning\Effect</Filter>
     </ClCompile>
     <ClCompile Include="UI.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>

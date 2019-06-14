@@ -70,6 +70,7 @@ ModelSkinned::ModelSkinned(ID3D11Device1* dev, const std::string& filename, ID3D
 			}
 		}
 		mColorTextures[i] = colorTexture;
+		//mColorTextures[i] = nullptr;
 	}
 
 	mAnimationPlayer = new AnimationPlayer(myGameTemp, *mSkinnedModel, false);

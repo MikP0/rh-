@@ -42,6 +42,7 @@ public:
 	void SetActive(bool activeFlag);
 	bool IsActive();
 
+
 	std::shared_ptr<Entity> GetChildById(int id);
 
 	void AddChild(std::shared_ptr<Entity> child);

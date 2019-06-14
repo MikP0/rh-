@@ -194,6 +194,8 @@
     <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PhysicsSystem.h" />
+    <ClInclude Include="PlayerComponent.h" />
+    <ClInclude Include="PlayerSystem.h" />
     <ClInclude Include="Raycast.h" />
     <ClInclude Include="ReadData.h" />
     <ClInclude Include="RenderableComponent.h" />
@@ -313,6 +315,14 @@
     <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
+    <ClCompile Include="PlayerComponent.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="PlayerSystem.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Raycast.cpp" />
     <ClCompile Include="RenderableComponent.cpp" />
     <ClCompile Include="RenderableSystem.cpp" />

@@ -73,10 +73,10 @@ void RenderableSystem::Iterate()
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		//std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
 
-		//if (it != objectsToRender.end())
-		//{
+		if (it != objectsToRender.end())
+		{
 		if (renderableComponent->_model == nullptr)
 		{
 			if (renderableComponent->_modelSkinned->isVisible)
@@ -98,7 +98,7 @@ void RenderableSystem::Iterate()
 				renderableComponent->_modelSkinned->drawToShadows = false;
 			}
 		}
-		//}
+		}
 	}
 
 	ClearAfterRenderShadows();
@@ -106,10 +106,10 @@ void RenderableSystem::Iterate()
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		//std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
 		
-		//if (it != objectsToRender.end())
-		//{
+		if (it != objectsToRender.end())
+		{
 			if (renderableComponent->_model != nullptr) {
 				renderableComponent->_model->Draw(
 					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
@@ -117,17 +117,17 @@ void RenderableSystem::Iterate()
 					renderableComponent->_camera->GetProjectionMatrix()
 				);
 			}
-		//}
+		}
 	}
 
 	BloomBlur();
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		//std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
 
-		//if (it != objectsToRender.end())
-		//{
+		if (it != objectsToRender.end())
+		{
 			if (renderableComponent->_model == nullptr)
 			{
 				if (renderableComponent->_modelSkinned->isVisible)
@@ -139,7 +139,7 @@ void RenderableSystem::Iterate()
 					);
 				}
 			}
-		//}
+		}
 	}
 }
 
@@ -203,7 +203,7 @@ void RenderableSystem::ClearAfterRenderShadows()
 
 	_context->RSSetState(0);
 	XMVECTORF32 myColor = { { { 0.0f, 0.0f, 0.0f, 1.000000000f } } };
-	_context->ClearRenderTargetView(_renderTargetView, Colors::Silver);
+	_context->ClearRenderTargetView(_renderTargetView, myColor);
 	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	_ShadowsfxFactory->SetShadowMapEnabled(true);
