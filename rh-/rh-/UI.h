@@ -2,6 +2,7 @@
 
 #include <map>
 
+
 using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -25,7 +26,7 @@ public:
 
 	void Initialize();
 	void DrawRedBorder();
-	void Draw(bool vampireMode, bool menuIsOn);
+	void Draw(bool vampireMode, bool menuIsOn, float totalTime);
 	void Reset();
 
 
