@@ -701,15 +701,15 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntityFloor->GetTransform()->SetPosition(Vector3(0.f, 0.0f, 0.f));
 	myEntityFloor->GetComponent<RenderableComponent>()->_canRenderShadows = true;*/
 
-	playerEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 4.0f));
+	playerEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 15.0f));
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
-	enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 22.0f));
+	enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 26.0f));
 	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity1->SetTag(Tags::ENEMY);
 
-	enemyEntity2->GetTransform()->SetPosition(Vector3(-7.0f, 0.0f, 20.0f));
+	enemyEntity2->GetTransform()->SetPosition(Vector3(-7.0f, 0.0f, 26.0f));
 	enemyEntity2->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity2->SetTag(Tags::ENEMY);
 
