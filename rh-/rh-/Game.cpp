@@ -150,38 +150,42 @@ void Game::Update(DX::StepTimer const& timer)
 				}
 			}*/
 
-			/*if (*iter == playBackground)
+			if (*iter == playBackground)
 			{
-				world->ClearWorld();
+				//world->ClearWorld();
 
-				auto device = m_deviceResources->GetD3DDevice();
-				auto context = m_deviceResources->GetD3DDeviceContext();
-
-
-				collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
-				renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
-				//renderableSystem = std::make_shared<RenderableSystem>(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
-				//lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
-
-				// Adding systems to world ------------------------------------------------------------------
-				world->AddSystem<PhysicsSystem>(collisionSystem, 0);
-				//world->AddSystem<LightSystem>(lightSystem, 1);
-				//world->AddSystem<AudioSystem>(audioSystem, 2);
-				world->AddSystem<RenderableSystem>(renderableSystem, 3);
-
-				playerEntity = world->CreateEntity("Player");
+				//auto device = m_deviceResources->GetD3DDevice();
+				//auto context = m_deviceResources->GetD3DDeviceContext();
 
 
-				worldLoader->LoadWorldFromXML("testLevel.xml");
+				//collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
+				//renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
+				////renderableSystem = std::make_shared<RenderableSystem>(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
+				////lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
 
-				//world->InitializeSystem<AudioSystem>();
-				world->InitializeSystem<PhysicsSystem>();
-				//world->InitializeSystem<LightSystem>();
-				world->InitializeSystem<RenderableSystem>();
+				//// Adding systems to world ------------------------------------------------------------------
+				//world->AddSystem<PhysicsSystem>(collisionSystem, 0);
+				////world->AddSystem<LightSystem>(lightSystem, 1);
+				////world->AddSystem<AudioSystem>(audioSystem, 2);
+				//world->AddSystem<RenderableSystem>(renderableSystem, 3);
+
+				//playerEntity = world->CreateEntity("Player");
+
+
+				//worldLoader->LoadWorldFromXML("testLevel.xml");
+
+				////world->InitializeSystem<AudioSystem>();
+				//world->InitializeSystem<PhysicsSystem>();
+				////world->InitializeSystem<LightSystem>();
+				//world->InitializeSystem<RenderableSystem>();
 
 
 				//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
+
+				audioBackgroundSound->Mute = false;
 			}
+
+			
 
 			if (*iter == playSound1)
 			{
@@ -189,7 +193,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 				//if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
 				//	healthBarHealthPos.x -= 5.f;
-			}*/
+			}
 
 			if (*iter == freeCamera) {
 				freeCameraLook = !freeCameraLook;
@@ -651,6 +655,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity = world->CreateEntity("Player");
 	enemyEntity1 = world->CreateEntity("Enemy1");
 	enemyEntity2 = world->CreateEntity("Enemy2");
+	enemyEntity3 = world->CreateEntity("Enemy3");
 
 
 	// Creation of renderable components
@@ -662,9 +667,11 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Anna.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+	enemyEntity3->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+
 
 	// Creation of audio components ------------------------------------------------------------------
-	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\In The End.wav");
+	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
 	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
 
 	// Creation of physics components ----------------------------------------------------------------
@@ -672,6 +679,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
 	enemyEntity1->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity2->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
+	enemyEntity3->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
 	// Creation of enemy components ------------------------------------------------------------------
@@ -713,6 +721,10 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity2->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity2->SetTag(Tags::ENEMY);
 
+	enemyEntity2->GetTransform()->SetPosition(Vector3(15.0f, 0.0f, 43.0f));
+	enemyEntity2->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
+	enemyEntity2->SetTag(Tags::ENEMY);
+
 	// Setting up parameters of audio -- REMOVE
 	for (auto component : world->GetComponents<AudioComponent>())
 	{
@@ -723,14 +735,14 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			audioBackgroundSound->Loop = true;
 			continue;
 		}
+
+		if (strcmp(component->GetParent()->GetName().c_str(),
+			"Sound1AudioEntity") == 0)
+		{
+			audioSound1 = component;
+			continue;
+		}
 	}
-	//	if (strcmp(component->GetParent()->GetName().c_str(),
-	//		"Sound1AudioEntity") == 0)
-	//	{
-	//		audioSound1 = component;
-	//		continue;
-	//	}
-	//}
 
 	//// Setting up parameters of colliders ----------------------------------------------------------------
 
