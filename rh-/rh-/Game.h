@@ -34,6 +34,9 @@
 #include "EnemyComponent.h"
 #include "EnemySystem.h"
 
+#include "PlayerSystem.h"
+#include "PlayerComponent.h"
+
 #include "WorldLoader.h"
 
 typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
@@ -74,8 +77,6 @@ private:
 
 	void Update(DX::StepTimer const& timer);
 	void UpdateObjects(float elapsedTime);
-	void UpdateAnimations(float elapsedTime);
-	void UpdateCoroutines(float elapsedTime);
 	void Render();
 	void RenderObjects(ID3D11DeviceContext1 *context);
 
@@ -113,7 +114,7 @@ private:
 	std::shared_ptr<Entity> myEntity5;
 	std::shared_ptr<Entity> myEntity6;
 
-	std::shared_ptr<Entity> playerEntity;
+
 
 	std::shared_ptr<Entity> enemyEntity1;
 	std::shared_ptr<Entity> enemyEntity2;
@@ -193,8 +194,11 @@ private:
 	//Enemy
 	std::shared_ptr<EnemySystem> enemySystem;
 
+	//Player
+	std::shared_ptr<Entity> playerEntity;
+	std::shared_ptr<PlayerSystem> playerSystem;
+
 	//NavMesh
-	std::shared_ptr<NavMesh> navMesh;
 	std::shared_ptr<Terrain> terrain;
 
 	std::shared_ptr<LightSystem> lightSystem;
@@ -213,42 +217,11 @@ private:
 	//World
 	std::shared_ptr<World> world;
 
-
-	//Player
-	bool isDancing = false;
-	bool playerWalking = false;
-	bool playerAttack = false;
-	bool playerBite = false;
-	bool enemyClicked = false;
-	int attackType = 0;
-
-	bool playerHealed = false;
-
-	Coroutine playerAttackCorutine;
-	Coroutine playerBiteCorutine;
-
-	Coroutine enemyHittedCorutine;
-	shared_ptr<Entity> hittedEnemy;
-
-	Coroutine playerHittedCorutine;
-
-	Coroutine playerHealedCorutine;
-
-	float playerBiteDistance = 1.0f;
-	float playerAttackDistance = 1.0f;
-	shared_ptr<Entity> targetedEnemy;
-
-	std::shared_ptr<float> playerHealth;
-	float playerHealthOrigin = 100.0f;
-
 	float brightness = 1.0f;
 
 	//Vampire Mode
 	bool vampireMode = false;
 
-	int vampireAbility = 0;
-
-	void StopEnemies();
 
 	//World Loader
 	std::shared_ptr<WorldLoader> worldLoader;

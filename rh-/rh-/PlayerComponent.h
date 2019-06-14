@@ -13,6 +13,7 @@ public:
 	~PlayerComponent();
 
 	int attackType;
+	int vampireAbility;
 
 	bool isDancing;
 	bool isWalking;
@@ -26,10 +27,6 @@ public:
 
 	std::shared_ptr<Entity> targetedEnemy;		// entity -> enemyComponent
 	
-	Coroutine playerAttackCorutine;
-	Coroutine playerBiteCorutine;
-	Coroutine playerHittedCorutine;
-	Coroutine playerHealedCorutine;
 
 	const float playerBiteDistance = 1.0f;
 	const float playerAttackDistance = 1.0f;

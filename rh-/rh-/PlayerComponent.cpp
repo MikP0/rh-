@@ -3,6 +3,7 @@
 PlayerComponent::PlayerComponent()
 {
 	attackType = 0;
+	vampireAbility = 0;
 
 	isDancing = false;
 	isWalking = false;
@@ -16,14 +17,9 @@ PlayerComponent::PlayerComponent()
 	targetedEnemy = nullptr;
 
 	playerHealth = std::make_shared<float>(playerHealthOrigin);
-	playerSpeed = 30.f;
+	playerSpeed = 20.f;
 
 	navMesh = nullptr;
-
-	playerAttackCorutine.active = false;
-	playerBiteCorutine.active = false;
-	playerHittedCorutine.active = false;
-	playerHealedCorutine.active = false;
 }
 
 

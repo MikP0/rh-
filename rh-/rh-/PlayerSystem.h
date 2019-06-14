@@ -7,26 +7,49 @@
 #include "NavMesh.h"
 #include "Coroutine.h"
 #include "RenderableComponent.h"
+#include "Input.h"
+#include "Raycast.h"
+#include "Camera.h"
+#include "EnemyComponent.h"
+#include "RenderableComponent.h"
 
 class PlayerSystem : public System
 {
 public:
-	PlayerSystem();
+	PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam);
 	~PlayerSystem();
 
 	virtual void Iterate() override;
 	virtual void Initialize() override;
 	void AdditionalInitialization(std::shared_ptr<Terrain> Terrain);
 
+	std::shared_ptr<PhysicsSystem> collisionSystem;
+	DirectX::Keyboard::KeyboardStateTracker keyboardTracker;
+	DirectX::Mouse::ButtonStateTracker mouseTracker;
+
+
+	std::shared_ptr<Entity> playerEntity;
 	std::shared_ptr<PlayerComponent> player;
+	std::shared_ptr<RenderableComponent> playerRenderableComponent;
 	std::shared_ptr<float> playerHealth;
 	float playerHealthOrigin;
 
 	bool vampireMode;
 	void SetVampireMode(bool mode);
 
-	void GetMouseAndKeyboardStates(DirectX::Mouse mouse, DirectX::Keyboard keyboard);
-	DirectX::Mouse mouseState;
-	DirectX::Keyboard keyboardStates;
+	Coroutine playerAttackCorutine;
+	Coroutine playerBiteCorutine;
+	Coroutine playerHittedCorutine;
+	Coroutine playerHealedCorutine;
+
+	Coroutine enemyHittedCorutine;
+
+	Camera* camera;
+
+
+	void UpdateNormalMode();
+	void UpdateVampireMode();
+	void UpdateCorutines();
+	void UpdateAnimations();
 };
 
