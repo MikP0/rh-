@@ -168,11 +168,11 @@ void UI::Draw(bool vampireMode, bool menuIsOn)
 			0.f, Vector2(0, 0), _elements["aoeAttack"].scale);
 	}
 
-	uiSpriteBatch->Draw(_elements["fpsBackground"].texture.Get(), _elements["fpsBackground"].position, nullptr, Colors::White,
+	/*uiSpriteBatch->Draw(_elements["fpsBackground"].texture.Get(), _elements["fpsBackground"].position, nullptr, Colors::White,
 		0.f, Vector2(0, 0), _elements["fpsBackground"].scale);
 
 	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
-		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
+		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));*/
 
 	if (menuIsOn)
 	{

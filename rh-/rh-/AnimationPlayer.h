@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "MyGame.h"
+#include "Bone.h"
 #include <map>
 
 
@@ -15,11 +16,13 @@ class AnimationPlayer
 public:
 	AnimationPlayer(MyGame& game, ModelSK& model, bool interpolationEnabled = true);
 
+	std::string myModelName = "";
+
 	const ModelSK& GetModel() const;
 	const AnimationClip* CurrentClip() const;
 	float CurrentTime() const;
 	UINT CurrentKeyframe() const;
-	const std::vector<DirectX::XMFLOAT4X4>& BoneTransforms() const;
+	 std::vector<DirectX::XMFLOAT4X4>& BoneTransforms() ;
 
 	bool InterpolationEnabled() const;
 	bool IsPlayingClip() const;
@@ -35,14 +38,18 @@ public:
 	void Update(float gameTime);
 	void SetCurrentKeyFrame(UINT keyframe);
 
-	void SetDirection(bool isForward);
 	void SetBlending(bool isBlended);
+	bool blendingIsDone;
 
-	AnimationClip* tempClip;
-	AnimationClip* orgClip = nullptr;
-	void UpAnim();
-	bool blendingisdone = true;
-	bool textnow = false;
+	std::vector<DirectX::XMFLOAT4X4> mblendTransforms;	
+	std::vector<DirectX::XMFLOAT4X4> tempTransforms;
+
+
+	float remGameTime;
+
+	float lerpValue;
+
+	DirectX::XMFLOAT4X4 multiIT(DirectX::XMFLOAT4X4 t1, DirectX::XMFLOAT4X4 t2);
 
 private:
 	AnimationPlayer();
@@ -71,6 +78,5 @@ private:
 	bool mIsPlayingClip;
 	bool mIsClipLooped;
 
-	bool mIsMovingForward;
 	bool mIsBlended;
 };

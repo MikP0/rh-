@@ -68,8 +68,8 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					{
 						aAngle = DirectX::XMConvertToRadians(atof(eAngle->GetText()));
 					}
-					//oEntity->GetTransform()->Rotate(DirectX::SimpleMath::Vector3(0,1,0), DirectX::XMConvertToRadians(180));
-					//if(aAngle != 0)
+					oEntity->GetTransform()->Rotate(DirectX::SimpleMath::Vector3(0,1,0), DirectX::XMConvertToRadians(180));
+					if(aAngle != 0)
 						oEntity->GetTransform()->Rotate(aAxis, aAngle);
 				}
 
