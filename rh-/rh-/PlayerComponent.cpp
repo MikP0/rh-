@@ -9,6 +9,8 @@ PlayerComponent::PlayerComponent()
 	isWalking = false;
 	isNormalAttack = false;
 	isBiteAttack = false;
+	isRipAttack = false;
+	isPowerAttack = false;
 
 	isPlayerHealed = false;
 

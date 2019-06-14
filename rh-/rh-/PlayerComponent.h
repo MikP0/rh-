@@ -18,6 +18,8 @@ public:
 	bool isDancing;
 	bool isWalking;
 	bool isNormalAttack;
+	bool isPowerAttack;
+	bool isRipAttack;
 	bool isBiteAttack;
 
 	bool isPlayerHealed;
