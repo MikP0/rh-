@@ -252,4 +252,8 @@ private:
 
 	//World Loader
 	std::shared_ptr<WorldLoader> worldLoader;
+
+	std::shared_ptr<DirectX::BasicEffect> m_effect;
+	std::shared_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 };

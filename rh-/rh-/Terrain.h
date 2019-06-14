@@ -19,10 +19,11 @@ public:
 	void Initialize(ID3D11DeviceContext1*);
 	void ResetTileMap();
 	void SetTilesPosition(int, int);
-	void ConnectNeighboringTiles();
+	//void ConnectNeighboringTiles();
+	void CreateEdges();
 	void SetStaticObjects(vector<shared_ptr<PhysicsComponent>>);	
 
-	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
+	//void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
 	void Update(vector<ColliderBasePtr>);
 	void ClearTiles();
 
@@ -37,6 +38,7 @@ public:
 	bool CanMove(dxmath::Vector3, dxmath::Vector3);
 	bool Within(MapTilePtr);
 	MapTilePtr GetTileWithPosition(Vector3);
+	MapTilePtr GetTileAtPosition(Vector2);
 	Vector3 GetNearestNeighbor(Vector3);
 	Vector3 FallBack(Vector3, Vector3);
 

@@ -738,6 +738,50 @@ void Game::Render()
 		initTerrain = true;
 	}
 	RenderObjects(context);
+	//Grid Render
+	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
+	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
+	context->RSSetState(m_states->CullNone());
+
+	m_effect->SetWorld(Matrix::Identity);
+
+	m_effect->Apply(context);
+
+	context->IASetInputLayout(m_inputLayout.Get());
+
+	m_batch->Begin();
+
+	Vector3 xaxis(2.f, 0.f, 0.f);
+	Vector3 yaxis(0.f, 0.f, 2.f);
+	Vector3 origin = Vector3::Zero;
+
+	size_t divisions = 20;
+
+	for (size_t i = 0; i <= divisions; ++i)
+	{
+		float fPercent = float(i) / float(divisions);
+		fPercent = (fPercent * 2.0f) - 1.0f;
+
+		Vector3 scale = xaxis * fPercent + origin;
+
+		VertexPositionColor v1(scale - yaxis, Colors::White);
+		VertexPositionColor v2(scale + yaxis, Colors::White);
+		m_batch->DrawLine(v1, v2);
+	}
+
+	for (size_t i = 0; i <= divisions; i++)
+	{
+		float fPercent = float(i) / float(divisions);
+		fPercent = (fPercent * 2.0f) - 1.0f;
+
+		Vector3 scale = yaxis * fPercent + origin;
+
+		VertexPositionColor v1(scale - xaxis, Colors::White);
+		VertexPositionColor v2(scale + xaxis, Colors::White);
+		m_batch->DrawLine(v1, v2);
+	}
+
+	m_batch->End();
 
 	context;
 
@@ -889,6 +933,9 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
 	camera.SetZoom(XMFLOAT3(0.f, 0.f, 0.f));
+
+	m_effect->SetView(camera.GetViewMatrix());
+	m_effect->SetProjection(camera.GetProjectionMatrix());
 }
 
 void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
@@ -1106,6 +1153,22 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 
 	//world->RefreshWorld();
+
+	m_effect = std::make_shared<BasicEffect>(device);
+	m_effect->SetVertexColorEnabled(true);
+	m_batch = std::make_shared<PrimitiveBatch<VertexPositionColor>>(context);
+
+
+	void const* shaderByteCode;
+	size_t byteCodeLength;
+
+	m_effect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
+
+	DX::ThrowIfFailed(
+		device->CreateInputLayout(VertexPositionColor::InputElements,
+			VertexPositionColor::InputElementCount,
+			shaderByteCode, byteCodeLength,
+			m_inputLayout.ReleaseAndGetAddressOf()));
 }
 
 void Game::OnDeviceLost()

@@ -23,8 +23,9 @@ void Terrain::Initialize(ID3D11DeviceContext1* context)
 	this->context = context;
 	ResetTileMap();
 	SetTilesPosition(-15, 0);
-	ConnectNeighboringTiles();
+	//ConnectNeighboringTiles();
 	//SetStaticObjects(colliders);
+	CreateEdges();
 }
 
 void Terrain::ResetTileMap()
@@ -70,7 +71,41 @@ void Terrain::SetTilesPosition(int beginWidth, int beginHeight)
 	}
 }
 
-void Terrain::ConnectNeighboringTiles()
+void Terrain::CreateEdges() {
+	for each (MapTilePtr tile in tiles)
+	{
+		tile->edges.resize(8);
+		Vector2 basePosition = tile->mapPosition;
+		int k = 0;
+		for (int i = 1; i >= -1; i--)
+		{
+			for (int j = 1; j >= -1; j--)
+			{
+				MapTilePtr temp = GetTileAtPosition(basePosition + Vector2(i, j));
+				if (temp == tile)
+				{
+					continue;
+				}
+				else if (temp != nullptr)
+				{
+					temp->edges.resize(8);
+					shared_ptr<MapEdge> newEdge = shared_ptr<MapEdge>(new MapEdge(tile, temp, 0.f));
+					tile->edges[k] = newEdge;
+					temp->edges[7 - k] = newEdge;
+					k++;
+
+				}
+				else
+				{
+					tile->edges.push_back(nullptr);
+					k++;
+				}
+			}
+		}
+	}
+}
+
+/*void Terrain::ConnectNeighboringTiles()
 {
 	for each (MapTilePtr tile in tiles)
 	{
@@ -97,7 +132,7 @@ void Terrain::ConnectNeighboringTiles()
 			}
 		}
 	}
-}
+}*/
 
 void Terrain::SetStaticObjects(vector<shared_ptr<PhysicsComponent>> colliders)
 {
@@ -146,9 +181,9 @@ void Terrain::SetStaticObjects(vector<shared_ptr<PhysicsComponent>> colliders)
 	}
 }
 
-void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roomTex)
+/*void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roomTex)
 {
-	/*view = camera.GetViewMatrix();
+	view = camera.GetViewMatrix();
 	projection = camera.GetProjectionMatrix();
 	tex = roomTex;
 	for each (MapTilePtr tile in tiles)
@@ -159,8 +194,8 @@ void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceVie
 		else {
 			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::Black, roomTex.Get());
 		}
-	}*/
-}
+	}
+}*/
 
 void Terrain::MakeOcupied(dxmath::Vector3 position)
 {
@@ -169,7 +204,12 @@ void Terrain::MakeOcupied(dxmath::Vector3 position)
 	{
 		tile->walkable = false;
 		tile->type = TileType::staticCollider;
-		//ocuppiedTiles.push_back(tile);
+		for each (shared_ptr<MapEdge> edge in tile->edges)
+		{
+			if (edge != nullptr) {
+				edge->cost = 1.f;
+			}
+		}
 	}
 }
 
@@ -279,6 +319,17 @@ MapTilePtr Terrain::GetTileWithPosition(dxmath::Vector3 position)
 	return nullptr;
 }
 
+MapTilePtr Terrain::GetTileAtPosition(Vector2 position)
+{
+	for each (MapTilePtr tile in tiles)
+	{
+		if (tile->mapPosition.x == position.x && tile->mapPosition.y == position.y) {
+			return tile;
+		}
+	}
+	return nullptr;
+}
+
 Vector3 Terrain::GetNearestNeighbor(dxmath::Vector3 position)
 {
 	MapTilePtr tile = this->GetTileWithPosition(position);
@@ -358,7 +409,7 @@ vector<MapTilePtr> Terrain::GetPath(MapTilePtr start, MapTilePtr goal)
 			if (edge == nullptr) {
 				continue;
 			}
-			MapTilePtr neighbor = edge->node2;
+			MapTilePtr neighbor = edge->node1 == current ? edge->node2 : edge->node1;
 			float cost = current->g + edge->cost;
 			if (!neighbor->walkable) {
 				continue;
