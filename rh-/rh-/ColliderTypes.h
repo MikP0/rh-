@@ -26,68 +26,68 @@ public:
 	ContainmentType CollisionKind;
 };
 
-class ColliderSphere : public ColliderBase
-{
-public:
-	ColliderSphere(XMFLOAT3 center, float radius) : ColliderBase(Sphere)
-	{
-		_bounding.Center = center;
-		_bounding.Radius = radius;
-	};
-
-	ColliderSphere(Vector3 positionOffset, XMFLOAT3 center, float radius) : ColliderBase(Sphere)
-	{
-		_bounding.Center = center;
-		_bounding.Radius = radius;
-		_positionOffset = positionOffset;
-	};
-
-	~ColliderSphere() {};
-
-	BoundingSphere GetBounding()
-	{
-		return _bounding;
-	}
-
-	Vector3 GetCenter()
-	{
-		return _bounding.Center;
-	}
-
-	Vector3 GetPositionOffset()
-	{
-		return _positionOffset;
-	}
-
-	float GetRadius()
-	{
-		return _bounding.Radius;
-	}
-
-	void SetBounding(BoundingSphere bounding)
-	{
-		_bounding = bounding;
-	}
-
-	void SetCenter(Vector3 center)
-	{
-		_bounding.Center = center;
-	}
-
-	void SetPositionOffset(Vector3 offset)
-	{
-		_positionOffset = offset;
-	}
-
-	void SetRadius(float radius)
-	{
-		_bounding.Radius = radius;
-	}
-
-private:
-	BoundingSphere _bounding;
-	Vector3 _positionOffset;
-};
+//class ColliderSphere : public ColliderBase
+//{
+//public:
+//	ColliderSphere(XMFLOAT3 center, float radius) : ColliderBase(Sphere)
+//	{
+//		_bounding.Center = center;
+//		_bounding.Radius = radius;
+//	};
+//
+//	ColliderSphere(Vector3 positionOffset, XMFLOAT3 center, float radius) : ColliderBase(Sphere)
+//	{
+//		_bounding.Center = center;
+//		_bounding.Radius = radius;
+//		_positionOffset = positionOffset;
+//	};
+//
+//	~ColliderSphere() {};
+//
+//	BoundingSphere GetBounding()
+//	{
+//		return _bounding;
+//	}
+//
+//	Vector3 GetCenter()
+//	{
+//		return _bounding.Center;
+//	}
+//
+//	Vector3 GetPositionOffset()
+//	{
+//		return _positionOffset;
+//	}
+//
+//	float GetRadius()
+//	{
+//		return _bounding.Radius;
+//	}
+//
+//	void SetBounding(BoundingSphere bounding)
+//	{
+//		_bounding = bounding;
+//	}
+//
+//	void SetCenter(Vector3 center)
+//	{
+//		_bounding.Center = center;
+//	}
+//
+//	void SetPositionOffset(Vector3 offset)
+//	{
+//		_positionOffset = offset;
+//	}
+//
+//	void SetRadius(float radius)
+//	{
+//		_bounding.Radius = radius;
+//	}
+//
+//private:
+//	BoundingSphere _bounding;
+//	Vector3 _positionOffset;
+//};
 
 class ColliderAABB : public ColliderBase
 {

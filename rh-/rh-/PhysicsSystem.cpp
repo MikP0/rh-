@@ -22,23 +22,23 @@ void PhysicsSystem::UpdateCollidersPositions()
 	{
 		dxmath::Matrix objectMatrix = component->GetParent()->GetWorldMatrix();
 
-		if (component->ColliderBounding->Type == AABB)
-		{
+		//if (component->ColliderBounding->Type == AABB)
+		//{
 			ColliderAABBptr collider = dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
 			dxmath::Vector3 objectPosition =
 				DirectX::XMVector3Transform(collider->GetPositionOffset(), objectMatrix);
 			collider->SetCenter(objectPosition);
 			continue;
-		}
+		//}
 
-		if (component->ColliderBounding->Type == Sphere)
+		/*if (component->ColliderBounding->Type == Sphere)
 		{
 			ColliderSpherePtr collider = dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
 			dxmath::Vector3 objectPosition =
 				DirectX::XMVector3Transform(collider->GetPositionOffset(), objectMatrix);
 			collider->SetCenter(objectPosition);
 			continue;
-		}
+		}*/
 	}
 }
 
@@ -46,21 +46,21 @@ void PhysicsSystem::UpdateColliderPosition(PhysicsComponentPtr component)
 {
 	dxmath::Matrix objectMatrix = component->GetParent()->GetWorldMatrix();
 
-	if (component->ColliderBounding->Type == AABB)
-	{
+	//if (component->ColliderBounding->Type == AABB)
+	//{
 		ColliderAABBptr collider = dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
 		dxmath::Vector3 objectPosition =
 			DirectX::XMVector3Transform(collider->GetPositionOffset(), objectMatrix);
 		collider->SetCenter(objectPosition);
-	}
-	else
+	//}
+	/*else
 		if (component->ColliderBounding->Type == Sphere)
 		{
 			ColliderSpherePtr collider = dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
 			dxmath::Vector3 objectPosition =
 				DirectX::XMVector3Transform(collider->GetPositionOffset(), objectMatrix);
 			collider->SetCenter(objectPosition);
-		}
+		}*/
 }
 
 OctTreePtr PhysicsSystem::GetOctTree()
@@ -75,22 +75,22 @@ vector<ColliderBasePtr> PhysicsSystem::GetColliders()
 	{
 		//dxmath::Matrix objectMatrix = component->GetParent()->GetWorldMatrix();
 		
-		if (component->ColliderBounding->Type == AABB)
-		{
+		//if (component->ColliderBounding->Type == AABB)
+		//{
 			ColliderAABBptr collider = dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding);
 			result.push_back(collider);
 			continue;
-		}
+		//}
 
-		if (component->ColliderBounding->Type == Sphere)
-		{
-			ColliderSpherePtr collider = dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
-			//dxmath::Vector3 objectPosition =
-			//	DirectX::XMVector3Transform(collider->GetPositionOffset(), objectMatrix);
-			//collider->SetCenter(objectPosition);
-			result.push_back(collider);
-			continue;
-		}
+		//if (component->ColliderBounding->Type == Sphere)
+		//{
+		//	ColliderSpherePtr collider = dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding);
+		//	//dxmath::Vector3 objectPosition =
+		//	//	DirectX::XMVector3Transform(collider->GetPositionOffset(), objectMatrix);
+		//	//collider->SetCenter(objectPosition);
+		//	result.push_back(collider);
+		//	continue;
+		//}
 	}
 	return result;
 }
