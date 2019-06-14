@@ -58,53 +58,53 @@ ContainmentTypeVector Collision::Collide(ColliderAABBptr collider1, ColliderAABB
 	return result;
 }
 
-ContainmentTypeVector Collision::Collide(ColliderSpherePtr collider1, ColliderSpherePtr collider2)
-{
-	collider1->CollisionKind = DISJOINT;
-	collider2->CollisionKind = DISJOINT;
-
-	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
-	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
-
-	collider1->CollisionKind = collider1Result;
-	collider2->CollisionKind = collider2Result;
-
-	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
-
-	return result;
-}
-
-ContainmentTypeVector Collision::Collide(ColliderAABBptr collider1, ColliderSpherePtr collider2)
-{
-	collider1->CollisionKind = DISJOINT;
-	collider2->CollisionKind = DISJOINT;
-
-	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
-	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
-
-	collider1->CollisionKind = collider1Result;
-	collider2->CollisionKind = collider2Result;
-
-	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
-
-	return result;
-}
-
-ContainmentTypeVector Collision::Collide(ColliderSpherePtr collider1, ColliderAABBptr collider2)
-{
-	collider1->CollisionKind = DISJOINT;
-	collider2->CollisionKind = DISJOINT;
-
-	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
-	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
-
-	collider1->CollisionKind = collider1Result;
-	collider2->CollisionKind = collider2Result;
-
-	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
-
-	return result;
-}
+//ContainmentTypeVector Collision::Collide(ColliderSpherePtr collider1, ColliderSpherePtr collider2)
+//{
+//	collider1->CollisionKind = DISJOINT;
+//	collider2->CollisionKind = DISJOINT;
+//
+//	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+//	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
+//
+//	collider1->CollisionKind = collider1Result;
+//	collider2->CollisionKind = collider2Result;
+//
+//	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
+//
+//	return result;
+//}
+//
+//ContainmentTypeVector Collision::Collide(ColliderAABBptr collider1, ColliderSpherePtr collider2)
+//{
+//	collider1->CollisionKind = DISJOINT;
+//	collider2->CollisionKind = DISJOINT;
+//
+//	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+//	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
+//
+//	collider1->CollisionKind = collider1Result;
+//	collider2->CollisionKind = collider2Result;
+//
+//	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
+//
+//	return result;
+//}
+//
+//ContainmentTypeVector Collision::Collide(ColliderSpherePtr collider1, ColliderAABBptr collider2)
+//{
+//	collider1->CollisionKind = DISJOINT;
+//	collider2->CollisionKind = DISJOINT;
+//
+//	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+//	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
+//
+//	collider1->CollisionKind = collider1Result;
+//	collider2->CollisionKind = collider2Result;
+//
+//	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
+//
+//	return result;
+//}
 
 ContainmentTypeVector Collision::Collide(ColliderFrustumPtr collider1, ColliderAABBptr collider2)
 {
@@ -122,21 +122,21 @@ ContainmentTypeVector Collision::Collide(ColliderFrustumPtr collider1, ColliderA
 	return result;
 }
 
-ContainmentTypeVector Collision::Collide(ColliderFrustumPtr collider1, ColliderSpherePtr collider2)
-{
-	collider1->CollisionKind = DISJOINT;
-	collider2->CollisionKind = DISJOINT;
-
-	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
-	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
-
-	collider1->CollisionKind = collider1Result;
-	collider2->CollisionKind = collider2Result;
-
-	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
-
-	return result;
-}
+//ContainmentTypeVector Collision::Collide(ColliderFrustumPtr collider1, ColliderSpherePtr collider2)
+//{
+//	collider1->CollisionKind = DISJOINT;
+//	collider2->CollisionKind = DISJOINT;
+//
+//	ContainmentType collider1Result = collider1->GetBounding().Contains(collider2->GetBounding());
+//	ContainmentType collider2Result = collider2->GetBounding().Contains(collider1->GetBounding());
+//
+//	collider1->CollisionKind = collider1Result;
+//	collider2->CollisionKind = collider2Result;
+//
+//	ContainmentTypeVector result{ collider1->CollisionKind, collider2->CollisionKind };
+//
+//	return result;
+//}
 
 float Collision::Collide(ColliderAABBptr collider, ColliderRayPtr ray)
 {
@@ -154,21 +154,21 @@ float Collision::Collide(ColliderAABBptr collider, ColliderRayPtr ray)
 	return distance;
 }
 
-float Collision::Collide(ColliderSpherePtr collider, ColliderRayPtr ray)
-{
-	float distance = 0.0f;
-
-	float dist;
-	if (collider->GetBounding().Intersects(ray->Origin, ray->Direction, dist))
-	{
-		distance = dist;
-		collider->CollisionKind = INTERSECTS;
-	}
-	else
-		collider->CollisionKind = DISJOINT;
-
-	return distance;
-}
+//float Collision::Collide(ColliderSpherePtr collider, ColliderRayPtr ray)
+//{
+//	float distance = 0.0f;
+//
+//	float dist;
+//	if (collider->GetBounding().Intersects(ray->Origin, ray->Direction, dist))
+//	{
+//		distance = dist;
+//		collider->CollisionKind = INTERSECTS;
+//	}
+//	else
+//		collider->CollisionKind = DISJOINT;
+//
+//	return distance;
+//}
 
 shared_ptr<Collision> Collision::CheckCollision(PhysicsComponentPtr component1, PhysicsComponentPtr component2)
 {
@@ -195,7 +195,7 @@ shared_ptr<Collision> Collision::CheckCollision(PhysicsComponentPtr component1, 
 		}
 	}
 
-	if (colliderType1 == Sphere && colliderType2 == Sphere)
+	/*if (colliderType1 == Sphere && colliderType2 == Sphere)
 	{
 		ContainmentTypeVector collisionResult = Collide(dynamic_pointer_cast<ColliderSphere>(component1->ColliderBounding), dynamic_pointer_cast<ColliderSphere>(component2->ColliderBounding));
 
@@ -213,9 +213,9 @@ shared_ptr<Collision> Collision::CheckCollision(PhysicsComponentPtr component1, 
 		{
 			return (make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
 		}
-	}
+	}*/
 
-	if (colliderType1 == AABB && colliderType2 == Sphere)
+	/*if (colliderType1 == AABB && colliderType2 == Sphere)
 	{
 		ContainmentTypeVector collisionResult = Collide(dynamic_pointer_cast<ColliderAABB>(component1->ColliderBounding), dynamic_pointer_cast<ColliderSphere>(component2->ColliderBounding));
 
@@ -253,7 +253,7 @@ shared_ptr<Collision> Collision::CheckCollision(PhysicsComponentPtr component1, 
 		{
 			return (make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
 		}
-	}
+	}*/
 
 	if (colliderType1 == Frustum && colliderType2 == AABB)
 	{
@@ -275,7 +275,7 @@ shared_ptr<Collision> Collision::CheckCollision(PhysicsComponentPtr component1, 
 		}
 	}
 
-	if (colliderType1 == Frustum && colliderType2 == Sphere)
+	/*if (colliderType1 == Frustum && colliderType2 == Sphere)
 	{
 		ContainmentTypeVector collisionResult = Collide(dynamic_pointer_cast<ColliderFrustum>(component1->ColliderBounding), dynamic_pointer_cast<ColliderSphere>(component2->ColliderBounding));
 
@@ -293,32 +293,32 @@ shared_ptr<Collision> Collision::CheckCollision(PhysicsComponentPtr component1, 
 		{
 			return (make_shared<Collision>(component2->GetParent(), component1->GetParent(), CONTAINS));
 		}
-	}
+	}*/
 
 	return nullptr;
 }
 
 shared_ptr<Collision> Collision::CheckCollision(PhysicsComponentPtr component, ColliderRayPtr ray)
 {
-	ColliderType colliderType = component->ColliderBounding->Type;
+	//ColliderType colliderType = component->ColliderBounding->Type;
 
 	float resultDistance;
 
-	if (colliderType == AABB)
-	{
+	//if (colliderType == AABB)
+	//{
 		resultDistance = Collide(dynamic_pointer_cast<ColliderAABB>(component->ColliderBounding), ray);
 
 		if (resultDistance > 0)
 			return make_shared<Collision>(component->GetParent(), component->ColliderBounding->CollisionKind, resultDistance);
-	}
+	//}
 	
-	if (colliderType == Sphere)
+	/*if (colliderType == Sphere)
 	{
 		resultDistance = Collide(dynamic_pointer_cast<ColliderSphere>(component->ColliderBounding), ray);
 
 		if (resultDistance > 0)
 			return make_shared<Collision>(component->GetParent(), component->ColliderBounding->CollisionKind, resultDistance);
-	}
+	}*/
 
 	return nullptr;
 }

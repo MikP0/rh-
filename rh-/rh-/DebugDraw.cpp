@@ -46,19 +46,19 @@ void DebugDraw::DrawOctTree(OctTreePtr octTree, XMMATRIX &view, XMMATRIX &projec
 	{
 		ColliderType colliderType = object->ColliderBounding->Type;
 
-		if (colliderType == ColliderType::AABB)
-		{
+		//if (colliderType == ColliderType::AABB)
+		//{
 			ColliderAABBptr objBoundingBox = dynamic_pointer_cast<ColliderAABB>(object->ColliderBounding);
 			XMFLOAT3 dimensions = objBoundingBox->GetExtents() * 2.0f;
 			DrawBox(dimensions, objBoundingBox->GetCenter(), view, projection, Collision::GetCollisionColor(objBoundingBox->CollisionKind));
-		}
-		else
+		//}
+		/*else
 			if (colliderType == ColliderType::Sphere)
 			{
 				ColliderSpherePtr objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(object->ColliderBounding);
 				float diameter = objBoundingSphere->GetRadius();
 				DrawSphere(diameter, objBoundingSphere->GetCenter(), view, projection, Collision::GetCollisionColor(objBoundingSphere->CollisionKind));
-			}
+			}*/
 	}
 
 	vector<shared_ptr<OctTree>> childrenNodes = octTree->ChildrenNodes;

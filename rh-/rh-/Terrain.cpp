@@ -104,7 +104,7 @@ void Terrain::ConnectNeighboringTiles()
 void Terrain::SetStaticObjects(vector<shared_ptr<PhysicsComponent>> colliders)
 {
 	colliders.begin();
-	typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
+	//typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 	typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 	for each (auto collider in colliders)
 	{
@@ -176,12 +176,12 @@ void Terrain::MakeOcupied(dxmath::Vector3 position)
 
 void Terrain::Update(vector<ColliderBasePtr> colliders)
 {
-	typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
+	//typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 	typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 	this->ClearTiles();
 	for each (ColliderBasePtr collider in colliders)
 	{
-		if (collider->Type == AABB) {
+		//if (collider->Type == AABB) {
 			ColliderAABBptr colliderr = dynamic_pointer_cast<ColliderAABB>(collider);
 			Vector3 center = colliderr->GetCenter();
 			Vector3 a = center + colliderr->GetExtents();
@@ -206,12 +206,12 @@ void Terrain::Update(vector<ColliderBasePtr> colliders)
 
 
 			continue;
-		}
-		if (collider->Type == Sphere) {
+		//}
+		/*if (collider->Type == Sphere) {
 			ColliderSpherePtr colliderr = dynamic_pointer_cast<ColliderSphere>(collider);
 			this->MakeOcupied(colliderr->GetCenter());
 			continue;
-		}
+		}*/
 	}
 }
 

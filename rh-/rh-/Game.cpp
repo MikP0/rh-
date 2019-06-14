@@ -74,6 +74,9 @@ void Game::Update(DX::StepTimer const& timer)
 	float time = float(timer.GetTotalSeconds());
 	float fps = timer.GetFramesPerSecond();
 
+	total_Time = time;
+	elapsed_Time = elapsedTime;
+
 	Coroutine::UpdateElapsedTime(elapsedTime);
 
 	// TODO: Add your game logic here.
@@ -332,6 +335,7 @@ void Game::UpdateObjects(float elapsedTime)
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
 		{
 			vampireMode = true;
+			Ui->transitionMode = true;
 			playerSystem->SetVampireMode(true);
 			enemySystem->SetVampireMode(true);
 		}
@@ -390,8 +394,8 @@ void Game::UpdateObjects(float elapsedTime)
 			if (coll->OriginObject->GetId() == colliderCup1->GetParent()->GetId())
 				collisionCup1WithRay = coll;
 
-			if (coll->OriginObject->GetId() == colliderCup2->GetParent()->GetId())
-				collisionCup2WithRay = coll;
+			/*if (coll->OriginObject->GetId() == colliderCup2->GetParent()->GetId())
+				collisionCup2WithRay = coll;*/
 		}
 	}
 }
@@ -484,7 +488,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
 	// TODO: UI System
-	Ui->Draw(vampireMode, menuIsOn);
+	Ui->Draw(vampireMode, menuIsOn, total_Time, elapsed_Time);
 }
 
 // Helper method to clear the back buffers.
@@ -676,7 +680,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
-	myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
+	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
 	enemyEntity1->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity2->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity3->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);

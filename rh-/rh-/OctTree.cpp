@@ -141,8 +141,8 @@ void OctTree::BuildTree()
 	{
 		ColliderType colliderType = obj->ColliderBounding->Type;
 
-		if (colliderType == ColliderType::AABB)
-		{
+		//if (colliderType == ColliderType::AABB)
+		//{
 			ColliderAABBptr objBoundingBox = dynamic_pointer_cast<ColliderAABB>(obj->ColliderBounding);
 
 			for (int a = 0; a < 8; a++)
@@ -156,8 +156,8 @@ void OctTree::BuildTree()
 					break;
 				}
 			}
-		}
-		else
+		//}
+		/*else
 			if (colliderType == ColliderType::Sphere)
 			{
 				ColliderSpherePtr objBoundingSphere = dynamic_pointer_cast<ColliderSphere>(obj->ColliderBounding);
@@ -173,7 +173,7 @@ void OctTree::BuildTree()
 						break;
 					}
 				}
-			}
+			}*/
 	}
 
 	//delist every moved object from this node.

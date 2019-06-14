@@ -11,7 +11,7 @@ using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
 typedef shared_ptr<PhysicsComponent> PhysicsComponentPtr;
-typedef shared_ptr<ColliderSphere> ColliderSpherePtr;
+//typedef shared_ptr<ColliderSphere> ColliderSpherePtr;
 typedef shared_ptr<ColliderAABB> ColliderAABBptr;
 typedef shared_ptr<ColliderFrustum> ColliderFrustumPtr;
 typedef shared_ptr<ColliderRay> ColliderRayPtr;

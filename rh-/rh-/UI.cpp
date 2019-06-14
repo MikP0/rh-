@@ -7,6 +7,8 @@ UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, float playerHealt
 	_context = context;
 	_playerHealthOrigin = playerHealthOrigin;
 	_playerHealth = playerHealth;
+	transitionMode = false;
+	transitionElapsedTime = 0.0f;
 }
 
 UI::~UI()
@@ -19,7 +21,8 @@ void UI::Initialize()
 		"healthBar", "healthAmount", "heroIconNormal", "vampireModeBorder",
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack",
 		"teleport", "cleaveAttack", "swap","aoeAttack",
-		"fpsBackground", "popUpMenu", "heroIconVampire"};
+		"fpsBackground", "popUpMenu", "heroIconVampire", "heroIconVampireRing",
+		"heroIconTransitionRing"};
 
 	map<string, string> uiNameTexMap = {
 		{uiNames[0], "Resources\\UISprites\\hp_bar.dds"},
@@ -36,7 +39,9 @@ void UI::Initialize()
 		{uiNames[11], "Resources\\UISprites\\Aoe_Attack.dds"},
 		{uiNames[12], "Resources\\UISprites\\fpsbar.dds"},
 		{uiNames[13], "Resources\\UISprites\\Menu.dds"},
-		{uiNames[14], "Resources\\UISprites\\Hero_Circle_Vampire.dds"}
+		{uiNames[14], "Resources\\UISprites\\Hero_Circle_Vampire.dds"},
+		{uiNames[15], "Resources\\UISprites\\Hero_Circle_Vampire_Ring.dds"},
+		{uiNames[16], "Resources\\UISprites\\Hero_Circle_Transition.dds"}
 	};
 
 	skillSetPosition = Vector2(650.0f, 800.0f);
@@ -57,6 +62,8 @@ void UI::Initialize()
 		{uiNames[12], Vector2(710.0f, -5.0f)},
 		{uiNames[13], Vector2(250.0f, 100.0f)},
 		{uiNames[14], Vector2(0.0f, 0.0f)},
+		{uiNames[15], Vector2(0.0f, 0.0f)},
+		{uiNames[16], Vector2(0.0f, 0.0f)}
 	};
 
 	map<string, Vector2> uiNameScaleMap{
@@ -75,7 +82,8 @@ void UI::Initialize()
 		{uiNames[12], Vector2(0.15f, 0.15f)},
 		{uiNames[13], Vector2(0.6f, 0.6f)},
 		{uiNames[14], Vector2(0.35f, 0.35f)},
-
+		{uiNames[15], Vector2(0.35f, 0.35f)},
+		{uiNames[16], Vector2(0.35f, 0.35f)}
 	};
 
 
@@ -115,7 +123,7 @@ void UI::DrawRedBorder()
 	uiSpriteBatchBorder->End();
 }
 
-void UI::Draw(bool vampireMode, bool menuIsOn)
+void UI::Draw(bool vampireMode, bool menuIsOn, float totalTime, float elapsedTime)
 {
 	_elements["healthAmount"].scale.x = ((_elements["healthAmount"].scale.y * (*_playerHealth)) / _playerHealthOrigin);
 	if (_elements["healthAmount"].scale.x < 0)
@@ -129,7 +137,6 @@ void UI::Draw(bool vampireMode, bool menuIsOn)
 
 	uiSpriteBatch->Draw(_elements["healthAmount"].texture.Get(), _elements["healthAmount"].position, nullptr, Colors::White,
 		0.f, Vector2(0, 0), _elements["healthAmount"].scale);
-
 
 	if (!vampireMode)
 	{
@@ -152,8 +159,27 @@ void UI::Draw(bool vampireMode, bool menuIsOn)
 	{
 		DrawRedBorder();
 
-		uiSpriteBatch->Draw(_elements["heroIconVampire"].texture.Get(), _elements["heroIconVampire"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["heroIconVampire"].scale);
+		if (transitionMode)
+		{
+			uiSpriteBatch->Draw(_elements["heroIconTransitionRing"].texture.Get(), _elements["heroIconTransitionRing"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _elements["heroIconTransitionRing"].scale);
+
+			transitionElapsedTime += elapsedTime;
+
+			if (transitionElapsedTime >= 0.5f)
+			{
+				transitionMode = false;
+				transitionElapsedTime = 0.0f;
+			}
+		} 
+		else
+		{
+			uiSpriteBatch->Draw(_elements["heroIconVampire"].texture.Get(), _elements["heroIconVampire"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _elements["heroIconVampire"].scale);
+
+			uiSpriteBatch->Draw(_elements["heroIconVampireRing"].texture.Get(), _elements["heroIconVampireRing"].position + Vector2(70.0f, 70.0f), nullptr, Colors::White,
+				sinf(totalTime) * 6.0f, Vector2(206, 206), _elements["heroIconVampireRing"].scale);
+		}
 
 		uiSpriteBatch->Draw(_elements["teleport"].texture.Get(), _elements["teleport"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _elements["teleport"].scale);
