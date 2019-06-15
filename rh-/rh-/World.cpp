@@ -41,9 +41,10 @@ std::shared_ptr<Entity> World::CreateEntity(std::string name)
 	return entity;
 }
 
-void World::KillEntity(Entity& entity)
+void World::KillEntity(std::shared_ptr<Entity> entity)
 {
-	_entityPoolMap.erase(entity.GetId());
+	_entityComponentMap.erase(entity->GetId());
+	_entityPoolMap.erase(entity->GetId());
 }
 
 void World::KillEntities(std::vector<Entity>& entities)
