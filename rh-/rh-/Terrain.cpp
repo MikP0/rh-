@@ -1,6 +1,8 @@
 #pragma once
 #include "pch.h"
 #include "Terrain.h"
+#include "PlayerComponent.h"
+
 #include <map>
 #include <unordered_set>
 #include <queue>
@@ -18,7 +20,7 @@ Terrain::~Terrain()
 {
 }
 
-void Terrain::Initialize(ID3D11DeviceContext1* context)
+void Terrain::Initialize(ID3D11DeviceContext1* context, ID3D11Device1* device, shared_ptr<Entity> player)
 {
 	this->context = context;
 	ResetTileMap();
@@ -26,6 +28,26 @@ void Terrain::Initialize(ID3D11DeviceContext1* context)
 	//ConnectNeighboringTiles();
 	//SetStaticObjects(colliders);
 	CreateEdges();
+
+	m_states = std::make_unique<CommonStates>(device);
+	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(context);
+
+	m_effect = std::make_unique<BasicEffect>(device);
+	m_effect->SetVertexColorEnabled(true);
+
+	{
+		void const* shaderByteCode;
+		size_t byteCodeLength;
+
+		m_effect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
+
+		DX::ThrowIfFailed(
+			device->CreateInputLayout(
+				VertexPositionColor::InputElements, VertexPositionColor::InputElementCount,
+				shaderByteCode, byteCodeLength,
+				m_inputLayout.ReleaseAndGetAddressOf()));
+	}
+	playerEntity = player;
 }
 
 void Terrain::ResetTileMap()
@@ -45,6 +67,8 @@ void Terrain::SetTilesPosition(int beginWidth, int beginHeight)
 		for (int j = 0; j < heightInTiles; j++) {
 			tiles[i *heightInTiles + j]->worldPosition = Vector3(beginW*tileSize, 0.f, beginH*tileSize);
 			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
+			tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize), false, true);
+			tilesMap[tiles[i *heightInTiles + j]->mapPosition] = tiles[i *heightInTiles + j];
 			//if (i*j % 15 < 10) {
 			//tiles[i *heightInTiles + j]->type = TileType::empty;
 			//tiles[i *heightInTiles + j]->walkable = true;
@@ -81,7 +105,7 @@ void Terrain::CreateEdges() {
 		{
 			for (int j = 1; j >= -1; j--)
 			{
-				MapTilePtr temp = GetTileAtPosition(basePosition + Vector2(i, j));
+				MapTilePtr temp = GetTileFromMap(basePosition + Vector2(i, j));
 				if (temp == tile)
 				{
 					continue;
@@ -105,39 +129,9 @@ void Terrain::CreateEdges() {
 	}
 }
 
-/*void Terrain::ConnectNeighboringTiles()
-{
-	for each (MapTilePtr tile in tiles)
-	{
-		Vector3 base = tile->worldPosition;
-		int k = 0;
-		for (int i = 1; i >= -1; i--) {
-			for (int j = 1; j >= -1; j--) {
-				MapTilePtr temp = this->GetTileWithPosition(base + Vector3(i, 0, j));
-				if (temp == tile) {
-					continue;
-				}
-				if (temp != nullptr) {
-					if (temp->walkable) {
-						tile->edges.push_back(shared_ptr<MapEdge>(new MapEdge(tile, temp, 0.f)));
-					}
-					else {
-						tile->edges.push_back(shared_ptr<MapEdge>(new MapEdge(tile, temp, 1.f)));
-					}
-				}
-				else {
-					tile->edges.push_back(nullptr);
-				}
-				k++;
-			}
-		}
-	}
-}*/
-
 void Terrain::SetStaticObjects(vector<shared_ptr<PhysicsComponent>> colliders)
 {
 	colliders.begin();
-	//typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
 	typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
 	for each (auto collider in colliders)
 	{
@@ -173,29 +167,101 @@ void Terrain::SetStaticObjects(vector<shared_ptr<PhysicsComponent>> colliders)
 				characters.push_back(collider);
 			}
 		}
-		/*if (collider->Type == Sphere) {
-			ColliderSpherePtr colliderr = dynamic_pointer_cast<ColliderSphere>(collider);
-			this->MakeOcupied(colliderr->GetCenter());
-			continue;
-		}*/
 	}
 }
 
-/*void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roomTex)
+void Terrain::Draw(Camera camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roomTex)
 {
-	view = camera.GetViewMatrix();
+	/*view = camera.GetViewMatrix();
 	projection = camera.GetProjectionMatrix();
 	tex = roomTex;
 	for each (MapTilePtr tile in tiles)
 	{
 		if (tile->walkable) {
-			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::DimGray, roomTex.Get());
+			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::Red, nullptr, true);
 		}
 		else {
-			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::Black, roomTex.Get());
+			tile->block->Draw(dxmath::Matrix::CreateTranslation(tile->worldPosition), camera.GetViewMatrix(), camera.GetProjectionMatrix(), Colors::White, nullptr, true);
+		}
+	}*/
+	m_effect->SetView(camera.GetViewMatrix());
+	m_effect->SetProjection(camera.GetProjectionMatrix());
+
+	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
+	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
+	context->RSSetState(m_states->CullNone());
+
+	m_effect->Apply(context);
+
+	context->IASetInputLayout(m_inputLayout.Get());
+
+
+	MapTilePtr playerTile = GetTileWithPosition(playerEntity->GetTransform()->GetPosition());
+	Vector2 posOrigin = playerTile->mapPosition;
+	Vector3 pos = playerTile->worldPosition;
+	XMVECTOR color = Colors::WhiteSmoke;
+
+	DrawRange(posOrigin, 16, 16, Colors::WhiteSmoke);
+
+	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 1) 
+	{
+		color = Colors::IndianRed;
+		DrawRange(posOrigin, 8, 8, color);
+	}
+
+	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 3)
+	{
+		color = Colors::IndianRed;
+		for each (shared_ptr<PhysicsComponent> var in characters)
+		{
+			MapTilePtr tempTile = GetTileWithPosition(var->GetParent()->GetTransform()->GetPosition());
+			FillTile(tempTile->worldPosition, color);
 		}
 	}
-}*/
+
+	FillTile(pos, color);
+}
+
+void Terrain::DrawRange(Vector2 centerPosition, int width, int height, XMVECTOR color)
+{
+	m_batch->Begin();
+	for (int i = -width / 2; i <= width / 2; i++)
+	{
+		for (int j = -height / 2; j <= height / 2; j++) {
+			MapTilePtr tile = GetTileFromMap(centerPosition + Vector2(i, j));
+			if (tile != nullptr  && tile->walkable)
+			{
+				VertexPositionColor verts[5];
+				XMStoreFloat3(&verts[0].position, tile->worldPosition + Vector3(tileSize / 2.f, 0.f, tileSize / 2.f));
+				XMStoreFloat3(&verts[1].position, tile->worldPosition + Vector3(tileSize / 2.f, 0.f, -tileSize / 2.f));
+				XMStoreFloat3(&verts[2].position, tile->worldPosition + Vector3(-tileSize / 2.f, 0.f, -tileSize / 2.f));
+				XMStoreFloat3(&verts[3].position, tile->worldPosition + Vector3(-tileSize / 2.f, 0.f, tileSize / 2.f));
+				XMStoreFloat3(&verts[4].position, tile->worldPosition + Vector3(tileSize / 2.f, 0.f, tileSize / 2.f));
+
+				XMStoreFloat4(&verts[0].color, color);
+				XMStoreFloat4(&verts[1].color, color);
+				XMStoreFloat4(&verts[2].color, color);
+				XMStoreFloat4(&verts[3].color, color);
+				XMStoreFloat4(&verts[4].color, color);
+
+				m_batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP, verts, 5);
+			}
+		}
+	}
+	m_batch->End();
+}
+
+void Terrain::FillTile(Vector3 position, XMVECTOR color)
+{
+	VertexPositionColor v1(position + Vector3(tileSize / 2.f, 0.f, tileSize / 2.f), color);
+	VertexPositionColor v2(position + Vector3(tileSize / 2.f, 0.f, -tileSize / 2.f), color);
+	VertexPositionColor v3(position + Vector3(-tileSize / 2.f, 0.f, -tileSize / 2.f), color);
+	VertexPositionColor v4(position + Vector3(-tileSize / 2.f, 0.f, tileSize / 2.f), color);
+	
+	m_batch->Begin();
+	m_batch->DrawQuad(v1, v2, v3, v4);
+	m_batch->End();
+}
 
 void Terrain::MakeOcupied(dxmath::Vector3 position)
 {
@@ -221,30 +287,30 @@ void Terrain::Update(vector<ColliderBasePtr> colliders)
 	for each (ColliderBasePtr collider in colliders)
 	{
 		//if (collider->Type == AABB) {
-			ColliderAABBptr colliderr = dynamic_pointer_cast<ColliderAABB>(collider);
-			Vector3 center = colliderr->GetCenter();
-			Vector3 a = center + colliderr->GetExtents();
-			Vector3 b = center - colliderr->GetExtents();
-			Vector3 temp1 = a;
-			Vector3 temp2 = Vector3(temp1.x, temp1.y, b.z);
-			for (temp1.x; temp1.x > b.x; temp1.x -= tileSize / 3.f) {
-				temp2.x = temp1.x;
-				this->MakeOcupied(temp1);
-				this->MakeOcupied(temp2);
-			}
-			temp1 = a;
-			temp2 = Vector3(b.x, temp1.y, temp1.z);
-			for (temp1.z; temp1.z > b.z; temp1.z -= tileSize / 3.f) {
-				temp2.z = temp1.z;
-				this->MakeOcupied(temp1);
-				this->MakeOcupied(temp2);
-			}
-			this->MakeOcupied(center);
-			this->MakeOcupied(a);
-			this->MakeOcupied(b);
+		ColliderAABBptr colliderr = dynamic_pointer_cast<ColliderAABB>(collider);
+		Vector3 center = colliderr->GetCenter();
+		Vector3 a = center + colliderr->GetExtents();
+		Vector3 b = center - colliderr->GetExtents();
+		Vector3 temp1 = a;
+		Vector3 temp2 = Vector3(temp1.x, temp1.y, b.z);
+		for (temp1.x; temp1.x > b.x; temp1.x -= tileSize / 3.f) {
+			temp2.x = temp1.x;
+			this->MakeOcupied(temp1);
+			this->MakeOcupied(temp2);
+		}
+		temp1 = a;
+		temp2 = Vector3(b.x, temp1.y, temp1.z);
+		for (temp1.z; temp1.z > b.z; temp1.z -= tileSize / 3.f) {
+			temp2.z = temp1.z;
+			this->MakeOcupied(temp1);
+			this->MakeOcupied(temp2);
+		}
+		this->MakeOcupied(center);
+		this->MakeOcupied(a);
+		this->MakeOcupied(b);
 
 
-			continue;
+		continue;
 		//}
 		/*if (collider->Type == Sphere) {
 			ColliderSpherePtr colliderr = dynamic_pointer_cast<ColliderSphere>(collider);
@@ -319,15 +385,17 @@ MapTilePtr Terrain::GetTileWithPosition(dxmath::Vector3 position)
 	return nullptr;
 }
 
-MapTilePtr Terrain::GetTileAtPosition(Vector2 position)
+MapTilePtr Terrain::GetTileFromMap(Vector2 position)
 {
-	for each (MapTilePtr tile in tiles)
+	map<Vector2, MapTilePtr>::iterator it = tilesMap.find(position);
+	if (it != tilesMap.end())
 	{
-		if (tile->mapPosition.x == position.x && tile->mapPosition.y == position.y) {
-			return tile;
-		}
+		return tilesMap.at(position);
 	}
-	return nullptr;
+	else
+	{
+		return nullptr;
+	}
 }
 
 Vector3 Terrain::GetNearestNeighbor(dxmath::Vector3 position)

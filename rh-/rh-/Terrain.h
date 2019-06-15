@@ -16,14 +16,17 @@ public:
 	Terrain();
 	virtual ~Terrain();
 
-	void Initialize(ID3D11DeviceContext1*);
+	void Initialize(ID3D11DeviceContext1*, ID3D11Device1*, shared_ptr<Entity>);
 	void ResetTileMap();
 	void SetTilesPosition(int, int);
-	//void ConnectNeighboringTiles();
 	void CreateEdges();
+
 	void SetStaticObjects(vector<shared_ptr<PhysicsComponent>>);	
 
-	//void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
+	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
+	void DrawRange(Vector2, int, int, XMVECTOR);
+	void FillTile(Vector3, XMVECTOR);
+
 	void Update(vector<ColliderBasePtr>);
 	void ClearTiles();
 
@@ -38,7 +41,7 @@ public:
 	bool CanMove(dxmath::Vector3, dxmath::Vector3);
 	bool Within(MapTilePtr);
 	MapTilePtr GetTileWithPosition(Vector3);
-	MapTilePtr GetTileAtPosition(Vector2);
+	MapTilePtr GetTileFromMap(Vector2);
 	Vector3 GetNearestNeighbor(Vector3);
 	Vector3 FallBack(Vector3, Vector3);
 
@@ -48,13 +51,20 @@ public:
 	const int heightInTiles = 50;
 	const float tileSize = 1.f;
 	vector<MapTilePtr> tiles;
+	map<Vector2, MapTilePtr> tilesMap;
 	
-	vector<MapTilePtr> ocuppiedTiles;
+	//vector<MapTilePtr> ocuppiedTiles;
 	vector<shared_ptr<PhysicsComponent>> characters;
 
-	DirectX::SimpleMath::Matrix view;
-	DirectX::SimpleMath::Matrix projection;
-	//Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tex;
+	//DirectX::SimpleMath::Matrix view;
+	//DirectX::SimpleMath::Matrix projection;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tex;
 	ID3D11DeviceContext1* context;
+
+	shared_ptr<DirectX::CommonStates> m_states;
+	unique_ptr<DirectX::BasicEffect> m_effect;
+	unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
+	shared_ptr<Entity> playerEntity;
 };
 

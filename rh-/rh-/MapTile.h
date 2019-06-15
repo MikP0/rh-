@@ -26,6 +26,6 @@ public:
 	std::shared_ptr<MapTile> parent;
 	/*0 - NW, 1 - N, 2 - NE, 3 - W, 4 - E, 5 - SW, 6 - S, 7 - SE */
 	std::vector<std::shared_ptr<MapEdge>> edges;
-private:
+	std::shared_ptr<DirectX::GeometricPrimitive> block;
 };
 
