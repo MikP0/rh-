@@ -574,7 +574,7 @@ void Game::OnNewAudioDevice()
 void Game::GetDefaultSize(int& width, int& height)
 {
 	// TODO: Change to desired default window size (note minimum size is 320x200).
-	int w = 1320, h = 780;
+	int w = 1920, h = 1080;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
 	
