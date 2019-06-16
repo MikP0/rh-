@@ -21,9 +21,11 @@ public:
 	void SetTilesPosition(int, int);
 	void CreateEdges();
 
+	void CreateWorld(vector<shared_ptr<PhysicsComponent>>);
+
 	void SetStaticObjects(vector<shared_ptr<PhysicsComponent>>);	
 
-	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
+	void Draw(Camera);
 	void DrawRange(Vector2, int, int, XMVECTOR);
 	void FillTile(Vector3, XMVECTOR);
 
@@ -36,7 +38,9 @@ public:
 	float DiagonalDistance(dxmath::Vector3, dxmath::Vector3);
 	float HexDistance(dxmath::Vector3, dxmath::Vector3);
 
-	void MakeOcupied(dxmath::Vector3);
+	//void MakeOcupied(dxmath::Vector3);
+	void MakeOcupied(MapTilePtr);
+
 	bool CanWalk(dxmath::Vector3);
 	bool CanMove(dxmath::Vector3, dxmath::Vector3);
 	bool Within(MapTilePtr);
@@ -53,11 +57,8 @@ public:
 	vector<MapTilePtr> tiles;
 	map<Vector2, MapTilePtr> tilesMap;
 	
-	//vector<MapTilePtr> ocuppiedTiles;
 	vector<shared_ptr<PhysicsComponent>> characters;
 
-	//DirectX::SimpleMath::Matrix view;
-	//DirectX::SimpleMath::Matrix projection;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tex;
 	ID3D11DeviceContext1* context;
 

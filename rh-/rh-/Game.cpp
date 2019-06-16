@@ -417,7 +417,7 @@ void Game::Render()
 
 	Clear();
 
-	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom);
+	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
 
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
@@ -456,7 +456,8 @@ void Game::Render()
 
 	world->RefreshWorld();
 	if (!initTerrain) {
-		terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
+		terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
+		//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
 		initTerrain = true;
 	}
 	RenderObjects(context);
@@ -477,10 +478,10 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 	//XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 	//terrain->Update(collisionSystem->GetColliders());
-	if (vampireMode)
+	/*if (vampireMode)
 	{
 		terrain->Draw(camera, m_roomTex);
-	}
+	}*/
 	if (debugDraw) //REMOVE
 		renderableSystem->DebugDrawAction->DrawOctTree(
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
@@ -842,7 +843,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
 
 	//world->RefreshWorld();
-
+	renderableSystem->_terrain = terrain;
+	renderableSystem->_camera = &camera;
 
 }
 
