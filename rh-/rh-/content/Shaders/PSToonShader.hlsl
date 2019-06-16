@@ -143,7 +143,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 
 	OUT.rgb = ambient + totalLightContribution;
 	OUT.a = 1.0f;
-
+	
 
 	//Lights off
 	//OUT.rgb = color.rgb;

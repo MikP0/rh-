@@ -14,17 +14,21 @@ void LightSystem::Iterate()
 {
 	for (auto lightComponent : _world->GetComponents<LightComponent>())
 	{
-		if (lightComponent->UpdateAble)
+		if (lightComponent->_isEnabled)
 		{
-			if (lightComponent->LightType == LightTypeComponent::POINTLight)
+
+			if (lightComponent->UpdateAble)
 			{
-				_ShadowsfxFactory->UpdatePointLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
-				_noShadowsfxFactory->UpdatePointLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
-			}
-			else if (lightComponent->LightType == LightTypeComponent::SPOTLight)
-			{
-				_ShadowsfxFactory->UpdateSpotLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
-				_noShadowsfxFactory->UpdateSpotLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
+				if (lightComponent->LightType == LightTypeComponent::POINTLight)
+				{
+					_ShadowsfxFactory->UpdatePointLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
+					_noShadowsfxFactory->UpdatePointLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
+				}
+				else if (lightComponent->LightType == LightTypeComponent::SPOTLight)
+				{
+					_ShadowsfxFactory->UpdateSpotLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
+					_noShadowsfxFactory->UpdateSpotLight(lightComponent->Id, lightComponent->GetParent()->GetTransform()->GetPosition());
+				}
 			}
 		}
 	}

@@ -5,6 +5,8 @@ PlayerComponent::PlayerComponent()
 	attackType = 0;
 	vampireAbility = 0;
 
+	isHit = false;
+
 	isDancing = false;
 	isWalking = false;
 	isNormalAttack = false;

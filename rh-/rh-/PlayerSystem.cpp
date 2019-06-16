@@ -10,10 +10,12 @@ PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 	playerHealthOrigin = 0;
 
 
-	playerAttackCorutine.active = false;
+	playerNormalAttackCorutine.active = false;
+	playerPowerAttackCorutine.active = false;
 	playerBiteCorutine.active = false;
 	playerHittedCorutine.active = false;
 	playerHealedCorutine.active = false;
+	playerRipAttackCorutine.active = false;
 
 	collisionSystem = collSys;
 	playerRenderableComponent = nullptr;
@@ -76,15 +78,19 @@ void PlayerSystem::UpdateNormalMode()
 			{
 				if (coll->OriginObject->GetTag() == Tags::ENEMY)
 				{
-					player->attackType = 1;
-					player->enemyClicked = true;
-					player->targetedEnemy = coll->OriginObject;
+					if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+					{
+						player->attackType = 1;
+						player->enemyClicked = true;
+						player->targetedEnemy = coll->OriginObject;
+					}
 				}
 				else
 				{
 					player->enemyClicked = false;
 					player->targetedEnemy = nullptr;
-					playerAttackCorutine.active = false;
+					playerNormalAttackCorutine.active = false;
+					playerPowerAttackCorutine.active = false;
 					playerBiteCorutine.active = false;
 					player->isNormalAttack = false;
 					player->isPowerAttack = false;
@@ -102,7 +108,8 @@ void PlayerSystem::UpdateNormalMode()
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
-				playerAttackCorutine.active = false;
+				playerNormalAttackCorutine.active = false;
+				playerPowerAttackCorutine.active = false;
 				playerBiteCorutine.active = false;
 				player->isNormalAttack = false;
 				player->isPowerAttack = false;
@@ -129,7 +136,8 @@ void PlayerSystem::UpdateNormalMode()
 				{
 					player->enemyClicked = false;
 					player->targetedEnemy = nullptr;
-					playerAttackCorutine.active = false;
+					playerNormalAttackCorutine.active = false;
+					playerPowerAttackCorutine.active = false;
 					playerBiteCorutine.active = false;
 					player->isNormalAttack = false;
 					player->isPowerAttack = false;
@@ -148,7 +156,8 @@ void PlayerSystem::UpdateNormalMode()
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
-				playerAttackCorutine.active = false;
+				playerNormalAttackCorutine.active = false;
+				playerPowerAttackCorutine.active = false;
 				playerBiteCorutine.active = false;
 				player->isNormalAttack = false;
 				player->isPowerAttack = false;
@@ -176,7 +185,8 @@ void PlayerSystem::UpdateNormalMode()
 				{
 					player->enemyClicked = false;
 					player->targetedEnemy = nullptr;
-					playerAttackCorutine.active = false;
+					playerNormalAttackCorutine.active = false;
+					playerPowerAttackCorutine.active = false;
 					playerBiteCorutine.active = false;
 					player->isNormalAttack = false;
 					player->isPowerAttack = false;
@@ -191,7 +201,8 @@ void PlayerSystem::UpdateNormalMode()
 			{
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
-				playerAttackCorutine.active = false;
+				playerNormalAttackCorutine.active = false;
+				playerPowerAttackCorutine.active = false;
 				playerBiteCorutine.active = false;
 				player->isNormalAttack = false;
 				player->isPowerAttack = false;
@@ -204,7 +215,7 @@ void PlayerSystem::UpdateNormalMode()
 
 	if (player->enemyClicked)
 	{
-		if ((!playerAttackCorutine.active) && (!playerBiteCorutine.active))
+		if ((!playerNormalAttackCorutine.active) && (!playerPowerAttackCorutine.active) && (!playerBiteCorutine.active))
 		{
 			if (player->attackType == 1)
 			{
@@ -219,7 +230,7 @@ void PlayerSystem::UpdateNormalMode()
 					player->isWalking = false;
 					player->isNormalAttack = true;
 					player->isBiteAttack = false;
-					playerAttackCorutine.Restart(1.5f);
+					playerNormalAttackCorutine.Restart(1.5f);
 				}
 			}
 			else if (player->attackType == 2)
@@ -236,7 +247,7 @@ void PlayerSystem::UpdateNormalMode()
 					player->isPowerAttack = true;
 					player->isBiteAttack = false;
 					player->isNormalAttack = false;
-					playerAttackCorutine.Restart(1.5f);
+					playerPowerAttackCorutine.Restart(1.3f);
 				}
 			}
 			else if (player->attackType == 5)
@@ -316,7 +327,7 @@ void PlayerSystem::UpdateVampireMode()
 			if (player->enemyClicked)
 			{
 				player->isRipAttack = true;
-				playerAttackCorutine.Restart(2.5f);
+				playerRipAttackCorutine.Restart(2.5f);
 			}
 		}
 	}
@@ -361,27 +372,41 @@ void PlayerSystem::UpdateCorutines()
 {
 	if (!vampireMode)
 	{
-		if (playerAttackCorutine.active)
+		if (playerNormalAttackCorutine.active)
 		{
-			if (!(playerAttackCorutine.Update()))
+			if (!(playerNormalAttackCorutine.Update()))
 			{
 				player->isNormalAttack = false;
-				player->isPowerAttack = false;
 
 				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), player->targetedEnemy->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
 				{
-					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= 15.0f;
+					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerNormalAttackDamage;
+					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 				}
 
-				player->hittedEnemy = player->targetedEnemy;
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->attackType = 0;
+			}
+		}
+
+		if (playerPowerAttackCorutine.active)
+		{
+			if (!(playerPowerAttackCorutine.Update()))
+			{
+				player->isPowerAttack = false;
+
+				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), player->targetedEnemy->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
+				{
+					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerPoweAttackDamage;
+					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
+				}
 
 
-				player->hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
-				enemyHittedCorutine.Restart(0.1f);
+				player->enemyClicked = false;
+				player->targetedEnemy = nullptr;
+				player->attackType = 0;
 			}
 		}
 
@@ -391,48 +416,38 @@ void PlayerSystem::UpdateCorutines()
 			{
 				player->isBiteAttack = false;
 
-				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= 20.0f;
-
-				*playerHealth += 15.0f;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerBiteAttackDamage;
+				
+				*playerHealth += player->playerBiteAttackHealRate;
 
 				if (*playerHealth > playerHealthOrigin)
 					* playerHealth = playerHealthOrigin;
-
-				playerRenderableComponent->_modelSkinned->isHealed = true;
-				playerHealedCorutine.Restart(0.1f);
-
-
-				player->targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
-
-				player->hittedEnemy = player->targetedEnemy;
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->attackType = 0;
 
-				player->hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
-				enemyHittedCorutine.Restart(0.1f);
+				playerRenderableComponent->_modelSkinned->isHealed = true;
+				playerHealedCorutine.Restart(0.1f);
 			}
 		}
 	}
 	else
 	{
-		if (playerAttackCorutine.active)
+		if (playerRipAttackCorutine.active)
 		{
-			if (!(playerAttackCorutine.Update()))
+			if (!(playerRipAttackCorutine.Update()))
 			{
 				player->isRipAttack = false;
 
-				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= 35.0f;
-
-				player->hittedEnemy = player->targetedEnemy;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerRipAttackDamage;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->vampireAbility = 0;
-
-				player->hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
-				enemyHittedCorutine.Restart(0.1f);
 			}
 		}
 	}
@@ -530,7 +545,8 @@ void PlayerSystem::SetVampireMode(bool mode)
 	{
 		player->enemyClicked = false;
 		player->targetedEnemy = nullptr;
-		playerAttackCorutine.active = false;
+		playerNormalAttackCorutine.active = false;
+		playerPowerAttackCorutine.active = false;
 		playerBiteCorutine.active = false;
 		player->isNormalAttack = false;
 		player->isBiteAttack = false;
