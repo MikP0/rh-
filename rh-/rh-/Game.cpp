@@ -486,8 +486,8 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 		renderableSystem->DebugDrawAction->DrawOctTree(
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
-	// TODO: UI System
-	Ui->Draw(vampireMode, menuIsOn, total_Time, elapsed_Time);
+	// TODO: UI 
+	Ui->Draw(vampireMode, playerSystem->player->vampireAbility, menuIsOn, total_Time, elapsed_Time);
 }
 
 // Helper method to clear the back buffers.
