@@ -22,34 +22,38 @@ void UI::Initialize()
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack",
 		"teleport", "cleaveAttack", "swap","aoeAttack",
 		"fpsBackground", "popUpMenu", "heroIconVampire", "heroIconVampireRing",
-		"heroIconTransitionRing", "vamprireRedCircle"};
+		"heroIconTransitionRing", "vamprireRedCircle", "teleportCost", "cleaveAttackCost",
+		"swapCost"};
 
 	map<string, string> uiNameTexMap = {
 		{uiNames[0], "Resources\\UISprites\\hp_bar.dds"},
-		{uiNames[1], "Resources\\UISprites\\health.dds"},
+		{uiNames[1], "Resources\\UISprites\\Blood_Drop.dds"},
 		{uiNames[2], "Resources\\UISprites\\Hero_Circle_Normal.dds"},
 		{uiNames[3], "Resources\\UISprites\\red_border.dds"},
 		{uiNames[4], "Resources\\UISprites\\Normal_Attack.dds"},
 		{uiNames[5], "Resources\\UISprites\\Strong_Attack.dds"},
-		{uiNames[6], "Resources\\UISprites\\Spin_Attack.dds"},
+		{uiNames[6], "Resources\\UISprites\\Human_Blocked_Skill.dds"},
 		{uiNames[7], "Resources\\UISprites\\Bite_Attack.dds"},
 		{uiNames[8], "Resources\\UISprites\\Teleport.dds"},
 		{uiNames[9], "Resources\\UISprites\\Cleave_Attack.dds"},
 		{uiNames[10], "Resources\\UISprites\\Swap.dds"},
-		{uiNames[11], "Resources\\UISprites\\Aoe_Attack.dds"},
+		{uiNames[11], "Resources\\UISprites\\Vampire_Blocked_Skill.dds"},
 		{uiNames[12], "Resources\\UISprites\\fpsbar.dds"},
 		{uiNames[13], "Resources\\UISprites\\Menu.dds"},
 		{uiNames[14], "Resources\\UISprites\\Hero_Circle_Vampire.dds"},
 		{uiNames[15], "Resources\\UISprites\\Hero_Circle_Vampire_Ring.dds"},
 		{uiNames[16], "Resources\\UISprites\\Hero_Circle_Transition.dds"},
-		{uiNames[17], "Resources\\UISprites\\Vampire_Red_Circle.dds"}
+		{uiNames[17], "Resources\\UISprites\\Vampire_Red_Circle.dds"},
+		{uiNames[18], "Resources\\UISprites\\Blood_Drop_One.dds"},
+		{uiNames[19], "Resources\\UISprites\\Blood_Drop_Two.dds"},
+		{uiNames[20], "Resources\\UISprites\\Blood_Drop_One.dds"}
 	};
 
-	skillSetPosition = Vector2(650.0f, 800.0f);
+	skillSetPosition = Vector2(650.0f, 850.0f);
 
 	map<string, Vector2> uiNamePositionMap{
 		{uiNames[0], Vector2(0.0f, 0.0f)},
-		{uiNames[1], Vector2(135.f, 30.0f)},
+		{uiNames[1], Vector2(140.f, 28.0f)},
 		{uiNames[2], Vector2(0.0f, 0.0f)},
 		{uiNames[3], Vector2(0.0f, 0.0f)},
 		{uiNames[4], skillSetPosition},
@@ -65,28 +69,34 @@ void UI::Initialize()
 		{uiNames[14], Vector2(0.0f, 0.0f)},
 		{uiNames[15], Vector2(0.0f, 0.0f)},
 		{uiNames[16], Vector2(0.0f, 0.0f)},
-		{uiNames[17], skillSetPosition}
+		{uiNames[17], skillSetPosition},
+		{uiNames[18], skillSetPosition + Vector2(35.0f, -60.0f)},
+		{uiNames[19], Vector2(skillSetPosition.x + 150.0f + 15.0f, skillSetPosition.y - 60.0f)},
+		{uiNames[20], Vector2(skillSetPosition.x + 300.0f + 35.0f, skillSetPosition.y - 60.0f)}
 	};
 
 	map<string, Vector2> uiNameScaleMap{
 		{uiNames[0], Vector2(0.25f, 0.25f)},
-		{uiNames[1], Vector2(0.3f, 0.3f)},
+		{uiNames[1], Vector2(0.10f, 0.10f)},
 		{uiNames[2], Vector2(0.35f, 0.35f)},
 		{uiNames[3], Vector2(1.0f, 1.0f)},
-		{uiNames[4], Vector2(0.3f, 0.3f)},
-		{uiNames[5], Vector2(0.3f, 0.3f)},
-		{uiNames[6], Vector2(0.3f, 0.3f)},
-		{uiNames[7], Vector2(0.3f, 0.3f)},
-		{uiNames[8], Vector2(0.3f, 0.3f)},
-		{uiNames[9], Vector2(0.3f, 0.3f)},
-		{uiNames[10], Vector2(0.3f, 0.3f)},
-		{uiNames[11], Vector2(0.3f, 0.3f)},
+		{uiNames[4], Vector2(0.25f, 0.25f)},
+		{uiNames[5], Vector2(0.25f, 0.25f)},
+		{uiNames[6], Vector2(0.25f, 0.25f)},
+		{uiNames[7], Vector2(0.25f, 0.25f)},
+		{uiNames[8], Vector2(0.27f, 0.27f)},
+		{uiNames[9], Vector2(0.27f, 0.27f)},
+		{uiNames[10], Vector2(0.27f, 0.27f)},
+		{uiNames[11], Vector2(0.27f, 0.27f)},
 		{uiNames[12], Vector2(0.15f, 0.15f)},
 		{uiNames[13], Vector2(0.6f, 0.6f)},
 		{uiNames[14], Vector2(0.35f, 0.35f)},
 		{uiNames[15], Vector2(0.35f, 0.35f)},
 		{uiNames[16], Vector2(0.35f, 0.35f)},
-		{uiNames[17], Vector2(0.3f, 0.3f)}
+		{uiNames[17], Vector2(0.25f, 0.25f)},
+		{uiNames[18], Vector2(0.25f, 0.25f)},
+		{uiNames[19], Vector2(0.25f, 0.25f)},
+		{uiNames[20], Vector2(0.25f, 0.25f)}
 	};
 
 
@@ -128,18 +138,16 @@ void UI::DrawRedBorder()
 
 void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float totalTime, float elapsedTime)
 {
-	_elements["healthAmount"].scale.x = ((_elements["healthAmount"].scale.y * (*_playerHealth)) / _playerHealthOrigin);
-	if (_elements["healthAmount"].scale.x < 0)
-		_elements["healthAmount"].scale.x = 0;
-	else if (_elements["healthAmount"].scale.x > _playerHealthOrigin)
-		_elements["healthAmount"].scale.x = _elements["healthAmount"].scale.y;
-
 	uiSpriteBatch->Begin();
-	uiSpriteBatch->Draw(_elements["healthBar"].texture.Get(), _elements["healthBar"].position, nullptr, Colors::White,
-		0.f, Vector2(0, 0), _elements["healthBar"].scale);
 
-	uiSpriteBatch->Draw(_elements["healthAmount"].texture.Get(), _elements["healthAmount"].position, nullptr, Colors::White,
-		0.f, Vector2(0, 0), _elements["healthAmount"].scale);
+	/*uiSpriteBatch->Draw(_elements["healthBar"].texture.Get(), _elements["healthBar"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _elements["healthBar"].scale);*/
+
+	for (int i = 0; i < (int)*_playerHealth; i++)
+	{
+		uiSpriteBatch->Draw(_elements["healthAmount"].texture.Get(), _elements["healthAmount"].position + i * Vector2(40.0f, 0.0f), nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["healthAmount"].scale);
+	}
 
 	if (!vampireMode)
 	{
@@ -203,6 +211,16 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 			uiSpriteBatch->Draw(_elements["vamprireRedCircle"].texture.Get(), vampireRedCirclePos, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _elements["vamprireRedCircle"].scale);
 		}
+
+		uiSpriteBatch->Draw(_elements["teleportCost"].texture.Get(), _elements["teleportCost"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["teleportCost"].scale);
+
+		uiSpriteBatch->Draw(_elements["cleaveAttackCost"].texture.Get(), _elements["cleaveAttackCost"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["cleaveAttackCost"].scale);
+
+		uiSpriteBatch->Draw(_elements["swapCost"].texture.Get(), _elements["swapCost"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["swapCost"].scale);
+
 	}
 
 	uiSpriteBatch->Draw(_elements["fpsBackground"].texture.Get(), _elements["fpsBackground"].position, nullptr, Colors::White,
