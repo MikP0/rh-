@@ -531,6 +531,12 @@ void PlayerSystem::UpdateAnimations()
 	{
 		if (player->isWalking)
 		{
+			player->footstepAudio->Mute = false;
+			//player->footstepAudio->Delay = 1.1f;
+			if (player->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
+				player->footstepAudio->AudioFile->Play();
+			}
+			
 			playerRenderableComponent->_modelSkinned->currentAnimation = "Walk";
 		}
 		else if ((!player->isWalking) && (player->isNormalAttack))

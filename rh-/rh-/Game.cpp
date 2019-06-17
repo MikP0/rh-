@@ -191,13 +191,13 @@ void Game::Update(DX::StepTimer const& timer)
 
 
 
-			if (*iter == playSound1)
-			{
-				audioSound1->Mute = false;
+			//if (*iter == playSound1)
+			//{
+			//	audioSound1->Mute = false;
 
 				//if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
 				//	healthBarHealthPos.x -= 5.f;
-			}
+			//}
 
 			if (*iter == freeCamera) {
 				freeCameraLook = !freeCameraLook;
@@ -650,8 +650,11 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2 = world->CreateEntity("Cup2");
 	myEntity3 = world->CreateEntity("Cup3");
 	myEntity4 = world->CreateEntity("Cup4");
-	myEntity5 = world->CreateEntity("BackgroundAudioEntity");
-	myEntity6 = world->CreateEntity("Sound1AudioEntity");
+
+	backgroundAudio = world->CreateEntity("BackgroundAudio");
+	damageAudio = world->CreateEntity("DamageAudio");
+	footstepAudio = world->CreateEntity("FootstepAudio");
+
 	pointLightEntity1 = world->CreateEntity("PointLight1");
 	spotLightEntity1 = world->CreateEntity("SpotLight1");
 	//directLightEntity1 = world->CreateEntity("DirectLight1");
@@ -675,8 +678,9 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 
 	// Creation of audio components ------------------------------------------------------------------
-	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
-	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+	backgroundAudio->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
+	damageAudio->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+	footstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\step.wav");
 
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
@@ -733,17 +737,29 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	for (auto component : world->GetComponents<AudioComponent>())
 	{
 		if (strcmp(component->GetParent()->GetName().c_str(),
-			"BackgroundAudioEntity") == 0)
+			"BackgroundAudio") == 0)
 		{
 			audioBackgroundSound = component;
 			audioBackgroundSound->Loop = true;
+			//audioBackgroundSound->Mute = false;
 			continue;
 		}
 
 		if (strcmp(component->GetParent()->GetName().c_str(),
-			"Sound1AudioEntity") == 0)
+			"DamageAudio") == 0)
 		{
-			audioSound1 = component;
+			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
+			enemyEntity1->GetComponent<EnemyComponent>()->damageAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->damageAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(),
+			"FootstepAudio") == 0)
+		{
+			playerEntity->GetComponent<PlayerComponent>()->footstepAudio = component;
+			//playerEntity->GetComponent<PlayerComponent>()->footstepAudio->Loop = true;
+			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
 			continue;
 		}
 	}

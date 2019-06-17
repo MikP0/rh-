@@ -111,9 +111,9 @@ private:
 	std::shared_ptr<Entity> myEntity2;
 	std::shared_ptr<Entity> myEntity3;
 	std::shared_ptr<Entity> myEntity4;
-	std::shared_ptr<Entity> myEntity5;
-	std::shared_ptr<Entity> myEntity6;
-
+	std::shared_ptr<Entity> backgroundAudio;
+	std::shared_ptr<Entity> damageAudio;
+	std::shared_ptr<Entity>	footstepAudio;
 
 
 	std::shared_ptr<Entity> enemyEntity1;
@@ -187,7 +187,6 @@ private:
 	//Audio
 	std::shared_ptr<AudioSystem> audioSystem;
 	std::shared_ptr<AudioComponent> audioBackgroundSound;
-	std::shared_ptr<AudioComponent> audioSound1;
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
 
