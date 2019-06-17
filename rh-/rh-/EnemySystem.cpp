@@ -94,6 +94,14 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 
 			enemy->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
 			enemy->navMesh->Move(Coroutine::elapsedTime);
+
+			if (enemy->footstepAudio != nullptr) {
+				enemy->footstepAudio->Mute = false;
+				enemy->footstepAudio->Volume = 0.000000000001f;
+				if (enemy->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
+					enemy->footstepAudio->AudioFile->Play();
+				}
+			}
 		}
 		else
 		{
