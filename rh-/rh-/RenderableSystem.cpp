@@ -104,8 +104,7 @@ void RenderableSystem::Iterate()
 		}
 	}
 
-	ClearAfterRenderShadows();
-
+	ClearAfterRenderShadows();	
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
@@ -127,6 +126,10 @@ void RenderableSystem::Iterate()
 	}
 
 	BloomBlur();
+	if(vampireMode)
+	{
+		_terrain->Draw(*_camera);
+	}	
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
@@ -179,7 +182,7 @@ void RenderableSystem::Initialize()
 	}
 }
 
-void RenderableSystem::SentResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView, std::shared_ptr<Entity> Player, int screenWidth, int screenHeight)
+void RenderableSystem::SentResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView, std::shared_ptr<Entity> Player, int screenWidth, int screenHeight, bool vampireMode)
 {
 	if (!_isSent)
 	{
@@ -195,6 +198,8 @@ void RenderableSystem::SentResources(ID3D11RenderTargetView* renderTargetView, I
 		_screenWidth = screenWidth;
 		_screenHeight = screenHeight;
 	}
+
+	this->vampireMode = vampireMode;
 }
 
 void RenderableSystem::PrepareToRenderShadows()

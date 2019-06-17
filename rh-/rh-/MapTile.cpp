@@ -6,6 +6,8 @@ MapTile::MapTile()
 {
 	f = 0;
 	g = 0;
+	type = empty;
+	walkable = true;
 }
 
 

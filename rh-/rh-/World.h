@@ -80,7 +80,7 @@ public:
 	//Entity CreateEntity();
 	std::shared_ptr<Entity> CreateEntity(std::string name);
 
-	void KillEntity(Entity& entity);
+	void KillEntity(std::shared_ptr<Entity> entity);
 	void KillEntities(std::vector<Entity>& entities);
 
 	void ActivteEntity(Entity& entity);
