@@ -56,6 +56,6 @@ public:
 
 	std::shared_ptr<AudioComponent> footstepAudio;
 
-	std::shared_ptr<AudioComponent> damageAudio;
+	//std::shared_ptr<AudioComponent> damageAudio;
 };
 

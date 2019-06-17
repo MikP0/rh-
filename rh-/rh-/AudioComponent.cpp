@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "AudioComponent.h"
 
-
 AudioComponent::AudioComponent(string path)
 {
 	SetIsEnabled(true);

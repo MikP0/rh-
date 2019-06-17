@@ -111,10 +111,12 @@ private:
 	std::shared_ptr<Entity> myEntity2;
 	std::shared_ptr<Entity> myEntity3;
 	std::shared_ptr<Entity> myEntity4;
+
 	std::shared_ptr<Entity> backgroundAudio;
 	std::shared_ptr<Entity> damageAudio;
-	std::shared_ptr<Entity>	footstepAudio;
-
+	std::shared_ptr<Entity>	playerFootstepAudio;
+	std::shared_ptr<Entity>	enemyFootstepAudio;
+	std::shared_ptr<Entity> swordSlashAudio;
 
 	std::shared_ptr<Entity> enemyEntity1;
 	std::shared_ptr<Entity> enemyEntity2;

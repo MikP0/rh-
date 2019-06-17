@@ -238,8 +238,15 @@ void Terrain::Draw(Camera camera)
 		color = Colors::IndianRed;
 		for each (shared_ptr<PhysicsComponent> var in characters)
 		{
-			MapTilePtr tempTile = GetTileWithPosition(var->GetParent()->GetTransform()->GetPosition());
-			FillTile(tempTile->worldPosition, color);
+			if (var != nullptr) {
+				MapTilePtr tempTile = GetTileWithPosition(var->GetParent()->GetTransform()->GetPosition());
+				FillTile(tempTile->worldPosition, color);
+			}
+			else {
+				vector<shared_ptr<PhysicsComponent>>::iterator position = std::find(characters.begin(), characters.end(), var);
+				if (position != characters.end())
+					characters.erase(position);
+			}
 		}
 	}
 

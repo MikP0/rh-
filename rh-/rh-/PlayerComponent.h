@@ -59,7 +59,7 @@ public:
 	const float playerAfterEnemyKilledHealRate = 2.0f;
 
 	std::shared_ptr<AudioComponent> footstepAudio;
-
+	std::shared_ptr<AudioComponent> swordAudio;
 	std::shared_ptr<AudioComponent> damageAudio;
 };
 
