@@ -6,6 +6,7 @@
 #include "ToonFactory.h"
 #include "DebugDraw.h"
 #include "PhysicsSystem.h"
+#include "Terrain.h"
 
 #include "ShadowMap.h"
 #include "ShadowFactory.h"
@@ -31,7 +32,7 @@ public:
 	virtual void Iterate() override;
 	virtual void Initialize() override;
 
-	void SentResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView, std::shared_ptr<Entity> Player, int screenWidth, int screenHeight);
+	void SentResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView, std::shared_ptr<Entity> Player, int screenWidth, int screenHeight, bool vampireMode);
 	void PrepareToRenderShadows();
 	void ClearAfterRenderShadows();
 	void BloomBlur();
@@ -48,6 +49,10 @@ public:
 
 	bool Debug;
 	std::unique_ptr<DebugDraw> DebugDrawAction;
+
+	std::shared_ptr<Terrain> _terrain;
+	Camera* _camera;
+	bool vampireMode;
 
 	std::shared_ptr<Entity> _player;
 	std::unique_ptr<ShadowMap> _shadowMap;

@@ -11,6 +11,7 @@
 
 #include <thread>
 #include <chrono>
+#include "DebugDraw.h"
 
 extern void ExitGame();
 
@@ -23,7 +24,7 @@ namespace
 {
 	const XMVECTORF32 ROOM_BOUNDS = { 1.f, 0.f, 1.f, 0.f }; //REMOVE
 	const float COLLISION_SCENE_RANGE = 55.0f; // Octtree construcor
-	const Vector3 SCENE_CENTER = Vector3(20,0,20); //Octtree constructor
+	const Vector3 SCENE_CENTER = Vector3(20, 0, 20); //Octtree constructor
 	const float ROTATION_GAIN = 0.008f; // REMOVE
 	const float MOVEMENT_GAIN = 0.07f; // REMOVE
 
@@ -43,7 +44,7 @@ void Game::Initialize(HWND window, int width, int height)
 {
 
 	m_deviceResources->SetWindow(window, width, height);
-	
+
 
 	m_deviceResources->CreateDeviceResources();
 	CreateDeviceDependentResources();
@@ -60,9 +61,9 @@ void Game::Initialize(HWND window, int width, int height)
 void Game::Tick()
 {
 	m_timer.Tick([&]()
-		{
-			Update(m_timer);
-		});
+	{
+		Update(m_timer);
+	});
 
 	Render();
 }
@@ -129,7 +130,7 @@ void Game::Update(DX::StepTimer const& timer)
 					//	if (strcmp(component->GetParent()->GetName().c_str(),
 					//		"Player") == 0)
 					//	{
-					//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
+					//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component
 					//		component->_modelSkinned->SetInMove(true);
 					//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
 					//		isDancing = true;
@@ -188,7 +189,7 @@ void Game::Update(DX::StepTimer const& timer)
 				audioBackgroundSound->Mute = false;
 			}
 
-			
+
 
 			if (*iter == playSound1)
 			{
@@ -218,7 +219,7 @@ void Game::Update(DX::StepTimer const& timer)
 	if (!menuIsOn)
 	{
 		//Camera Movement
-		if (freeCameraLook) 
+		if (freeCameraLook)
 		{
 			if (mouse.positionMode == Mouse::MODE_RELATIVE)
 			{
@@ -416,7 +417,7 @@ void Game::Render()
 
 	Clear();
 
-	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom);
+	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
 
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
@@ -427,12 +428,12 @@ void Game::Render()
 	{
 		renderableSystem->BloomBlurParams.size = 25.0f;
 	}
-	else 
+	else
 	{
 		renderableSystem->BloomBlurParams.size = 1.0f;
 	}
 
-	if (Input::GetKeyboardState().D7 && brightness > 1.0f )
+	if (Input::GetKeyboardState().D7 && brightness > 1.0f)
 	{
 		brightness -= 0.2f;
 	}
@@ -455,15 +456,11 @@ void Game::Render()
 
 	world->RefreshWorld();
 	if (!initTerrain) {
-		terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
+		terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
+		//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
 		initTerrain = true;
 	}
 	RenderObjects(context);
-
-
-
-
-
 
 	context;
 
@@ -481,8 +478,10 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 	//XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 	//terrain->Update(collisionSystem->GetColliders());
-	//terrain->Draw(camera, m_roomTex);
-
+	/*if (vampireMode)
+	{
+		terrain->Draw(camera, m_roomTex);
+	}*/
 	if (debugDraw) //REMOVE
 		renderableSystem->DebugDrawAction->DrawOctTree(
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
@@ -510,7 +509,7 @@ void Game::Clear()
 	// Set the viewport.
 	auto viewport = m_deviceResources->GetScreenViewport();
 	context->RSSetViewports(1, &viewport);
-	
+
 
 	m_deviceResources->PIXEndEvent();
 }
@@ -577,7 +576,7 @@ void Game::GetDefaultSize(int& width, int& height)
 	int w = 1920, h = 1080;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
-	
+
 	width = w;
 	height = h;
 }
@@ -592,8 +591,8 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	// TODO: Initialize device dependent objects here (independent of window size).
 
-	
-	m_states = std::make_shared<CommonStates>(device); //REMOVE
+
+	//m_states = std::make_shared<CommonStates>(device); //REMOVE
 
 	m_fxFactory = std::make_unique<EffectFactory>(device); //REMOVE
 
@@ -623,6 +622,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
 
 	worldLoader->LoadWorldFromXML("testLevel.xml");
+	worldLoader->LoadWorldFromXML("testLevel2.xml");
 
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
@@ -769,7 +769,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
 
 	// Setting up terrain tile map -------------------------------------------------------------------
-	terrain->InitTileMap(context, collisionSystem->GetColliders());
+	terrain->Initialize(context, device, playerEntity);
 
 
 	DX::ThrowIfFailed(
@@ -792,7 +792,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
 	playerSystem->AdditionalInitialization(terrain);
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
-	
+
 	//Setting up UI -----------------------------------------------------------------------------------
 	Ui = make_shared<UI>(device, context, playerSystem->playerHealthOrigin, playerSystem->playerHealth);
 
@@ -844,12 +844,14 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
 
 	//world->RefreshWorld();
+	renderableSystem->_terrain = terrain;
+	renderableSystem->_camera = &camera;
+
 }
 
 void Game::OnDeviceLost()
 {
 	// TODO: Add Direct3D resource cleanup here.
-	m_states.reset();
 	m_fxFactory.reset();
 
 	myEntity1->Model.reset();
@@ -866,7 +868,6 @@ void Game::OnDeviceLost()
 	m_planeTex.Reset();
 
 	Ui->Reset();
-
 }
 
 void Game::OnDeviceRestored()
