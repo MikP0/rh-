@@ -523,7 +523,7 @@ void PlayerSystem::UpdateAnimations()
 		if (player->isWalking)
 		{
 			player->footstepAudio->Mute = false;
-			//player->footstepAudio->Delay = 1.1f;
+			player->footstepAudio->Volume = 0.01f;
 			if (player->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
 				player->footstepAudio->AudioFile->Play();
 			}
@@ -546,7 +546,7 @@ void PlayerSystem::UpdateAnimations()
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-			playerRenderableComponent->_modelSkinned->currentAnimation = "PowerAttack";
+			playerRenderableComponent->_modelSkinned->currentAnimation = "PowerAttack";			
 		}
 		else if ((!player->isWalking) && (player->isBiteAttack))
 		{
