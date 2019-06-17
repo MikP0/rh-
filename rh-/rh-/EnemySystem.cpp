@@ -17,9 +17,18 @@ void EnemySystem::Iterate()
 		{
 			if (enemyComponent->_isEnabled)
 			{
-				SetStates(enemyComponent);
-				ApplyStates(enemyComponent);
-				CheckCorutines(enemyComponent);
+				if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+				{
+					enemyComponent->enemyState = EnemyState::IDLE;
+					enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
+					enemyComponent->navMesh->isMoving = false;
+				}
+				else
+				{
+					SetStates(enemyComponent);
+					ApplyStates(enemyComponent);
+					CheckCorutines(enemyComponent);
+				}
 			}
 		}
 	}
@@ -206,7 +215,7 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 			enemy->SetIsEnabled(false);
 			enemy->GetParent()->SetActive(false);
 
-			*playerHealth += 1.0f;
+			player->GetComponent<PlayerComponent>()->AddPlayerHealth(1.0f);
 		}
 	}
 

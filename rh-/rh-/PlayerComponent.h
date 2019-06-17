@@ -43,6 +43,9 @@ public:
 	std::shared_ptr<NavMesh> navMesh;
 
 
+	void AddPlayerHealth(float HealthRate);
+
+
 	const float playerNormalAttackDamage = 1.0f;
 	const float playerPoweAttackDamage = 3.0f;
 	const float playerBiteAttackDamage = 2.0f;

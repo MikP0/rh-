@@ -48,6 +48,8 @@ public:
 
 	void PlayerHit();
 
+	
+
 
 	void UpdateNormalMode();
 	void UpdateVampireMode();

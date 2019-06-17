@@ -30,3 +30,11 @@ PlayerComponent::PlayerComponent()
 PlayerComponent::~PlayerComponent()
 {
 }
+
+void PlayerComponent::AddPlayerHealth(float HealthRate)
+{
+	*playerHealth += HealthRate;
+
+	if (*playerHealth > playerHealthOrigin)
+		* playerHealth = playerHealthOrigin;
+}
