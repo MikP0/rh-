@@ -136,6 +136,7 @@ void EnemySystem::Iterate()
 					enemyComponent->GetParent()->GetComponent<RenderableComponent>()->_modelSkinned->playingAnimation = false;
 					enemyComponent->dyingCorutine.active = true;
 					enemyComponent->GetParent()->GetComponent<RenderableComponent>()->_modelSkinned->isVisible = false;
+					_world->KillEntity(enemyComponent->GetParent());
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 #include "Include\\Common.fxh"
 #include "Include\\ShadowMap.fx"
 
-#define MAX_NUMBER_OF_LIGHT 10
+#define MAX_NUMBER_OF_LIGHT 25
 
 cbuffer StaticBuffer : register(b0)
 {
