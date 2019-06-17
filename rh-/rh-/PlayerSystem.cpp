@@ -309,7 +309,10 @@ void PlayerSystem::UpdateVampireMode()
 	{
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1))
 		{
-			player->vampireAbility = 1;
+			if (player->vampireAbility != 1)
+				player->vampireAbility = 1;
+			else
+				player->vampireAbility = 0;
 		}
 
 		if (player->vampireAbility == 1)
@@ -328,7 +331,10 @@ void PlayerSystem::UpdateVampireMode()
 
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D2))
 		{
-			player->vampireAbility = 2;
+			if (player->vampireAbility != 2)
+				player->vampireAbility = 2;
+			else
+				player->vampireAbility = 0;
 		}
 
 		if (player->vampireAbility == 2)
@@ -364,7 +370,10 @@ void PlayerSystem::UpdateVampireMode()
 
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D3))
 		{
-			player->vampireAbility = 3;
+			if (player->vampireAbility != 3)
+				player->vampireAbility = 3;
+			else
+				player->vampireAbility = 0;
 		}
 
 		if (player->vampireAbility == 3)
@@ -528,6 +537,12 @@ void PlayerSystem::UpdateAnimations()
 	{
 		if (player->isWalking)
 		{
+			player->footstepAudio->Mute = false;
+			//player->footstepAudio->Delay = 1.1f;
+			if (player->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
+				player->footstepAudio->AudioFile->Play();
+			}
+			
 			playerRenderableComponent->_modelSkinned->currentAnimation = "Walk";
 		}
 		else if ((!player->isWalking) && (player->isNormalAttack))
