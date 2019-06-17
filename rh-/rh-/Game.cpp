@@ -771,7 +771,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			audioBackgroundSound = component;
 			audioBackgroundSound->Loop = true;
 			audioBackgroundSound->Volume = 0.1f;
-			audioBackgroundSound->Mute = false;
+			//audioBackgroundSound->Mute = false;
 			continue;
 		}
 
@@ -793,7 +793,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			"EnemyFootstepAudio") == 0)
 		{
 			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
-			//enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(),
