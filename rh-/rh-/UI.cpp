@@ -22,7 +22,7 @@ void UI::Initialize()
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack",
 		"teleport", "cleaveAttack", "swap","aoeAttack",
 		"fpsBackground", "popUpMenu", "heroIconVampire", "heroIconVampireRing",
-		"heroIconTransitionRing"};
+		"heroIconTransitionRing", "vamprireRedCircle"};
 
 	map<string, string> uiNameTexMap = {
 		{uiNames[0], "Resources\\UISprites\\hp_bar.dds"},
@@ -41,7 +41,8 @@ void UI::Initialize()
 		{uiNames[13], "Resources\\UISprites\\Menu.dds"},
 		{uiNames[14], "Resources\\UISprites\\Hero_Circle_Vampire.dds"},
 		{uiNames[15], "Resources\\UISprites\\Hero_Circle_Vampire_Ring.dds"},
-		{uiNames[16], "Resources\\UISprites\\Hero_Circle_Transition.dds"}
+		{uiNames[16], "Resources\\UISprites\\Hero_Circle_Transition.dds"},
+		{uiNames[17], "Resources\\UISprites\\Vampire_Red_Circle.dds"}
 	};
 
 	skillSetPosition = Vector2(650.0f, 800.0f);
@@ -63,7 +64,8 @@ void UI::Initialize()
 		{uiNames[13], Vector2(250.0f, 100.0f)},
 		{uiNames[14], Vector2(0.0f, 0.0f)},
 		{uiNames[15], Vector2(0.0f, 0.0f)},
-		{uiNames[16], Vector2(0.0f, 0.0f)}
+		{uiNames[16], Vector2(0.0f, 0.0f)},
+		{uiNames[17], skillSetPosition}
 	};
 
 	map<string, Vector2> uiNameScaleMap{
@@ -83,7 +85,8 @@ void UI::Initialize()
 		{uiNames[13], Vector2(0.6f, 0.6f)},
 		{uiNames[14], Vector2(0.35f, 0.35f)},
 		{uiNames[15], Vector2(0.35f, 0.35f)},
-		{uiNames[16], Vector2(0.35f, 0.35f)}
+		{uiNames[16], Vector2(0.35f, 0.35f)},
+		{uiNames[17], Vector2(0.3f, 0.3f)}
 	};
 
 
@@ -123,7 +126,7 @@ void UI::DrawRedBorder()
 	uiSpriteBatchBorder->End();
 }
 
-void UI::Draw(bool vampireMode, bool menuIsOn, float totalTime, float elapsedTime)
+void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float totalTime, float elapsedTime)
 {
 	_elements["healthAmount"].scale.x = ((_elements["healthAmount"].scale.y * (*_playerHealth)) / _playerHealthOrigin);
 	if (_elements["healthAmount"].scale.x < 0)
@@ -153,7 +156,7 @@ void UI::Draw(bool vampireMode, bool menuIsOn, float totalTime, float elapsedTim
 			0.f, Vector2(0, 0), _elements["spinAttack"].scale);
 
 		uiSpriteBatch->Draw(_elements["biteAttack"].texture.Get(), _elements["biteAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["biteAttack"].scale);
+			0.f, Vector2(0, 0), _elements["biteAttack"].scale);	
 	}
 	else
 	{
@@ -192,6 +195,14 @@ void UI::Draw(bool vampireMode, bool menuIsOn, float totalTime, float elapsedTim
 
 		uiSpriteBatch->Draw(_elements["aoeAttack"].texture.Get(), _elements["aoeAttack"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _elements["aoeAttack"].scale);
+
+		if (selectedVampireAbility != 0)
+		{
+			Vector2 vampireRedCirclePos = _elements["vamprireRedCircle"].position + Vector2(150.0f * (selectedVampireAbility - 1), 0.0f);
+
+			uiSpriteBatch->Draw(_elements["vamprireRedCircle"].texture.Get(), vampireRedCirclePos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _elements["vamprireRedCircle"].scale);
+		}
 	}
 
 	uiSpriteBatch->Draw(_elements["fpsBackground"].texture.Get(), _elements["fpsBackground"].position, nullptr, Colors::White,
