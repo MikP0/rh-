@@ -5,6 +5,7 @@
 #include "Coroutine.h"
 #include "NavMesh.h"
 #include "Entity.h"
+#include "AudioComponent.h"	
 
 class PlayerComponent : public Component
 {
@@ -14,6 +15,8 @@ public:
 
 	int attackType;
 	int vampireAbility;
+
+	bool isHit;
 
 	bool isDancing;
 	bool isWalking;
@@ -33,11 +36,30 @@ public:
 	const float playerBiteDistance = 1.0f;
 	const float playerAttackDistance = 1.0f;
 	
-	const float playerHealthOrigin = 100.0f;
+	const float playerHealthOrigin = 10.0f;
 	std::shared_ptr<float> playerHealth;
 
 	float playerSpeed;
 
 	std::shared_ptr<NavMesh> navMesh;
+
+
+	void AddPlayerHealth(float HealthRate);
+
+
+	const float playerNormalAttackDamage = 1.0f;
+	const float playerPoweAttackDamage = 3.0f;
+	const float playerBiteAttackDamage = 2.0f;
+	const float playerBiteAttackHealRate = 3.0f;
+	const float playerRipAttackDamage = 4.0f;
+
+	const float playerRipPlayerDamage = 2.0f;
+	const float playerTeleportSwapDamage = 1.0f;
+
+	const float playerAfterEnemyKilledHealRate = 2.0f;
+
+	std::shared_ptr<AudioComponent> footstepAudio;
+
+	std::shared_ptr<AudioComponent> damageAudio;
 };
 

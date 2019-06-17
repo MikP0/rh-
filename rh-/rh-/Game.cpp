@@ -11,6 +11,7 @@
 
 #include <thread>
 #include <chrono>
+#include "DebugDraw.h"
 
 extern void ExitGame();
 
@@ -23,7 +24,7 @@ namespace
 {
 	const XMVECTORF32 ROOM_BOUNDS = { 1.f, 0.f, 1.f, 0.f }; //REMOVE
 	const float COLLISION_SCENE_RANGE = 55.0f; // Octtree construcor
-	const Vector3 SCENE_CENTER = Vector3(20,0,20); //Octtree constructor
+	const Vector3 SCENE_CENTER = Vector3(20, 0, 20); //Octtree constructor
 	const float ROTATION_GAIN = 0.008f; // REMOVE
 	const float MOVEMENT_GAIN = 0.07f; // REMOVE
 
@@ -43,7 +44,7 @@ void Game::Initialize(HWND window, int width, int height)
 {
 
 	m_deviceResources->SetWindow(window, width, height);
-	
+
 
 	m_deviceResources->CreateDeviceResources();
 	CreateDeviceDependentResources();
@@ -60,9 +61,9 @@ void Game::Initialize(HWND window, int width, int height)
 void Game::Tick()
 {
 	m_timer.Tick([&]()
-		{
-			Update(m_timer);
-		});
+	{
+		Update(m_timer);
+	});
 
 	Render();
 }
@@ -129,7 +130,7 @@ void Game::Update(DX::StepTimer const& timer)
 					//	if (strcmp(component->GetParent()->GetName().c_str(),
 					//		"Player") == 0)
 					//	{
-					//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component 
+					//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component
 					//		component->_modelSkinned->SetInMove(true);
 					//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
 					//		isDancing = true;
@@ -188,15 +189,15 @@ void Game::Update(DX::StepTimer const& timer)
 				audioBackgroundSound->Mute = false;
 			}
 
-			
 
-			if (*iter == playSound1)
-			{
-				audioSound1->Mute = false;
+
+			//if (*iter == playSound1)
+			//{
+			//	audioSound1->Mute = false;
 
 				//if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
 				//	healthBarHealthPos.x -= 5.f;
-			}
+			//}
 
 			if (*iter == freeCamera) {
 				freeCameraLook = !freeCameraLook;
@@ -218,7 +219,7 @@ void Game::Update(DX::StepTimer const& timer)
 	if (!menuIsOn)
 	{
 		//Camera Movement
-		if (freeCameraLook) 
+		if (freeCameraLook)
 		{
 			if (mouse.positionMode == Mouse::MODE_RELATIVE)
 			{
@@ -416,7 +417,7 @@ void Game::Render()
 
 	Clear();
 
-	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom);
+	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
 
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
@@ -427,12 +428,12 @@ void Game::Render()
 	{
 		renderableSystem->BloomBlurParams.size = 25.0f;
 	}
-	else 
+	else
 	{
 		renderableSystem->BloomBlurParams.size = 1.0f;
 	}
 
-	if (Input::GetKeyboardState().D7 && brightness > 1.0f )
+	if (Input::GetKeyboardState().D7 && brightness > 1.0f)
 	{
 		brightness -= 0.2f;
 	}
@@ -455,15 +456,11 @@ void Game::Render()
 
 	world->RefreshWorld();
 	if (!initTerrain) {
-		terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
+		terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
+		//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
 		initTerrain = true;
 	}
 	RenderObjects(context);
-
-
-
-
-
 
 	context;
 
@@ -481,8 +478,10 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 	//XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
 	//terrain->Update(collisionSystem->GetColliders());
-	//terrain->Draw(camera, m_roomTex);
-
+	/*if (vampireMode)
+	{
+		terrain->Draw(camera, m_roomTex);
+	}*/
 	if (debugDraw) //REMOVE
 		renderableSystem->DebugDrawAction->DrawOctTree(
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
@@ -510,7 +509,7 @@ void Game::Clear()
 	// Set the viewport.
 	auto viewport = m_deviceResources->GetScreenViewport();
 	context->RSSetViewports(1, &viewport);
-	
+
 
 	m_deviceResources->PIXEndEvent();
 }
@@ -577,7 +576,7 @@ void Game::GetDefaultSize(int& width, int& height)
 	int w = 1920, h = 1080;
 	camera.SetScreenWidth(w);
 	camera.SetScreenHeight(h);
-	
+
 	width = w;
 	height = h;
 }
@@ -592,8 +591,8 @@ void Game::CreateDeviceDependentResources()												// !!  CreateDevice()
 
 	// TODO: Initialize device dependent objects here (independent of window size).
 
-	
-	m_states = std::make_shared<CommonStates>(device); //REMOVE
+
+	//m_states = std::make_shared<CommonStates>(device); //REMOVE
 
 	m_fxFactory = std::make_unique<EffectFactory>(device); //REMOVE
 
@@ -635,10 +634,10 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	// Adding systems to world ------------------------------------------------------------------
 	world->AddSystem<PhysicsSystem>(collisionSystem, 0);
-	world->AddSystem<LightSystem>(lightSystem, 1);
-	world->AddSystem<AudioSystem>(audioSystem, 2);
-	world->AddSystem<PlayerSystem>(playerSystem, 3);
-	world->AddSystem<EnemySystem>(enemySystem, 4);
+	world->AddSystem<PlayerSystem>(playerSystem, 1);
+	world->AddSystem<EnemySystem>(enemySystem, 2);
+	world->AddSystem<AudioSystem>(audioSystem, 3);
+	world->AddSystem<LightSystem>(lightSystem, 4);
 	world->AddSystem<RenderableSystem>(renderableSystem, 5);
 
 	/*
@@ -651,8 +650,11 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	myEntity2 = world->CreateEntity("Cup2");
 	myEntity3 = world->CreateEntity("Cup3");
 	myEntity4 = world->CreateEntity("Cup4");
-	myEntity5 = world->CreateEntity("BackgroundAudioEntity");
-	myEntity6 = world->CreateEntity("Sound1AudioEntity");
+
+	backgroundAudio = world->CreateEntity("BackgroundAudio");
+	damageAudio = world->CreateEntity("DamageAudio");
+	footstepAudio = world->CreateEntity("FootstepAudio");
+
 	pointLightEntity1 = world->CreateEntity("PointLight1");
 	spotLightEntity1 = world->CreateEntity("SpotLight1");
 	//directLightEntity1 = world->CreateEntity("DirectLight1");
@@ -676,8 +678,9 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 
 	// Creation of audio components ------------------------------------------------------------------
-	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
-	myEntity6->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+	backgroundAudio->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
+	damageAudio->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
+	footstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\step.wav");
 
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
@@ -688,8 +691,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
 	// Creation of enemy components ------------------------------------------------------------------
-	enemyEntity1->AddComponent<EnemyComponent>(50.f);
-	enemyEntity2->AddComponent<EnemyComponent>(50.f);
+	enemyEntity1->AddComponent<EnemyComponent>(3.f);
+	enemyEntity2->AddComponent<EnemyComponent>(3.f);
 
 	playerEntity->AddComponent<PlayerComponent>();
 
@@ -734,20 +737,33 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	for (auto component : world->GetComponents<AudioComponent>())
 	{
 		if (strcmp(component->GetParent()->GetName().c_str(),
-			"BackgroundAudioEntity") == 0)
+			"BackgroundAudio") == 0)
 		{
 			audioBackgroundSound = component;
 			audioBackgroundSound->Loop = true;
+			//audioBackgroundSound->Mute = false;
 			continue;
 		}
 
 		if (strcmp(component->GetParent()->GetName().c_str(),
-			"Sound1AudioEntity") == 0)
+			"DamageAudio") == 0)
 		{
-			audioSound1 = component;
+			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
+			enemyEntity1->GetComponent<EnemyComponent>()->damageAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->damageAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(),
+			"FootstepAudio") == 0)
+		{
+			playerEntity->GetComponent<PlayerComponent>()->footstepAudio = component;
+			//playerEntity->GetComponent<PlayerComponent>()->footstepAudio->Loop = true;
+			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
 			continue;
 		}
 	}
+
 
 	//// Setting up parameters of colliders ----------------------------------------------------------------
 
@@ -770,7 +786,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	//colliderBoundingCup2 = std::dynamic_pointer_cast<ColliderSphere>(colliderCup2->ColliderBounding);
 
 	// Setting up terrain tile map -------------------------------------------------------------------
-	terrain->InitTileMap(context, collisionSystem->GetColliders());
+	terrain->Initialize(context, device, playerEntity);
 
 
 	DX::ThrowIfFailed(
@@ -793,7 +809,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
 	playerSystem->AdditionalInitialization(terrain);
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
-	
+
 	//Setting up UI -----------------------------------------------------------------------------------
 	Ui = make_shared<UI>(device, context, playerSystem->playerHealthOrigin, playerSystem->playerHealth);
 
@@ -821,6 +837,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
 
 	component = enemyEntity2->GetComponent<RenderableComponent>();
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
@@ -828,6 +845,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
 
 	Ui->Initialize();
 
@@ -845,12 +863,14 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
 
 	//world->RefreshWorld();
+	renderableSystem->_terrain = terrain;
+	renderableSystem->_camera = &camera;
+
 }
 
 void Game::OnDeviceLost()
 {
 	// TODO: Add Direct3D resource cleanup here.
-	m_states.reset();
 	m_fxFactory.reset();
 
 	myEntity1->Model.reset();
@@ -867,7 +887,6 @@ void Game::OnDeviceLost()
 	m_planeTex.Reset();
 
 	Ui->Reset();
-
 }
 
 void Game::OnDeviceRestored()

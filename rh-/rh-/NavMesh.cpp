@@ -70,7 +70,8 @@ void NavMesh::Move(float deltaTime)
 {
 	if (isMoving)
 	{
-		if (!terrain->GetTileWithPosition(localDestination)->walkable) {
+		MapTilePtr checkTile = terrain->GetTileWithPosition(localDestination);
+		if (checkTile != nullptr && !checkTile->walkable) {
 			localDestination = terrain->FallBack(transform->GetPosition(), previousPosition);
 			RotateAndSetStep();
 		}

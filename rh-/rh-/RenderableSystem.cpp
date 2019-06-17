@@ -73,70 +73,82 @@ void RenderableSystem::Iterate()
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+		if (renderableComponent->_isEnabled)
+		{
+			std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
 
-		if (it != objectsToRender.end())
-		{
-		if (renderableComponent->_model == nullptr)
-		{
-			if (renderableComponent->_modelSkinned->isVisible)
+			if (it != objectsToRender.end())
 			{
-				renderableComponent->_modelSkinned->drawToShadows = true;
-
-				if (renderableComponent->_modelSkinned->playingAnimation)
+				if (renderableComponent->_model == nullptr)
 				{
-					renderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip(renderableComponent->_modelSkinned->currentAnimation);
-					renderableComponent->_modelSkinned->GetAnimatorPlayer()->Update(Coroutine::GetElapsedTime());	// update animation
-				}
+					if (renderableComponent->_modelSkinned->isVisible)
+					{
+						renderableComponent->_modelSkinned->drawToShadows = true;
 
-				renderableComponent->_modelSkinned->DrawModel(
-					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-					_shadowMap->_lightView,
-					_shadowMap->_lightProj
-				);
-				
-				renderableComponent->_modelSkinned->drawToShadows = false;
+						if (renderableComponent->_modelSkinned->playingAnimation)
+						{
+							renderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip(renderableComponent->_modelSkinned->currentAnimation);
+							renderableComponent->_modelSkinned->GetAnimatorPlayer()->Update(Coroutine::GetElapsedTime());	// update animation
+						}
+
+						renderableComponent->_modelSkinned->DrawModel(
+							_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+							_shadowMap->_lightView,
+							_shadowMap->_lightProj
+						);
+
+						renderableComponent->_modelSkinned->drawToShadows = false;
+					}
+				}
 			}
-		}
 		}
 	}
 
-	ClearAfterRenderShadows();
-
+	ClearAfterRenderShadows();	
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
-		
-		if (it != objectsToRender.end())
+		if (renderableComponent->_isEnabled)
 		{
-			if (renderableComponent->_model != nullptr) {
-				renderableComponent->_model->Draw(
-					_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-					renderableComponent->_camera->GetViewMatrix(),
-					renderableComponent->_camera->GetProjectionMatrix()
-				);
+			std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+
+			if (it != objectsToRender.end())
+			{
+				if (renderableComponent->_model != nullptr) {
+					renderableComponent->_model->Draw(
+						_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+						renderableComponent->_camera->GetViewMatrix(),
+						renderableComponent->_camera->GetProjectionMatrix()
+					);
+				}
 			}
 		}
 	}
 
 	BloomBlur();
+	if(vampireMode)
+	{
+		_terrain->Draw(*_camera);
+	}	
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
-		std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
-
-		if (it != objectsToRender.end())
+		if (renderableComponent->_isEnabled)
 		{
-			if (renderableComponent->_model == nullptr)
+			std::vector<int>::iterator it = std::find(objectsToRender.begin(), objectsToRender.end(), renderableComponent->GetParent()->GetId());
+
+			if (it != objectsToRender.end())
 			{
-				if (renderableComponent->_modelSkinned->isVisible)
+				if (renderableComponent->_model == nullptr)
 				{
-					renderableComponent->_modelSkinned->DrawModel(
-						_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
-						renderableComponent->_camera->GetViewMatrix(),
-						renderableComponent->_camera->GetProjectionMatrix()
-					);
+					if (renderableComponent->_modelSkinned->isVisible)
+					{
+						renderableComponent->_modelSkinned->DrawModel(
+							_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+							renderableComponent->_camera->GetViewMatrix(),
+							renderableComponent->_camera->GetProjectionMatrix()
+						);
+					}
 				}
 			}
 		}
@@ -170,7 +182,7 @@ void RenderableSystem::Initialize()
 	}
 }
 
-void RenderableSystem::SentResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView, std::shared_ptr<Entity> Player, int screenWidth, int screenHeight)
+void RenderableSystem::SentResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView, std::shared_ptr<Entity> Player, int screenWidth, int screenHeight, bool vampireMode)
 {
 	if (!_isSent)
 	{
@@ -186,6 +198,8 @@ void RenderableSystem::SentResources(ID3D11RenderTargetView* renderTargetView, I
 		_screenWidth = screenWidth;
 		_screenHeight = screenHeight;
 	}
+
+	this->vampireMode = vampireMode;
 }
 
 void RenderableSystem::PrepareToRenderShadows()
@@ -212,7 +226,7 @@ void RenderableSystem::ClearAfterRenderShadows()
 	_ShadowsfxFactory->SetShadowMapTransform(_shadowMap->_lightShadowTransform);
 
 
-	_context->ClearRenderTargetView(_sceneRT.Get(), myColor);
+	_context->ClearRenderTargetView(_sceneRT.Get(), Colors::Silver);
 	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	_context->OMSetRenderTargets(1, _sceneRT.GetAddressOf(), _depthStencilView);
 }

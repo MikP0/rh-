@@ -8,7 +8,7 @@
 using namespace std;
 
 typedef shared_ptr<MapTile> MapTilePtr;
-typedef std::shared_ptr<ColliderBase> ColliderBasePtr;
+typedef shared_ptr<ColliderBase> ColliderBasePtr;
 
 class Terrain
 {
@@ -16,41 +16,50 @@ public:
 	Terrain();
 	virtual ~Terrain();
 
-	void InitTileMap(ID3D11DeviceContext1*, vector<ColliderBasePtr>);
+	void Initialize(ID3D11DeviceContext1*, ID3D11Device1*, shared_ptr<Entity>);
 	void ResetTileMap();
-	void SetTilePositionsAndTypes();
-	void ConnectNeighboringTiles();
-	void SetStaticObjects(vector<std::shared_ptr<PhysicsComponent>>);
-	void MakeOcupied(dxmath::Vector3);
+	void SetTilesPosition(int, int);
+	void CreateEdges();
 
-	void Draw(Camera, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>);
-	void Update(vector<ColliderBasePtr>);
-	void ClearTiles();
+	void CreateWorld(vector<shared_ptr<PhysicsComponent>>);
+	void MakeOcupied(MapTilePtr);
 
+	void Draw(Camera);
+	void DrawRange(Vector2, int, int, XMVECTOR);
+	void FillTile(Vector3, XMVECTOR);
+
+	vector<MapTilePtr> GetPath(MapTilePtr, MapTilePtr);
 	float EuklideanDistance(dxmath::Vector3, dxmath::Vector3);
 	float ManhattanDistance(dxmath::Vector3, dxmath::Vector3);
 	float DiagonalDistance(dxmath::Vector3, dxmath::Vector3);
 	float HexDistance(dxmath::Vector3, dxmath::Vector3);
 
-	std::vector<MapTilePtr> GetPath(MapTilePtr, MapTilePtr);
 
 	bool CanWalk(dxmath::Vector3);
 	bool CanMove(dxmath::Vector3, dxmath::Vector3);
 	bool Within(MapTilePtr);
 	MapTilePtr GetTileWithPosition(Vector3);
+	MapTilePtr GetTileFromMap(Vector2);
 	Vector3 GetNearestNeighbor(Vector3);
 	Vector3 FallBack(Vector3, Vector3);
 
-	ID3D11DeviceContext1* context;
-	std::vector<MapTilePtr> tiles;
-	std::vector<MapTilePtr> ocuppiedTiles;
-	int widthInTiles;
-	int heightInTiles;
+
+
+	const int widthInTiles = 70;
+	const int heightInTiles = 100;
 	const float tileSize = 1.f;
+	vector<MapTilePtr> tiles;
+	map<Vector2, MapTilePtr> tilesMap;
+	
 	vector<shared_ptr<PhysicsComponent>> characters;
 
-	DirectX::SimpleMath::Matrix view;
-	DirectX::SimpleMath::Matrix projection;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tex;
+	ID3D11DeviceContext1* context;
+
+	shared_ptr<DirectX::CommonStates> m_states;
+	unique_ptr<DirectX::BasicEffect> m_effect;
+	unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
+	shared_ptr<Entity> playerEntity;
 };
 

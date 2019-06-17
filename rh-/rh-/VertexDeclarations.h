@@ -20,7 +20,7 @@ typedef struct _VertexPositionColorSkin
 
 	_VertexPositionColorSkin(const DirectX::XMFLOAT4& position, const DirectX::XMFLOAT4& color)
 		: Position(position), Color(color) { }
-} _VertexPositionColorSkin;
+} VertexPositionColorSkin;
 
 typedef struct _VertexPositionTexture
 {
