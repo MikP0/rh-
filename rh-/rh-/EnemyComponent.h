@@ -5,11 +5,22 @@
 #include "Entity.h"
 #include "Coroutine.h"
 
+enum EnemyState
+{
+	IDLE = 1,
+	FOLLOW = 2,
+	ATTACK = 3,
+	HIT = 4,
+	BITED = 5,
+	DYING = 6,
+	DEAD = 0
+};
+
 class EnemyComponent : public Component
 {
 public:
 	EnemyComponent();
-	EnemyComponent(float Health, float Speed = 20.0f, float AttackLength = 1.9f, float Damage = 10.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 10.f);
+	EnemyComponent(float Health, float Speed = 20.0f, float AttackLength = 1.9f, float Damage = 1.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 10.f);
 	virtual ~EnemyComponent();
 
 
@@ -21,13 +32,11 @@ public:
 	float damage;
 	float distanceToAttack;
 
+	std::shared_ptr<RenderableComponent> enemyRenderableComponent;
+
 	std::shared_ptr<NavMesh> navMesh;
 
 	float followPlayerDistance;
-
-
-	bool walking;
-	bool attack;
 
 	bool hit;
 	bool bited;
@@ -38,6 +47,10 @@ public:
 
 	Coroutine dyingCorutine;
 
-	Coroutine playerHittedCorutine;
+	Coroutine hitCorutine;
+
+	Coroutine hitColorCorutine;
+
+	EnemyState enemyState;
 };
 

@@ -17,10 +17,9 @@ public:
 	void SwitchEnabled(void);
 	void SetIsEnabled(bool flag);
 
+	bool _isEnabled = true;
+
 protected:
 	std::shared_ptr<Entity> _parentEntity;
-
-private:
-	bool _isEnabled;
 };
 

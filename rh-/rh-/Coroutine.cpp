@@ -9,13 +9,28 @@ Coroutine::~Coroutine()
 Coroutine::Coroutine()
 {
 	this->waitTime = 0;
+	this->eventTime = 0;
 	this->active = false;
+	this->corutineEvent = false;
+	this->eventDone = true;
 }
 
 Coroutine::Coroutine(float time)
 {
 	this->waitTime = time;
+	this->eventTime = 0;
 	this->active = true;
+	this->corutineEvent = false;
+	this->eventDone = true;
+}
+
+Coroutine::Coroutine(float time, float eventTime)
+{
+	this->waitTime = time;
+	this->eventTime = eventTime;
+	this->active = true;
+	this->corutineEvent = false;
+	this->eventDone = true;
 }
 
 bool Coroutine::Update()
@@ -40,6 +55,15 @@ float Coroutine::GetTime()
 void Coroutine::Restart(float time)
 {
 	this->waitTime = time;
+	this->active = true;
+	this->eventDone = true;
+}
+
+void Coroutine::RestartWithEvent(float time, float eventTime)
+{
+	this->waitTime = time;
+	this->eventTime = eventTime;
+	this->eventDone = false;
 	this->active = true;
 }
 

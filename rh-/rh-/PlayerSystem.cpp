@@ -10,10 +10,12 @@ PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 	playerHealthOrigin = 0;
 
 
-	playerAttackCorutine.active = false;
+	playerNormalAttackCorutine.active = false;
+	playerPowerAttackCorutine.active = false;
 	playerBiteCorutine.active = false;
 	playerHittedCorutine.active = false;
 	playerHealedCorutine.active = false;
+	playerRipAttackCorutine.active = false;
 
 	collisionSystem = collSys;
 	playerRenderableComponent = nullptr;
@@ -28,6 +30,9 @@ void PlayerSystem::Iterate()
 {
 	keyboardTracker.Update(Input::GetKeyboardState());
 	mouseTracker.Update(Input::GetMouseState());
+
+	if (player->isHit)
+		PlayerHit();
 
 	if (!vampireMode)
 	{
@@ -61,6 +66,13 @@ void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain)
 	player->navMesh->speed = player->playerSpeed;
 }
 
+void PlayerSystem::PlayerHit()
+{
+	player->isHit = false;
+	playerRenderableComponent->_modelSkinned->isHitted = true;
+	playerHittedCorutine.Restart(0.1f);
+}
+
 void PlayerSystem::UpdateNormalMode()
 {
 	if (!playerBiteCorutine.active)
@@ -76,19 +88,27 @@ void PlayerSystem::UpdateNormalMode()
 			{
 				if (coll->OriginObject->GetTag() == Tags::ENEMY)
 				{
-					player->attackType = 1;
-					player->enemyClicked = true;
-					player->targetedEnemy = coll->OriginObject;
-				}
-				else
-				{
-					player->enemyClicked = false;
-					player->targetedEnemy = nullptr;
-					playerAttackCorutine.active = false;
-					playerBiteCorutine.active = false;
-					player->isNormalAttack = false;
-					player->isPowerAttack = false;
-					player->attackType = 0;
+					if (player->targetedEnemy)
+					{
+						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName())
+						{
+							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+							{
+								player->attackType = 1;
+								player->enemyClicked = true;
+								player->targetedEnemy = coll->OriginObject;
+							}
+						}
+					}
+					else
+					{
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+						{
+							player->attackType = 1;
+							player->enemyClicked = true;
+							player->targetedEnemy = coll->OriginObject;
+						}
+					}
 				}
 			}
 
@@ -102,7 +122,8 @@ void PlayerSystem::UpdateNormalMode()
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
-				playerAttackCorutine.active = false;
+				playerNormalAttackCorutine.active = false;
+				playerPowerAttackCorutine.active = false;
 				playerBiteCorutine.active = false;
 				player->isNormalAttack = false;
 				player->isPowerAttack = false;
@@ -121,20 +142,27 @@ void PlayerSystem::UpdateNormalMode()
 			{
 				if (coll->OriginObject->GetTag() == Tags::ENEMY)
 				{
-					player->attackType = 2;
-					player->enemyClicked = true;
-					player->targetedEnemy = coll->OriginObject;
-				}
-				else
-				{
-					player->enemyClicked = false;
-					player->targetedEnemy = nullptr;
-					playerAttackCorutine.active = false;
-					playerBiteCorutine.active = false;
-					player->isNormalAttack = false;
-					player->isPowerAttack = false;
-					player->isBiteAttack = false;
-					player->attackType = 0;
+					if (player->targetedEnemy)
+					{
+						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName())
+						{
+							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+							{
+								player->attackType = 2;
+								player->enemyClicked = true;
+								player->targetedEnemy = coll->OriginObject;
+							}
+						}
+					}
+					else
+					{
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+						{
+							player->attackType = 2;
+							player->enemyClicked = true;
+							player->targetedEnemy = coll->OriginObject;
+						}
+					}
 				}
 			}
 
@@ -142,13 +170,14 @@ void PlayerSystem::UpdateNormalMode()
 
 			if ((!player->enemyClicked) || (collisionsWithRay.size() == 0))
 			{
-				Vector3 destination = Raycast::GetPointOnGround(*camera);
-				player->navMesh->SetDestination(destination);
-				player->isWalking = true;
+				//Vector3 destination = Raycast::GetPointOnGround(*camera);
+				//player->navMesh->SetDestination(destination);
+				//player->isWalking = true;
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
-				playerAttackCorutine.active = false;
+				playerNormalAttackCorutine.active = false;
+				playerPowerAttackCorutine.active = false;
 				playerBiteCorutine.active = false;
 				player->isNormalAttack = false;
 				player->isPowerAttack = false;
@@ -156,7 +185,6 @@ void PlayerSystem::UpdateNormalMode()
 				player->attackType = 0;
 			}
 		}
-
 
 
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::E))
@@ -176,7 +204,8 @@ void PlayerSystem::UpdateNormalMode()
 				{
 					player->enemyClicked = false;
 					player->targetedEnemy = nullptr;
-					playerAttackCorutine.active = false;
+					playerNormalAttackCorutine.active = false;
+					playerPowerAttackCorutine.active = false;
 					playerBiteCorutine.active = false;
 					player->isNormalAttack = false;
 					player->isPowerAttack = false;
@@ -191,7 +220,8 @@ void PlayerSystem::UpdateNormalMode()
 			{
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
-				playerAttackCorutine.active = false;
+				playerNormalAttackCorutine.active = false;
+				playerPowerAttackCorutine.active = false;
 				playerBiteCorutine.active = false;
 				player->isNormalAttack = false;
 				player->isPowerAttack = false;
@@ -204,7 +234,7 @@ void PlayerSystem::UpdateNormalMode()
 
 	if (player->enemyClicked)
 	{
-		if ((!playerAttackCorutine.active) && (!playerBiteCorutine.active))
+		if ((!playerNormalAttackCorutine.active) && (!playerPowerAttackCorutine.active) && (!playerBiteCorutine.active))
 		{
 			if (player->attackType == 1)
 			{
@@ -219,7 +249,7 @@ void PlayerSystem::UpdateNormalMode()
 					player->isWalking = false;
 					player->isNormalAttack = true;
 					player->isBiteAttack = false;
-					playerAttackCorutine.Restart(1.5f);
+					playerNormalAttackCorutine.Restart(1.5f);
 				}
 			}
 			else if (player->attackType == 2)
@@ -236,7 +266,7 @@ void PlayerSystem::UpdateNormalMode()
 					player->isPowerAttack = true;
 					player->isBiteAttack = false;
 					player->isNormalAttack = false;
-					playerAttackCorutine.Restart(1.5f);
+					playerPowerAttackCorutine.Restart(1.3f);
 				}
 			}
 			else if (player->attackType == 5)
@@ -272,86 +302,94 @@ void PlayerSystem::UpdateNormalMode()
 
 void PlayerSystem::UpdateVampireMode()
 {
-	if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1))
+	if (!playerRipAttackCorutine.active)
 	{
-		player->vampireAbility = 1;
-	}
-
-	if (player->vampireAbility == 1)
-	{
-		if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1))
 		{
-			Vector3 destination = Raycast::GetPointOnGround(*camera);
-			playerEntity->GetTransform()->SetPosition(destination);
-			player->vampireAbility = 0;
-			*playerHealth -= 15.0f;
-
-			playerRenderableComponent->_modelSkinned->isHitted = true;
-			playerHittedCorutine.Restart(0.1f);
+			player->vampireAbility = 1;
 		}
-	}
 
-	
-	if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D2))
-	{
-		player->vampireAbility = 2;
-	}
-
-	if (player->vampireAbility == 2)
-	{
-		if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+		if (player->vampireAbility == 1)
 		{
-			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			for each (shared_ptr<Collision> coll in collisionsWithRay)
+			if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
-				if (coll->OriginObject->GetTag() == Tags::ENEMY) //&& (coll->RayIntersectDist < 1.5f))
-				{
-					player->enemyClicked = true;
-					player->targetedEnemy = coll->OriginObject;
-				}
-			}
-
-			if (player->enemyClicked)
-			{
-				player->isRipAttack = true;
-				playerAttackCorutine.Restart(2.5f);
-			}
-		}
-	}
-
-
-	if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D3))
-	{
-		player->vampireAbility = 3;
-	}
-
-	if (player->vampireAbility == 3)
-	{
-		if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
-		{
-			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			for each (shared_ptr<Collision> coll in collisionsWithRay)
-			{
-				if (coll->OriginObject->GetTag() == Tags::ENEMY)
-				{
-					player->enemyClicked = true;
-					player->targetedEnemy = coll->OriginObject;
-				}
-			}
-
-			if (player->enemyClicked)
-			{
-				DirectX::SimpleMath::Vector3 tempVec = playerEntity->GetTransform()->GetPosition();
-				playerEntity->GetTransform()->SetPosition(player->targetedEnemy->GetTransform()->GetPosition());
-				player->targetedEnemy->GetTransform()->SetPosition(tempVec);
-
-				player->enemyClicked = false;
-				player->targetedEnemy = nullptr;
+				Vector3 destination = Raycast::GetPointOnGround(*camera);
+				playerEntity->GetTransform()->SetPosition(destination);
 				player->vampireAbility = 0;
+				*playerHealth -= player->playerTeleportSwapDamage;
+
+				PlayerHit();
+			}
+		}
+
+
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D2))
+		{
+			player->vampireAbility = 2;
+		}
+
+		if (player->vampireAbility == 2)
+		{
+			if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+			{
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				for each (shared_ptr<Collision> coll in collisionsWithRay)
+				{
+					if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), coll->OriginObject->GetTransform()->GetPosition(), Vector3(player->playerAttackDistance, .1f, player->playerAttackDistance)))
+					{
+						if (coll->OriginObject->GetTag() == Tags::ENEMY)
+						{
+							player->enemyClicked = true;
+							player->targetedEnemy = coll->OriginObject;
+						}
+					}
+				}
+
+				if (player->enemyClicked)
+				{
+					player->isRipAttack = true;
+					playerRipAttackCorutine.Restart(2.5f);
+				}
+			}
+		}
+
+
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D3))
+		{
+			player->vampireAbility = 3;
+		}
+
+		if (player->vampireAbility == 3)
+		{
+			if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+			{
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				for each (shared_ptr<Collision> coll in collisionsWithRay)
+				{
+					if (coll->OriginObject->GetTag() == Tags::ENEMY)
+					{
+						player->enemyClicked = true;
+						player->targetedEnemy = coll->OriginObject;
+					}
+				}
+
+				if (player->enemyClicked)
+				{
+					DirectX::SimpleMath::Vector3 tempVec = playerEntity->GetTransform()->GetPosition();
+					playerEntity->GetTransform()->SetPosition(player->targetedEnemy->GetTransform()->GetPosition());
+					player->targetedEnemy->GetTransform()->SetPosition(tempVec);
+
+					*playerHealth -= player->playerTeleportSwapDamage;
+					PlayerHit();
+
+					player->enemyClicked = false;
+					player->targetedEnemy = nullptr;
+					player->vampireAbility = 0;
+				}
 			}
 		}
 	}
@@ -361,27 +399,41 @@ void PlayerSystem::UpdateCorutines()
 {
 	if (!vampireMode)
 	{
-		if (playerAttackCorutine.active)
+		if (playerNormalAttackCorutine.active)
 		{
-			if (!(playerAttackCorutine.Update()))
+			if (!(playerNormalAttackCorutine.Update()))
 			{
 				player->isNormalAttack = false;
-				player->isPowerAttack = false;
 
 				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), player->targetedEnemy->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
 				{
-					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= 15.0f;
+					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerNormalAttackDamage;
+					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 				}
 
-				player->hittedEnemy = player->targetedEnemy;
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->attackType = 0;
+			}
+		}
+
+		if (playerPowerAttackCorutine.active)
+		{
+			if (!(playerPowerAttackCorutine.Update()))
+			{
+				player->isPowerAttack = false;
+
+				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), player->targetedEnemy->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
+				{
+					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerPoweAttackDamage;
+					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
+				}
 
 
-				player->hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
-				enemyHittedCorutine.Restart(0.1f);
+				player->enemyClicked = false;
+				player->targetedEnemy = nullptr;
+				player->attackType = 0;
 			}
 		}
 
@@ -391,59 +443,43 @@ void PlayerSystem::UpdateCorutines()
 			{
 				player->isBiteAttack = false;
 
-				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= 20.0f;
-
-				*playerHealth += 15.0f;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerBiteAttackDamage;
+				
+				*playerHealth += player->playerBiteAttackHealRate;
 
 				if (*playerHealth > playerHealthOrigin)
 					* playerHealth = playerHealthOrigin;
-
-				playerRenderableComponent->_modelSkinned->isHealed = true;
-				playerHealedCorutine.Restart(0.1f);
-
-
-				player->targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
-
-				player->hittedEnemy = player->targetedEnemy;
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->attackType = 0;
 
-				player->hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
-				enemyHittedCorutine.Restart(0.1f);
+				playerRenderableComponent->_modelSkinned->isHealed = true;
+				playerHealedCorutine.Restart(0.1f);
 			}
 		}
 	}
 	else
 	{
-		if (playerAttackCorutine.active)
+		if (playerRipAttackCorutine.active)
 		{
-			if (!(playerAttackCorutine.Update()))
+			if (!(playerRipAttackCorutine.Update()))
 			{
 				player->isRipAttack = false;
 
-				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= 35.0f;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerRipAttackDamage;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 
-				player->hittedEnemy = player->targetedEnemy;
+				
+				*playerHealth -= player->playerRipPlayerDamage;
+				PlayerHit();
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->vampireAbility = 0;
-
-				player->hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
-				enemyHittedCorutine.Restart(0.1f);
 			}
-		}
-	}
-
-
-	if (enemyHittedCorutine.active)
-	{
-		if (!(enemyHittedCorutine.Update()))
-		{
-			player->hittedEnemy->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = false;
-			player->hittedEnemy = nullptr;
 		}
 	}
 
@@ -530,7 +566,8 @@ void PlayerSystem::SetVampireMode(bool mode)
 	{
 		player->enemyClicked = false;
 		player->targetedEnemy = nullptr;
-		playerAttackCorutine.active = false;
+		playerNormalAttackCorutine.active = false;
+		playerPowerAttackCorutine.active = false;
 		playerBiteCorutine.active = false;
 		player->isNormalAttack = false;
 		player->isBiteAttack = false;
@@ -541,5 +578,10 @@ void PlayerSystem::SetVampireMode(bool mode)
 	else
 	{
 		player->vampireAbility = 0;
+		playerRipAttackCorutine.active = false;
+		player->isRipAttack = false;
+		playerRenderableComponent->_modelSkinned->currentAnimation = "Idle";
+		player->enemyClicked = false;
+		player->targetedEnemy = nullptr;
 	}
 }

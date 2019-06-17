@@ -37,14 +37,18 @@ public:
 	bool vampireMode;
 	void SetVampireMode(bool mode);
 
-	Coroutine playerAttackCorutine;
+	Coroutine playerNormalAttackCorutine;
+	Coroutine playerPowerAttackCorutine;
 	Coroutine playerBiteCorutine;
 	Coroutine playerHittedCorutine;
 	Coroutine playerHealedCorutine;
-
-	Coroutine enemyHittedCorutine;
+	Coroutine playerRipAttackCorutine;
 
 	Camera* camera;
+
+	void PlayerHit();
+
+	
 
 
 	void UpdateNormalMode();

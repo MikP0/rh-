@@ -634,10 +634,10 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	// Adding systems to world ------------------------------------------------------------------
 	world->AddSystem<PhysicsSystem>(collisionSystem, 0);
-	world->AddSystem<LightSystem>(lightSystem, 1);
-	world->AddSystem<AudioSystem>(audioSystem, 2);
-	world->AddSystem<PlayerSystem>(playerSystem, 3);
-	world->AddSystem<EnemySystem>(enemySystem, 4);
+	world->AddSystem<PlayerSystem>(playerSystem, 1);
+	world->AddSystem<EnemySystem>(enemySystem, 2);
+	world->AddSystem<AudioSystem>(audioSystem, 3);
+	world->AddSystem<LightSystem>(lightSystem, 4);
 	world->AddSystem<RenderableSystem>(renderableSystem, 5);
 
 	/*
@@ -687,8 +687,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
 	// Creation of enemy components ------------------------------------------------------------------
-	enemyEntity1->AddComponent<EnemyComponent>(50.f);
-	enemyEntity2->AddComponent<EnemyComponent>(50.f);
+	enemyEntity1->AddComponent<EnemyComponent>(3.f);
+	enemyEntity2->AddComponent<EnemyComponent>(3.f);
 
 	playerEntity->AddComponent<PlayerComponent>();
 
@@ -747,6 +747,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			continue;
 		}
 	}
+
 
 	//// Setting up parameters of colliders ----------------------------------------------------------------
 
@@ -820,6 +821,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
 
 	component = enemyEntity2->GetComponent<RenderableComponent>();
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
@@ -827,6 +829,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
 
 	Ui->Initialize();
 

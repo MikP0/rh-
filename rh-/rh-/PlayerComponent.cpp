@@ -5,6 +5,8 @@ PlayerComponent::PlayerComponent()
 	attackType = 0;
 	vampireAbility = 0;
 
+	isHit = false;
+
 	isDancing = false;
 	isWalking = false;
 	isNormalAttack = false;
@@ -27,4 +29,12 @@ PlayerComponent::PlayerComponent()
 
 PlayerComponent::~PlayerComponent()
 {
+}
+
+void PlayerComponent::AddPlayerHealth(float HealthRate)
+{
+	*playerHealth += HealthRate;
+
+	if (*playerHealth > playerHealthOrigin)
+		* playerHealth = playerHealthOrigin;
 }
