@@ -5,6 +5,7 @@
 #include "Coroutine.h"
 #include "NavMesh.h"
 #include "Entity.h"
+#include "AudioComponent.h"	
 
 class PlayerComponent : public Component
 {
@@ -56,5 +57,9 @@ public:
 	const float playerTeleportSwapDamage = 1.0f;
 
 	const float playerAfterEnemyKilledHealRate = 2.0f;
+
+	std::shared_ptr<AudioComponent> footstepAudio;
+
+	std::shared_ptr<AudioComponent> damageAudio;
 };
 

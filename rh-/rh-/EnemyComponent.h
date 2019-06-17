@@ -4,6 +4,7 @@
 #include "NavMesh.h"
 #include "Entity.h"
 #include "Coroutine.h"
+#include "AudioComponent.h"
 
 enum EnemyState
 {
@@ -52,5 +53,9 @@ public:
 	Coroutine hitColorCorutine;
 
 	EnemyState enemyState;
+
+	std::shared_ptr<AudioComponent> footstepAudio;
+
+	std::shared_ptr<AudioComponent> damageAudio;
 };
 
