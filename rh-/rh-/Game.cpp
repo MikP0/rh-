@@ -623,6 +623,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
 
 	worldLoader->LoadWorldFromXML("testLevel.xml");
+	worldLoader->LoadWorldFromXML("testLevel2.xml");
 
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();
