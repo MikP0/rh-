@@ -49,6 +49,9 @@ public:
 	const float playerBiteAttackHealRate = 3.0f;
 	const float playerRipAttackDamage = 4.0f;
 
+	const float playerRipPlayerDamage = 2.0f;
+	const float playerTeleportSwapDamage = 1.0f;
+
 	const float playerAfterEnemyKilledHealRate = 2.0f;
 };
 

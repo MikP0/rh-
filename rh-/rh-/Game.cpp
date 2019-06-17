@@ -748,6 +748,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 		}
 	}
 
+
 	//// Setting up parameters of colliders ----------------------------------------------------------------
 
 	//for (auto physicsComponent : world->GetComponents<PhysicsComponent>())

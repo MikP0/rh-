@@ -11,15 +11,25 @@ EnemySystem::~EnemySystem()
 
 void EnemySystem::Iterate()
 {
-	for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+	if (!vampireMode)
 	{
-		if (enemyComponent->_isEnabled)
+		for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 		{
-			if (!vampireMode)
+			if (enemyComponent->_isEnabled)
 			{
 				SetStates(enemyComponent);
 				ApplyStates(enemyComponent);
 				CheckCorutines(enemyComponent);
+			}
+		}
+	}
+	else
+	{
+		for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+		{
+			if (enemyComponent->_isEnabled)
+			{
+				enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
 			}
 		}
 	}
@@ -31,28 +41,63 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 	if (enemy->health <= 0)
 	{
 		enemy->enemyState = EnemyState::DYING;
+
+		if (!enemy->dyingCorutine.active)
+		{
+			enemy->dying = true;
+
+			enemy->attackCorutine.active = false;
+			enemy->navMesh->isMoving = false;
+
+			enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
+
+			enemy->dyingCorutine.Restart(2.51f);
+		}
 	}
 	else if (enemy->bited)
 	{
 		enemy->enemyState = EnemyState::BITED;
-	}
-	else if (enemy->hit)
-	{
-		enemy->enemyState = EnemyState::HIT;
+
+		enemy->attackCorutine.active = false;
+		enemy->navMesh->isMoving = false;
+
+		enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
 	}
 	else if ((!enemy->dyingCorutine.active) && (!enemy->attackCorutine.active) && (!enemy->hitCorutine.active))
 	{
-		if (!XMVector3NearEqual(enemy->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemy->followPlayerDistance, .1f, enemy->followPlayerDistance)))
+		if (enemy->hit)
+		{
+			enemy->enemyState = EnemyState::HIT;
+
+			enemy->enemyRenderableComponent->_modelSkinned->isHitted = true;
+			enemy->hitCorutine.Restart(0.5f);
+			enemy->hitColorCorutine.Restart(0.1f);
+		}
+		else if (!XMVector3NearEqual(enemy->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemy->followPlayerDistance, .1f, enemy->followPlayerDistance)))
 		{
 			enemy->enemyState = EnemyState::IDLE;
+
+			enemy->navMesh->isMoving = false;
 		}
 		else if (!XMVector3NearEqual(enemy->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemy->distanceToAttack, .1f, enemy->distanceToAttack)))
 		{
 			enemy->enemyState = EnemyState::FOLLOW;
+
+			enemy->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
+			enemy->navMesh->Move(Coroutine::elapsedTime);
 		}
 		else
 		{
 			enemy->enemyState = EnemyState::ATTACK;
+
+			float dot = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x + enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z;
+			float cross = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z - enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x;
+			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
+			enemy->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+
+			enemy->navMesh->isMoving = false;
+
+			enemy->attackCorutine.Restart(enemy->attackLength);
 		}
 	}
 }
@@ -60,6 +105,32 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 void EnemySystem::ApplyStates(std::shared_ptr<EnemyComponent> enemy)
 {
 	if (enemy->enemyState == EnemyState::DYING)
+	{
+		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Dying");
+	}
+	else if (enemy->enemyState == EnemyState::BITED)
+	{
+		enemy->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
+	}
+	else if (enemy->enemyState == EnemyState::HIT)
+	{
+		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Hit");
+	}
+	else if (enemy->enemyState == EnemyState::FOLLOW)
+	{
+		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Walk");
+	}
+	else if (enemy->enemyState == EnemyState::IDLE)
+	{
+		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
+	}
+	else if (enemy->enemyState == EnemyState::ATTACK)
+	{
+		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Attack");
+	}
+
+
+	/*if (enemy->enemyState == EnemyState::DYING)
 	{
 		if (!enemy->dyingCorutine.active)
 		{
@@ -89,7 +160,8 @@ void EnemySystem::ApplyStates(std::shared_ptr<EnemyComponent> enemy)
 			enemy->enemyRenderableComponent->_modelSkinned->isHitted = true;
 			enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Hit");
 			enemy->hitCorutine.Restart(0.5f);
-		}	
+			enemy->hitColorCorutine.Restart(0.1f);
+		}
 		else if (enemy->enemyState == EnemyState::FOLLOW)
 		{
 			enemy->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
@@ -116,7 +188,7 @@ void EnemySystem::ApplyStates(std::shared_ptr<EnemyComponent> enemy)
 
 			enemy->attackCorutine.Restart(enemy->attackLength);
 		}
-	}
+	}*/
 }
 
 void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
@@ -133,6 +205,8 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 			enemy->GetParent()->GetComponent<PhysicsComponent>()->SetIsEnabled(false);
 			enemy->SetIsEnabled(false);
 			enemy->GetParent()->SetActive(false);
+
+			*playerHealth += 1.0f;
 		}
 	}
 
@@ -145,7 +219,6 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 				*playerHealth -= enemy->damage;
 
 				player->GetComponent<PlayerComponent>()->isHit = true;
-				player->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
 			}
 		}
 	}
@@ -155,6 +228,13 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 		if (!(enemy->hitCorutine.Update()))
 		{
 			enemy->hit = false;
+		}
+	}
+
+	if (enemy->hitColorCorutine.active)
+	{
+		if (!(enemy->hitColorCorutine.Update()))
+		{
 			enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
 		}
 	}

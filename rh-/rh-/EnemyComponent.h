@@ -49,6 +49,8 @@ public:
 
 	Coroutine hitCorutine;
 
+	Coroutine hitColorCorutine;
+
 	EnemyState enemyState;
 };
 

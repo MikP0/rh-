@@ -44,9 +44,9 @@ public:
 	Coroutine playerHealedCorutine;
 	Coroutine playerRipAttackCorutine;
 
-	Coroutine enemyHittedCorutine;
-
 	Camera* camera;
+
+	void PlayerHit();
 
 
 	void UpdateNormalMode();

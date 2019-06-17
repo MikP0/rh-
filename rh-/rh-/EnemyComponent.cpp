@@ -21,6 +21,7 @@ EnemyComponent::EnemyComponent()
 	this->attackCorutine.active = false;
 	this->hitCorutine.active = false;
 	this->dyingCorutine.active = false;
+	this->hitColorCorutine.active = false;
 
 	enemyState = EnemyState::IDLE;
 
@@ -47,6 +48,7 @@ EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, fl
 	this->attackCorutine.active = false;
 	this->hitCorutine.active = false;
 	this->dyingCorutine.active = false;
+	this->hitColorCorutine.active = false;
 
 	enemyState = EnemyState::IDLE;
 
