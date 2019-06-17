@@ -662,6 +662,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity3 = world->CreateEntity("Enemy3");
 	enemyEntity4 = world->CreateEntity("Enemy4");
 	enemyEntity5 = world->CreateEntity("Enemy5");
+	enemyEntity6 = world->CreateEntity("Enemy6");
 
 
 	// Creation of renderable components
@@ -676,6 +677,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity3->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity4->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity5->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+	enemyEntity6->AddComponent<RenderableComponent>(L"content\\Models\\EnemyGuard.fbx", &camera);
 
 	// Creation of audio components ------------------------------------------------------------------
 	myEntity5->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
@@ -689,6 +691,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity3->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity4->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity5->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
+	enemyEntity6->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
 	// Creation of enemy components ------------------------------------------------------------------
@@ -697,6 +700,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity3->AddComponent<EnemyComponent>(3.f, 22);
 	enemyEntity4->AddComponent<EnemyComponent>(3.f, 19);
 	enemyEntity5->AddComponent<EnemyComponent>(3.f, 23);
+	enemyEntity6->AddComponent<EnemyComponent>(10.f, 35, 1.9f, 3.0f);
+
 
 	playerEntity->AddComponent<PlayerComponent>();
 
@@ -744,6 +749,10 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity5->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 42.0f));
 	enemyEntity5->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity5->SetTag(Tags::ENEMY);
+
+	enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
+	enemyEntity6->GetTransform()->SetScale(Vector3(0.010f, 0.010f, 0.010f));
+	enemyEntity6->SetTag(Tags::ENEMY);
 
 
 	// Setting up parameters of audio -- REMOVE
@@ -872,6 +881,13 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
 
+
+	component = enemyEntity6->GetComponent<RenderableComponent>();
+	component->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardIdle.fbx", "Idle");
+	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardWalk.fbx", "Walk");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardAttack.fbx", "Attack");		// 1.8s;
+	component->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardDying.fbx", "Dying");
 
 
 	Ui->Initialize();

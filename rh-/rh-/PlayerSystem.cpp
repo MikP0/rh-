@@ -196,9 +196,12 @@ void PlayerSystem::UpdateNormalMode()
 			{
 				if (coll->OriginObject->GetTag() == Tags::ENEMY)
 				{
-					player->attackType = 5;
-					player->enemyClicked = true;
-					player->targetedEnemy = coll->OriginObject;
+					if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+					{
+						player->attackType = 5;
+						player->enemyClicked = true;
+						player->targetedEnemy = coll->OriginObject;
+					}
 				}
 				else
 				{
@@ -341,8 +344,11 @@ void PlayerSystem::UpdateVampireMode()
 					{
 						if (coll->OriginObject->GetTag() == Tags::ENEMY)
 						{
-							player->enemyClicked = true;
-							player->targetedEnemy = coll->OriginObject;
+							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+							{
+								player->enemyClicked = true;
+								player->targetedEnemy = coll->OriginObject;
+							}
 						}
 					}
 				}
@@ -570,6 +576,7 @@ void PlayerSystem::SetVampireMode(bool mode)
 		playerPowerAttackCorutine.active = false;
 		playerBiteCorutine.active = false;
 		player->isNormalAttack = false;
+		player->isPowerAttack = false;
 		player->isBiteAttack = false;
 		player->isWalking = false;
 		player->attackType = 0;
