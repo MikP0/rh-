@@ -22,15 +22,11 @@ public:
 	void CreateEdges();
 
 	void CreateWorld(vector<shared_ptr<PhysicsComponent>>);
-
-	void SetStaticObjects(vector<shared_ptr<PhysicsComponent>>);	
+	void MakeOcupied(MapTilePtr);
 
 	void Draw(Camera);
 	void DrawRange(Vector2, int, int, XMVECTOR);
 	void FillTile(Vector3, XMVECTOR);
-
-	void Update(vector<ColliderBasePtr>);
-	void ClearTiles();
 
 	vector<MapTilePtr> GetPath(MapTilePtr, MapTilePtr);
 	float EuklideanDistance(dxmath::Vector3, dxmath::Vector3);
@@ -38,8 +34,6 @@ public:
 	float DiagonalDistance(dxmath::Vector3, dxmath::Vector3);
 	float HexDistance(dxmath::Vector3, dxmath::Vector3);
 
-	//void MakeOcupied(dxmath::Vector3);
-	void MakeOcupied(MapTilePtr);
 
 	bool CanWalk(dxmath::Vector3);
 	bool CanMove(dxmath::Vector3, dxmath::Vector3);

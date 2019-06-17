@@ -203,47 +203,6 @@ void Terrain::CreateWorld(vector<shared_ptr<PhysicsComponent>> colliders)
 	}
 }
 
-void Terrain::SetStaticObjects(vector<shared_ptr<PhysicsComponent>> colliders)
-{
-	/*colliders.begin();
-	typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
-	for each (auto collider in colliders)
-	{
-		if (!collider->IsTriggered) {
-			if (collider->ColliderBounding->Type == AABB) {
-				ColliderAABBptr colliderr = dynamic_pointer_cast<ColliderAABB>(collider->ColliderBounding);
-				Vector3 center = colliderr->GetCenter();
-				Vector3 a = center + colliderr->GetExtents();
-				Vector3 b = center - colliderr->GetExtents();
-				Vector3 temp1 = a;
-				Vector3 temp2 = Vector3(temp1.x, temp1.y, b.z);
-				for (temp1.x; temp1.x > b.x; temp1.x -= tileSize / 3.f) {
-					temp2.x = temp1.x;
-					this->MakeOcupied(temp1);
-					this->MakeOcupied(temp2);
-				}
-				temp1 = a;
-				temp2 = Vector3(b.x, temp1.y, temp1.z);
-				for (temp1.z; temp1.z > b.z; temp1.z -= tileSize / 3.f) {
-					temp2.z = temp1.z;
-					this->MakeOcupied(temp1);
-					this->MakeOcupied(temp2);
-				}
-				this->MakeOcupied(center);
-				this->MakeOcupied(a);
-				this->MakeOcupied(b);
-
-				continue;
-			}
-		}
-		else {
-			if (collider->GetParent()->GetTag() == Tags::PLAYER || collider->GetParent()->GetTag() == Tags::ENEMY) {
-				characters.push_back(collider);
-			}
-		}
-	}*/
-}
-
 void Terrain::Draw(Camera camera)
 {
 	m_effect->SetView(camera.GetViewMatrix());
@@ -327,25 +286,9 @@ void Terrain::FillTile(Vector3 position, XMVECTOR color)
 
 }
 
-//void Terrain::MakeOcupied(dxmath::Vector3 position)
-//{
-//	MapTilePtr tile = this->GetTileWithPosition(position);
-//	if (tile != nullptr)
-//	{
-//		tile->walkable = false;
-//		tile->type = TileType::staticCollider;
-//		for each (shared_ptr<MapEdge> edge in tile->edges)
-//		{
-//			if (edge != nullptr) {
-//				edge->cost = 1.f;
-//			}
-//		}
-//	}
-//}
 
 void Terrain::MakeOcupied(MapTilePtr tile)
 {
-	//MapTilePtr tile = this->GetTileWithPosition(position);
 	if (tile != nullptr)
 	{
 		tile->walkable = false;
@@ -356,46 +299,6 @@ void Terrain::MakeOcupied(MapTilePtr tile)
 				edge->cost = 1.f;
 			}
 		}
-	}
-}
-
-void Terrain::Update(vector<ColliderBasePtr> colliders)
-{
-	/*typedef std::shared_ptr<ColliderAABB> ColliderAABBptr;
-	for each (ColliderBasePtr collider in colliders)
-	{
-		//if (collider->Type == AABB) {
-		ColliderAABBptr colliderr = dynamic_pointer_cast<ColliderAABB>(collider);
-		Vector3 center = colliderr->GetCenter();
-		Vector3 a = center + colliderr->GetExtents();
-		Vector3 b = center - colliderr->GetExtents();
-		Vector3 temp1 = a;
-		Vector3 temp2 = Vector3(temp1.x, temp1.y, b.z);
-		for (temp1.x; temp1.x > b.x; temp1.x -= tileSize / 3.f) {
-			temp2.x = temp1.x;
-			this->MakeOcupied(temp1);
-			this->MakeOcupied(temp2);
-		}
-		temp1 = a;
-		temp2 = Vector3(b.x, temp1.y, temp1.z);
-		for (temp1.z; temp1.z > b.z; temp1.z -= tileSize / 3.f) {
-			temp2.z = temp1.z;
-			this->MakeOcupied(temp1);
-			this->MakeOcupied(temp2);
-		}
-		this->MakeOcupied(center);
-		this->MakeOcupied(a);
-		this->MakeOcupied(b);
-
-
-		continue;
-	}*/
-}
-
-void Terrain::ClearTiles() {
-	for each (MapTilePtr tile in tiles)
-	{
-		tile->walkable = true;
 	}
 }
 
