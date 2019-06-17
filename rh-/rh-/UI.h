@@ -26,7 +26,7 @@ public:
 
 	void Initialize();
 	void DrawRedBorder();
-	void Draw(bool vampireMode, bool menuIsOn, float totalTime, float elapsedTime);
+	void Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float totalTime, float elapsedTime);
 	void Reset();
 
 
@@ -40,6 +40,7 @@ public:
 	wstring fpsFontText;
 
 	bool transitionMode;
+	int selectedVampireAbility;
 
 private:
 	ID3D11Device1 *_device;
