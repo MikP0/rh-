@@ -38,10 +38,6 @@ public:
 
 	float followPlayerDistance;
 
-
-	bool walking;
-	bool attack;
-
 	bool hit;
 	bool bited;
 
@@ -51,7 +47,7 @@ public:
 
 	Coroutine dyingCorutine;
 
-	Coroutine playerHittedCorutine;
+	Coroutine hitCorutine;
 
 	EnemyState enemyState;
 };

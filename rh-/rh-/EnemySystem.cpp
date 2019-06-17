@@ -40,7 +40,7 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 	{
 		enemy->enemyState = EnemyState::HIT;
 	}
-	else if ((!enemy->dyingCorutine.active) && (!enemy->attackCorutine.active))
+	else if ((!enemy->dyingCorutine.active) && (!enemy->attackCorutine.active) && (!enemy->hitCorutine.active))
 	{
 		if (!XMVector3NearEqual(enemy->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemy->followPlayerDistance, .1f, enemy->followPlayerDistance)))
 		{
@@ -82,23 +82,15 @@ void EnemySystem::ApplyStates(std::shared_ptr<EnemyComponent> enemy)
 		enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
 		enemy->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
 	}
-	else if (enemy->enemyState == EnemyState::HIT)
+	else if ((!enemy->dyingCorutine.active) && (!enemy->attackCorutine.active) && (!enemy->hitCorutine.active))
 	{
-		// !!!!!!!!!!!!!!!11
-		enemy->hit = false;
-		// !!!!!!!!!!!!!!!!!!!11
-
-		//enemy->enemyRenderableComponent->_modelSkinned->isHitted = true;
-		//enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Hit");
-
-		/*  START CORUTINE ABOUT RED COLOR FOR THAT ENEMY BECAUSE OF BEING HIT  */
-
-		// nastepnie
-		// enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
-	}
-	else if ((!enemy->dyingCorutine.active) && (!enemy->attackCorutine.active))
-	{
-		if (enemy->enemyState == EnemyState::FOLLOW)
+		if (enemy->enemyState == EnemyState::HIT)
+		{
+			enemy->enemyRenderableComponent->_modelSkinned->isHitted = true;
+			enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Hit");
+			enemy->hitCorutine.Restart(0.5f);
+		}	
+		else if (enemy->enemyState == EnemyState::FOLLOW)
 		{
 			enemy->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
 			enemy->navMesh->Move(Coroutine::elapsedTime);
@@ -155,6 +147,15 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 				player->GetComponent<PlayerComponent>()->isHit = true;
 				player->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = true;
 			}
+		}
+	}
+
+	if (enemy->hitCorutine.active)
+	{
+		if (!(enemy->hitCorutine.Update()))
+		{
+			enemy->hit = false;
+			enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
 		}
 	}
 }

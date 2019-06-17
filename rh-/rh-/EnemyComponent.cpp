@@ -11,8 +11,6 @@ EnemyComponent::EnemyComponent()
 	this->distanceToAttack = 1.f;
 	this->followPlayerDistance = 10.f;
 
-	this->walking = false;
-	this->attack = false;
 	this->hit = false;
 	this->bited = false;
 	
@@ -21,7 +19,7 @@ EnemyComponent::EnemyComponent()
 	this->navMesh = nullptr;
 
 	this->attackCorutine.active = false;
-	this->playerHittedCorutine.active = false;
+	this->hitCorutine.active = false;
 	this->dyingCorutine.active = false;
 
 	enemyState = EnemyState::IDLE;
@@ -39,8 +37,6 @@ EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, fl
 	this->distanceToAttack = DistanceToAttack;
 	this->followPlayerDistance = FollowPlayerDistance;
 
-	this->walking = false;
-	this->attack = false;
 	this->hit = false;
 	this->bited = false;
 
@@ -49,7 +45,7 @@ EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, fl
 	this->navMesh = nullptr;
 
 	this->attackCorutine.active = false;
-	this->playerHittedCorutine.active = false;
+	this->hitCorutine.active = false;
 	this->dyingCorutine.active = false;
 
 	enemyState = EnemyState::IDLE;
