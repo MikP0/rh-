@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "PlayerSystem.h"
 
 PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)

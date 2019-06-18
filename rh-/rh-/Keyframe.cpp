@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Keyframe.h"
 #include "VectorHelper.h"
 

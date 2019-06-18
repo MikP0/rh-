@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Pass.h"
 #include "MyGame.h"
 #include "GameException.h"

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ToonFactory.h"
 #include "ToonEffect.h"
 #include <map>

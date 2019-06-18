@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ModelMaterial.h"
 #include "Utility.h"
 #include <assimp/scene.h>

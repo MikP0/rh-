@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Coroutine.h"
 
 float Coroutine::elapsedTime = 0;

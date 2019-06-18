@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ToonEffect.h"
 
 using namespace DirectX;

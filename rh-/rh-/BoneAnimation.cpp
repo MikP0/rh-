@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BoneAnimation.h"
 #include "GameException.h"
 #include "Bone.h"

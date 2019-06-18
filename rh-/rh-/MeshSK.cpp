@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "MeshSK.h"
 #include "ModelSK.h"
 #include "MaterialSK.h"

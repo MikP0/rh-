@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Bone.h"
 #include "ModelSK.h"
 #include "MatrixHelper.h"

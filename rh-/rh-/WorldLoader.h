@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tinyxml2.h"
+#include "../tinyxml2-master/tinyxml2.h"
 
 #include "World.h"
 #include "Camera.h"
