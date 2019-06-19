@@ -46,6 +46,7 @@ void PlayerSystem::Iterate()
 
 	UpdateCorutines();
 	UpdateAnimations();
+	cooldown->Update();
 }
 
 void PlayerSystem::Initialize()
@@ -94,21 +95,23 @@ void PlayerSystem::UpdateNormalMode()
 					{
 						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName())
 						{
-							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("normalAttack"))
 							{
 								player->attackType = 1;
 								player->enemyClicked = true;
 								player->targetedEnemy = coll->OriginObject;
+								cooldown->StartSkillCounter("normalAttack");
 							}
 						}
 					}
 					else
 					{
-						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("normalAttack"))
 						{
 							player->attackType = 1;
 							player->enemyClicked = true;
 							player->targetedEnemy = coll->OriginObject;
+							cooldown->StartSkillCounter("normalAttack");
 						}
 					}
 				}
@@ -146,23 +149,25 @@ void PlayerSystem::UpdateNormalMode()
 				{
 					if (player->targetedEnemy)
 					{
-						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName())
+						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName() && cooldown->CanUseSkill("strongAttack"))
 						{
 							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
 							{
 								player->attackType = 2;
 								player->enemyClicked = true;
 								player->targetedEnemy = coll->OriginObject;
+								cooldown->StartSkillCounter("strongAttack");
 							}
 						}
 					}
 					else
 					{
-						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("strongAttack"))
 						{
 							player->attackType = 2;
 							player->enemyClicked = true;
 							player->targetedEnemy = coll->OriginObject;
+							cooldown->StartSkillCounter("strongAttack");
 						}
 					}
 				}
@@ -198,11 +203,12 @@ void PlayerSystem::UpdateNormalMode()
 			{
 				if (coll->OriginObject->GetTag() == Tags::ENEMY)
 				{
-					if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+					if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("biteAttack"))
 					{
 						player->attackType = 5;
 						player->enemyClicked = true;
 						player->targetedEnemy = coll->OriginObject;
+						cooldown->StartSkillCounter("biteAttack");
 					}
 				}
 				else
