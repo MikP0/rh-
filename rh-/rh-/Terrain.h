@@ -34,7 +34,6 @@ public:
 	float DiagonalDistance(dxmath::Vector3, dxmath::Vector3);
 	float HexDistance(dxmath::Vector3, dxmath::Vector3);
 
-
 	bool CanWalk(dxmath::Vector3);
 	bool CanMove(dxmath::Vector3, dxmath::Vector3);
 	bool Within(MapTilePtr);
@@ -44,22 +43,19 @@ public:
 	Vector3 FallBack(Vector3, Vector3);
 
 
-
 	const int widthInTiles = 70;
 	const int heightInTiles = 100;
 	const float tileSize = 1.f;
+
 	vector<MapTilePtr> tiles;
-	map<Vector2, MapTilePtr> tilesMap;
-	
+	map<Vector2, MapTilePtr> tilesMap;	
+	shared_ptr<Entity> playerEntity;
 	vector<shared_ptr<PhysicsComponent>> characters;
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tex;
 	ID3D11DeviceContext1* context;
-
 	shared_ptr<DirectX::CommonStates> m_states;
 	unique_ptr<DirectX::BasicEffect> m_effect;
 	unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
-	shared_ptr<Entity> playerEntity;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;	
 };
 

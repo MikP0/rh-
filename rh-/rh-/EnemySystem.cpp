@@ -94,15 +94,7 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 			enemy->enemyState = EnemyState::FOLLOW;
 
 			enemy->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
-			enemy->navMesh->Move(Coroutine::elapsedTime);
-
-			if (enemy->footstepAudio != nullptr) {
-				enemy->footstepAudio->Mute = false;
-				enemy->footstepAudio->Volume = 0.000000000001f;
-				if (enemy->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
-					enemy->footstepAudio->AudioFile->Play();
-				}
-			}
+			enemy->navMesh->Move(Coroutine::elapsedTime);			
 		}
 		else
 		{
@@ -136,6 +128,12 @@ void EnemySystem::ApplyStates(std::shared_ptr<EnemyComponent> enemy)
 	}
 	else if (enemy->enemyState == EnemyState::FOLLOW)
 	{
+		if (enemy->footstepAudio != nullptr) {
+			enemy->footstepAudio->Mute = false;
+			if (enemy->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
+				enemy->footstepAudio->AudioFile->Play(enemy->footstepAudio->Volume, enemy->footstepAudio->Pitch, enemy->footstepAudio->Pan);
+			}
+		}
 		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Walk");
 	}
 	else if (enemy->enemyState == EnemyState::IDLE)

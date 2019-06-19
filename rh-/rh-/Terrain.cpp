@@ -67,29 +67,8 @@ void Terrain::SetTilesPosition(int beginWidth, int beginHeight)
 		for (int j = 0; j < heightInTiles; j++) {
 			tiles[i *heightInTiles + j]->worldPosition = Vector3(beginW*tileSize, 0.f, beginH*tileSize);
 			tiles[i *heightInTiles + j]->mapPosition = Vector2(i, j);
-			//tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize), false, true);
 			tilesMap[tiles[i *heightInTiles + j]->mapPosition] = tiles[i *heightInTiles + j];
-			//if (i*j % 15 < 10) {
-			//tiles[i *heightInTiles + j]->type = TileType::empty;
-			//tiles[i *heightInTiles + j]->walkable = true;
-
 			beginH++;
-			//}
-			/*else {
-				tiles[i *heightInTiles + j]->type = TileType::fire;
-				tiles[i *heightInTiles + j]->walkable = false;
-				tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 0.f, tileSize));
-				beginH++;
-			}*/
-			/*if ((i < 4 || i>5) && (j>2 && j<13)) {
-				tiles[i *heightInTiles + j]->type = TileType::fire;
-				tiles[i *heightInTiles + j]->walkable = false;
-				tiles[i *heightInTiles + j]->block = GeometricPrimitive::CreateBox(context, XMFLOAT3(tileSize, 10.f, tileSize));
-			}
-			else {
-				tiles[i *heightInTiles + j]->type = TileType::grass;
-				tiles[i *heightInTiles + j]->walkable = true;
-			}*/
 		}
 		beginW++;
 	}
@@ -164,7 +143,6 @@ void Terrain::CreateWorld(vector<shared_ptr<PhysicsComponent>> colliders)
 								characters.push_back(collider);
 							}
 						}
-						//temp->type = TileType::world;
 					}
 				}
 			}
@@ -188,16 +166,13 @@ void Terrain::CreateWorld(vector<shared_ptr<PhysicsComponent>> colliders)
 		}
 	}
 	std::vector<MapTilePtr> copied = tiles;
-	//std::copy(tiles.begin(), tiles.end(), copied);
 
 	for each (MapTilePtr tile in copied)
 	{
 		if (tile->type == TileType::empty) {
-			//tiles.erase(std::remove(tiles.begin(), tiles.end(), tile), tiles.end());
-			//std::remove(tiles.begin(), tiles.end(), tile);
 			tilesMap.erase(tile->mapPosition);
 			vector<MapTilePtr>::iterator position = std::find(tiles.begin(), tiles.end(), tile);
-			if (position != tiles.end()) // == myVector.end() means the element was not found
+			if (position != tiles.end())
 				tiles.erase(position);
 		}
 	}
@@ -216,12 +191,10 @@ void Terrain::Draw(Camera camera)
 
 	context->IASetInputLayout(m_inputLayout.Get());
 
-
 	MapTilePtr playerTile = GetTileWithPosition(playerEntity->GetTransform()->GetPosition());
 	Vector2 posOrigin = playerTile->mapPosition;
 	Vector3 pos = playerTile->worldPosition;
 	XMVECTOR color = Colors::WhiteSmoke;
-
 
 	m_batch->Begin();
 
@@ -249,9 +222,6 @@ void Terrain::Draw(Camera camera)
 			}
 		}
 	}
-
-	//FillTile(pos, color);
-
 	m_batch->End();
 }
 
@@ -261,7 +231,7 @@ void Terrain::DrawRange(Vector2 centerPosition, int width, int height, XMVECTOR 
 	{
 		for (int j = -height / 2; j <= height / 2; j++) {
 			MapTilePtr tile = GetTileFromMap(centerPosition + Vector2(i, j));
-			if (tile != nullptr && tile->walkable)// && tile->type == TileType::world)
+			if (tile != nullptr && tile->walkable)
 			{
 				VertexPositionColor verts[5];
 				XMStoreFloat3(&verts[0].position, tile->worldPosition + Vector3(tileSize / 2.f, 0.f, tileSize / 2.f));
@@ -292,7 +262,6 @@ void Terrain::FillTile(Vector3 position, XMVECTOR color)
 	m_batch->DrawQuad(v1, v2, v3, v4);
 
 }
-
 
 void Terrain::MakeOcupied(MapTilePtr tile)
 {

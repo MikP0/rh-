@@ -426,8 +426,12 @@ void PlayerSystem::UpdateCorutines()
 				{
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerNormalAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
+					
+					if (player->swordAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) 
+					{
+						player->swordAudio->AudioFile->Play(player->swordAudio->Volume, player->swordAudio->Pitch, player->swordAudio->Pan);
+					}
 				}
-
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
@@ -445,8 +449,11 @@ void PlayerSystem::UpdateCorutines()
 				{
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerPoweAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
+					if (player->swordAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
+					{
+						player->swordAudio->AudioFile->Play(player->swordAudio->Volume, player->swordAudio->Pitch, player->swordAudio->Pan);
+					}
 				}
-
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
@@ -539,10 +546,12 @@ void PlayerSystem::UpdateAnimations()
 	{
 		if (player->isWalking)
 		{
-			player->footstepAudio->Mute = false;
-			player->footstepAudio->Volume = 0.01f;
-			if (player->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
-				player->footstepAudio->AudioFile->Play();
+			if (player->footstepAudio != nullptr) {
+				player->footstepAudio->Mute = false;
+				if (player->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
+					player->footstepAudio->AudioFile->Play(player->footstepAudio->Volume, player->footstepAudio->Pitch, player->footstepAudio->Pan);
+					//player->footstepAudio->AudioLoopInstance->Play(true);
+				}
 			}
 			
 			playerRenderableComponent->_modelSkinned->currentAnimation = "Walk";
@@ -554,7 +563,7 @@ void PlayerSystem::UpdateAnimations()
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-			playerRenderableComponent->_modelSkinned->currentAnimation = "Attack";
+			playerRenderableComponent->_modelSkinned->currentAnimation = "Attack";			
 		}
 		else if ((!player->isWalking) && (player->isPowerAttack))
 		{
