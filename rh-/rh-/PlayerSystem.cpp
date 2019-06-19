@@ -60,11 +60,12 @@ void PlayerSystem::Initialize()
 	}
 }
 
-void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain)
+void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, std::shared_ptr<Cooldown> Cooldown)
 {
 	player->navMesh = std::make_shared<NavMesh>(player->GetParent()->GetTransform());
 	player->navMesh->terrain = Terrain;
 	player->navMesh->speed = player->playerSpeed;
+	cooldown = Cooldown;
 }
 
 void PlayerSystem::PlayerHit()

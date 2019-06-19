@@ -617,6 +617,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 
 void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
+	cooldown = make_shared<Cooldown>(skillsNames, skillsTimeLimits);
 	terrain = std::make_shared<Terrain>();
 	world = std::make_shared<World>();
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
@@ -761,7 +762,6 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	enemyEntity6->GetTransform()->SetScale(Vector3(0.010f, 0.010f, 0.010f));
 	enemyEntity6->SetTag(Tags::ENEMY);
 
-
 	// Setting up parameters of audio -- REMOVE
 	for (auto component : world->GetComponents<AudioComponent>())
 	{
@@ -849,7 +849,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 
 	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
-	playerSystem->AdditionalInitialization(terrain);
+	playerSystem->AdditionalInitialization(terrain, cooldown);
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
 
 	//Setting up UI -----------------------------------------------------------------------------------
