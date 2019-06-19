@@ -36,6 +36,7 @@
 
 #include "PlayerSystem.h"
 #include "PlayerComponent.h"
+#include "Cooldown.h"
 
 #include "WorldLoader.h"
 
@@ -202,6 +203,13 @@ private:
 	//Player
 	std::shared_ptr<Entity> playerEntity;
 	std::shared_ptr<PlayerSystem> playerSystem;
+	std::shared_ptr<Cooldown> cooldown;
+	vector<string> skillsNames = { 
+		"normalAttack", "strongAttack", "spinAttack", "biteAttack"
+	};
+	vector<float> skillsTimeLimits = {
+		0.0f, 2.0f, 4.0f, 10.0f
+	};
 
 	//NavMesh
 	std::shared_ptr<Terrain> terrain;

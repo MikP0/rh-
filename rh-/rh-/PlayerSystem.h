@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "EnemyComponent.h"
 #include "RenderableComponent.h"
+#include "Cooldown.h"
 
 class PlayerSystem : public System
 {
@@ -21,13 +22,13 @@ public:
 
 	virtual void Iterate() override;
 	virtual void Initialize() override;
-	void AdditionalInitialization(std::shared_ptr<Terrain> Terrain);
+	void AdditionalInitialization(std::shared_ptr<Terrain> Terrain, std::shared_ptr<Cooldown> Cooldown);
 
 	std::shared_ptr<PhysicsSystem> collisionSystem;
 	DirectX::Keyboard::KeyboardStateTracker keyboardTracker;
 	DirectX::Mouse::ButtonStateTracker mouseTracker;
 
-
+	std::shared_ptr<Cooldown> cooldown;
 	std::shared_ptr<Entity> playerEntity;
 	std::shared_ptr<PlayerComponent> player;
 	std::shared_ptr<RenderableComponent> playerRenderableComponent;

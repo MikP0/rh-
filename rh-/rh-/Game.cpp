@@ -820,6 +820,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
+	cooldown = make_shared<Cooldown>(skillsNames, skillsTimeLimits);
+
 	terrain = std::make_shared<Terrain>();
 	world = std::make_shared<World>();
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
@@ -846,7 +848,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	/*
 		FILL WORLD OBJECT
 	*/
-
 
 	// Creation of entities ------------------------------------------------------------------
 	myEntity1 = world->CreateEntity("Cup1");
@@ -889,10 +890,10 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 	// Creation of audio components ------------------------------------------------------------------
 	backgroundAudio->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
+	swordSlashAudio->AddComponent<AudioComponent>("Resources\\Audio\\attack.wav");
 	damageAudio->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
-	playerFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	enemyFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\temp.wav");
-	swordSlashAudio->AddComponent<AudioComponent>("Resources\\Audio\\swordSlash.wav");
+	playerFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
 	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
@@ -964,7 +965,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity6->GetTransform()->SetScale(Vector3(0.010f, 0.010f, 0.010f));
 	enemyEntity6->SetTag(Tags::ENEMY);
 
-
 	// Setting up parameters of audio -- REMOVE
 	for (auto component : world->GetComponents<AudioComponent>())
 	{
@@ -980,10 +980,9 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"DamageAudio") == 0)
-		{
+		{		
+			component->Volume = 0.2f;
 			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
-			//enemyEntity1->GetComponent<EnemyComponent>()->damageAudio = component;
-			//enemyEntity2->GetComponent<EnemyComponent>()->damageAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(),
@@ -995,15 +994,19 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"EnemyFootstepAudio") == 0)
 		{
+			component->Volume = 0.1f;
 			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity3->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity4->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity5->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity6->GetComponent<EnemyComponent>()->footstepAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"SwordSlashAudio") == 0)
 		{
-			component->Mute = false;
-			//enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio->Mute = false;
+			component->Volume = 0.1f;
 			playerEntity->GetComponent<PlayerComponent>()->swordAudio = component;
 			continue;
 		}
@@ -1052,7 +1055,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 
 	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
-	playerSystem->AdditionalInitialization(terrain);
+	playerSystem->AdditionalInitialization(terrain, cooldown);
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
 
 	//Setting up UI -----------------------------------------------------------------------------------

@@ -229,6 +229,9 @@
     <ClInclude Include="PlayerSystem.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="Cooldown.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -412,6 +415,9 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="PlayerSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="Cooldown.cpp">
       <Filter>Src</Filter>
     </ClCompile>
   </ItemGroup>
