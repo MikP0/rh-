@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "GameException.h"
 
 GameException::GameException(const char* const& message, HRESULT hr)

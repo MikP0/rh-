@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Utility.h"
 #include <algorithm>
 #include <exception>

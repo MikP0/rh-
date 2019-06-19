@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "MaterialSK.h"
 #include "GameException.h"
 #include "ModelSK.h"

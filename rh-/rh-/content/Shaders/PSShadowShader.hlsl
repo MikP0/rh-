@@ -120,7 +120,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 totalLightContribution = (float3)0;
 	float3 tempColor;
 
-	[unroll]
+	[unroll(23)]
 	for (int i = 0; i < NumOfLights.x; i++)
 	{
 		lightContributionData.LightDirection = get_light_data(PointLight[i].Position, input.worldPosition, PointLight[i].Radius);
@@ -136,6 +136,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float n_dot_l;
 	float3 diffuse;
 
+	[unroll(19)]
 	for (int i = 0; i < NumOfLights.y; i++)
 	{
 		lightDirection = normalize(-DirectionalLight[i].Direction);
@@ -154,6 +155,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 
 	// SPOT LIGHTS
 	float3 result;
+	[unroll(19)]
 	for (int i = 0; i < NumOfLights.z; i++)
 	{
 		result = get_spot_light(SpotLight[i], color, normal, input.worldPosition, viewDirection, SpecularColor, SpecularPower);

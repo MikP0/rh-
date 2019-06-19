@@ -1,8 +1,12 @@
+#include "pch.h"
+
 #include "AnimationClip.h"
 #include "BoneAnimation.h"
 #include "Bone.h"
 #include "MatrixHelper.h"
 #include <assimp/scene.h>
+
+
 
 
 AnimationClip::AnimationClip(ModelSK& model, aiAnimation& animation)

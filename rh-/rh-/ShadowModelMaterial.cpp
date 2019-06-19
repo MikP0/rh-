@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ShadowModelMaterial.h"
 #include "GameException.h"
 #include "MeshSK.h"

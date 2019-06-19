@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ShadowFactory.h"
 #include "ShadowEffect.h"
 #include <map>

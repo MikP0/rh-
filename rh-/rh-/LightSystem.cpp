@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "LightSystem.h"
 
 LightSystem::LightSystem(std::shared_ptr<ShadowFactory> ShadowsfxFactory, std::shared_ptr<ToonFactory> NoShadowsfxFactory)

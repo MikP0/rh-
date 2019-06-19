@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ShadowEffect.h"
 
 using namespace DirectX;
