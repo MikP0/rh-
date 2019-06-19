@@ -208,7 +208,7 @@ private:
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack"
 	};
 	vector<float> skillsTimeLimits = {
-		0.0f, 2.0f, 4.0f, 4.0f
+		0.0f, 2.0f, 4.0f, 10.0f
 	};
 
 	//NavMesh

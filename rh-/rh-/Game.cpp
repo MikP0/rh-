@@ -347,42 +347,16 @@ void Game::UpdateObjects(float elapsedTime)
 
 	// check collisions
 	vector<CollisionPtr> currentCollisions = collisionSystem->AllCollisions;
-	vector<CollisionPtr> collisionsForEntity1 = collisionSystem->GetCollisionsForEntity(1);
-
-	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
-	XMVECTORF32 collider1Color = DirectX::Colors::White;
-	XMVECTORF32 collider2Color = DirectX::Colors::White;
-
 	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-	//myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
+	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
+
 	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 
 	/*if (mouse.rightButton)
 	{
 		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
 		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
-	}*/
-
-	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
-
-
-	/*if (octrTreeBounding.Contains(colliderBoundingCup1->GetBounding()) != CONTAINS)
-	{
-		if (colliderBoundingCup1->GetCenter().x >= 0.0f)
-			dir1.x = -1.0f;
-
-		if (colliderBoundingCup1->GetCenter().x <= 0.0f)
-			dir1.x = 1.0f;
-	}
-
-	if (octrTreeBounding.Contains(colliderBoundingCup2->GetBounding()) != CONTAINS)
-	{
-		if (colliderBoundingCup2->GetCenter().x >= 0.0f)
-			dir2.x = -1.0f;
-
-		if (colliderBoundingCup2->GetCenter().x <= 0.0f)
-			dir2.x = 1.0f;
 	}*/
 
 	if (keyboard.M)
