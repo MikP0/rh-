@@ -247,12 +247,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> directXTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> wickedScreenTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mainMenuTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> loadingScreenTexture;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 	DirectX::SimpleMath::Vector2 m_screenPos;
 
-	bool mainMenu = false;
+	bool mainMenu = true;
 
-	int startStage = 0;
+	int gameStage = 0;
 	float startTimer = 0;
 
 	bool afterInitialization = false;

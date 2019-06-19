@@ -84,39 +84,49 @@ void Game::Update(DX::StepTimer const& timer)
 	auto device = m_deviceResources->GetD3DDevice();
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	if (startStage < 5)
+	// TO DISABLE MENU and START SCREENS
+	//mainMenu = false;
+
+	if (gameStage < 5)
 	{
 		startTimer += elapsedTime;
 
-		if (startTimer > 5.0f)
+		if (mainMenu)
 		{
-			if (startTimer > 10.0f)
+			if (startTimer > 4.0f) // Rh- screen
 			{
-				if (startTimer > 15.0f)
+				if (startTimer > 8.0f)	// Wicked screen
 				{
-					if (startTimer > 20.0f)
+					if (startTimer > 12.0f)	// DirectX screen
 					{
-						UpdateMainMenu(elapsedTime);
-
-						if (startStage == 4)
+						if (startTimer > 13.0f)	// mainMenu Screen
 						{
-							startStage = 5;
-							InitializeAll(device, context);
+							if (gameStage == 4)	// loading Screen
+							{
+								gameStage = 5;
+								InitializeAll(device, context);
+							}
+							else
+								UpdateMainMenu(elapsedTime);
 						}
+						else
+							gameStage = 3;
 					}
 					else
-						startStage = 3;
+						gameStage = 2;
 				}
 				else
-					startStage = 2;
+					gameStage = 1;
 			}
-			else
-				startStage = 1;
+		}
+		else
+		{
+			gameStage = 5;
+			InitializeAll(device, context);
 		}
 	}
-	else if (startStage == 5)
+	else if (gameStage == 5)
 	{
-
 		Vector3 move = Vector3::Zero;
 
 		//Mouse
@@ -349,7 +359,6 @@ void Game::Update(DX::StepTimer const& timer)
 	elapsedTime;
 }
 
-
 void Game::UpdateMainMenu(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
@@ -359,15 +368,14 @@ void Game::UpdateMainMenu(float elapsedTime)
 	tracker.Update(mouse);
 	keyboardTracker.Update(keyboard);
 
-	if (mouse.leftButton)
+	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 	{
-
 		if ((mouse.x >= size.left + 0.15f * size.right) && (mouse.x <= size.left + 0.33f * size.right))
 		{
 			/////////////////////////////////////////////////////////////////////////////////////////////////START
 			if ((mouse.y >= size.top + 0.11f * size.bottom) && (mouse.y <= size.top + 0.21f * size.bottom))			
 			{
-				startStage = 4;
+				gameStage = 4;
 			}
 
 			/////////////////////////////////////////////////////////////////////////////////////////////////OPTIONS
@@ -493,18 +501,16 @@ void Game::Render()
 
 	Clear();
 
-
-
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	switch (startStage)
+	switch (gameStage)
 	{
 	case 0:
 	{
 		m_spriteBatch->Begin();
 
-		m_spriteBatch->Draw(wickedScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+		m_spriteBatch->Draw(startScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
 			0.f, Vector2(0, 0), 1.0f);
 
 		m_spriteBatch->End();
@@ -516,7 +522,7 @@ void Game::Render()
 	{
 		m_spriteBatch->Begin();
 
-		m_spriteBatch->Draw(startScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+		m_spriteBatch->Draw(wickedScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
 			0.f, Vector2(0, 0), 1.0f);
 
 		m_spriteBatch->End();
@@ -552,7 +558,7 @@ void Game::Render()
 	{
 		m_spriteBatch->Begin();
 
-		m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
+		m_spriteBatch->Draw(loadingScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
 			0.f, Vector2(0, 0), 1.0f);
 
 		m_spriteBatch->End();
@@ -803,6 +809,11 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 		CreateDDSTextureFromFile(device, L"DirectXScren.dds",
 			nullptr,
 			directXTexture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"LoadingScreen.dds",
+			nullptr,
+			loadingScreenTexture.ReleaseAndGetAddressOf()));
 
 
 	DX::ThrowIfFailed(
