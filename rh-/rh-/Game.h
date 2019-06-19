@@ -233,4 +233,26 @@ private:
 
 	//World Loader
 	std::shared_ptr<WorldLoader> worldLoader;
+
+	// Menu
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> startScreenTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> directXTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> wickedScreenTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mainMenuTexture;
+	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	DirectX::SimpleMath::Vector2 m_screenPos;
+
+	bool mainMenu = false;
+
+	int startStage = 0;
+	float startTimer = 0;
+
+	bool afterInitialization = false;
+
+	void InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context);
+
+	void UpdateMainMenu(float elapsedTime);
+
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cattyTexture;	// cat Textrue to tests
 };
