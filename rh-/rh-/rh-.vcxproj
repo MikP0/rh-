@@ -164,6 +164,7 @@
     <ClInclude Include="BufferContainer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColliderTypes.h" />
+    <ClInclude Include="Cooldown.h" />
     <ClInclude Include="Coroutine.h" />
     <ClInclude Include="EnemyComponent.h" />
     <ClInclude Include="EnemySystem.h" />
@@ -242,6 +243,7 @@
     <ClCompile Include="Camera.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Cooldown.cpp" />
     <ClCompile Include="Coroutine.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
