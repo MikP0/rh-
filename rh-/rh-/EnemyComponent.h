@@ -21,7 +21,7 @@ class EnemyComponent : public Component
 {
 public:
 	EnemyComponent();
-	EnemyComponent(float Health, float Speed = 20.0f, float AttackLength = 1.9f, float Damage = 1.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 10.f);
+	EnemyComponent(float Health, float Speed = 20.0f, float AttackLength = 1.9f, float AttackDamageTime = 0.6f, float Damage = 1.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 10.f);
 	virtual ~EnemyComponent();
 
 
@@ -30,6 +30,7 @@ public:
 	float speed;
 
 	float attackLength;
+	float attackDamageTime;
 	float damage;
 	float distanceToAttack;
 
@@ -41,6 +42,8 @@ public:
 
 	bool hit;
 	bool bited;
+
+	bool canBeHitted;
 
 	bool dying;
 

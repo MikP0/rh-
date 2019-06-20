@@ -85,7 +85,7 @@ void Game::Update(DX::StepTimer const& timer)
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// TO DISABLE MENU and START SCREENS
-	//mainMenu = false;
+	mainMenu = false;
 
 	if (gameStage < 5)
 	{
@@ -110,16 +110,24 @@ void Game::Update(DX::StepTimer const& timer)
 								plotStage = 1;					
 							}
 							else
+							{
 								UpdateMainMenu(elapsedTime);
+							}
 						}
 						else
+						{
 							gameStage = 3;
+						}
 					}
 					else
+					{
 						gameStage = 2;
+					}
 				}
 				else
+				{
 					gameStage = 1;
+				}
 			}
 		}
 		else
@@ -161,31 +169,49 @@ void Game::Update(DX::StepTimer const& timer)
 													gameStage = 6;
 												}
 												else
+												{
 													plotStage = 10;
+												}
 											}
 											else
+											{
 												plotStage = 9;
+											}
 										}
 										else
+										{
 											plotStage = 8;
+										}
 									}
 									else
+									{
 										plotStage = 7;
+									}
 								}
 								else
+								{
 									plotStage = 6;
+								}
 							}
 							else
+							{
 								plotStage = 5;
+							}
 						}
 						else
+						{
 							plotStage = 4;
+						}
 					}
 					else
+					{
 						plotStage = 3;
+					}
 				}
 				else
+				{
 					plotStage = 2;
+				}
 			}
 		}
 		else
@@ -850,7 +876,6 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 
 void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
-	
 	m_spriteBatch = std::make_unique<SpriteBatch>(context);
 	m_ActualspriteBatch = std::make_unique<SpriteBatch>(context);
 
@@ -1041,8 +1066,8 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity3->AddComponent<EnemyComponent>(3.f, 22);
 	enemyEntity4->AddComponent<EnemyComponent>(3.f, 19);
 	enemyEntity5->AddComponent<EnemyComponent>(3.f, 23);
-	enemyEntity6->AddComponent<EnemyComponent>(10.f, 35, 1.9f, 3.0f);
-
+	enemyEntity6->AddComponent<EnemyComponent>(10.f, 35, 1.9f, 1.0f, 3.0f);
+	
 
 	playerEntity->AddComponent<PlayerComponent>();
 
@@ -1142,6 +1167,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		}
 	}
 
+	enemyEntity6->GetComponent<EnemyComponent>()->canBeHitted = false;
 
 	//// Setting up parameters of colliders ----------------------------------------------------------------
 
