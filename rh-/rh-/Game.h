@@ -249,6 +249,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mainMenuTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> loadingScreenTexture;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	std::unique_ptr<DirectX::SpriteBatch> m_ActualspriteBatch;
 	DirectX::SimpleMath::Vector2 m_screenPos;
 
 	bool mainMenu = true;
@@ -279,9 +280,22 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> plot9Texture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> plot10Texture;
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> blackBackTexture;
+
+	//XMVECTORF32 ColorChanger = { { { 1.000000000f, 1.000000000f, 1.000000000f, 0.900000000f } } };
+
+	float ColorChanger = 0.0f;
+
+	void ClearColorChanger();
+	//bool colorChangerCleared = true;
+	int remPlotStage = 0;
+
+
 	int plotStage = 0;
 	float plotTimer = 0;
 
 	void ShowPlot(int stage);
+
+	std::unique_ptr<CommonStates> states;
 
 };

@@ -136,6 +136,7 @@ void Game::Update(DX::StepTimer const& timer)
 		if (plotScreens)
 		{
 			plotTimer += elapsedTime;
+			ColorChanger += elapsedTime / 3.0f;
 
 			if (plotTimer > 3.0f)
 			{
@@ -680,7 +681,7 @@ void Game::Render()
 
 			m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
 				0.f, Vector2(0, 0), 1.0f);
-
+			
 			m_spriteBatch->Draw(cattyTexture.Get(), Vector2(500.0f, 500.0f), nullptr, Colors::White,
 				0.f, Vector2(0, 0), 1.0f);
 
@@ -851,6 +852,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 {
 	
 	m_spriteBatch = std::make_unique<SpriteBatch>(context);
+	m_ActualspriteBatch = std::make_unique<SpriteBatch>(context);
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"menuMiko.dds",
@@ -927,13 +929,18 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			nullptr,
 			plot10Texture.ReleaseAndGetAddressOf()));
 
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"BlackBackScreen.dds",
+			nullptr,
+			blackBackTexture.ReleaseAndGetAddressOf()));
 
+	
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"cat.dds",
 			nullptr,
 			cattyTexture.ReleaseAndGetAddressOf()));
 
-	
+	states = std::make_unique<CommonStates>(device);
 
 
 	auto size = m_deviceResources->GetOutputSize();
@@ -1300,15 +1307,29 @@ void Game::OnDeviceRestored()
 	CreateWindowSizeDependentResources();
 }
 
+void Game::ClearColorChanger()
+{
+	if (remPlotStage != plotStage)
+	{
+		remPlotStage = plotStage;
+		ColorChanger = 0.0f;
+	}
+}
+
 void Game::ShowPlot(int stage)
 {
+	ClearColorChanger();
+
 	switch (stage)
 	{
 		case 1:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot1Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot1Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
@@ -1317,9 +1338,12 @@ void Game::ShowPlot(int stage)
 		}
 		case 2:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot2Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(plot1Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot2Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
@@ -1328,9 +1352,12 @@ void Game::ShowPlot(int stage)
 		}
 		case 3:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot3Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot3Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
@@ -1339,9 +1366,12 @@ void Game::ShowPlot(int stage)
 		}
 		case 4:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot4Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot4Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
@@ -1350,9 +1380,12 @@ void Game::ShowPlot(int stage)
 		}
 		case 5:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(plot4Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
@@ -1361,9 +1394,12 @@ void Game::ShowPlot(int stage)
 		}
 		case 6:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot6Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot6Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
@@ -1372,9 +1408,12 @@ void Game::ShowPlot(int stage)
 		}
 		case 7:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot7Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot7Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
@@ -1383,9 +1422,12 @@ void Game::ShowPlot(int stage)
 		}
 		case 8:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot8Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(plot7Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot8Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
@@ -1394,9 +1436,12 @@ void Game::ShowPlot(int stage)
 		}
 		case 9:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
@@ -1405,9 +1450,12 @@ void Game::ShowPlot(int stage)
 		}
 		case 10:
 		{
-			m_spriteBatch->Begin();
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot10Texture.Get(), m_screenPos, nullptr, Colors::White,
+			m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot10Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
 				0.f, Vector2(0, 0), 1.0f);
 
 			m_spriteBatch->End();
