@@ -85,7 +85,7 @@ void Game::Update(DX::StepTimer const& timer)
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// TO DISABLE MENU and START SCREENS
-	mainMenu = false;
+	//mainMenu = false;
 
 	if (gameStage < 5)
 	{
