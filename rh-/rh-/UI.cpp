@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "UI.h"
 
-UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, float playerHealthOrigin, shared_ptr<float> playerHealth)
+UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, float playerHealthOrigin, shared_ptr<float> playerHealth, shared_ptr<Cooldown> cooldown)
 {
 	_device = device;
 	_context = context;
@@ -9,6 +9,7 @@ UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, float playerHealt
 	_playerHealth = playerHealth;
 	transitionMode = false;
 	transitionElapsedTime = 0.0f;
+	_cooldown = cooldown;
 }
 
 UI::~UI()
@@ -17,17 +18,23 @@ UI::~UI()
 
 void UI::Initialize()
 {
-	vector<string> uiNames = {
+	vector<string> uiImageNames = {
 		"healthBar", "healthAmount", "heroIconNormal", "vampireModeBorder",
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack",
 		"teleport", "cleaveAttack", "swap","aoeAttack",
 		"fpsBackground", "popUpMenu", "heroIconVampire", "heroIconVampireRing",
 		"heroIconTransitionRing", "vamprireRedCircle", "teleportCost", "cleaveAttackCost",
 		"swapCost", "skillKeyLPM", "skillKeyPPM", "skillKeyCPM", "skillKeyE",
-		"skillKey1", "skillKey2", "skillKey3", "skillKey4"
+		"skillKey1", "skillKey2", "skillKey3", "skillKey4",
+		"humanCoolDownFrame", "vampireCoolDownFrame"
 	};
 
-	map<string, string> uiNameTexMap = {
+	vector<string> uiTextNames = {
+		"normalAttackCooldown", "strongAttackCooldown",
+		"spinAttackCooldown", "biteAttackCooldown"
+	};
+
+	map<string, string> uiImageNameTexMap = {
 		{"healthBar", "Resources\\UISprites\\hp_bar.dds"},
 		{"healthAmount", "Resources\\UISprites\\Blood_Drop.dds"},
 		{"heroIconNormal", "Resources\\UISprites\\Hero_Circle_Normal.dds"},
@@ -56,12 +63,14 @@ void UI::Initialize()
 		{"skillKey1", "Resources\\UISprites\\Vampire_Skill_Key_1.dds"},
 		{"skillKey2", "Resources\\UISprites\\Vampire_Skill_Key_2.dds"},
 		{"skillKey3", "Resources\\UISprites\\Vampire_Skill_Key_3.dds"},
-		{"skillKey4", "Resources\\UISprites\\Vampire_Skill_Key_4.dds"}
+		{"skillKey4", "Resources\\UISprites\\Vampire_Skill_Key_4.dds"},
+		{"humanCoolDownFrame", "Resources\\UISprites\\Human_Skill_Cooldown_Frame.dds"},
+		{"vampireCoolDownFrame", "Resources\\UISprites\\Vampire_Skill_Cooldown_Frame.dds"}
 	};
 
 	skillSetPosition = Vector2(690.0f, 930.0f);
 
-	map<string, Vector2> uiNamePositionMap{
+	map<string, Vector2> uiNamePositionMap = {
 		{"healthBar", Vector2(0.0f, 0.0f)},
 		{"healthAmount", Vector2(140.f, 28.0f)},
 		{"heroIconNormal", Vector2(0.0f, 0.0f)},
@@ -90,10 +99,16 @@ void UI::Initialize()
 		{"skillKey1", skillSetPosition + Vector2(15.0f, 65.0f)},
 		{"skillKey2", skillSetPosition + Vector2(165.0f, 65.0f)},
 		{"skillKey3", skillSetPosition + Vector2(315.0f, 65.0f)},
-		{"skillKey4", skillSetPosition + Vector2(465.0f, 65.0f)}
+		{"skillKey4", skillSetPosition + Vector2(465.0f, 65.0f)},
+		{"humanCoolDownFrame", skillSetPosition + Vector2(5.0f, 0.0f)},
+		{"vampireCoolDownFrame", skillSetPosition + Vector2(-5.0f, -10.0f)},
+		{"normalAttackCooldown", skillSetPosition + Vector2(14.0f, 5.0f)},
+		{"strongAttackCooldown", skillSetPosition + Vector2(166.0f, 5.0f)},
+		{"spinAttackCooldown", skillSetPosition + Vector2(316.0f, 5.0f)},
+		{"biteAttackCooldown", skillSetPosition + Vector2(466.0f, 5.0f)}
 	};
 
-	map<string, Vector2> uiNameScaleMap{
+	map<string, Vector2> uiNameScaleMap = {
 		{"healthBar", Vector2(0.25f, 0.25f)},
 		{"healthAmount", Vector2(0.10f, 0.10f)},
 		{"heroIconNormal", Vector2(0.35f, 0.35f)},
@@ -122,25 +137,39 @@ void UI::Initialize()
 		{"skillKey1", Vector2(0.30f, 0.30f)},
 		{"skillKey2", Vector2(0.30f, 0.30f)},
 		{"skillKey3", Vector2(0.30f, 0.30f)},
-		{"skillKey4", Vector2(0.30f, 0.30f)}
+		{"skillKey4", Vector2(0.30f, 0.30f)},
+		{"humanCoolDownFrame", Vector2(0.20f, 0.20f)},
+		{"vampireCoolDownFrame", Vector2(0.24f, 0.24f)},
+		{"normalAttackCooldown", Vector2(1.6f, 1.6f)},
+		{"strongAttackCooldown", Vector2(1.6f, 1.6f)},
+		{"spinAttackCooldown", Vector2(1.6f, 1.6f)},
+		{"biteAttackCooldown", Vector2(1.6f, 1.6f)}
 	};
 
 
-	for each(string uiElement in uiNames)
+	for each(string uiElement in uiImageNames)
 	{
-		_elements[uiElement] = UiElement();
+		_imageElements[uiElement] = ImageUiElement();
+		_imageElements[uiElement].name = uiElement;
 
-		_elements[uiElement].name = uiElement;
-
-		wstring wide_string = wstring(uiNameTexMap[uiElement].begin(), uiNameTexMap[uiElement].end());
+		wstring wide_string = wstring(uiImageNameTexMap[uiElement].begin(), uiImageNameTexMap[uiElement].end());
 		const wchar_t* spritePath = wide_string.c_str();
 		DX::ThrowIfFailed(
 			CreateDDSTextureFromFile(_device, spritePath,
 				nullptr,
-				_elements[uiElement].texture.ReleaseAndGetAddressOf()));
+				_imageElements[uiElement].texture.ReleaseAndGetAddressOf()));
 
-		_elements[uiElement].position = uiNamePositionMap[uiElement];
-		_elements[uiElement].scale = uiNameScaleMap[uiElement];
+		_imageElements[uiElement].position = uiNamePositionMap[uiElement];
+		_imageElements[uiElement].scale = uiNameScaleMap[uiElement];
+	}
+
+	for each(string uiElement in uiTextNames)
+	{
+		_textElements[uiElement] = TextUiElement();
+		_textElements[uiElement].name = uiElement;
+		_textElements[uiElement].position = uiNamePositionMap[uiElement];
+		_textElements[uiElement].scale = uiNameScaleMap[uiElement];
+		_textElements[uiElement].font = make_unique<SpriteFont>(_device, L"Resources\\Fonts\\fpsFont.spritefont");
 	}
 
 	uiSpriteBatch = std::make_shared<SpriteBatch>(_context); // UI Component, UISystem->Initialize()
@@ -156,8 +185,8 @@ void UI::DrawRedBorder()
 {
 	uiSpriteBatchBorder->Begin();
 
-	uiSpriteBatchBorder->Draw(_elements["vampireModeBorder"].texture.Get(), _elements["vampireModeBorder"].position, nullptr, Colors::White,
-		0.f, Vector2(0, 0), _elements["vampireModeBorder"].scale);
+	uiSpriteBatchBorder->Draw(_imageElements["vampireModeBorder"].texture.Get(), _imageElements["vampireModeBorder"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _imageElements["vampireModeBorder"].scale);
 
 	uiSpriteBatchBorder->End();
 }
@@ -171,39 +200,90 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 
 	for (int i = 0; i < (int)*_playerHealth; i++)
 	{
-		uiSpriteBatch->Draw(_elements["healthAmount"].texture.Get(), _elements["healthAmount"].position + i * Vector2(40.0f, 0.0f), nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["healthAmount"].scale);
+		uiSpriteBatch->Draw(_imageElements["healthAmount"].texture.Get(), _imageElements["healthAmount"].position + i * Vector2(40.0f, 0.0f), nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["healthAmount"].scale);
 	}
 
 	if (!vampireMode)
 	{
-		uiSpriteBatch->Draw(_elements["heroIconNormal"].texture.Get(), _elements["heroIconNormal"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["heroIconNormal"].scale);
+		uiSpriteBatch->Draw(_imageElements["heroIconNormal"].texture.Get(), _imageElements["heroIconNormal"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["heroIconNormal"].scale);
 
-		uiSpriteBatch->Draw(_elements["skillKeyLPM"].texture.Get(), _elements["skillKeyLPM"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKeyLPM"].scale);
+		uiSpriteBatch->Draw(_imageElements["skillKeyLPM"].texture.Get(), _imageElements["skillKeyLPM"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["skillKeyLPM"].scale);
 
-		uiSpriteBatch->Draw(_elements["skillKeyPPM"].texture.Get(), _elements["skillKeyPPM"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKeyPPM"].scale);
+		uiSpriteBatch->Draw(_imageElements["skillKeyPPM"].texture.Get(), _imageElements["skillKeyPPM"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["skillKeyPPM"].scale);
 
-		uiSpriteBatch->Draw(_elements["skillKeyCPM"].texture.Get(), _elements["skillKeyCPM"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKeyCPM"].scale);
+		uiSpriteBatch->Draw(_imageElements["skillKeyCPM"].texture.Get(), _imageElements["skillKeyCPM"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["skillKeyCPM"].scale);
 
-		uiSpriteBatch->Draw(_elements["skillKeyE"].texture.Get(), _elements["skillKeyE"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKeyE"].scale);
+		uiSpriteBatch->Draw(_imageElements["skillKeyE"].texture.Get(), _imageElements["skillKeyE"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["skillKeyE"].scale);
 
-		uiSpriteBatch->Draw(_elements["normalAttack"].texture.Get(), _elements["normalAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["normalAttack"].scale);
+		if (_cooldown->CanUseSkill("normalAttack"))
+			uiSpriteBatch->Draw(_imageElements["normalAttack"].texture.Get(), _imageElements["normalAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["normalAttack"].scale);
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["normalAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["normalAttack"].scale);
 
-		uiSpriteBatch->Draw(_elements["strongAttack"].texture.Get(), _elements["strongAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["strongAttack"].scale);
+			string value = to_string((int)_cooldown->RemainingCooldownTime("normalAttack"));
+			wstring wide_string = wstring(value.begin(), value.end());
+			const wchar_t* textValue = wide_string.c_str();
 
-		uiSpriteBatch->Draw(_elements["spinAttack"].texture.Get(), _elements["spinAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["spinAttack"].scale);
+			_textElements["normalAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
+				_textElements["normalAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["normalAttackCooldown"].scale);
+		}
 
-		uiSpriteBatch->Draw(_elements["biteAttack"].texture.Get(), _elements["biteAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["biteAttack"].scale);	
+		if (_cooldown->CanUseSkill("strongAttack"))
+			uiSpriteBatch->Draw(_imageElements["strongAttack"].texture.Get(), _imageElements["strongAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["strongAttack"].scale);
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["strongAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["strongAttack"].scale);
 
+			string value = to_string((int)_cooldown->RemainingCooldownTime("strongAttack"));
+			wstring wide_string = wstring(value.begin(), value.end());
+			const wchar_t* textValue = wide_string.c_str();
+
+			_textElements["strongAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
+				_textElements["strongAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["strongAttackCooldown"].scale);
+		}
+
+		if (_cooldown->CanUseSkill("spinAttack"))
+			uiSpriteBatch->Draw(_imageElements["spinAttack"].texture.Get(), _imageElements["spinAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["spinAttack"].scale);
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["spinAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["spinAttack"].scale);
+
+			string value = to_string((int)_cooldown->RemainingCooldownTime("spinAttack"));
+			wstring wide_string = wstring(value.begin(), value.end());
+			const wchar_t* textValue = wide_string.c_str();
+
+			_textElements["spinAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
+				_textElements["spinAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["spinAttackCooldown"].scale);
+		}
+
+		if (_cooldown->CanUseSkill("biteAttack"))
+			uiSpriteBatch->Draw(_imageElements["biteAttack"].texture.Get(), _imageElements["biteAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["biteAttack"].scale);	
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["biteAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["biteAttack"].scale);
+
+			string value = to_string((int)_cooldown->RemainingCooldownTime("biteAttack"));
+			wstring wide_string = wstring(value.begin(), value.end());
+			const wchar_t* textValue = wide_string.c_str();
+
+			_textElements["biteAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
+				_textElements["biteAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["biteAttackCooldown"].scale);
+		}
 		
 	}
 	else
@@ -212,8 +292,8 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 
 		if (transitionMode)
 		{
-			uiSpriteBatch->Draw(_elements["heroIconTransitionRing"].texture.Get(), _elements["heroIconTransitionRing"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _elements["heroIconTransitionRing"].scale);
+			uiSpriteBatch->Draw(_imageElements["heroIconTransitionRing"].texture.Get(), _imageElements["heroIconTransitionRing"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["heroIconTransitionRing"].scale);
 
 			transitionElapsedTime += elapsedTime;
 
@@ -225,66 +305,66 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 		} 
 		else
 		{
-			uiSpriteBatch->Draw(_elements["heroIconVampire"].texture.Get(), _elements["heroIconVampire"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _elements["heroIconVampire"].scale);
+			uiSpriteBatch->Draw(_imageElements["heroIconVampire"].texture.Get(), _imageElements["heroIconVampire"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["heroIconVampire"].scale);
 
-			uiSpriteBatch->Draw(_elements["heroIconVampireRing"].texture.Get(), _elements["heroIconVampireRing"].position + Vector2(70.0f, 70.0f), nullptr, Colors::White,
-				sinf(totalTime) * 6.0f, Vector2(206, 206), _elements["heroIconVampireRing"].scale);
+			uiSpriteBatch->Draw(_imageElements["heroIconVampireRing"].texture.Get(), _imageElements["heroIconVampireRing"].position + Vector2(70.0f, 70.0f), nullptr, Colors::White,
+				sinf(totalTime) * 6.0f, Vector2(206, 206), _imageElements["heroIconVampireRing"].scale);
 		}
 
-		uiSpriteBatch->Draw(_elements["skillKey1"].texture.Get(), _elements["skillKey1"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKey1"].scale);
+		uiSpriteBatch->Draw(_imageElements["skillKey1"].texture.Get(), _imageElements["skillKey1"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["skillKey1"].scale);
 
-		uiSpriteBatch->Draw(_elements["skillKey2"].texture.Get(), _elements["skillKey2"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKey2"].scale);
+		uiSpriteBatch->Draw(_imageElements["skillKey2"].texture.Get(), _imageElements["skillKey2"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["skillKey2"].scale);
 
-		uiSpriteBatch->Draw(_elements["skillKey3"].texture.Get(), _elements["skillKey3"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKey3"].scale);
+		uiSpriteBatch->Draw(_imageElements["skillKey3"].texture.Get(), _imageElements["skillKey3"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["skillKey3"].scale);
 
-		uiSpriteBatch->Draw(_elements["skillKey4"].texture.Get(), _elements["skillKey4"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKey4"].scale);
+		uiSpriteBatch->Draw(_imageElements["skillKey4"].texture.Get(), _imageElements["skillKey4"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["skillKey4"].scale);
 
-		uiSpriteBatch->Draw(_elements["teleport"].texture.Get(), _elements["teleport"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["teleport"].scale);
+		uiSpriteBatch->Draw(_imageElements["teleport"].texture.Get(), _imageElements["teleport"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["teleport"].scale);
 
-		uiSpriteBatch->Draw(_elements["cleaveAttack"].texture.Get(), _elements["cleaveAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["cleaveAttack"].scale);
+		uiSpriteBatch->Draw(_imageElements["cleaveAttack"].texture.Get(), _imageElements["cleaveAttack"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["cleaveAttack"].scale);
 
-		uiSpriteBatch->Draw(_elements["swap"].texture.Get(), _elements["swap"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["swap"].scale);
+		uiSpriteBatch->Draw(_imageElements["swap"].texture.Get(), _imageElements["swap"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["swap"].scale);
 
-		uiSpriteBatch->Draw(_elements["aoeAttack"].texture.Get(), _elements["aoeAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["aoeAttack"].scale);
+		uiSpriteBatch->Draw(_imageElements["aoeAttack"].texture.Get(), _imageElements["aoeAttack"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["aoeAttack"].scale);
 
 		if (selectedVampireAbility != 0)
 		{
-			Vector2 vampireRedCirclePos = _elements["vamprireRedCircle"].position + Vector2(150.0f * (selectedVampireAbility - 1), 0.0f);
+			Vector2 vampireRedCirclePos = _imageElements["vamprireRedCircle"].position + Vector2(150.0f * (selectedVampireAbility - 1), 0.0f);
 
-			uiSpriteBatch->Draw(_elements["vamprireRedCircle"].texture.Get(), vampireRedCirclePos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _elements["vamprireRedCircle"].scale);
+			uiSpriteBatch->Draw(_imageElements["vamprireRedCircle"].texture.Get(), vampireRedCirclePos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["vamprireRedCircle"].scale);
 		}
 
-		uiSpriteBatch->Draw(_elements["teleportCost"].texture.Get(), _elements["teleportCost"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["teleportCost"].scale);
+		uiSpriteBatch->Draw(_imageElements["teleportCost"].texture.Get(), _imageElements["teleportCost"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["teleportCost"].scale);
 
-		uiSpriteBatch->Draw(_elements["cleaveAttackCost"].texture.Get(), _elements["cleaveAttackCost"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["cleaveAttackCost"].scale);
+		uiSpriteBatch->Draw(_imageElements["cleaveAttackCost"].texture.Get(), _imageElements["cleaveAttackCost"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["cleaveAttackCost"].scale);
 
-		uiSpriteBatch->Draw(_elements["swapCost"].texture.Get(), _elements["swapCost"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["swapCost"].scale);
+		uiSpriteBatch->Draw(_imageElements["swapCost"].texture.Get(), _imageElements["swapCost"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["swapCost"].scale);
 
 	}
 
-	uiSpriteBatch->Draw(_elements["fpsBackground"].texture.Get(), _elements["fpsBackground"].position, nullptr, Colors::White,
-		0.f, Vector2(0, 0), _elements["fpsBackground"].scale);
+	uiSpriteBatch->Draw(_imageElements["fpsBackground"].texture.Get(), _imageElements["fpsBackground"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _imageElements["fpsBackground"].scale);
 
 	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
 		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
 
 	if (menuIsOn)
 	{
-		uiSpriteBatch->Draw(_elements["popUpMenu"].texture.Get(), _elements["popUpMenu"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["popUpMenu"].scale);
+		uiSpriteBatch->Draw(_imageElements["popUpMenu"].texture.Get(), _imageElements["popUpMenu"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["popUpMenu"].scale);
 	}
 
 	uiSpriteBatch->End();
@@ -296,7 +376,7 @@ void UI::Reset()
 	uiSpriteBatchBorder.reset();
 	fpsFont.reset();
 
-	for (std::map<string, UiElement>::iterator it = _elements.begin(); it != _elements.end(); ++it)
+	for (std::map<string, ImageUiElement>::iterator it = _imageElements.begin(); it != _imageElements.end(); ++it)
 	{
 		it->second.texture.Reset();
 	}
