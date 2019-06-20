@@ -22,6 +22,7 @@ public:
 
 	void StartSkillCounter(string skillName);
 	bool CanUseSkill(string skillName);
+	float RemainingCooldownTime(string skillName);
 	void Update();
 
 	map<string, CooldownUnit> units;

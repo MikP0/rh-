@@ -34,6 +34,11 @@ bool Cooldown::CanUseSkill(string skillName)
 	return units[skillName].canUse;
 }
 
+float Cooldown::RemainingCooldownTime(string skillName)
+{
+	return units[skillName].remainigTime;
+}
+
 void Cooldown::Update()
 {
 	for (map<string, CooldownUnit>::iterator it = units.begin(); it != units.end(); it++)
@@ -43,6 +48,7 @@ void Cooldown::Update()
 			if (it->second.remainigTime <= 0.0f)
 			{
 				it->second.canUse = true;
+				it->second.remainigTime = 0.0f;
 			}
 			else
 				it->second.remainigTime -= Coroutine::GetElapsedTime();

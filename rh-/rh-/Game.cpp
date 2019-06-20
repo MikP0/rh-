@@ -1070,7 +1070,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
 
 	//Setting up UI -----------------------------------------------------------------------------------
-	Ui = make_shared<UI>(device, context, playerSystem->playerHealthOrigin, playerSystem->playerHealth);
+	Ui = make_shared<UI>(device, context, playerSystem->playerHealthOrigin, playerSystem->playerHealth, cooldown);
 
 	////Setting up skinned model -----------------------------------------------------------------------
 	auto component = playerEntity->GetComponent<RenderableComponent>();
