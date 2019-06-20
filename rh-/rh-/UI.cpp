@@ -23,92 +23,106 @@ void UI::Initialize()
 		"teleport", "cleaveAttack", "swap","aoeAttack",
 		"fpsBackground", "popUpMenu", "heroIconVampire", "heroIconVampireRing",
 		"heroIconTransitionRing", "vamprireRedCircle", "teleportCost", "cleaveAttackCost",
-		"swapCost", "skillKeyLPM", "skillKeyPPM", "skillKeyCPM", "skillKeyE"};
-
-	map<string, string> uiNameTexMap = {
-		{uiNames[0], "Resources\\UISprites\\hp_bar.dds"},
-		{uiNames[1], "Resources\\UISprites\\Blood_Drop.dds"},
-		{uiNames[2], "Resources\\UISprites\\Hero_Circle_Normal.dds"},
-		{uiNames[3], "Resources\\UISprites\\red_border.dds"},
-		{uiNames[4], "Resources\\UISprites\\Normal_Attack.dds"},
-		{uiNames[5], "Resources\\UISprites\\Strong_Attack.dds"},
-		{uiNames[6], "Resources\\UISprites\\Human_Blocked_Skill.dds"},
-		{uiNames[7], "Resources\\UISprites\\Bite_Attack.dds"},
-		{uiNames[8], "Resources\\UISprites\\Teleport.dds"},
-		{uiNames[9], "Resources\\UISprites\\Cleave_Attack.dds"},
-		{uiNames[10], "Resources\\UISprites\\Swap.dds"},
-		{uiNames[11], "Resources\\UISprites\\Vampire_Blocked_Skill.dds"},
-		{uiNames[12], "Resources\\UISprites\\fpsbar.dds"},
-		{uiNames[13], "Resources\\UISprites\\Menu.dds"},
-		{uiNames[14], "Resources\\UISprites\\Hero_Circle_Vampire.dds"},
-		{uiNames[15], "Resources\\UISprites\\Hero_Circle_Vampire_Ring.dds"},
-		{uiNames[16], "Resources\\UISprites\\Hero_Circle_Transition.dds"},
-		{uiNames[17], "Resources\\UISprites\\Vampire_Red_Circle.dds"},
-		{uiNames[18], "Resources\\UISprites\\Blood_Drop_One.dds"},
-		{uiNames[19], "Resources\\UISprites\\Blood_Drop_Two.dds"},
-		{uiNames[20], "Resources\\UISprites\\Blood_Drop_One.dds"},
-		{uiNames[21], "Resources\\UISprites\\Human_Skill_Key_LPM.dds"},
-		{uiNames[22], "Resources\\UISprites\\Human_Skill_Key_PPM.dds"},
-		{uiNames[23], "Resources\\UISprites\\Human_Skill_Key_CPM.dds"},
-		{uiNames[24], "Resources\\UISprites\\Human_Skill_Key_E.dds"}
+		"swapCost", "skillKeyLPM", "skillKeyPPM", "skillKeyCPM", "skillKeyE",
+		"skillKey1", "skillKey2", "skillKey3", "skillKey4"
 	};
 
-	skillSetPosition = Vector2(650.0f, 800.0f);
+	map<string, string> uiNameTexMap = {
+		{"healthBar", "Resources\\UISprites\\hp_bar.dds"},
+		{"healthAmount", "Resources\\UISprites\\Blood_Drop.dds"},
+		{"heroIconNormal", "Resources\\UISprites\\Hero_Circle_Normal.dds"},
+		{"vampireModeBorder", "Resources\\UISprites\\red_border.dds"},
+		{"normalAttack", "Resources\\UISprites\\Normal_Attack.dds"},
+		{"strongAttack", "Resources\\UISprites\\Strong_Attack.dds"},
+		{"spinAttack", "Resources\\UISprites\\Spin_Attack.dds"},
+		{"biteAttack", "Resources\\UISprites\\Bite_Attack.dds"},
+		{"teleport", "Resources\\UISprites\\Teleport.dds"},
+		{"cleaveAttack", "Resources\\UISprites\\Cleave_Attack.dds"},
+		{"swap", "Resources\\UISprites\\Swap.dds"},
+		{"aoeAttack", "Resources\\UISprites\\Aoe_Attack.dds"},
+		{"fpsBackground", "Resources\\UISprites\\fpsbar.dds"},
+		{"popUpMenu", "Resources\\UISprites\\Menu.dds"},
+		{"heroIconVampire", "Resources\\UISprites\\Hero_Circle_Vampire.dds"},
+		{"heroIconVampireRing", "Resources\\UISprites\\Hero_Circle_Vampire_Ring.dds"},
+		{"heroIconTransitionRing", "Resources\\UISprites\\Hero_Circle_Transition.dds"},
+		{"vamprireRedCircle", "Resources\\UISprites\\Vampire_Red_Circle.dds"},
+		{"teleportCost", "Resources\\UISprites\\Blood_Drop_One.dds"},
+		{"cleaveAttackCost", "Resources\\UISprites\\Blood_Drop_Two.dds"},
+		{"swapCost", "Resources\\UISprites\\Blood_Drop_One.dds"},
+		{"skillKeyLPM", "Resources\\UISprites\\Human_Skill_Key_LPM.dds"},
+		{"skillKeyPPM", "Resources\\UISprites\\Human_Skill_Key_PPM.dds"},
+		{"skillKeyCPM", "Resources\\UISprites\\Human_Skill_Key_CPM.dds"},
+		{"skillKeyE", "Resources\\UISprites\\Human_Skill_Key_E.dds"},
+		{"skillKey1", "Resources\\UISprites\\Vampire_Skill_Key_1.dds"},
+		{"skillKey2", "Resources\\UISprites\\Vampire_Skill_Key_2.dds"},
+		{"skillKey3", "Resources\\UISprites\\Vampire_Skill_Key_3.dds"},
+		{"skillKey4", "Resources\\UISprites\\Vampire_Skill_Key_4.dds"}
+	};
+
+	skillSetPosition = Vector2(690.0f, 930.0f);
 
 	map<string, Vector2> uiNamePositionMap{
-		{uiNames[0], Vector2(0.0f, 0.0f)},
-		{uiNames[1], Vector2(140.f, 28.0f)},
-		{uiNames[2], Vector2(0.0f, 0.0f)},
-		{uiNames[3], Vector2(0.0f, 0.0f)},
-		{uiNames[4], skillSetPosition},
-		{uiNames[5], Vector2(skillSetPosition.x + 150.0f, skillSetPosition.y)},
-		{uiNames[6], Vector2(skillSetPosition.x + 300.0f, skillSetPosition.y)},
-		{uiNames[7], Vector2(skillSetPosition.x + 450.0f, skillSetPosition.y)},
-		{uiNames[8], skillSetPosition},
-		{uiNames[9], Vector2(skillSetPosition.x + 150.0f, skillSetPosition.y)},
-		{uiNames[10], Vector2(skillSetPosition.x + 300.0f, skillSetPosition.y)},
-		{uiNames[11], Vector2(skillSetPosition.x + 450.0f, skillSetPosition.y)},
-		{uiNames[12], Vector2(710.0f, -5.0f)},
-		{uiNames[13], Vector2(250.0f, 100.0f)},
-		{uiNames[14], Vector2(0.0f, 0.0f)},
-		{uiNames[15], Vector2(0.0f, 0.0f)},
-		{uiNames[16], Vector2(0.0f, 0.0f)},
-		{uiNames[17], skillSetPosition},
-		{uiNames[18], skillSetPosition + Vector2(35.0f, -60.0f)},
-		{uiNames[19], Vector2(skillSetPosition.x + 150.0f + 15.0f, skillSetPosition.y - 60.0f)},
-		{uiNames[20], Vector2(skillSetPosition.x + 300.0f + 35.0f, skillSetPosition.y - 60.0f)},
-		{uiNames[21], skillSetPosition + Vector2(-23.0f, 110.0f)},
-		{uiNames[22], skillSetPosition + Vector2(128.0f, 110.0f)},
-		{uiNames[23], skillSetPosition + Vector2(278.0f, 110.0f)},
-		{uiNames[24], skillSetPosition + Vector2(428.0f, 110.0f)}
+		{"healthBar", Vector2(0.0f, 0.0f)},
+		{"healthAmount", Vector2(140.f, 28.0f)},
+		{"heroIconNormal", Vector2(0.0f, 0.0f)},
+		{"vampireModeBorder", Vector2(0.0f, 0.0f)},
+		{"normalAttack", skillSetPosition + Vector2(5.0f, 0.0f)},
+		{"strongAttack", Vector2(skillSetPosition.x + 155.0f, skillSetPosition.y)},
+		{"spinAttack", Vector2(skillSetPosition.x + 305.0f, skillSetPosition.y)},
+		{"biteAttack", Vector2(skillSetPosition.x + 455.0f, skillSetPosition.y)},
+		{"teleport", skillSetPosition + Vector2(-5.0f, -10.0f)},
+		{"cleaveAttack", Vector2(skillSetPosition.x + 145.0f, skillSetPosition.y - 10.0f)},
+		{"swap", Vector2(skillSetPosition.x + 295.0f, skillSetPosition.y - 10.0f)},
+		{"aoeAttack", Vector2(skillSetPosition.x + 445.0f, skillSetPosition.y - 10.0f)},
+		{"fpsBackground", Vector2(710.0f, -5.0f)},
+		{"popUpMenu", Vector2(250.0f, 100.0f)},
+		{"heroIconVampire", Vector2(0.0f, 0.0f)},
+		{"heroIconVampireRing", Vector2(0.0f, 0.0f)},
+		{"heroIconTransitionRing", Vector2(0.0f, 0.0f)},
+		{"vamprireRedCircle", skillSetPosition + Vector2(-6.0f, -12.0f)},
+		{"teleportCost", skillSetPosition + Vector2(25.0f, -60.0f)},
+		{"cleaveAttackCost", Vector2(skillSetPosition.x + 145.0f + 15.0f, skillSetPosition.y - 60.0f)},
+		{"swapCost", Vector2(skillSetPosition.x + 290.0f + 35.0f, skillSetPosition.y - 60.0f)},
+		{"skillKeyLPM", skillSetPosition + Vector2(15.0f, 65.0f)},
+		{"skillKeyPPM", skillSetPosition + Vector2(165.0f, 65.0f)},
+		{"skillKeyCPM", skillSetPosition + Vector2(315.0f, 65.0f)},
+		{"skillKeyE", skillSetPosition + Vector2(465.0f, 65.0f)},
+		{"skillKey1", skillSetPosition + Vector2(15.0f, 65.0f)},
+		{"skillKey2", skillSetPosition + Vector2(165.0f, 65.0f)},
+		{"skillKey3", skillSetPosition + Vector2(315.0f, 65.0f)},
+		{"skillKey4", skillSetPosition + Vector2(465.0f, 65.0f)}
 	};
 
 	map<string, Vector2> uiNameScaleMap{
-		{uiNames[0], Vector2(0.25f, 0.25f)},
-		{uiNames[1], Vector2(0.10f, 0.10f)},
-		{uiNames[2], Vector2(0.35f, 0.35f)},
-		{uiNames[3], Vector2(1.0f, 1.0f)},
-		{uiNames[4], Vector2(0.25f, 0.25f)},
-		{uiNames[5], Vector2(0.25f, 0.25f)},
-		{uiNames[6], Vector2(0.25f, 0.25f)},
-		{uiNames[7], Vector2(0.25f, 0.25f)},
-		{uiNames[8], Vector2(0.27f, 0.27f)},
-		{uiNames[9], Vector2(0.27f, 0.27f)},
-		{uiNames[10], Vector2(0.27f, 0.27f)},
-		{uiNames[11], Vector2(0.27f, 0.27f)},
-		{uiNames[12], Vector2(0.15f, 0.15f)},
-		{uiNames[13], Vector2(0.6f, 0.6f)},
-		{uiNames[14], Vector2(0.35f, 0.35f)},
-		{uiNames[15], Vector2(0.35f, 0.35f)},
-		{uiNames[16], Vector2(0.35f, 0.35f)},
-		{uiNames[17], Vector2(0.25f, 0.25f)},
-		{uiNames[18], Vector2(0.25f, 0.25f)},
-		{uiNames[19], Vector2(0.25f, 0.25f)},
-		{uiNames[20], Vector2(0.25f, 0.25f)},
-		{uiNames[21], Vector2(0.35f, 0.35f)},
-		{uiNames[22], Vector2(0.35f, 0.35f)},
-		{uiNames[23], Vector2(0.35f, 0.35f)},
-		{uiNames[24], Vector2(0.35f, 0.35f)}
+		{"healthBar", Vector2(0.25f, 0.25f)},
+		{"healthAmount", Vector2(0.10f, 0.10f)},
+		{"heroIconNormal", Vector2(0.35f, 0.35f)},
+		{"vampireModeBorder", Vector2(1.0f, 1.0f)},
+		{"normalAttack", Vector2(0.20f, 0.20f)},
+		{"strongAttack", Vector2(0.20f, 0.20f)},
+		{"spinAttack", Vector2(0.20f, 0.20f)},
+		{"biteAttack", Vector2(0.20f, 0.20f)},
+		{"teleport", Vector2(0.24f, 0.24f)},
+		{"cleaveAttack", Vector2(0.24f, 0.24f)},
+		{"swap", Vector2(0.24f, 0.24f)},
+		{"aoeAttack", Vector2(0.24f, 0.24f)},
+		{"fpsBackground", Vector2(0.15f, 0.15f)},
+		{"popUpMenu", Vector2(0.6f, 0.6f)},
+		{"heroIconVampire", Vector2(0.35f, 0.35f)},
+		{"heroIconVampireRing", Vector2(0.35f, 0.35f)},
+		{"heroIconTransitionRing", Vector2(0.35f, 0.35f)},
+		{"vamprireRedCircle", Vector2(0.25f, 0.25f)},
+		{"teleportCost", Vector2(0.25f, 0.25f)},
+		{"cleaveAttackCost", Vector2(0.25f, 0.25f)},
+		{"swapCost", Vector2(0.25f, 0.25f)},
+		{"skillKeyLPM", Vector2(0.30f, 0.30f)},
+		{"skillKeyPPM", Vector2(0.30f, 0.30f)},
+		{"skillKeyCPM", Vector2(0.30f, 0.30f)},
+		{"skillKeyE", Vector2(0.30f, 0.30f)},
+		{"skillKey1", Vector2(0.30f, 0.30f)},
+		{"skillKey2", Vector2(0.30f, 0.30f)},
+		{"skillKey3", Vector2(0.30f, 0.30f)},
+		{"skillKey4", Vector2(0.30f, 0.30f)}
 	};
 
 
@@ -166,6 +180,18 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 		uiSpriteBatch->Draw(_elements["heroIconNormal"].texture.Get(), _elements["heroIconNormal"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _elements["heroIconNormal"].scale);
 
+		uiSpriteBatch->Draw(_elements["skillKeyLPM"].texture.Get(), _elements["skillKeyLPM"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["skillKeyLPM"].scale);
+
+		uiSpriteBatch->Draw(_elements["skillKeyPPM"].texture.Get(), _elements["skillKeyPPM"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["skillKeyPPM"].scale);
+
+		uiSpriteBatch->Draw(_elements["skillKeyCPM"].texture.Get(), _elements["skillKeyCPM"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["skillKeyCPM"].scale);
+
+		uiSpriteBatch->Draw(_elements["skillKeyE"].texture.Get(), _elements["skillKeyE"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["skillKeyE"].scale);
+
 		uiSpriteBatch->Draw(_elements["normalAttack"].texture.Get(), _elements["normalAttack"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _elements["normalAttack"].scale);
 
@@ -178,17 +204,7 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 		uiSpriteBatch->Draw(_elements["biteAttack"].texture.Get(), _elements["biteAttack"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _elements["biteAttack"].scale);	
 
-		uiSpriteBatch->Draw(_elements["skillKeyLPM"].texture.Get(), _elements["skillKeyLPM"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKeyLPM"].scale);
-
-		uiSpriteBatch->Draw(_elements["skillKeyPPM"].texture.Get(), _elements["skillKeyPPM"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKeyPPM"].scale);
-
-		uiSpriteBatch->Draw(_elements["skillKeyCPM"].texture.Get(), _elements["skillKeyCPM"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKeyCPM"].scale);
-
-		uiSpriteBatch->Draw(_elements["skillKeyE"].texture.Get(), _elements["skillKeyE"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _elements["skillKeyE"].scale);
+		
 	}
 	else
 	{
@@ -215,6 +231,18 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 			uiSpriteBatch->Draw(_elements["heroIconVampireRing"].texture.Get(), _elements["heroIconVampireRing"].position + Vector2(70.0f, 70.0f), nullptr, Colors::White,
 				sinf(totalTime) * 6.0f, Vector2(206, 206), _elements["heroIconVampireRing"].scale);
 		}
+
+		uiSpriteBatch->Draw(_elements["skillKey1"].texture.Get(), _elements["skillKey1"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["skillKey1"].scale);
+
+		uiSpriteBatch->Draw(_elements["skillKey2"].texture.Get(), _elements["skillKey2"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["skillKey2"].scale);
+
+		uiSpriteBatch->Draw(_elements["skillKey3"].texture.Get(), _elements["skillKey3"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["skillKey3"].scale);
+
+		uiSpriteBatch->Draw(_elements["skillKey4"].texture.Get(), _elements["skillKey4"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _elements["skillKey4"].scale);
 
 		uiSpriteBatch->Draw(_elements["teleport"].texture.Get(), _elements["teleport"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _elements["teleport"].scale);
