@@ -84,6 +84,13 @@ void Game::Update(DX::StepTimer const& timer)
 	auto device = m_deviceResources->GetD3DDevice();
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
+	if (!audEngine->Update())
+	{
+		if (audEngine->IsCriticalError())
+		{
+		}
+	}
+
 	// TO DISABLE MENU and START SCREENS
 	//mainMenu = false;
 
@@ -105,6 +112,8 @@ void Game::Update(DX::StepTimer const& timer)
 							{
 								gameStage = 5;
 								InitializeAll(device, context);
+								menuBackgroundAudio->Stop(true);
+								gameBackgroundAudio->Mute = false;
 							}
 							else
 								UpdateMainMenu(elapsedTime);
@@ -123,10 +132,18 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			gameStage = 5;
 			InitializeAll(device, context);
+			menuBackgroundAudio->Stop(true);
+			gameBackgroundAudio->Mute = false;
 		}
 	}
 	else if (gameStage == 5)
 	{
+		//if (gameBackgroundAudio->Mute) 
+		//{
+		//	menuBackgroundAudio->Stop(true);
+			//gameBackgroundAudio->Mute = false;
+		//}
+
 		Vector3 move = Vector3::Zero;
 
 		//Mouse
@@ -231,7 +248,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 					//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
 
-					audioBackgroundSound->Mute = false;
+					//audioBackgroundSound->Mute = false;
 				}
 
 
@@ -373,7 +390,7 @@ void Game::UpdateMainMenu(float elapsedTime)
 		if ((mouse.x >= size.left + 0.15f * size.right) && (mouse.x <= size.left + 0.33f * size.right))
 		{
 			/////////////////////////////////////////////////////////////////////////////////////////////////START
-			if ((mouse.y >= size.top + 0.11f * size.bottom) && (mouse.y <= size.top + 0.21f * size.bottom))			
+			if ((mouse.y >= size.top + 0.11f * size.bottom) && (mouse.y <= size.top + 0.21f * size.bottom))
 			{
 				gameStage = 4;
 			}
@@ -787,7 +804,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 
 void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
-	
+
 	m_spriteBatch = std::make_unique<SpriteBatch>(context);
 
 	DX::ThrowIfFailed(
@@ -821,16 +838,27 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			nullptr,
 			cattyTexture.ReleaseAndGetAddressOf()));
 
-	
-
-
 	auto size = m_deviceResources->GetOutputSize();
 	m_screenPos.x = 0;
 	m_screenPos.y = 0;
+
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
+#ifdef _DEBUG
+	eflags = eflags | AudioEngine_Debug;
+#endif
+	audEngine = std::make_unique<AudioEngine>(eflags);
+
+	menuBackground = std::make_unique<SoundEffect>(audEngine.get(), L"Resources\\Audio\\Altar.wav");
+	menuBackgroundAudio = menuBackground->CreateInstance();
+	menuBackgroundAudio->SetVolume(0.1f);
+	menuBackgroundAudio->Play(true);
 }
 
 void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
+	//AudioSystem::VOLUME = 1.0f;
 	cooldown = make_shared<Cooldown>(skillsNames, skillsTimeLimits);
 
 	terrain = std::make_shared<Terrain>();
@@ -866,11 +894,15 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	myEntity3 = world->CreateEntity("Cup3");
 	myEntity4 = world->CreateEntity("Cup4");
 
-	backgroundAudio = world->CreateEntity("BackgroundAudio");
-	damageAudio = world->CreateEntity("DamageAudio");
-	playerFootstepAudio = world->CreateEntity("PlayerFootstepAudio");
-	enemyFootstepAudio = world->CreateEntity("EnemyFootstepAudio");
-	swordSlashAudio = world->CreateEntity("SwordSlashAudio");
+	//Audio entities
+	gameBackground = world->CreateEntity("GameBackground");
+	playerFootstep = world->CreateEntity("PlayerFootstep");
+	playerNormalAttack = world->CreateEntity("PlayerNormalAttack");
+	playerBite = world->CreateEntity("PlayerBite");
+	enemyFootstep = world->CreateEntity("EnemyFootstep");
+	enemyAttack = world->CreateEntity("EnemyAttack");
+	knighFootstep = world->CreateEntity("KnighFootstep");
+
 
 	pointLightEntity1 = world->CreateEntity("PointLight1");
 	spotLightEntity1 = world->CreateEntity("SpotLight1");
@@ -900,11 +932,13 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity6->AddComponent<RenderableComponent>(L"content\\Models\\EnemyGuard.fbx", &camera);
 
 	// Creation of audio components ------------------------------------------------------------------
-	backgroundAudio->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
-	swordSlashAudio->AddComponent<AudioComponent>("Resources\\Audio\\attack.wav");
-	damageAudio->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
-	enemyFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\temp.wav");
-	playerFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
+	gameBackground->AddComponent<AudioComponent>("Resources\\Audio\\gameBackgroud.wav");
+	playerFootstep->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
+	playerNormalAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerAttack.wav");
+	playerBite->AddComponent<AudioComponent>("Resources\\Audio\\bite.wav");
+	enemyFootstep->AddComponent<AudioComponent>("Resources\\Audio\\step1.wav");
+	enemyAttack->AddComponent<AudioComponent>("Resources\\Audio\\enemyAttack.wav");
+	knighFootstep->AddComponent<AudioComponent>("Resources\\Audio\\heavyStep.wav");
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
 	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
@@ -979,20 +1013,70 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	// Setting up parameters of audio -- REMOVE
 	for (auto component : world->GetComponents<AudioComponent>())
 	{
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"BackgroundAudio") == 0)
+		if (strcmp(component->GetParent()->GetName().c_str(), "GameBackground") == 0)
 		{
+			gameBackgroundAudio = component;
+			gameBackgroundAudio->Loop = true;
+			gameBackgroundAudio->Volume = 0.15f;
+			gameBackgroundAudio->Mute = true;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerFootstep") == 0)
+		{
+			component->Volume = 0.8f;
+			playerEntity->GetComponent<PlayerComponent>()->footstepAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerNormalAttack") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->normalAttackAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerBite") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->biteAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyFootstep") == 0)
+		{
+			component->Volume = 0.02f;
+			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity3->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity4->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity5->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity6->GetComponent<EnemyComponent>()->footstepAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyAttack") == 0)
+		{
+			component->Volume = 0.4f;
+			enemyEntity1->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity3->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity4->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity5->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity6->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "KnighFootstep") == 0)
+		{
+		}
+
+		/*
 			audioBackgroundSound = component;
 			audioBackgroundSound->Loop = true;
-			audioBackgroundSound->Volume = 0.1f;
+			audioBackgroundSound->Volume = 1.0f;
 			audioBackgroundSound->Mute = false;
 			continue;
 		}
 
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"DamageAudio") == 0)
-		{		
-			component->Volume = 0.2f;
+		{
+			component->Volume = 1.0f;
 			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
 			continue;
 		}
@@ -1005,7 +1089,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"EnemyFootstepAudio") == 0)
 		{
-			component->Volume = 0.1f;
+			component->Volume = 1.0f;
 			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity3->GetComponent<EnemyComponent>()->footstepAudio = component;
@@ -1017,10 +1101,10 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"SwordSlashAudio") == 0)
 		{
-			component->Volume = 0.1f;
+			component->Volume = 1.0f;
 			playerEntity->GetComponent<PlayerComponent>()->swordAudio = component;
 			continue;
-		}
+		}*/
 	}
 
 

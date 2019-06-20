@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "EnemySystem.h"
+#include "AudioSystem.h"
 
 EnemySystem::EnemySystem()
 {
@@ -108,6 +109,10 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 			//enemy->navMesh->isMoving = false;
 
 			enemy->attackCorutine.Restart(enemy->attackLength);
+			if (enemy->normalAttackAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
+			{
+				enemy->normalAttackAudio->AudioFile->Play(enemy->normalAttackAudio->Volume*AudioSystem::VOLUME, enemy->normalAttackAudio->Pitch, enemy->normalAttackAudio->Pan);
+			}
 		}
 	}
 }
@@ -131,7 +136,7 @@ void EnemySystem::ApplyStates(std::shared_ptr<EnemyComponent> enemy)
 		if (enemy->footstepAudio != nullptr) {
 			enemy->footstepAudio->Mute = false;
 			if (enemy->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
-				enemy->footstepAudio->AudioFile->Play(enemy->footstepAudio->Volume, enemy->footstepAudio->Pitch, enemy->footstepAudio->Pan);
+				enemy->footstepAudio->AudioFile->Play(enemy->footstepAudio->Volume*AudioSystem::VOLUME, enemy->footstepAudio->Pitch, enemy->footstepAudio->Pan);
 			}
 		}
 		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Walk");

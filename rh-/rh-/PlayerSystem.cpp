@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PlayerSystem.h"
+#include "AudioSystem.h"
 
 PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 {
@@ -295,6 +296,10 @@ void PlayerSystem::UpdateNormalMode()
 					player->isBiteAttack = true;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->bited = true;
 					playerBiteCorutine.Restart(4.1f);
+					if (player->biteAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
+					{
+						player->biteAudio->AudioFile->Play(player->biteAudio->Volume*AudioSystem::VOLUME, player->biteAudio->Pitch, player->biteAudio->Pan);
+					}
 				}
 			}
 		}
@@ -433,9 +438,9 @@ void PlayerSystem::UpdateCorutines()
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerNormalAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 					
-					if (player->swordAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) 
+					if (player->normalAttackAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) 
 					{
-						player->swordAudio->AudioFile->Play(player->swordAudio->Volume, player->swordAudio->Pitch, player->swordAudio->Pan);
+						player->normalAttackAudio->AudioFile->Play(player->normalAttackAudio->Volume*AudioSystem::VOLUME, player->normalAttackAudio->Pitch, player->normalAttackAudio->Pan);
 					}
 				}
 
@@ -455,9 +460,10 @@ void PlayerSystem::UpdateCorutines()
 				{
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerPoweAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
-					if (player->swordAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
+					
+					if (player->normalAttackAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
 					{
-						player->swordAudio->AudioFile->Play(player->swordAudio->Volume, player->swordAudio->Pitch, player->swordAudio->Pan);
+						player->normalAttackAudio->AudioFile->Play(player->normalAttackAudio->Volume*AudioSystem::VOLUME, player->normalAttackAudio->Pitch, player->normalAttackAudio->Pan);
 					}
 				}
 
@@ -555,8 +561,7 @@ void PlayerSystem::UpdateAnimations()
 			if (player->footstepAudio != nullptr) {
 				player->footstepAudio->Mute = false;
 				if (player->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
-					player->footstepAudio->AudioFile->Play(player->footstepAudio->Volume, player->footstepAudio->Pitch, player->footstepAudio->Pan);
-					//player->footstepAudio->AudioLoopInstance->Play(true);
+					player->footstepAudio->AudioFile->Play(player->footstepAudio->Volume*AudioSystem::VOLUME, player->footstepAudio->Pitch, player->footstepAudio->Pan);
 				}
 			}
 			
