@@ -85,7 +85,7 @@ void Game::Update(DX::StepTimer const& timer)
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// TO DISABLE MENU and START SCREENS
-	//mainMenu = false;
+	mainMenu = false;
 
 	if (gameStage < 5)
 	{
@@ -1016,8 +1016,8 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyFootstepAudio = world->CreateEntity("EnemyFootstepAudio");
 	swordSlashAudio = world->CreateEntity("SwordSlashAudio");
 
-	pointLightEntity1 = world->CreateEntity("PointLight1");
-	spotLightEntity1 = world->CreateEntity("SpotLight1");
+	//pointLightEntity1 = world->CreateEntity("PointLight1");
+	//spotLightEntity1 = world->CreateEntity("SpotLight1");
 	//directLightEntity1 = world->CreateEntity("DirectLight1");
 	myEntityFloor = world->CreateEntity("FloorForShadows");
 	playerEntity = world->CreateEntity("Player");
@@ -1061,21 +1061,19 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
 	// Creation of enemy components ------------------------------------------------------------------
-	enemyEntity1->AddComponent<EnemyComponent>(3.f, 20);
-	enemyEntity2->AddComponent<EnemyComponent>(3.f, 18);
+	enemyEntity1->AddComponent<EnemyComponent>(30.f, 20);
+	enemyEntity2->AddComponent<EnemyComponent>(30.f, 18);
 	enemyEntity3->AddComponent<EnemyComponent>(3.f, 22);
 	enemyEntity4->AddComponent<EnemyComponent>(3.f, 19);
 	enemyEntity5->AddComponent<EnemyComponent>(3.f, 23);
 	enemyEntity6->AddComponent<EnemyComponent>(10.f, 35, 1.9f, 1.0f, 3.0f);
 	
-
 	playerEntity->AddComponent<PlayerComponent>();
 
-
-	pointLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 3.5f, 2.0f));
+	//pointLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 3.5f, 2.0f));
 
 	// Creation of light components ------------------------------------------------------------------
-	pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 108.0f);
+	//pointLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), pointLightEntity1->GetTransform()->GetPosition(), 108.0f);
 	//spotLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), 0.25f, spotLightEntity1->GetTransform()->GetPosition(), 0.75f, 10.0f);
 	//directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, -0.5f));
 	// Setting up transform parameters of entities  --------------------------------------------------

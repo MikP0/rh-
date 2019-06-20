@@ -59,6 +59,7 @@ public:
 
 	const float playerAfterEnemyKilledHealRate = 2.0f;
 
+	const float playerTeleport_SwapDistance = 6.0f;
 
 	std::shared_ptr<AudioComponent> footstepAudio;
 	std::shared_ptr<AudioComponent> swordAudio;

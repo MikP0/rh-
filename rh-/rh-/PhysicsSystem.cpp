@@ -188,7 +188,7 @@ void PhysicsSystem::Iterate()
 	{
 		vector<PhysicsComponentPtr> activeComponents = vector<PhysicsComponentPtr>();
 
-		/*for (auto component : _world->GetComponents<PhysicsComponent>())
+		for (auto component : _world->GetComponents<PhysicsComponent>())
 		{
 			if (component->CheckIfEnabled())
 				activeComponents.push_back(component);
@@ -197,7 +197,7 @@ void PhysicsSystem::Iterate()
 		_octTree->UnloadContent();
 		_octTree->InsertIntoTree(activeComponents);
 		_octTree->BuildTree();
-		AllCollisions = GetCurrentCollisions();*/
+		//AllCollisions = GetCurrentCollisions();
 		ResetAllUpdatePositionFlags();
 	}
 
