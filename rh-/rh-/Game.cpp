@@ -81,236 +81,318 @@ void Game::Update(DX::StepTimer const& timer)
 	Coroutine::UpdateElapsedTime(elapsedTime);
 
 	// TODO: Add your game logic here.
+	auto device = m_deviceResources->GetD3DDevice();
+	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	Vector3 move = Vector3::Zero;
+	// TO DISABLE MENU and START SCREENS
+	//mainMenu = false;
 
-	//Mouse
-	auto mouse = Input::GetMouseState();
-	if (freeCamera)
-		Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-
-	//Pressed Keys
-	std::vector<actionList> pushedKeysActions = Input::GetActions();
-	for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter) // REMOVE Action list
+	if (gameStage < 5)
 	{
-		if (*iter == closeWindow)
+		startTimer += elapsedTime;
+
+		if (mainMenu)
 		{
-			//ExitGame();
-			menuIsOn = true;
+			if (startTimer > 4.0f) // Rh- screen
+			{
+				if (startTimer > 8.0f)	// Wicked screen
+				{
+					if (startTimer > 12.0f)	// DirectX screen
+					{
+						if (startTimer > 13.0f)	// mainMenu Screen
+						{
+							if (gameStage == 4)	// loading Screen
+							{
+								gameStage = 5;
+								InitializeAll(device, context);
+							}
+							else
+								UpdateMainMenu(elapsedTime);
+						}
+						else
+							gameStage = 3;
+					}
+					else
+						gameStage = 2;
+				}
+				else
+					gameStage = 1;
+			}
 		}
+		else
+		{
+			gameStage = 5;
+			InitializeAll(device, context);
+		}
+	}
+	else if (gameStage == 5)
+	{
+		Vector3 move = Vector3::Zero;
+
+		//Mouse
+		auto mouse = Input::GetMouseState();
+		if (freeCamera)
+			Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+
+		//Pressed Keys
+		std::vector<actionList> pushedKeysActions = Input::GetActions();
+		for (std::vector<actionList>::iterator iter = pushedKeysActions.begin(); iter != pushedKeysActions.end(); ++iter) // REMOVE Action list
+		{
+			if (*iter == closeWindow)
+			{
+				//ExitGame();
+				menuIsOn = true;
+			}
+
+			if (!menuIsOn)
+			{
+				if (freeCamera) {
+					if (*iter == up)
+						move.y += 1.f;
+
+					if (*iter == down)
+						move.y -= 1.f;
+
+					if (*iter == actionList::left)
+						move.x += 1.f;
+
+					if (*iter == actionList::right)
+						move.x -= 1.f;
+
+					if (*iter == actionList::forward)
+						move.z += 1.f;
+
+					if (*iter == actionList::backward)
+						move.z -= 1.f;
+				}
+
+				/*if (!vampireMode)
+				{
+					if (*iter == special1)
+					{
+						//for (auto component : world->GetComponents<RenderableComponent>())
+						//{
+						//	if (strcmp(component->GetParent()->GetName().c_str(),
+						//		"Player") == 0)
+						//	{
+						//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component
+						//		component->_modelSkinned->SetInMove(true);
+						//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+						//		isDancing = true;
+						//	}
+						//}
+					}
+
+					if (*iter == special2)
+					{
+						//for (auto component : world->GetComponents<RenderableComponent>())
+						//{
+						//	if (strcmp(component->GetParent()->GetName().c_str(),
+						//		"Player") == 0)
+						//	{
+						//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
+						//		component->_modelSkinned->SetInMove(true);
+						//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
+						//		isDancing = true;
+						//	}
+						//}
+					}
+				}*/
+
+				if (*iter == playBackground)
+				{
+					//world->ClearWorld();
+
+					//auto device = m_deviceResources->GetD3DDevice();
+					//auto context = m_deviceResources->GetD3DDeviceContext();
+
+
+					//collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
+					//renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
+					////renderableSystem = std::make_shared<RenderableSystem>(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
+					////lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
+
+					//// Adding systems to world ------------------------------------------------------------------
+					//world->AddSystem<PhysicsSystem>(collisionSystem, 0);
+					////world->AddSystem<LightSystem>(lightSystem, 1);
+					////world->AddSystem<AudioSystem>(audioSystem, 2);
+					//world->AddSystem<RenderableSystem>(renderableSystem, 3);
+
+					//playerEntity = world->CreateEntity("Player");
+
+
+					//worldLoader->LoadWorldFromXML("testLevel.xml");
+
+					////world->InitializeSystem<AudioSystem>();
+					//world->InitializeSystem<PhysicsSystem>();
+					////world->InitializeSystem<LightSystem>();
+					//world->InitializeSystem<RenderableSystem>();
+
+
+					//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
+
+					audioBackgroundSound->Mute = false;
+				}
+
+
+
+				//if (*iter == playSound1)
+				//{
+				//	audioSound1->Mute = false;
+
+					//if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
+					//	healthBarHealthPos.x -= 5.f;
+				//}
+
+				if (*iter == freeCamera) {
+					freeCameraLook = !freeCameraLook;
+				}
+
+				if (*iter == debugDrawAll)
+				{
+					debugDraw = !debugDraw;
+				}
+
+				if (*iter == debugDrawWithoutRegions)
+				{
+					debugDrawTreeRegions = !debugDrawTreeRegions;
+				}
+			}
+		}
+
 
 		if (!menuIsOn)
 		{
-			if (freeCamera) {
-				if (*iter == up)
-					move.y += 1.f;
-
-				if (*iter == down)
-					move.y -= 1.f;
-
-				if (*iter == actionList::left)
-					move.x += 1.f;
-
-				if (*iter == actionList::right)
-					move.x -= 1.f;
-
-				if (*iter == actionList::forward)
-					move.z += 1.f;
-
-				if (*iter == actionList::backward)
-					move.z -= 1.f;
-			}
-
-			/*if (!vampireMode)
+			//Camera Movement
+			if (freeCameraLook)
 			{
-				if (*iter == special1)
+				if (mouse.positionMode == Mouse::MODE_RELATIVE)
 				{
-					//for (auto component : world->GetComponents<RenderableComponent>())
-					//{
-					//	if (strcmp(component->GetParent()->GetName().c_str(),
-					//		"Player") == 0)
-					//	{
-					//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component
-					//		component->_modelSkinned->SetInMove(true);
-					//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
-					//		isDancing = true;
-					//	}
-					//}
+					Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f) * ROTATION_GAIN;
+
+					m_pitch -= delta.y;
+					m_yaw -= delta.x;
+
+					// limit pitch to straight up or straight down with a little fudge-factor to avoid gimbal lock
+					float limit = XM_PI / 2.0f - 0.01f;
+					m_pitch = std::max(-limit, m_pitch);
+					m_pitch = std::min(+limit, m_pitch);
+
+					// keep longitude in sane range by wrapping
+					if (m_yaw > XM_PI)
+					{
+						m_yaw -= XM_PI * 2.0f;
+					}
+					else if (m_yaw < -XM_PI)
+					{
+						m_yaw += XM_PI * 2.0f;
+					}
 				}
 
-				if (*iter == special2)
-				{
-					//for (auto component : world->GetComponents<RenderableComponent>())
-					//{
-					//	if (strcmp(component->GetParent()->GetName().c_str(),
-					//		"Player") == 0)
-					//	{
-					//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
-					//		component->_modelSkinned->SetInMove(true);
-					//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
-					//		isDancing = true;
-					//	}
-					//}
-				}
-			}*/
+				move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
+				move *= MOVEMENT_GAIN;
+				Vector3 tempCamera = camera.GetPositionVector();
+				tempCamera += move;
+				camera.SetPosition(tempCamera);
+				camera.SetPitch(m_pitch);
+				camera.SetYaw(m_yaw);
+			}
 
-			if (*iter == playBackground)
+			else
 			{
-				//world->ClearWorld();
-
-				//auto device = m_deviceResources->GetD3DDevice();
-				//auto context = m_deviceResources->GetD3DDeviceContext();
-
-
-				//collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
-				//renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
-				////renderableSystem = std::make_shared<RenderableSystem>(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
-				////lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
-
-				//// Adding systems to world ------------------------------------------------------------------
-				//world->AddSystem<PhysicsSystem>(collisionSystem, 0);
-				////world->AddSystem<LightSystem>(lightSystem, 1);
-				////world->AddSystem<AudioSystem>(audioSystem, 2);
-				//world->AddSystem<RenderableSystem>(renderableSystem, 3);
-
-				//playerEntity = world->CreateEntity("Player");
-
-
-				//worldLoader->LoadWorldFromXML("testLevel.xml");
-
-				////world->InitializeSystem<AudioSystem>();
-				//world->InitializeSystem<PhysicsSystem>();
-				////world->InitializeSystem<LightSystem>();
-				//world->InitializeSystem<RenderableSystem>();
-
-
-				//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
-
-				audioBackgroundSound->Mute = false;
+				camera.SetPosition(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom())); //FIXME: Change to Entity Transform
+				camera.SetLookAtPos(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
+				camera.SetPitch(0);
+				camera.SetYaw(0);
 			}
 
 
-
-			//if (*iter == playSound1)
-			//{
-			//	audioSound1->Mute = false;
-
-				//if ((healthBarHealthPos.x <= 135.0f) && (healthBarHealthPos.x >= -150.0f))
-				//	healthBarHealthPos.x -= 5.f;
-			//}
-
-			if (*iter == freeCamera) {
-				freeCameraLook = !freeCameraLook;
+			//CameraZoom
+			if (mouse.scrollWheelValue > 0) {
+				camera.ZoomIn();
+				Input::ResetWheel();
 			}
-
-			if (*iter == debugDrawAll)
-			{
-				debugDraw = !debugDraw;
-			}
-
-			if (*iter == debugDrawWithoutRegions)
-			{
-				debugDrawTreeRegions = !debugDrawTreeRegions;
+			if (mouse.scrollWheelValue < 0) {
+				camera.ZoomOut();
+				Input::ResetWheel();
 			}
 		}
-	}
 
+		// UI FPS
+		std::string str = std::to_string(fps);
+		Ui->fpsFontText = std::wstring(str.begin(), str.end());
 
-	if (!menuIsOn)
-	{
-		//Camera Movement
-		if (freeCameraLook)
+		if (!menuIsOn)
 		{
-			if (mouse.positionMode == Mouse::MODE_RELATIVE)
-			{
-				Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f) * ROTATION_GAIN;
-
-				m_pitch -= delta.y;
-				m_yaw -= delta.x;
-
-				// limit pitch to straight up or straight down with a little fudge-factor to avoid gimbal lock
-				float limit = XM_PI / 2.0f - 0.01f;
-				m_pitch = std::max(-limit, m_pitch);
-				m_pitch = std::min(+limit, m_pitch);
-
-				// keep longitude in sane range by wrapping
-				if (m_yaw > XM_PI)
-				{
-					m_yaw -= XM_PI * 2.0f;
-				}
-				else if (m_yaw < -XM_PI)
-				{
-					m_yaw += XM_PI * 2.0f;
-				}
-			}
-
-			move = Vector3::Transform(move, Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f));
-			move *= MOVEMENT_GAIN;
-			Vector3 tempCamera = camera.GetPositionVector();
-			tempCamera += move;
-			camera.SetPosition(tempCamera);
-			camera.SetPitch(m_pitch);
-			camera.SetYaw(m_yaw);
+			UpdateObjects(elapsedTime);
 		}
-
 		else
 		{
-			camera.SetPosition(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom())); //FIXME: Change to Entity Transform
-			camera.SetLookAtPos(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
-			camera.SetPitch(0);
-			camera.SetYaw(0);
-		}
+			auto mouse = Input::GetMouseState();
 
-
-		//CameraZoom
-		if (mouse.scrollWheelValue > 0) {
-			camera.ZoomIn();
-			Input::ResetWheel();
-		}
-		if (mouse.scrollWheelValue < 0) {
-			camera.ZoomOut();
-			Input::ResetWheel();
-		}
-	}
-
-	// UI FPS
-	std::string str = std::to_string(fps);
-	Ui->fpsFontText = std::wstring(str.begin(), str.end());
-
-	if (!menuIsOn)
-	{
-		UpdateObjects(elapsedTime);
-	}
-	else
-	{
-		auto mouse = Input::GetMouseState();
-
-		if (mouse.leftButton)
-		{
-			if ((mouse.x >= 320) && (mouse.x <= 450))
+			if (mouse.leftButton)
 			{
-				if ((mouse.y >= 300) && (mouse.y <= 370))
+				if ((mouse.x >= 320) && (mouse.x <= 450))
 				{
-					//menuIsOn = false;
-					ExitGame();
+					if ((mouse.y >= 300) && (mouse.y <= 370))
+					{
+						//menuIsOn = false;
+						ExitGame();
+					}
+					else if ((mouse.y >= 160) && (mouse.y <= 220))
+					{
+						menuIsOn = false;
+					}
 				}
-				else if ((mouse.y >= 160) && (mouse.y <= 220))
+				else if ((mouse.x >= 275) && (mouse.x <= 515))
 				{
-					menuIsOn = false;
-				}
-			}
-			else if ((mouse.x >= 275) && (mouse.x <= 515))
-			{
-				if ((mouse.y >= 160) && (mouse.y <= 220))
-				{
-					menuIsOn = false;
+					if ((mouse.y >= 160) && (mouse.y <= 220))
+					{
+						menuIsOn = false;
+					}
 				}
 			}
 		}
+
 	}
 
 	elapsedTime;
 }
+
+void Game::UpdateMainMenu(float elapsedTime)
+{
+	auto mouse = Input::GetMouseState();
+	auto keyboard = Input::GetKeyboardState();
+	auto size = m_deviceResources->GetOutputSize();
+
+	tracker.Update(mouse);
+	keyboardTracker.Update(keyboard);
+
+	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+	{
+		if ((mouse.x >= size.left + 0.15f * size.right) && (mouse.x <= size.left + 0.33f * size.right))
+		{
+			/////////////////////////////////////////////////////////////////////////////////////////////////START
+			if ((mouse.y >= size.top + 0.11f * size.bottom) && (mouse.y <= size.top + 0.21f * size.bottom))			
+			{
+				gameStage = 4;
+			}
+
+			/////////////////////////////////////////////////////////////////////////////////////////////////OPTIONS
+			//else if ((mouse.y >= size.top + 0.42f * size.bottom) && (mouse.y <= size.top + 0.53f * size.bottom))
+			//{
+			//	// DO NOTHING
+			//}
+
+			/////////////////////////////////////////////////////////////////////////////////////////////////EXIT
+			else if ((mouse.y >= size.top + 0.7f * size.bottom) && (mouse.y <= size.top + 0.81f * size.bottom))
+			{
+				ExitGame();
+			}
+		}
+	}
+}
+
 
 void Game::UpdateObjects(float elapsedTime)
 {
@@ -345,60 +427,62 @@ void Game::UpdateObjects(float elapsedTime)
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	// check collisions
-	vector<CollisionPtr> currentCollisions = collisionSystem->AllCollisions;
-	vector<CollisionPtr> collisionsForEntity1 = collisionSystem->GetCollisionsForEntity(1);
-
-	static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
-	XMVECTORF32 collider1Color = DirectX::Colors::White;
-	XMVECTORF32 collider2Color = DirectX::Colors::White;
-
-	CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
-
-	//myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
-	myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
-
-	/*if (mouse.rightButton)
-	{
-		XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
-		myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
-	}*/
-
-	BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
 
 
-	/*if (octrTreeBounding.Contains(colliderBoundingCup1->GetBounding()) != CONTAINS)
-	{
-		if (colliderBoundingCup1->GetCenter().x >= 0.0f)
-			dir1.x = -1.0f;
+	//// check collisions
+	//vector<CollisionPtr> currentCollisions = collisionSystem->AllCollisions;
+	//vector<CollisionPtr> collisionsForEntity1 = collisionSystem->GetCollisionsForEntity(1);
 
-		if (colliderBoundingCup1->GetCenter().x <= 0.0f)
-			dir1.x = 1.0f;
-	}
+	//static Vector3 dir1(-1.0f, 0.0f, 0.0f), dir2(1.0f, 0.0f, 0.0f);
+	//XMVECTORF32 collider1Color = DirectX::Colors::White;
+	//XMVECTORF32 collider2Color = DirectX::Colors::White;
 
-	if (octrTreeBounding.Contains(colliderBoundingCup2->GetBounding()) != CONTAINS)
-	{
-		if (colliderBoundingCup2->GetCenter().x >= 0.0f)
-			dir2.x = -1.0f;
+	//CollisionPtr collisionCup1WithRay, collisionCup2WithRay;
 
-		if (colliderBoundingCup2->GetCenter().x <= 0.0f)
-			dir2.x = 1.0f;
-	}*/
+	////myEntity1->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir1, 1);
+	//myEntity2->GetTransform()->Translate(Vector3(0.05f, 0.0f, 0.0f) * dir2, 1);
 
-	if (keyboard.M)
-	{
-		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
-		vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+	///*if (mouse.rightButton)
+	//{
+	//	XMFLOAT3 posOnGround = Raycast::GetPointOnGround(camera);
+	//	myEntity4->GetTransform()->SetPosition(Vector3(posOnGround.x, 0.47f, posOnGround.z));
+	//}*/
 
-		for each (shared_ptr<Collision> coll in collisionsWithRay)
-		{
-			if (coll->OriginObject->GetId() == colliderCup1->GetParent()->GetId())
-				collisionCup1WithRay = coll;
+	//BoundingBox octrTreeBounding = collisionSystem->GetOctTree()->Region->GetBounding();
 
-			/*if (coll->OriginObject->GetId() == colliderCup2->GetParent()->GetId())
-				collisionCup2WithRay = coll;*/
-		}
-	}
+
+	///*if (octrTreeBounding.Contains(colliderBoundingCup1->GetBounding()) != CONTAINS)
+	//{
+	//	if (colliderBoundingCup1->GetCenter().x >= 0.0f)
+	//		dir1.x = -1.0f;
+
+	//	if (colliderBoundingCup1->GetCenter().x <= 0.0f)
+	//		dir1.x = 1.0f;
+	//}
+
+	//if (octrTreeBounding.Contains(colliderBoundingCup2->GetBounding()) != CONTAINS)
+	//{
+	//	if (colliderBoundingCup2->GetCenter().x >= 0.0f)
+	//		dir2.x = -1.0f;
+
+	//	if (colliderBoundingCup2->GetCenter().x <= 0.0f)
+	//		dir2.x = 1.0f;
+	//}*/
+
+	//if (keyboard.M)
+	//{
+	//	shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
+	//	vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+	//	for each (shared_ptr<Collision> coll in collisionsWithRay)
+	//	{
+	//		if (coll->OriginObject->GetId() == colliderCup1->GetParent()->GetId())
+	//			collisionCup1WithRay = coll;
+
+	//		/*if (coll->OriginObject->GetId() == colliderCup2->GetParent()->GetId())
+	//			collisionCup2WithRay = coll;*/
+	//	}
+	//}
 }
 
 #pragma endregion
@@ -417,50 +501,136 @@ void Game::Render()
 
 	Clear();
 
-	renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
-
 	m_deviceResources->PIXBeginEvent(L"Render");
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	float vampireModeBrightness = brightness + 20.0f;
+	switch (gameStage)
+	{
+	case 0:
+	{
+		m_spriteBatch->Begin();
 
-	if (vampireMode)
-	{
-		renderableSystem->BloomBlurParams.size = 25.0f;
-	}
-	else
-	{
-		renderableSystem->BloomBlurParams.size = 1.0f;
-	}
+		m_spriteBatch->Draw(startScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-	if (Input::GetKeyboardState().D7 && brightness > 1.0f)
-	{
-		brightness -= 0.2f;
+		m_spriteBatch->End();
+
+		break;
 	}
 
-	if (Input::GetKeyboardState().D8 && brightness <= 7.0f)
+	case 1:
 	{
-		brightness += 0.2f;
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(wickedScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
 	}
 
-	if (!vampireMode)
+	case 2:
 	{
-		renderableSystem->BloomBlurParams.size = 1.0f;
-		renderableSystem->BloomBlurParams.brightness = brightness;
-	}
-	else
-	{
-		renderableSystem->BloomBlurParams.size = 120.0f;
-		renderableSystem->BloomBlurParams.brightness = vampireModeBrightness;
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(directXTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
 	}
 
-	world->RefreshWorld();
-	if (!initTerrain) {
-		terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
-		//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
-		initTerrain = true;
+	case 3:
+	{
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
 	}
-	RenderObjects(context);
+
+	case 4:
+	{
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(loadingScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
+
+	case 5:
+	{
+		renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
+
+		float vampireModeBrightness = brightness + 20.0f;
+
+		if (vampireMode)
+		{
+			renderableSystem->BloomBlurParams.size = 25.0f;
+		}
+		else
+		{
+			renderableSystem->BloomBlurParams.size = 1.0f;
+		}
+
+		if (Input::GetKeyboardState().D7 && brightness > 1.0f)
+		{
+			brightness -= 0.2f;
+		}
+
+		if (Input::GetKeyboardState().D8 && brightness <= 7.0f)
+		{
+			brightness += 0.2f;
+		}
+
+		if (!vampireMode)
+		{
+			renderableSystem->BloomBlurParams.size = 1.0f;
+			renderableSystem->BloomBlurParams.brightness = brightness;
+		}
+		else
+		{
+			renderableSystem->BloomBlurParams.size = 120.0f;
+			renderableSystem->BloomBlurParams.brightness = vampireModeBrightness;
+		}
+
+		world->RefreshWorld();
+		if (!initTerrain) {
+			terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
+			//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
+			initTerrain = true;
+		}
+		RenderObjects(context);
+		break;
+	}
+	case 15:
+	{
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->Draw(cattyTexture.Get(), Vector2(500.0f, 500.0f), nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
+
+	default:
+		break;
+	}
+
+
 
 	context;
 
@@ -617,7 +787,52 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 
 void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
+	
+	m_spriteBatch = std::make_unique<SpriteBatch>(context);
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"menuMiko.dds",
+			nullptr,
+			mainMenuTexture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"WickedScreen.dds",
+			nullptr,
+			wickedScreenTexture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"StartScreen.dds",
+			nullptr,
+			startScreenTexture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"DirectXScren.dds",
+			nullptr,
+			directXTexture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"LoadingScreen.dds",
+			nullptr,
+			loadingScreenTexture.ReleaseAndGetAddressOf()));
+
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"cat.dds",
+			nullptr,
+			cattyTexture.ReleaseAndGetAddressOf()));
+
+	
+
+
+	auto size = m_deviceResources->GetOutputSize();
+	m_screenPos.x = 0;
+	m_screenPos.y = 0;
+}
+
+void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
+{
 	cooldown = make_shared<Cooldown>(skillsNames, skillsTimeLimits);
+
 	terrain = std::make_shared<Terrain>();
 	world = std::make_shared<World>();
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
@@ -644,7 +859,6 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	/*
 		FILL WORLD OBJECT
 	*/
-
 
 	// Creation of entities ------------------------------------------------------------------
 	myEntity1 = world->CreateEntity("Cup1");
@@ -687,10 +901,10 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	// Creation of audio components ------------------------------------------------------------------
 	backgroundAudio->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
+	swordSlashAudio->AddComponent<AudioComponent>("Resources\\Audio\\attack.wav");
 	damageAudio->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
-	playerFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	enemyFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\temp.wav");
-	swordSlashAudio->AddComponent<AudioComponent>("Resources\\Audio\\swordSlash.wav");
+	playerFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
 	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
@@ -777,10 +991,9 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"DamageAudio") == 0)
-		{
+		{		
+			component->Volume = 0.2f;
 			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
-			//enemyEntity1->GetComponent<EnemyComponent>()->damageAudio = component;
-			//enemyEntity2->GetComponent<EnemyComponent>()->damageAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(),
@@ -791,16 +1004,20 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"EnemyFootstepAudio") == 0)
-		{		
+		{
+			component->Volume = 0.1f;
 			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity3->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity4->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity5->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity6->GetComponent<EnemyComponent>()->footstepAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"SwordSlashAudio") == 0)
 		{
-			component->Mute = false;
-			//enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio->Mute = false;
+			component->Volume = 0.1f;
 			playerEntity->GetComponent<PlayerComponent>()->swordAudio = component;
 			continue;
 		}
@@ -940,8 +1157,8 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	//world->RefreshWorld();
 	renderableSystem->_terrain = terrain;
 	renderableSystem->_camera = &camera;
-
 }
+
 
 void Game::OnDeviceLost()
 {

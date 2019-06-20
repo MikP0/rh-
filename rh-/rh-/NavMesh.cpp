@@ -50,6 +50,11 @@ void NavMesh::SetEnemyDestination(dxmath::Vector3 dest)
 
 			RotateAndSetStep();
 		}
+		else
+		{
+			isMoving = true;
+		}
+
 	}
 }
 

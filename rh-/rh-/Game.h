@@ -208,7 +208,7 @@ private:
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack"
 	};
 	vector<float> skillsTimeLimits = {
-		0.0f, 2.0f, 4.0f, 4.0f
+		0.0f, 2.0f, 4.0f, 10.0f
 	};
 
 	//NavMesh
@@ -241,4 +241,27 @@ private:
 
 	//World Loader
 	std::shared_ptr<WorldLoader> worldLoader;
+
+	// Menu
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> startScreenTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> directXTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> wickedScreenTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mainMenuTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> loadingScreenTexture;
+	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	DirectX::SimpleMath::Vector2 m_screenPos;
+
+	bool mainMenu = true;
+
+	int gameStage = 0;
+	float startTimer = 0;
+
+	bool afterInitialization = false;
+
+	void InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context);
+
+	void UpdateMainMenu(float elapsedTime);
+
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cattyTexture;	// cat Textrue to tests
 };
