@@ -657,7 +657,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
 	// TODO: UI 
-	Ui->Draw(vampireMode, playerSystem->player->vampireAbility, menuIsOn, total_Time, elapsed_Time);
+	Ui->Draw(menuIsOn, total_Time, elapsed_Time);
 }
 
 // Helper method to clear the back buffers.
@@ -1070,7 +1070,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
 
 	//Setting up UI -----------------------------------------------------------------------------------
-	Ui = make_shared<UI>(device, context, playerSystem->playerHealthOrigin, playerSystem->playerHealth, cooldown);
+	Ui = make_shared<UI>(device, context, playerSystem);
 
 	////Setting up skinned model -----------------------------------------------------------------------
 	auto component = playerEntity->GetComponent<RenderableComponent>();
