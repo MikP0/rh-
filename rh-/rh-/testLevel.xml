@@ -6871,6 +6871,7 @@
       <Components>
         <RenderableComponent>
           <Path>Floor_Plane.cmo</Path>
+		  <Shadow>0</Shadow>
         </RenderableComponent>
         <PhysicsComponent>
           <PositionOffset>

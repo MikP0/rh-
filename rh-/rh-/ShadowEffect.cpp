@@ -304,7 +304,6 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		deviceContext->PSSetConstantBuffers(
 			0, 1, m_staticConstantBuffer.GetAddressOf());
 
-
 		XMStoreFloat4x4(&m_dynamicData.World, XMMatrixTranspose(m_world));
 		XMStoreFloat4x4(&m_dynamicData.View, XMMatrixTranspose(m_view));
 		XMStoreFloat4x4(&m_dynamicData.Projection, XMMatrixTranspose(m_projection));

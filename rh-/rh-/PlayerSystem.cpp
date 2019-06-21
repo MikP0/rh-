@@ -350,43 +350,28 @@ void PlayerSystem::UpdateVampireMode()
 
 		if (player->vampireAbility == 1)
 		{
-			/*if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
-			{
-				Vector3 destination = Raycast::GetPointOnGround(*camera);
-
-				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), destination, Vector3(player->playerTeleport_SwapDistance, .1f, player->playerTeleport_SwapDistance)))
-				{
-					playerEntity->GetTransform()->SetPosition(destination);
-					player->vampireAbility = 0;
-					*playerHealth -= player->playerTeleportSwapDamage;
-
-					PlayerHit();
-				}
-			}*/
-
-
 			if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
 				Vector3 destination = Raycast::GetPointOnGround(*camera);
 
 				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), destination, Vector3(player->playerTeleport_SwapDistance, .1f, player->playerTeleport_SwapDistance)))
 				{
-					bool freeWay = true;
+					//bool freeWay = true;
 
-					//shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(DirectX::SimpleMath::Vector3(playerEntity->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y + 2.f, playerEntity->GetTransform()->GetPosition().z), destination));
-					XMVECTOR vec = { destination.x, destination.y, destination.z};
-					XMVECTOR playervec = { playerEntity->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, playerEntity->GetTransform()->GetPosition().z };
-					
-					XMVECTOR playNExtVec = DirectX::XMVector3Transform(Vector3::Zero, playerEntity->GetWorldMatrix());
-					
+					////shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(DirectX::SimpleMath::Vector3(playerEntity->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y + 2.f, playerEntity->GetTransform()->GetPosition().z), destination));
+					//XMVECTOR vec = { destination.x, destination.y, destination.z};
+					//XMVECTOR playervec = { playerEntity->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, playerEntity->GetTransform()->GetPosition().z };
+					//
+					//XMVECTOR playNExtVec = DirectX::XMVector3Transform(Vector3::Zero, playerEntity->GetWorldMatrix());
+					//
 
-					XMVECTOR origin = Vector4(playerEntity->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, playerEntity->GetTransform()->GetPosition().z, 0.0f);
-					//XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
-					XMVECTOR direction = Vector4(destination.x, destination.y, destination.z, 0.0f);
+					//XMVECTOR origin = Vector4(playerEntity->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, playerEntity->GetTransform()->GetPosition().z, 0.0f);
+					////XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
+					//XMVECTOR direction = Vector4(destination.x, destination.y, destination.z, 0.0f);
 
 
-					std::shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(origin, direction));
-					vector<std::shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+					//std::shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(origin, direction));
+					//vector<std::shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
 
 					/*for each (std::shared_ptr<Collision> coll in collisionsWithRay)
 					{
@@ -399,7 +384,7 @@ void PlayerSystem::UpdateVampireMode()
 						}
 					}*/
 
-					for (int i = 0; i < collisionsWithRay.size(); i++)
+					/*for (int i = 0; i < collisionsWithRay.size(); i++)
 					{
 						if (collisionsWithRay[i]->OriginObject->GetTag() == Tags::NONE)
 						{
@@ -409,10 +394,10 @@ void PlayerSystem::UpdateVampireMode()
 								freeWay = false;
 							}
 						}
-					}
+					}*/
 
-					if (freeWay)
-					{
+					//if (freeWay)
+					//{
 						playerEntity->GetTransform()->SetPosition(destination);
 						player->vampireAbility = 0;
 						*playerHealth -= player->playerTeleportSwapDamage;
@@ -420,32 +405,9 @@ void PlayerSystem::UpdateVampireMode()
 						PlayerHit();
 
 						player->teleportAudio->AudioFile->Play(player->teleportAudio->Volume*AudioSystem::VOLUME, player->teleportAudio->Pitch, player->teleportAudio->Pan);
-					}
+					//}
 				}
 			}
-
-
-
-			/*shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			for each (shared_ptr<Collision> coll in collisionsWithRay)
-			{
-				if (coll->OriginObject->GetTag() == Tags::NONE)
-				{
-					if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), destination, Vector3(player->playerTeleport_SwapDistance, .1f, player->playerTeleport_SwapDistance)))
-					{
-						playerEntity->GetTransform()->SetPosition(destination);
-						player->vampireAbility = 0;
-						*playerHealth -= player->playerTeleportSwapDamage;
-
-						PlayerHit();
-					}
-				}
-			}*/
-
-
-
 		}
 
 
@@ -507,8 +469,11 @@ void PlayerSystem::UpdateVampireMode()
 				{
 					if (coll->OriginObject->GetTag() == Tags::ENEMY)
 					{
-						player->enemyClicked = true;
-						player->targetedEnemy = coll->OriginObject;
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+						{
+							player->enemyClicked = true;
+							player->targetedEnemy = coll->OriginObject;
+						}
 					}
 				}
 

@@ -156,7 +156,7 @@ void Game::Update(DX::StepTimer const& timer)
 		if (plotScreens)
 		{
 			plotTimer += elapsedTime;
-			ColorChanger += elapsedTime / 3.0f;
+			ColorChanger += elapsedTime / 4.0f;
 
 			if (plotTimer > 4.0f)
 			{
@@ -1350,6 +1350,9 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			nullptr, m_roomTex.ReleaseAndGetAddressOf())); //REMOVE
 
 	menuIsOn = false;
+
+
+
 
 
 	// Initialization of systems ---------------------------------------------------------------------
