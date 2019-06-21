@@ -204,7 +204,7 @@ void Terrain::Draw(Camera camera)
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 1)
 	{
 		color = Colors::IndianRed;
-		DrawRange(posOrigin, 12, 12, color);
+		DrawRange(posOrigin, 11, 11, color);
 	}
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 2)
 	{
