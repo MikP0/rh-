@@ -48,6 +48,27 @@ bool Coroutine::Update()
 	}
 }
 
+bool Coroutine::UpdateEvent()
+{
+	if (active)
+	{
+		if (!eventDone)
+		{
+			if (eventTime > 0)
+			{
+				this->eventTime -= Coroutine::GetElapsedTime();
+				return true;
+			}
+			else
+			{
+				this->eventDone = true;
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 float Coroutine::GetTime()
 {
 	return this->waitTime;

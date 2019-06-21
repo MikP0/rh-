@@ -48,7 +48,7 @@ public:
 	Camera* camera;
 
 	void PlayerHit();
-
+	void PlayerHealed();
 	
 
 

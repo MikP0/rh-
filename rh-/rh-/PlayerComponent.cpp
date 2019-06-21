@@ -7,6 +7,7 @@ PlayerComponent::PlayerComponent()
 	vampireAbility = 0;
 
 	isHit = false;
+	isHealed = false;
 
 	isDancing = false;
 	isWalking = false;

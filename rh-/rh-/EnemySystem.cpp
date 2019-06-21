@@ -73,41 +73,38 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 
 		enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
 	}
-	else if ((!enemy->dyingCorutine.active) && (!enemy->attackCorutine.active) && (!enemy->hitCorutine.active))
+	else if ((!enemy->dyingCorutine.active) && (!enemy->hitCorutine.active))
 	{
-		if (enemy->hit)
+		if ((enemy->hit) && (enemy->canBeHitted))
 		{
 			enemy->enemyState = EnemyState::HIT;
 
 			enemy->enemyRenderableComponent->_modelSkinned->isHitted = true;
 			enemy->hitCorutine.Restart(0.5f);
 			enemy->hitColorCorutine.Restart(0.1f);
+
+			enemy->attackCorutine.active = false;
 		}
-		//else if (!XMVector3NearEqual(enemy->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemy->followPlayerDistance, .1f, enemy->followPlayerDistance)))
-		//{
-		//	enemy->enemyState = EnemyState::IDLE;
-
-		//	enemy->navMesh->isMoving = false;
-		//}
-		else if (!XMVector3NearEqual(enemy->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemy->distanceToAttack, .1f, enemy->distanceToAttack)))
+		else if (!enemy->attackCorutine.active)
 		{
-			enemy->enemyState = EnemyState::FOLLOW;
+			if (!XMVector3NearEqual(enemy->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemy->distanceToAttack, .1f, enemy->distanceToAttack)))
+			{
+				enemy->enemyState = EnemyState::FOLLOW;
 
-			enemy->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
-			enemy->navMesh->Move(Coroutine::elapsedTime);			
-		}
-		else
-		{
-			enemy->enemyState = EnemyState::ATTACK;
+				enemy->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
+				enemy->navMesh->Move(Coroutine::elapsedTime);
+			}
+			else
+			{
+				enemy->enemyState = EnemyState::ATTACK;
 
-			float dot = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x + enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z;
-			float cross = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z - enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x;
-			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
-			enemy->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+				float dot = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x + enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z;
+				float cross = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z - enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x;
+				float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
+				enemy->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-			//enemy->navMesh->isMoving = false;
-
-			enemy->attackCorutine.Restart(enemy->attackLength);
+				enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime);
+			}
 		}
 	}
 }
@@ -144,67 +141,6 @@ void EnemySystem::ApplyStates(std::shared_ptr<EnemyComponent> enemy)
 	{
 		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Attack");
 	}
-
-
-	/*if (enemy->enemyState == EnemyState::DYING)
-	{
-		if (!enemy->dyingCorutine.active)
-		{
-			enemy->dying = true;
-
-			enemy->attackCorutine.active = false;
-			enemy->navMesh->isMoving = false;
-
-			enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
-			enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Dying");
-
-			enemy->dyingCorutine.Restart(2.51f);
-		}
-	}
-	else if (enemy->enemyState == EnemyState::BITED)
-	{
-		enemy->attackCorutine.active = false;
-		enemy->navMesh->isMoving = false;
-
-		enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
-		enemy->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
-	}
-	else if ((!enemy->dyingCorutine.active) && (!enemy->attackCorutine.active) && (!enemy->hitCorutine.active))
-	{
-		if (enemy->enemyState == EnemyState::HIT)
-		{
-			enemy->enemyRenderableComponent->_modelSkinned->isHitted = true;
-			enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Hit");
-			enemy->hitCorutine.Restart(0.5f);
-			enemy->hitColorCorutine.Restart(0.1f);
-		}
-		else if (enemy->enemyState == EnemyState::FOLLOW)
-		{
-			enemy->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
-			enemy->navMesh->Move(Coroutine::elapsedTime);
-
-			enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Walk");
-		}
-		else if (enemy->enemyState == EnemyState::IDLE)
-		{
-			enemy->navMesh->isMoving = false;
-
-			enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
-		}
-		else if (enemy->enemyState == EnemyState::ATTACK)
-		{
-			float dot = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x + enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z;
-			float cross = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z - enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x;
-			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
-			enemy->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
-
-			enemy->navMesh->isMoving = false;
-
-			enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Attack");
-
-			enemy->attackCorutine.Restart(enemy->attackLength);
-		}
-	}*/
 }
 
 void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
@@ -222,13 +158,14 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 			enemy->SetIsEnabled(false);
 			enemy->GetParent()->SetActive(false);
 
+			player->GetComponent<PlayerComponent>()->isHealed = true;
 			player->GetComponent<PlayerComponent>()->AddPlayerHealth(1.0f);
 		}
 	}
 
 	if (enemy->attackCorutine.active)
 	{
-		if (!(enemy->attackCorutine.Update()))
+		if (!(enemy->attackCorutine.UpdateEvent()))
 		{
 			if (CheckRangeAndCone(enemy, player->GetTransform()->GetPosition(), enemy->attackLength, 60.f))
 			{
@@ -236,6 +173,11 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 
 				player->GetComponent<PlayerComponent>()->isHit = true;
 			}
+		}
+
+		if (!(enemy->attackCorutine.Update()))
+		{
+			// DO NOTHING until animation is done
 		}
 	}
 

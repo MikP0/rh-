@@ -89,6 +89,8 @@ void Game::Update(DX::StepTimer const& timer)
 
 	if (gameStage < 5)
 	{
+		SkipStartScreen();
+
 		startTimer += elapsedTime;
 
 		if (mainMenu)
@@ -105,27 +107,119 @@ void Game::Update(DX::StepTimer const& timer)
 							{
 								gameStage = 5;
 								InitializeAll(device, context);
+								plotStage = 1;					
 							}
 							else
+							{
 								UpdateMainMenu(elapsedTime);
+							}
 						}
 						else
+						{
 							gameStage = 3;
+						}
 					}
 					else
+					{
 						gameStage = 2;
+					}
 				}
 				else
+				{
 					gameStage = 1;
+				}
 			}
 		}
 		else
 		{
-			gameStage = 5;
+			plotScreens = false;
+			gameStage = 6;
 			InitializeAll(device, context);
 		}
 	}
 	else if (gameStage == 5)
+	{
+		SkipPlot();
+
+		if (plotScreens)
+		{
+			plotTimer += elapsedTime;
+			ColorChanger += elapsedTime / 3.0f;
+
+			if (plotTimer > 3.0f)
+			{
+				if (plotTimer > 6.0f)
+				{
+					if (plotTimer > 9.0f)
+					{
+						if (plotTimer > 12.0f)
+						{
+							if (plotTimer > 15.0f)
+							{
+								if (plotTimer > 18.0f)
+								{
+									if (plotTimer > 21.0f)
+									{
+										if (plotTimer > 24.0f)
+										{
+											if (plotTimer > 27.0f)
+											{
+												if (plotTimer > 30.0f)
+												{
+													gameStage = 6;
+												}
+												else
+												{
+													plotStage = 10;
+												}
+											}
+											else
+											{
+												plotStage = 9;
+											}
+										}
+										else
+										{
+											plotStage = 8;
+										}
+									}
+									else
+									{
+										plotStage = 7;
+									}
+								}
+								else
+								{
+									plotStage = 6;
+								}
+							}
+							else
+							{
+								plotStage = 5;
+							}
+						}
+						else
+						{
+							plotStage = 4;
+						}
+					}
+					else
+					{
+						plotStage = 3;
+					}
+				}
+				else
+				{
+					plotStage = 2;
+				}
+			}
+		}
+		else
+		{
+			gameStage = 6;
+		}
+	}
+	else if (gameStage == 6)
 	{
 		Vector3 move = Vector3::Zero;
 
@@ -234,8 +328,6 @@ void Game::Update(DX::StepTimer const& timer)
 					audioBackgroundSound->Mute = false;
 				}
 
-
-
 				//if (*iter == playSound1)
 				//{
 				//	audioSound1->Mute = false;
@@ -259,7 +351,6 @@ void Game::Update(DX::StepTimer const& timer)
 				}
 			}
 		}
-
 
 		if (!menuIsOn)
 		{
@@ -393,7 +484,6 @@ void Game::UpdateMainMenu(float elapsedTime)
 	}
 }
 
-
 void Game::UpdateObjects(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
@@ -506,128 +596,127 @@ void Game::Render()
 
 	switch (gameStage)
 	{
-	case 0:
-	{
-		m_spriteBatch->Begin();
-
-		m_spriteBatch->Draw(startScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), 1.0f);
-
-		m_spriteBatch->End();
-
-		break;
-	}
-
-	case 1:
-	{
-		m_spriteBatch->Begin();
-
-		m_spriteBatch->Draw(wickedScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), 1.0f);
-
-		m_spriteBatch->End();
-
-		break;
-	}
-
-	case 2:
-	{
-		m_spriteBatch->Begin();
-
-		m_spriteBatch->Draw(directXTexture.Get(), m_screenPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), 1.0f);
-
-		m_spriteBatch->End();
-
-		break;
-	}
-
-	case 3:
-	{
-		m_spriteBatch->Begin();
-
-		m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), 1.0f);
-
-		m_spriteBatch->End();
-
-		break;
-	}
-
-	case 4:
-	{
-		m_spriteBatch->Begin();
-
-		m_spriteBatch->Draw(loadingScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), 1.0f);
-
-		m_spriteBatch->End();
-
-		break;
-	}
-
-	case 5:
-	{
-		renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
-
-		float vampireModeBrightness = brightness + 20.0f;
-
-		if (vampireMode)
+		case 0:
 		{
-			renderableSystem->BloomBlurParams.size = 25.0f;
+			m_spriteBatch->Begin();
+
+			m_spriteBatch->Draw(startScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
 		}
-		else
+		case 1:
 		{
-			renderableSystem->BloomBlurParams.size = 1.0f;
-		}
+			m_spriteBatch->Begin();
 
-		if (Input::GetKeyboardState().D7 && brightness > 1.0f)
+			m_spriteBatch->Draw(wickedScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 2:
 		{
-			brightness -= 0.2f;
-		}
+			m_spriteBatch->Begin();
 
-		if (Input::GetKeyboardState().D8 && brightness <= 7.0f)
+			m_spriteBatch->Draw(directXTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 3:
 		{
-			brightness += 0.2f;
-		}
+			m_spriteBatch->Begin();
 
-		if (!vampireMode)
+			m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 4:
 		{
-			renderableSystem->BloomBlurParams.size = 1.0f;
-			renderableSystem->BloomBlurParams.brightness = brightness;
+			m_spriteBatch->Begin();
+
+			m_spriteBatch->Draw(loadingScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
 		}
-		else
+		case 5:
 		{
-			renderableSystem->BloomBlurParams.size = 120.0f;
-			renderableSystem->BloomBlurParams.brightness = vampireModeBrightness;
+			ShowPlot(plotStage);
+			break;
 		}
+		case 6:
+		{
+			renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
 
-		world->RefreshWorld();
-		if (!initTerrain) {
-			terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
-			//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
-			initTerrain = true;
+			float vampireModeBrightness = brightness + 20.0f;
+
+			if (vampireMode)
+			{
+				renderableSystem->BloomBlurParams.size = 25.0f;
+			}
+			else
+			{
+				renderableSystem->BloomBlurParams.size = 1.0f;
+			}
+
+			if (Input::GetKeyboardState().D7 && brightness > 1.0f)
+			{
+				brightness -= 0.2f;
+			}
+
+			if (Input::GetKeyboardState().D8 && brightness <= 7.0f)
+			{
+				brightness += 0.2f;
+			}
+
+			if (!vampireMode)
+			{
+				renderableSystem->BloomBlurParams.size = 1.0f;
+				renderableSystem->BloomBlurParams.brightness = brightness;
+			}
+			else
+			{
+				renderableSystem->BloomBlurParams.size = 120.0f;
+				renderableSystem->BloomBlurParams.brightness = vampireModeBrightness;
+			}
+
+			world->RefreshWorld();
+			if (!initTerrain) {
+				terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
+				//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
+				initTerrain = true;
+			}
+			RenderObjects(context);
+			break;
 		}
-		RenderObjects(context);
-		break;
-	}
-	case 15:
-	{
-		m_spriteBatch->Begin();
+		case 15:
+		{
+			m_spriteBatch->Begin();
 
-		m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), 1.0f);
+			m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+			
+			m_spriteBatch->Draw(cattyTexture.Get(), Vector2(500.0f, 500.0f), nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
 
-		m_spriteBatch->Draw(cattyTexture.Get(), Vector2(500.0f, 500.0f), nullptr, Colors::White,
-			0.f, Vector2(0, 0), 1.0f);
+			m_spriteBatch->End();
 
-		m_spriteBatch->End();
-
-		break;
-	}
-
-	default:
-		break;
+			break;
+		}
+		default:
+			break;
 	}
 
 
@@ -787,8 +876,8 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 
 void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
-	
 	m_spriteBatch = std::make_unique<SpriteBatch>(context);
+	m_ActualspriteBatch = std::make_unique<SpriteBatch>(context);
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"menuMiko.dds",
@@ -815,13 +904,68 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			nullptr,
 			loadingScreenTexture.ReleaseAndGetAddressOf()));
 
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot1.dds",
+			nullptr,
+			plot1Texture.ReleaseAndGetAddressOf()));
 
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot2.dds",
+			nullptr,
+			plot2Texture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot3.dds",
+			nullptr,
+			plot3Texture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot4.dds",
+			nullptr,
+			plot4Texture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot5.dds",
+			nullptr,
+			plot5Texture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot6.dds",
+			nullptr,
+			plot6Texture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot7.dds",
+			nullptr,
+			plot7Texture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot8.dds",
+			nullptr,
+			plot8Texture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot9.dds",
+			nullptr,
+			plot9Texture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"Plot10.dds",
+			nullptr,
+			plot10Texture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"BlackBackScreen.dds",
+			nullptr,
+			blackBackTexture.ReleaseAndGetAddressOf()));
+
+	
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"cat.dds",
 			nullptr,
 			cattyTexture.ReleaseAndGetAddressOf()));
 
-	
+	states = std::make_unique<CommonStates>(device);
 
 
 	auto size = m_deviceResources->GetOutputSize();
@@ -922,8 +1066,8 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity3->AddComponent<EnemyComponent>(3.f, 22);
 	enemyEntity4->AddComponent<EnemyComponent>(3.f, 19);
 	enemyEntity5->AddComponent<EnemyComponent>(3.f, 23);
-	enemyEntity6->AddComponent<EnemyComponent>(10.f, 35, 1.9f, 3.0f);
-
+	enemyEntity6->AddComponent<EnemyComponent>(10.f, 35, 1.9f, 1.0f, 3.0f);
+	
 
 	playerEntity->AddComponent<PlayerComponent>();
 
@@ -1023,6 +1167,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		}
 	}
 
+	enemyEntity6->GetComponent<EnemyComponent>()->canBeHitted = false;
 
 	//// Setting up parameters of colliders ----------------------------------------------------------------
 
@@ -1186,6 +1331,190 @@ void Game::OnDeviceRestored()
 	CreateDeviceDependentResources();
 
 	CreateWindowSizeDependentResources();
+}
+
+void Game::ClearColorChanger()
+{
+	if (remPlotStage != plotStage)
+	{
+		remPlotStage = plotStage;
+		ColorChanger = 0.0f;
+	}
+}
+
+void Game::ShowPlot(int stage)
+{
+	ClearColorChanger();
+
+	switch (stage)
+	{
+		case 1:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot1Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 2:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(plot1Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot2Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 3:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot3Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 4:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot4Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 5:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(plot4Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 6:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot6Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 7:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot7Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 8:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(plot7Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot8Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 9:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+		case 10:
+		{
+			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+			m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->Draw(plot10Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+				0.f, Vector2(0, 0), 1.0f);
+
+			m_spriteBatch->End();
+
+			break;
+		}
+
+		default:
+			break;
+	}
+}
+
+void Game::SkipPlot()
+{
+	auto keyboard = Input::GetKeyboardState();
+	keyboardTracker.Update(keyboard);
+
+	if ((keyboardTracker.IsKeyPressed(Keyboard::Keys::Space)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Escape)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Enter)))
+	{
+		plotScreens = false;
+	}
+}
+
+void Game::SkipStartScreen()
+{
+	auto keyboard = Input::GetKeyboardState();
+	keyboardTracker.Update(keyboard);
+
+	if ((keyboardTracker.IsKeyPressed(Keyboard::Keys::Space)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Escape)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Enter)))
+	{
+		gameStage = 3;
+		startTimer += 30.0f;
+	}
 }
 
 #pragma endregion
