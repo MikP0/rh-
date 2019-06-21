@@ -1,15 +1,13 @@
 #include "pch.h"
 #include "UI.h"
 
-UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, float playerHealthOrigin, shared_ptr<float> playerHealth, shared_ptr<Cooldown> cooldown)
+UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, shared_ptr<PlayerSystem> playerSystem)
 {
 	_device = device;
 	_context = context;
-	_playerHealthOrigin = playerHealthOrigin;
-	_playerHealth = playerHealth;
 	transitionMode = false;
 	transitionElapsedTime = 0.0f;
-	_cooldown = cooldown;
+	_playerSystem = playerSystem;
 }
 
 UI::~UI()
@@ -19,7 +17,7 @@ UI::~UI()
 void UI::Initialize()
 {
 	vector<string> uiImageNames = {
-		"healthBar", "healthAmount", "heroIconNormal", "vampireModeBorder",
+		"healthBar", "healthAmount", "healthAmountSkillCost", "heroIconNormal", "vampireModeBorder",
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack",
 		"teleport", "cleaveAttack", "swap","aoeAttack",
 		"fpsBackground", "popUpMenu", "heroIconVampire", "heroIconVampireRing",
@@ -35,8 +33,9 @@ void UI::Initialize()
 	};
 
 	map<string, string> uiImageNameTexMap = {
-		{"healthBar", "Resources\\UISprites\\hp_bar.dds"},
+		{"healthBar", "Resources\\UISprites\\Bar.dds"},
 		{"healthAmount", "Resources\\UISprites\\Blood_Drop.dds"},
+		{"healthAmountSkillCost", "Resources\\UISprites\\Blood_Drop_Skill_Cost.dds"},
 		{"heroIconNormal", "Resources\\UISprites\\Hero_Circle_Normal.dds"},
 		{"vampireModeBorder", "Resources\\UISprites\\red_border.dds"},
 		{"normalAttack", "Resources\\UISprites\\Normal_Attack.dds"},
@@ -71,8 +70,9 @@ void UI::Initialize()
 	skillSetPosition = Vector2(690.0f, 930.0f);
 
 	map<string, Vector2> uiNamePositionMap = {
-		{"healthBar", Vector2(0.0f, 0.0f)},
+		{"healthBar", Vector2(95.f, 10.0f)},
 		{"healthAmount", Vector2(140.f, 28.0f)},
+		{"healthAmountSkillCost", Vector2(140.f, 28.0f)},
 		{"heroIconNormal", Vector2(0.0f, 0.0f)},
 		{"vampireModeBorder", Vector2(0.0f, 0.0f)},
 		{"normalAttack", skillSetPosition + Vector2(5.0f, 0.0f)},
@@ -109,8 +109,9 @@ void UI::Initialize()
 	};
 
 	map<string, Vector2> uiNameScaleMap = {
-		{"healthBar", Vector2(0.25f, 0.25f)},
+		{"healthBar", Vector2(0.5f, 0.18f)},
 		{"healthAmount", Vector2(0.10f, 0.10f)},
+		{"healthAmountSkillCost", Vector2(0.10f, 0.10f)},
 		{"heroIconNormal", Vector2(0.35f, 0.35f)},
 		{"vampireModeBorder", Vector2(1.0f, 1.0f)},
 		{"normalAttack", Vector2(0.20f, 0.20f)},
@@ -191,17 +192,44 @@ void UI::DrawRedBorder()
 	uiSpriteBatchBorder->End();
 }
 
-void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float totalTime, float elapsedTime)
+void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime)
 {
+	bool vampireMode = _playerSystem->vampireMode;
+	int vampireAbility = vampireMode != 0 ? _playerSystem->player->vampireAbility : 0;
+	int bloodDropsToColor = 0;
+	int bloodDropNumber;
+	int playerCurrentHealth = (int)*_playerSystem->playerHealth;
+
 	uiSpriteBatch->Begin();
 
-	/*uiSpriteBatch->Draw(_elements["healthBar"].texture.Get(), _elements["healthBar"].position, nullptr, Colors::White,
-		0.f, Vector2(0, 0), _elements["healthBar"].scale);*/
+	uiSpriteBatch->Draw(_imageElements["healthBar"].texture.Get(), _imageElements["healthBar"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _imageElements["healthBar"].scale);
 
-	for (int i = 0; i < (int)*_playerHealth; i++)
+	if (vampireMode && vampireAbility != 0)
 	{
-		uiSpriteBatch->Draw(_imageElements["healthAmount"].texture.Get(), _imageElements["healthAmount"].position + i * Vector2(40.0f, 0.0f), nullptr, Colors::White,
+		if (vampireAbility == 1)
+			bloodDropsToColor = (int)_playerSystem->player->playerTeleportSwapDamage;
+		else
+			if (vampireAbility == 2)
+				bloodDropsToColor = (int)_playerSystem->player->playerRipPlayerDamage;
+			else
+				if (vampireAbility == 3)
+					bloodDropsToColor = (int)_playerSystem->player->playerTeleportSwapDamage;
+				else
+					if (vampireAbility == 4)
+						bloodDropsToColor = (int)0.0f;
+	}
+
+	for (bloodDropNumber = 0; bloodDropNumber < (playerCurrentHealth - bloodDropsToColor); bloodDropNumber++)
+	{
+		uiSpriteBatch->Draw(_imageElements["healthAmount"].texture.Get(), _imageElements["healthAmount"].position + bloodDropNumber * Vector2(40.0f, 0.0f), nullptr, Colors::White,
 			0.f, Vector2(0, 0), _imageElements["healthAmount"].scale);
+	}
+
+	for (int colorBloodDropNumber = bloodDropNumber; colorBloodDropNumber < playerCurrentHealth; colorBloodDropNumber++)
+	{
+		uiSpriteBatch->Draw(_imageElements["healthAmountSkillCost"].texture.Get(), _imageElements["healthAmountSkillCost"].position + colorBloodDropNumber * Vector2(40.0f, 0.0f), nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["healthAmountSkillCost"].scale);
 	}
 
 	if (!vampireMode)
@@ -221,7 +249,7 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 		uiSpriteBatch->Draw(_imageElements["skillKeyE"].texture.Get(), _imageElements["skillKeyE"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _imageElements["skillKeyE"].scale);
 
-		if (_cooldown->CanUseSkill("normalAttack"))
+		if (_playerSystem->cooldown->CanUseSkill("normalAttack"))
 			uiSpriteBatch->Draw(_imageElements["normalAttack"].texture.Get(), _imageElements["normalAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["normalAttack"].scale);
 		else
@@ -229,7 +257,7 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["normalAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["normalAttack"].scale);
 
-			string value = to_string((int)_cooldown->RemainingCooldownTime("normalAttack"));
+			string value = to_string((int)_playerSystem->cooldown->RemainingCooldownTime("normalAttack"));
 			wstring wide_string = wstring(value.begin(), value.end());
 			const wchar_t* textValue = wide_string.c_str();
 
@@ -237,7 +265,7 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 				_textElements["normalAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["normalAttackCooldown"].scale);
 		}
 
-		if (_cooldown->CanUseSkill("strongAttack"))
+		if (_playerSystem->cooldown->CanUseSkill("strongAttack"))
 			uiSpriteBatch->Draw(_imageElements["strongAttack"].texture.Get(), _imageElements["strongAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["strongAttack"].scale);
 		else
@@ -245,7 +273,7 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["strongAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["strongAttack"].scale);
 
-			string value = to_string((int)_cooldown->RemainingCooldownTime("strongAttack"));
+			string value = to_string((int)_playerSystem->cooldown->RemainingCooldownTime("strongAttack"));
 			wstring wide_string = wstring(value.begin(), value.end());
 			const wchar_t* textValue = wide_string.c_str();
 
@@ -253,7 +281,7 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 				_textElements["strongAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["strongAttackCooldown"].scale);
 		}
 
-		if (_cooldown->CanUseSkill("spinAttack"))
+		if (_playerSystem->cooldown->CanUseSkill("spinAttack"))
 			uiSpriteBatch->Draw(_imageElements["spinAttack"].texture.Get(), _imageElements["spinAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["spinAttack"].scale);
 		else
@@ -261,7 +289,7 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["spinAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["spinAttack"].scale);
 
-			string value = to_string((int)_cooldown->RemainingCooldownTime("spinAttack"));
+			string value = to_string((int)_playerSystem->cooldown->RemainingCooldownTime("spinAttack"));
 			wstring wide_string = wstring(value.begin(), value.end());
 			const wchar_t* textValue = wide_string.c_str();
 
@@ -269,7 +297,7 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 				_textElements["spinAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["spinAttackCooldown"].scale);
 		}
 
-		if (_cooldown->CanUseSkill("biteAttack"))
+		if (_playerSystem->cooldown->CanUseSkill("biteAttack"))
 			uiSpriteBatch->Draw(_imageElements["biteAttack"].texture.Get(), _imageElements["biteAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["biteAttack"].scale);	
 		else
@@ -277,7 +305,7 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["biteAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["biteAttack"].scale);
 
-			string value = to_string((int)_cooldown->RemainingCooldownTime("biteAttack"));
+			string value = to_string((int)_playerSystem->cooldown->RemainingCooldownTime("biteAttack"));
 			wstring wide_string = wstring(value.begin(), value.end());
 			const wchar_t* textValue = wide_string.c_str();
 
@@ -336,9 +364,9 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 		uiSpriteBatch->Draw(_imageElements["aoeAttack"].texture.Get(), _imageElements["aoeAttack"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _imageElements["aoeAttack"].scale);
 
-		if (selectedVampireAbility != 0)
+		if (vampireAbility != 0)
 		{
-			Vector2 vampireRedCirclePos = _imageElements["vamprireRedCircle"].position + Vector2(150.0f * (selectedVampireAbility - 1), 0.0f);
+			Vector2 vampireRedCirclePos = _imageElements["vamprireRedCircle"].position + Vector2(150.0f * (_playerSystem->player->vampireAbility - 1), 0.0f);
 
 			uiSpriteBatch->Draw(_imageElements["vamprireRedCircle"].texture.Get(), vampireRedCirclePos, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["vamprireRedCircle"].scale);
