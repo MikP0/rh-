@@ -58,5 +58,8 @@ public:
 	EnemyState enemyState;
 
 	std::shared_ptr<AudioComponent> footstepAudio;
+	std::shared_ptr<AudioComponent> normalAttackAudio;
+	std::shared_ptr<AudioComponent> damageAudio;
+	std::shared_ptr<AudioComponent> deathAudio;
 };
 

@@ -1,15 +1,13 @@
 #include "pch.h"
 #include "UI.h"
 
-UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, float playerHealthOrigin, shared_ptr<float> playerHealth, shared_ptr<Cooldown> cooldown)
+UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, shared_ptr<PlayerSystem> playerSystem)
 {
 	_device = device;
 	_context = context;
-	_playerHealthOrigin = playerHealthOrigin;
-	_playerHealth = playerHealth;
 	transitionMode = false;
 	transitionElapsedTime = 0.0f;
-	_cooldown = cooldown;
+	_playerSystem = playerSystem;
 }
 
 UI::~UI()
@@ -19,14 +17,14 @@ UI::~UI()
 void UI::Initialize()
 {
 	vector<string> uiImageNames = {
-		"healthBar", "healthAmount", "heroIconNormal", "vampireModeBorder",
+		"healthBar", "healthAmount", "healthAmountSkillCost", "heroIconNormal", "vampireModeBorder",
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack",
 		"teleport", "cleaveAttack", "swap","aoeAttack",
 		"fpsBackground", "popUpMenu", "heroIconVampire", "heroIconVampireRing",
 		"heroIconTransitionRing", "vamprireRedCircle", "teleportCost", "cleaveAttackCost",
 		"swapCost", "skillKeyLPM", "skillKeyPPM", "skillKeyCPM", "skillKeyE",
 		"skillKey1", "skillKey2", "skillKey3", "skillKey4",
-		"humanCoolDownFrame", "vampireCoolDownFrame"
+		"humanCoolDownFrame", "vampireCoolDownFrame", "humanSkillBlockade", "vampireSkillBlockade"
 	};
 
 	vector<string> uiTextNames = {
@@ -35,8 +33,9 @@ void UI::Initialize()
 	};
 
 	map<string, string> uiImageNameTexMap = {
-		{"healthBar", "Resources\\UISprites\\hp_bar.dds"},
+		{"healthBar", "Resources\\UISprites\\Bar.dds"},
 		{"healthAmount", "Resources\\UISprites\\Blood_Drop.dds"},
+		{"healthAmountSkillCost", "Resources\\UISprites\\Blood_Drop_Skill_Cost.dds"},
 		{"heroIconNormal", "Resources\\UISprites\\Hero_Circle_Normal.dds"},
 		{"vampireModeBorder", "Resources\\UISprites\\red_border.dds"},
 		{"normalAttack", "Resources\\UISprites\\Normal_Attack.dds"},
@@ -65,14 +64,17 @@ void UI::Initialize()
 		{"skillKey3", "Resources\\UISprites\\Vampire_Skill_Key_3.dds"},
 		{"skillKey4", "Resources\\UISprites\\Vampire_Skill_Key_4.dds"},
 		{"humanCoolDownFrame", "Resources\\UISprites\\Human_Skill_Cooldown_Frame.dds"},
-		{"vampireCoolDownFrame", "Resources\\UISprites\\Vampire_Skill_Cooldown_Frame.dds"}
+		{"vampireCoolDownFrame", "Resources\\UISprites\\Vampire_Skill_Cooldown_Frame.dds"},
+		{"humanSkillBlockade", "Resources\\UISprites\\Human_Blocked_Skill.dds"},
+		{"vampireSkillBlockade", "Resources\\UISprites\\Vampire_Blocked_Skill.dds"}
 	};
 
 	skillSetPosition = Vector2(690.0f, 930.0f);
 
 	map<string, Vector2> uiNamePositionMap = {
-		{"healthBar", Vector2(0.0f, 0.0f)},
+		{"healthBar", Vector2(95.f, 10.0f)},
 		{"healthAmount", Vector2(140.f, 28.0f)},
+		{"healthAmountSkillCost", Vector2(140.f, 28.0f)},
 		{"heroIconNormal", Vector2(0.0f, 0.0f)},
 		{"vampireModeBorder", Vector2(0.0f, 0.0f)},
 		{"normalAttack", skillSetPosition + Vector2(5.0f, 0.0f)},
@@ -105,12 +107,15 @@ void UI::Initialize()
 		{"normalAttackCooldown", skillSetPosition + Vector2(14.0f, 5.0f)},
 		{"strongAttackCooldown", skillSetPosition + Vector2(166.0f, 5.0f)},
 		{"spinAttackCooldown", skillSetPosition + Vector2(316.0f, 5.0f)},
-		{"biteAttackCooldown", skillSetPosition + Vector2(466.0f, 5.0f)}
+		{"biteAttackCooldown", skillSetPosition + Vector2(466.0f, 5.0f)},
+		{"humanSkillBlockade", skillSetPosition + Vector2(5.0f, 0.0f)},
+		{"vampireSkillBlockade", skillSetPosition + Vector2(-5.0f, -10.0f)}
 	};
 
 	map<string, Vector2> uiNameScaleMap = {
-		{"healthBar", Vector2(0.25f, 0.25f)},
+		{"healthBar", Vector2(0.5f, 0.18f)},
 		{"healthAmount", Vector2(0.10f, 0.10f)},
+		{"healthAmountSkillCost", Vector2(0.10f, 0.10f)},
 		{"heroIconNormal", Vector2(0.35f, 0.35f)},
 		{"vampireModeBorder", Vector2(1.0f, 1.0f)},
 		{"normalAttack", Vector2(0.20f, 0.20f)},
@@ -143,7 +148,9 @@ void UI::Initialize()
 		{"normalAttackCooldown", Vector2(1.6f, 1.6f)},
 		{"strongAttackCooldown", Vector2(1.6f, 1.6f)},
 		{"spinAttackCooldown", Vector2(1.6f, 1.6f)},
-		{"biteAttackCooldown", Vector2(1.6f, 1.6f)}
+		{"biteAttackCooldown", Vector2(1.6f, 1.6f)},
+		{"humanSkillBlockade", Vector2(0.20f, 0.20f)},
+		{"vampireSkillBlockade", Vector2(0.24f, 0.24f)}
 	};
 
 
@@ -191,17 +198,44 @@ void UI::DrawRedBorder()
 	uiSpriteBatchBorder->End();
 }
 
-void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float totalTime, float elapsedTime)
+void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime)
 {
+	bool vampireMode = _playerSystem->vampireMode;
+	int vampireAbility = vampireMode != 0 ? _playerSystem->player->vampireAbility : 0;
+	int bloodDropsToColor = 0;
+	int bloodDropNumber;
+	int playerCurrentHealth = (int)*_playerSystem->playerHealth;
+
 	uiSpriteBatch->Begin();
 
-	/*uiSpriteBatch->Draw(_elements["healthBar"].texture.Get(), _elements["healthBar"].position, nullptr, Colors::White,
-		0.f, Vector2(0, 0), _elements["healthBar"].scale);*/
+	uiSpriteBatch->Draw(_imageElements["healthBar"].texture.Get(), _imageElements["healthBar"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _imageElements["healthBar"].scale);
 
-	for (int i = 0; i < (int)*_playerHealth; i++)
+	if (vampireMode && vampireAbility != 0)
 	{
-		uiSpriteBatch->Draw(_imageElements["healthAmount"].texture.Get(), _imageElements["healthAmount"].position + i * Vector2(40.0f, 0.0f), nullptr, Colors::White,
+		if (vampireAbility == 1)
+			bloodDropsToColor = (int)_playerSystem->player->playerTeleportSwapDamage;
+		else
+			if (vampireAbility == 2)
+				bloodDropsToColor = (int)_playerSystem->player->playerRipPlayerDamage;
+			else
+				if (vampireAbility == 3)
+					bloodDropsToColor = (int)_playerSystem->player->playerTeleportSwapDamage;
+				else
+					if (vampireAbility == 4)
+						bloodDropsToColor = (int)0.0f;
+	}
+
+	for (bloodDropNumber = 0; bloodDropNumber < (playerCurrentHealth - bloodDropsToColor); bloodDropNumber++)
+	{
+		uiSpriteBatch->Draw(_imageElements["healthAmount"].texture.Get(), _imageElements["healthAmount"].position + bloodDropNumber * Vector2(40.0f, 0.0f), nullptr, Colors::White,
 			0.f, Vector2(0, 0), _imageElements["healthAmount"].scale);
+	}
+
+	for (int colorBloodDropNumber = bloodDropNumber; colorBloodDropNumber < playerCurrentHealth; colorBloodDropNumber++)
+	{
+		uiSpriteBatch->Draw(_imageElements["healthAmountSkillCost"].texture.Get(), _imageElements["healthAmountSkillCost"].position + colorBloodDropNumber * Vector2(40.0f, 0.0f), nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["healthAmountSkillCost"].scale);
 	}
 
 	if (!vampireMode)
@@ -209,82 +243,113 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 		uiSpriteBatch->Draw(_imageElements["heroIconNormal"].texture.Get(), _imageElements["heroIconNormal"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _imageElements["heroIconNormal"].scale);
 
-		uiSpriteBatch->Draw(_imageElements["skillKeyLPM"].texture.Get(), _imageElements["skillKeyLPM"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["skillKeyLPM"].scale);
+		if (!_playerSystem->blockade->IsSkillBlocked("normalAttack"))
+		{
+			uiSpriteBatch->Draw(_imageElements["skillKeyLPM"].texture.Get(), _imageElements["skillKeyLPM"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["skillKeyLPM"].scale);
 
-		uiSpriteBatch->Draw(_imageElements["skillKeyPPM"].texture.Get(), _imageElements["skillKeyPPM"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["skillKeyPPM"].scale);
+			if (_playerSystem->cooldown->CanUseSkill("normalAttack"))
+				uiSpriteBatch->Draw(_imageElements["normalAttack"].texture.Get(), _imageElements["normalAttack"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["normalAttack"].scale);
+			else
+			{
+				uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["normalAttack"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["normalAttack"].scale);
 
-		uiSpriteBatch->Draw(_imageElements["skillKeyCPM"].texture.Get(), _imageElements["skillKeyCPM"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["skillKeyCPM"].scale);
+				string value = to_string((int)_playerSystem->cooldown->RemainingCooldownTime("normalAttack"));
+				wstring wide_string = wstring(value.begin(), value.end());
+				const wchar_t* textValue = wide_string.c_str();
 
-		uiSpriteBatch->Draw(_imageElements["skillKeyE"].texture.Get(), _imageElements["skillKeyE"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["skillKeyE"].scale);
-
-		if (_cooldown->CanUseSkill("normalAttack"))
-			uiSpriteBatch->Draw(_imageElements["normalAttack"].texture.Get(), _imageElements["normalAttack"].position, nullptr, Colors::White,
+				_textElements["normalAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
+					_textElements["normalAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["normalAttackCooldown"].scale);
+			}
+		}
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["humanSkillBlockade"].texture.Get(), _imageElements["normalAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["normalAttack"].scale);
-		else
-		{
-			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["normalAttack"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _imageElements["normalAttack"].scale);
-
-			string value = to_string((int)_cooldown->RemainingCooldownTime("normalAttack"));
-			wstring wide_string = wstring(value.begin(), value.end());
-			const wchar_t* textValue = wide_string.c_str();
-
-			_textElements["normalAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
-				_textElements["normalAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["normalAttackCooldown"].scale);
 		}
 
-		if (_cooldown->CanUseSkill("strongAttack"))
-			uiSpriteBatch->Draw(_imageElements["strongAttack"].texture.Get(), _imageElements["strongAttack"].position, nullptr, Colors::White,
+		if (!_playerSystem->blockade->IsSkillBlocked("strongAttack"))
+		{
+			uiSpriteBatch->Draw(_imageElements["skillKeyPPM"].texture.Get(), _imageElements["skillKeyPPM"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["skillKeyPPM"].scale);
+
+			if (_playerSystem->cooldown->CanUseSkill("strongAttack"))
+				uiSpriteBatch->Draw(_imageElements["strongAttack"].texture.Get(), _imageElements["strongAttack"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["strongAttack"].scale);
+			else
+			{
+				uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["strongAttack"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["strongAttack"].scale);
+
+				string value = to_string((int)_playerSystem->cooldown->RemainingCooldownTime("strongAttack"));
+				wstring wide_string = wstring(value.begin(), value.end());
+				const wchar_t* textValue = wide_string.c_str();
+
+				_textElements["strongAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
+					_textElements["strongAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["strongAttackCooldown"].scale);
+			}
+		}
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["humanSkillBlockade"].texture.Get(), _imageElements["strongAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["strongAttack"].scale);
-		else
-		{
-			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["strongAttack"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _imageElements["strongAttack"].scale);
-
-			string value = to_string((int)_cooldown->RemainingCooldownTime("strongAttack"));
-			wstring wide_string = wstring(value.begin(), value.end());
-			const wchar_t* textValue = wide_string.c_str();
-
-			_textElements["strongAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
-				_textElements["strongAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["strongAttackCooldown"].scale);
 		}
 
-		if (_cooldown->CanUseSkill("spinAttack"))
-			uiSpriteBatch->Draw(_imageElements["spinAttack"].texture.Get(), _imageElements["spinAttack"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _imageElements["spinAttack"].scale);
+		if (!_playerSystem->blockade->IsSkillBlocked("spinAttack"))
+		{
+			uiSpriteBatch->Draw(_imageElements["skillKeyCPM"].texture.Get(), _imageElements["skillKeyCPM"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["skillKeyCPM"].scale);
+
+			if (_playerSystem->cooldown->CanUseSkill("spinAttack"))
+				uiSpriteBatch->Draw(_imageElements["spinAttack"].texture.Get(), _imageElements["spinAttack"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["spinAttack"].scale);
+			else
+			{
+				uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["spinAttack"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["spinAttack"].scale);
+
+				string value = to_string((int)_playerSystem->cooldown->RemainingCooldownTime("spinAttack"));
+				wstring wide_string = wstring(value.begin(), value.end());
+				const wchar_t* textValue = wide_string.c_str();
+
+				_textElements["spinAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
+					_textElements["spinAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["spinAttackCooldown"].scale);
+			}
+		}
 		else
 		{
-			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["spinAttack"].position, nullptr, Colors::White,
+			uiSpriteBatch->Draw(_imageElements["humanSkillBlockade"].texture.Get(), _imageElements["spinAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["spinAttack"].scale);
-
-			string value = to_string((int)_cooldown->RemainingCooldownTime("spinAttack"));
-			wstring wide_string = wstring(value.begin(), value.end());
-			const wchar_t* textValue = wide_string.c_str();
-
-			_textElements["spinAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
-				_textElements["spinAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["spinAttackCooldown"].scale);
 		}
 
-		if (_cooldown->CanUseSkill("biteAttack"))
-			uiSpriteBatch->Draw(_imageElements["biteAttack"].texture.Get(), _imageElements["biteAttack"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _imageElements["biteAttack"].scale);	
+		if (!_playerSystem->blockade->IsSkillBlocked("biteAttack"))
+		{
+			uiSpriteBatch->Draw(_imageElements["skillKeyE"].texture.Get(), _imageElements["skillKeyE"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["skillKeyE"].scale);
+
+			if (_playerSystem->cooldown->CanUseSkill("biteAttack"))
+				uiSpriteBatch->Draw(_imageElements["biteAttack"].texture.Get(), _imageElements["biteAttack"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["biteAttack"].scale);
+			else
+			{
+				uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["biteAttack"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["biteAttack"].scale);
+
+				string value = to_string((int)_playerSystem->cooldown->RemainingCooldownTime("biteAttack"));
+				wstring wide_string = wstring(value.begin(), value.end());
+				const wchar_t* textValue = wide_string.c_str();
+
+				_textElements["biteAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
+					_textElements["biteAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["biteAttackCooldown"].scale);
+			}
+		}
 		else
 		{
-			uiSpriteBatch->Draw(_imageElements["humanCoolDownFrame"].texture.Get(), _imageElements["biteAttack"].position, nullptr, Colors::White,
+			uiSpriteBatch->Draw(_imageElements["humanSkillBlockade"].texture.Get(), _imageElements["biteAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["biteAttack"].scale);
-
-			string value = to_string((int)_cooldown->RemainingCooldownTime("biteAttack"));
-			wstring wide_string = wstring(value.begin(), value.end());
-			const wchar_t* textValue = wide_string.c_str();
-
-			_textElements["biteAttackCooldown"].font->DrawString(uiSpriteBatch.get(), textValue,
-				_textElements["biteAttackCooldown"].position, Colors::White, 0.f, Vector2(0, 0), _textElements["biteAttackCooldown"].scale);
-		}
-		
+		}		
 	}
 	else
 	{
@@ -312,47 +377,79 @@ void UI::Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float
 				sinf(totalTime) * 6.0f, Vector2(206, 206), _imageElements["heroIconVampireRing"].scale);
 		}
 
-		uiSpriteBatch->Draw(_imageElements["skillKey1"].texture.Get(), _imageElements["skillKey1"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["skillKey1"].scale);
-
-		uiSpriteBatch->Draw(_imageElements["skillKey2"].texture.Get(), _imageElements["skillKey2"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["skillKey2"].scale);
-
-		uiSpriteBatch->Draw(_imageElements["skillKey3"].texture.Get(), _imageElements["skillKey3"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["skillKey3"].scale);
-
-		uiSpriteBatch->Draw(_imageElements["skillKey4"].texture.Get(), _imageElements["skillKey4"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["skillKey4"].scale);
-
-		uiSpriteBatch->Draw(_imageElements["teleport"].texture.Get(), _imageElements["teleport"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["teleport"].scale);
-
-		uiSpriteBatch->Draw(_imageElements["cleaveAttack"].texture.Get(), _imageElements["cleaveAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["cleaveAttack"].scale);
-
-		uiSpriteBatch->Draw(_imageElements["swap"].texture.Get(), _imageElements["swap"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["swap"].scale);
-
-		uiSpriteBatch->Draw(_imageElements["aoeAttack"].texture.Get(), _imageElements["aoeAttack"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["aoeAttack"].scale);
-
-		if (selectedVampireAbility != 0)
+		if (!_playerSystem->blockade->IsSkillBlocked("teleport"))
 		{
-			Vector2 vampireRedCirclePos = _imageElements["vamprireRedCircle"].position + Vector2(150.0f * (selectedVampireAbility - 1), 0.0f);
+			uiSpriteBatch->Draw(_imageElements["skillKey1"].texture.Get(), _imageElements["skillKey1"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["skillKey1"].scale);
+
+			uiSpriteBatch->Draw(_imageElements["teleport"].texture.Get(), _imageElements["teleport"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["teleport"].scale);
+
+			uiSpriteBatch->Draw(_imageElements["teleportCost"].texture.Get(), _imageElements["teleportCost"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["teleportCost"].scale);
+		}
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["vampireSkillBlockade"].texture.Get(), _imageElements["teleport"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["teleport"].scale);
+		}
+
+		if (!_playerSystem->blockade->IsSkillBlocked("cleaveAttack"))
+		{
+			uiSpriteBatch->Draw(_imageElements["skillKey2"].texture.Get(), _imageElements["skillKey2"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["skillKey2"].scale);
+
+			uiSpriteBatch->Draw(_imageElements["cleaveAttack"].texture.Get(), _imageElements["cleaveAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["cleaveAttack"].scale);
+
+			uiSpriteBatch->Draw(_imageElements["cleaveAttackCost"].texture.Get(), _imageElements["cleaveAttackCost"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["cleaveAttackCost"].scale);
+		}
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["vampireSkillBlockade"].texture.Get(), _imageElements["cleaveAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["cleaveAttack"].scale);
+		}
+
+		if (!_playerSystem->blockade->IsSkillBlocked("swap"))
+		{
+			uiSpriteBatch->Draw(_imageElements["skillKey3"].texture.Get(), _imageElements["skillKey3"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["skillKey3"].scale);
+
+			uiSpriteBatch->Draw(_imageElements["swap"].texture.Get(), _imageElements["swap"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["swap"].scale);
+
+			uiSpriteBatch->Draw(_imageElements["swapCost"].texture.Get(), _imageElements["swapCost"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["swapCost"].scale);
+		}
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["vampireSkillBlockade"].texture.Get(), _imageElements["swap"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["swap"].scale);
+		}
+
+		if (!_playerSystem->blockade->IsSkillBlocked("aoeAttack"))
+		{
+			uiSpriteBatch->Draw(_imageElements["skillKey4"].texture.Get(), _imageElements["skillKey4"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["skillKey4"].scale);
+
+			uiSpriteBatch->Draw(_imageElements["aoeAttack"].texture.Get(), _imageElements["aoeAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["aoeAttack"].scale);
+
+		}
+		else
+		{
+			uiSpriteBatch->Draw(_imageElements["vampireSkillBlockade"].texture.Get(), _imageElements["aoeAttack"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["aoeAttack"].scale);
+		}
+
+		if (vampireAbility != 0)
+		{
+			Vector2 vampireRedCirclePos = _imageElements["vamprireRedCircle"].position + Vector2(150.0f * (_playerSystem->player->vampireAbility - 1), 0.0f);
 
 			uiSpriteBatch->Draw(_imageElements["vamprireRedCircle"].texture.Get(), vampireRedCirclePos, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["vamprireRedCircle"].scale);
 		}
-
-		uiSpriteBatch->Draw(_imageElements["teleportCost"].texture.Get(), _imageElements["teleportCost"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["teleportCost"].scale);
-
-		uiSpriteBatch->Draw(_imageElements["cleaveAttackCost"].texture.Get(), _imageElements["cleaveAttackCost"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["cleaveAttackCost"].scale);
-
-		uiSpriteBatch->Draw(_imageElements["swapCost"].texture.Get(), _imageElements["swapCost"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["swapCost"].scale);
-
 	}
 
 	uiSpriteBatch->Draw(_imageElements["fpsBackground"].texture.Get(), _imageElements["fpsBackground"].position, nullptr, Colors::White,

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "EnemySystem.h"
+#include "AudioSystem.h"
 
 EnemySystem::EnemySystem()
 {
@@ -60,8 +61,11 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 			enemy->navMesh->isMoving = false;
 
 			enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
-
+			
 			enemy->dyingCorutine.Restart(2.51f);
+
+			enemy->deathAudio->AudioFile->Play(enemy->deathAudio->Volume*AudioSystem::VOLUME, enemy->deathAudio->Pitch, enemy->deathAudio->Pan);
+
 		}
 	}
 	else if (enemy->bited)
@@ -84,6 +88,8 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 			enemy->hitColorCorutine.Restart(0.1f);
 
 			enemy->attackCorutine.active = false;
+
+			enemy->damageAudio->AudioFile->Play(enemy->damageAudio->Volume*AudioSystem::VOLUME, enemy->damageAudio->Pitch, enemy->damageAudio->Pan);
 		}
 		else if (!enemy->attackCorutine.active)
 		{
@@ -104,6 +110,8 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 				enemy->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
 				enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime);
+
+				enemy->normalAttackAudio->AudioFile->Play(enemy->normalAttackAudio->Volume*AudioSystem::VOLUME, enemy->normalAttackAudio->Pitch, enemy->normalAttackAudio->Pan);
 			}
 		}
 	}
@@ -125,11 +133,9 @@ void EnemySystem::ApplyStates(std::shared_ptr<EnemyComponent> enemy)
 	}
 	else if (enemy->enemyState == EnemyState::FOLLOW)
 	{
-		if (enemy->footstepAudio != nullptr) {
-			enemy->footstepAudio->Mute = false;
-			if (enemy->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
-				enemy->footstepAudio->AudioFile->Play(enemy->footstepAudio->Volume, enemy->footstepAudio->Pitch, enemy->footstepAudio->Pan);
-			}
+		enemy->footstepAudio->Mute = false;
+		if (enemy->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
+			enemy->footstepAudio->AudioFile->Play(enemy->footstepAudio->Volume*AudioSystem::VOLUME, enemy->footstepAudio->Pitch, enemy->footstepAudio->Pan);
 		}
 		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Walk");
 	}

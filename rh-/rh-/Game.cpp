@@ -84,6 +84,13 @@ void Game::Update(DX::StepTimer const& timer)
 	auto device = m_deviceResources->GetD3DDevice();
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
+	if (!audEngine->Update())
+	{
+		if (audEngine->IsCriticalError())
+		{
+		}
+	}
+
 	// TO DISABLE MENU and START SCREENS
 	mainMenu = false;
 
@@ -107,7 +114,10 @@ void Game::Update(DX::StepTimer const& timer)
 							{
 								gameStage = 5;
 								InitializeAll(device, context);
-								plotStage = 1;					
+								menuBackgroundAudio->Stop(true);
+								plotBackgroundAudio->AudioFile->Play(plotBackgroundAudio->Volume*AudioSystem::VOLUME, plotBackgroundAudio->Pitch, plotBackgroundAudio->Pan);
+								gameBackgroundAudio->Mute = true;
+								plotStage = 1;
 							}
 							else
 							{
@@ -135,6 +145,8 @@ void Game::Update(DX::StepTimer const& timer)
 			plotScreens = false;
 			gameStage = 6;
 			InitializeAll(device, context);
+			menuBackgroundAudio->Stop(true);
+			//gameBackgroundAudio->Mute = false;
 		}
 	}
 	else if (gameStage == 5)
@@ -146,27 +158,29 @@ void Game::Update(DX::StepTimer const& timer)
 			plotTimer += elapsedTime;
 			ColorChanger += elapsedTime / 3.0f;
 
-			if (plotTimer > 3.0f)
+			if (plotTimer > 4.0f)
 			{
-				if (plotTimer > 6.0f)
+				if (plotTimer > 8.0f)
 				{
-					if (plotTimer > 9.0f)
+					if (plotTimer > 12.0f)
 					{
-						if (plotTimer > 12.0f)
+						if (plotTimer > 16.0f)
 						{
-							if (plotTimer > 15.0f)
+							if (plotTimer > 20.0f)
 							{
-								if (plotTimer > 18.0f)
+								if (plotTimer > 24.0f)
 								{
-									if (plotTimer > 21.0f)
+									if (plotTimer > 28.0f)
 									{
-										if (plotTimer > 24.0f)
+										if (plotTimer > 32.0f)
 										{
-											if (plotTimer > 27.0f)
+											if (plotTimer > 36.0f)
 											{
-												if (plotTimer > 30.0f)
+												if (plotTimer > 40.0f)
 												{
 													gameStage = 6;
+													plotBackgroundAudio->AudioFile->~SoundEffect();
+													//gameBackgroundAudio->Mute = false;
 												}
 												else
 												{
@@ -325,7 +339,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 					//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
 
-					audioBackgroundSound->Mute = false;
+					//audioBackgroundSound->Mute = false;
 				}
 
 				//if (*iter == playSound1)
@@ -464,7 +478,7 @@ void Game::UpdateMainMenu(float elapsedTime)
 		if ((mouse.x >= size.left + 0.15f * size.right) && (mouse.x <= size.left + 0.33f * size.right))
 		{
 			/////////////////////////////////////////////////////////////////////////////////////////////////START
-			if ((mouse.y >= size.top + 0.11f * size.bottom) && (mouse.y <= size.top + 0.21f * size.bottom))			
+			if ((mouse.y >= size.top + 0.11f * size.bottom) && (mouse.y <= size.top + 0.21f * size.bottom))
 			{
 				gameStage = 4;
 			}
@@ -596,127 +610,127 @@ void Game::Render()
 
 	switch (gameStage)
 	{
-		case 0:
+	case 0:
+	{
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(startScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
+	case 1:
+	{
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(wickedScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
+	case 2:
+	{
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(directXTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
+	case 3:
+	{
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
+	case 4:
+	{
+		m_spriteBatch->Begin();
+
+		m_spriteBatch->Draw(loadingScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
+	case 5:
+	{
+		ShowPlot(plotStage);
+		break;
+	}
+	case 6:
+	{
+		renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
+
+		float vampireModeBrightness = brightness + 20.0f;
+
+		if (vampireMode)
 		{
-			m_spriteBatch->Begin();
-
-			m_spriteBatch->Draw(startScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
-
-			m_spriteBatch->End();
-
-			break;
+			renderableSystem->BloomBlurParams.size = 25.0f;
 		}
-		case 1:
+		else
 		{
-			m_spriteBatch->Begin();
-
-			m_spriteBatch->Draw(wickedScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
-
-			m_spriteBatch->End();
-
-			break;
+			renderableSystem->BloomBlurParams.size = 1.0f;
 		}
-		case 2:
+
+		if (Input::GetKeyboardState().D7 && brightness > 1.0f)
 		{
-			m_spriteBatch->Begin();
-
-			m_spriteBatch->Draw(directXTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
-
-			m_spriteBatch->End();
-
-			break;
+			brightness -= 0.2f;
 		}
-		case 3:
+
+		if (Input::GetKeyboardState().D8 && brightness <= 7.0f)
 		{
-			m_spriteBatch->Begin();
-
-			m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
-
-			m_spriteBatch->End();
-
-			break;
+			brightness += 0.2f;
 		}
-		case 4:
+
+		if (!vampireMode)
 		{
-			m_spriteBatch->Begin();
-
-			m_spriteBatch->Draw(loadingScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
-
-			m_spriteBatch->End();
-
-			break;
+			renderableSystem->BloomBlurParams.size = 1.0f;
+			renderableSystem->BloomBlurParams.brightness = brightness;
 		}
-		case 5:
+		else
 		{
-			ShowPlot(plotStage);
-			break;
+			renderableSystem->BloomBlurParams.size = 120.0f;
+			renderableSystem->BloomBlurParams.brightness = vampireModeBrightness;
 		}
-		case 6:
-		{
-			renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
 
-			float vampireModeBrightness = brightness + 20.0f;
-
-			if (vampireMode)
-			{
-				renderableSystem->BloomBlurParams.size = 25.0f;
-			}
-			else
-			{
-				renderableSystem->BloomBlurParams.size = 1.0f;
-			}
-
-			if (Input::GetKeyboardState().D7 && brightness > 1.0f)
-			{
-				brightness -= 0.2f;
-			}
-
-			if (Input::GetKeyboardState().D8 && brightness <= 7.0f)
-			{
-				brightness += 0.2f;
-			}
-
-			if (!vampireMode)
-			{
-				renderableSystem->BloomBlurParams.size = 1.0f;
-				renderableSystem->BloomBlurParams.brightness = brightness;
-			}
-			else
-			{
-				renderableSystem->BloomBlurParams.size = 120.0f;
-				renderableSystem->BloomBlurParams.brightness = vampireModeBrightness;
-			}
-
-			world->RefreshWorld();
-			if (!initTerrain) {
-				terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
-				//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
-				initTerrain = true;
-			}
-			RenderObjects(context);
-			break;
+		world->RefreshWorld();
+		if (!initTerrain) {
+			terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
+			//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
+			initTerrain = true;
 		}
-		case 15:
-		{
-			m_spriteBatch->Begin();
+		RenderObjects(context);
+		break;
+	}
+	case 15:
+	{
+		m_spriteBatch->Begin();
 
-			m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
-			
-			m_spriteBatch->Draw(cattyTexture.Get(), Vector2(500.0f, 500.0f), nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->Draw(cattyTexture.Get(), Vector2(500.0f, 500.0f), nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			break;
-		}
-		default:
-			break;
+		m_spriteBatch->End();
+
+		break;
+	}
+	default:
+		break;
 	}
 
 
@@ -746,7 +760,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
 	// TODO: UI 
-	Ui->Draw(vampireMode, playerSystem->player->vampireAbility, menuIsOn, total_Time, elapsed_Time);
+	Ui->Draw(menuIsOn, total_Time, elapsed_Time);
 }
 
 // Helper method to clear the back buffers.
@@ -959,7 +973,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 			nullptr,
 			blackBackTexture.ReleaseAndGetAddressOf()));
 
-	
+
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"cat.dds",
 			nullptr,
@@ -971,12 +985,23 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	auto size = m_deviceResources->GetOutputSize();
 	m_screenPos.x = 0;
 	m_screenPos.y = 0;
+
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+	AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
+#ifdef _DEBUG
+	eflags = eflags | AudioEngine_Debug;
+#endif
+	audEngine = std::make_unique<AudioEngine>(eflags);
+
+	menuBackground = std::make_unique<SoundEffect>(audEngine.get(), L"Resources\\Audio\\Altar.wav");
+	menuBackgroundAudio = menuBackground->CreateInstance();
+	menuBackgroundAudio->SetVolume(1.0f);
+	menuBackgroundAudio->Play(true);
 }
 
 void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
-	cooldown = make_shared<Cooldown>(skillsNames, skillsTimeLimits);
-
 	terrain = std::make_shared<Terrain>();
 	world = std::make_shared<World>();
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
@@ -1010,11 +1035,25 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	myEntity3 = world->CreateEntity("Cup3");
 	myEntity4 = world->CreateEntity("Cup4");
 
-	backgroundAudio = world->CreateEntity("BackgroundAudio");
-	damageAudio = world->CreateEntity("DamageAudio");
-	playerFootstepAudio = world->CreateEntity("PlayerFootstepAudio");
-	enemyFootstepAudio = world->CreateEntity("EnemyFootstepAudio");
-	swordSlashAudio = world->CreateEntity("SwordSlashAudio");
+	//Audio entities
+	plotBackground = world->CreateEntity("PlotBackground");
+	gameBackground = world->CreateEntity("GameBackground");
+
+	playerFootstep = world->CreateEntity("PlayerFootstep");
+	playerNormalAttack = world->CreateEntity("PlayerNormalAttack");
+	playerBite = world->CreateEntity("PlayerBite");
+	playerDamage = world->CreateEntity("PlayerDamage");
+
+	playerTeleport = world->CreateEntity("PlayerTeleport");
+	playerRipAttack = world->CreateEntity("PlayerRipAttack");
+	playerSwap = world->CreateEntity("PlayerSwap");
+
+	enemyFootstep = world->CreateEntity("EnemyFootstep");
+	enemyAttack = world->CreateEntity("EnemyAttack");
+	enemyDamage = world->CreateEntity("EnemyDamage");
+	enemyDeath = world->CreateEntity("EnemyDeath");
+	knighFootstep = world->CreateEntity("KnighFootstep");
+
 
 	//pointLightEntity1 = world->CreateEntity("PointLight1");
 	//spotLightEntity1 = world->CreateEntity("SpotLight1");
@@ -1044,11 +1083,23 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity6->AddComponent<RenderableComponent>(L"content\\Models\\EnemyGuard.fbx", &camera);
 
 	// Creation of audio components ------------------------------------------------------------------
-	backgroundAudio->AddComponent<AudioComponent>("Resources\\Audio\\background_music.wav");
-	swordSlashAudio->AddComponent<AudioComponent>("Resources\\Audio\\attack.wav");
-	damageAudio->AddComponent<AudioComponent>("Resources\\Audio\\KnifeSlice.wav");
-	enemyFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\temp.wav");
-	playerFootstepAudio->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
+	plotBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotBackground.wav");
+	gameBackground->AddComponent<AudioComponent>("Resources\\Audio\\gameBackground.wav");
+
+	playerFootstep->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
+	playerNormalAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerAttack.wav");
+	playerBite->AddComponent<AudioComponent>("Resources\\Audio\\bite.wav");
+	playerDamage->AddComponent<AudioComponent>("Resources\\Audio\\playerDamage.wav");
+
+	playerTeleport->AddComponent<AudioComponent>("Resources\\Audio\\teleport.wav");
+	playerRipAttack->AddComponent <AudioComponent>("Resources\\Audio\\playerAttack.wav");
+	playerSwap->AddComponent<AudioComponent>("Resources\\Audio\\swap.wav");
+
+	enemyFootstep->AddComponent<AudioComponent>("Resources\\Audio\\step7.wav");
+	enemyAttack->AddComponent<AudioComponent>("Resources\\Audio\\enemyAttack.wav");
+	enemyDamage->AddComponent<AudioComponent>("Resources\\Audio\\enemyDamage.wav");
+	enemyDeath->AddComponent<AudioComponent>("Resources\\Audio\\enemyDeath.wav");
+	knighFootstep->AddComponent<AudioComponent>("Resources\\Audio\\heavyStep.wav");
 	// Creation of physics components ----------------------------------------------------------------
 	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
 	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
@@ -1121,20 +1172,123 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	// Setting up parameters of audio -- REMOVE
 	for (auto component : world->GetComponents<AudioComponent>())
 	{
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"BackgroundAudio") == 0)
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlotBackground") == 0)
 		{
+			plotBackgroundAudio = component;
+			plotBackgroundAudio->Volume = 1.0f;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "GameBackground") == 0)
+		{
+			gameBackgroundAudio = component;
+			gameBackgroundAudio->Loop = true;
+			gameBackgroundAudio->Volume = 1.0f;
+			gameBackgroundAudio->Mute = true;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerFootstep") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->footstepAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerNormalAttack") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->normalAttackAudio = component;
+			playerEntity->GetComponent<PlayerComponent>()->powerAttackAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerBite") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->biteAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerDamage") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerTeleport") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->teleportAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerRipAttack") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->ripAttackAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerSwap") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->swapAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyFootstep") == 0)
+		{
+			component->Volume = 1.0f;
+			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity3->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity4->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity5->GetComponent<EnemyComponent>()->footstepAudio = component;
+			enemyEntity6->GetComponent<EnemyComponent>()->footstepAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyAttack") == 0)
+		{
+			component->Volume = 1.0f;
+			enemyEntity1->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity3->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity4->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity5->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			enemyEntity6->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyDamage") == 0)
+		{
+			component->Volume = 1.0f;
+			enemyEntity1->GetComponent<EnemyComponent>()->damageAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->damageAudio = component;
+			enemyEntity3->GetComponent<EnemyComponent>()->damageAudio = component;
+			enemyEntity4->GetComponent<EnemyComponent>()->damageAudio = component;
+			enemyEntity5->GetComponent<EnemyComponent>()->damageAudio = component;
+			enemyEntity6->GetComponent<EnemyComponent>()->damageAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyDeath") == 0)
+		{
+			component->Volume = 1.0f;
+			enemyEntity1->GetComponent<EnemyComponent>()->deathAudio = component;
+			enemyEntity2->GetComponent<EnemyComponent>()->deathAudio = component;
+			enemyEntity3->GetComponent<EnemyComponent>()->deathAudio = component;
+			enemyEntity4->GetComponent<EnemyComponent>()->deathAudio = component;
+			enemyEntity5->GetComponent<EnemyComponent>()->deathAudio = component;
+			enemyEntity6->GetComponent<EnemyComponent>()->deathAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "KnighFootstep") == 0)
+		{
+		}
+
+		/*
 			audioBackgroundSound = component;
 			audioBackgroundSound->Loop = true;
-			audioBackgroundSound->Volume = 0.1f;
+			audioBackgroundSound->Volume = 1.0f;
 			audioBackgroundSound->Mute = false;
 			continue;
 		}
 
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"DamageAudio") == 0)
-		{		
-			component->Volume = 0.2f;
+		{
+			component->Volume = 1.0f;
 			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
 			continue;
 		}
@@ -1147,7 +1301,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"EnemyFootstepAudio") == 0)
 		{
-			component->Volume = 0.1f;
+			component->Volume = 1.0f;
 			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity3->GetComponent<EnemyComponent>()->footstepAudio = component;
@@ -1159,10 +1313,10 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		if (strcmp(component->GetParent()->GetName().c_str(),
 			"SwordSlashAudio") == 0)
 		{
-			component->Volume = 0.1f;
+			component->Volume = 1.0f;
 			playerEntity->GetComponent<PlayerComponent>()->swordAudio = component;
 			continue;
-		}
+		}*/
 	}
 
 	enemyEntity6->GetComponent<EnemyComponent>()->canBeHitted = false;
@@ -1209,11 +1363,11 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 
 	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
-	playerSystem->AdditionalInitialization(terrain, cooldown);
+	playerSystem->AdditionalInitialization(terrain, humanSkillsNames, vampireSkillsNames, skillsTimeLimits, skillsBlockadeStates);
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
 
 	//Setting up UI -----------------------------------------------------------------------------------
-	Ui = make_shared<UI>(device, context, playerSystem->playerHealthOrigin, playerSystem->playerHealth, cooldown);
+	Ui = make_shared<UI>(device, context, playerSystem);
 
 	////Setting up skinned model -----------------------------------------------------------------------
 	auto component = playerEntity->GetComponent<RenderableComponent>();
@@ -1346,149 +1500,149 @@ void Game::ShowPlot(int stage)
 
 	switch (stage)
 	{
-		case 1:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+	case 1:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot1Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot1Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
-		case 2:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+		break;
+	}
+	case 2:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot1Texture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot1Texture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot2Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot2Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
-		case 3:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+		break;
+	}
+	case 3:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot3Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot3Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
-		case 4:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+		break;
+	}
+	case 4:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot4Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot4Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
-		case 5:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+		break;
+	}
+	case 5:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot4Texture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot4Texture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
-		case 6:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+		break;
+	}
+	case 6:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot6Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot6Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
-		case 7:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+		break;
+	}
+	case 7:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot7Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot7Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
-		case 8:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+		break;
+	}
+	case 8:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot7Texture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot7Texture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot8Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot8Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
-		case 9:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+		break;
+	}
+	case 9:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
-		case 10:
-		{
-			m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+		break;
+	}
+	case 10:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-			m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, Colors::White,
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->Draw(plot10Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
-				0.f, Vector2(0, 0), 1.0f);
+		m_spriteBatch->Draw(plot10Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+			0.f, Vector2(0, 0), 1.0f);
 
-			m_spriteBatch->End();
+		m_spriteBatch->End();
 
-			break;
-		}
+		break;
+	}
 
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
@@ -1500,7 +1654,10 @@ void Game::SkipPlot()
 	if ((keyboardTracker.IsKeyPressed(Keyboard::Keys::Space)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Escape)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Enter)))
 	{
 		plotScreens = false;
+		plotBackgroundAudio->AudioFile->~SoundEffect();
+		//gameBackgroundAudio->Mute = false;
 	}
+
 }
 
 void Game::SkipStartScreen()

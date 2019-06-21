@@ -1,7 +1,7 @@
 #pragma once
 
 #include <map>
-#include "Cooldown.h"
+#include "PlayerSystem.h"
 
 using namespace std;
 using namespace DirectX;
@@ -36,12 +36,12 @@ struct TextUiElement : BasicUiElement
 class UI
 {
 public:
-	UI(ID3D11Device1* device, ID3D11DeviceContext1* context, float playerHealthOrigin, shared_ptr<float> playerHealth, shared_ptr<Cooldown> cooldown);
+	UI(ID3D11Device1* device, ID3D11DeviceContext1* context, shared_ptr<PlayerSystem> playerSystem);
 	~UI();
 
 	void Initialize();
 	void DrawRedBorder();
-	void Draw(bool vampireMode, int selectedVampireAbility, bool menuIsOn, float totalTime, float elapsedTime);
+	void Draw(bool menuIsOn, float totalTime, float elapsedTime);
 	void Reset();
 
 
@@ -55,16 +55,13 @@ public:
 	wstring fpsFontText;
 
 	bool transitionMode;
-	int selectedVampireAbility;
 
 private:
 	ID3D11Device1 *_device;
 	ID3D11DeviceContext1 *_context;
-	float _playerHealthOrigin;
 	float transitionElapsedTime;
-	shared_ptr<float> _playerHealth;
 	map<string, ImageUiElement> _imageElements;
 	map<string, TextUiElement> _textElements;
-	shared_ptr<Cooldown> _cooldown;
+	shared_ptr<PlayerSystem> _playerSystem;
 };
 

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "AudioSystem.h"
 
+float AudioSystem::VOLUME = 1.0f;
 
 AudioSystem::AudioSystem()
 {

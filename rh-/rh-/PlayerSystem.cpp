@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PlayerSystem.h"
+#include "AudioSystem.h"
 
 PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 {
@@ -64,12 +65,16 @@ void PlayerSystem::Initialize()
 	}
 }
 
-void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, std::shared_ptr<Cooldown> Cooldown)
+void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates)
 {
 	player->navMesh = std::make_shared<NavMesh>(player->GetParent()->GetTransform());
 	player->navMesh->terrain = Terrain;
 	player->navMesh->speed = player->playerSpeed;
-	cooldown = Cooldown;
+	cooldown = make_shared<Cooldown>(humanSkillsNames, skillsTimeLimits);
+	vector<string> skillsNames;
+	skillsNames.insert(skillsNames.end(), humanSkillsNames.begin(), humanSkillsNames.end());
+	skillsNames.insert(skillsNames.end(), vampireSkillsNames.begin(), vampireSkillsNames.end());
+	blockade = make_shared<Blockade>(skillsNames, skillsBlockadeStates);
 }
 
 void PlayerSystem::PlayerHit()
@@ -111,7 +116,7 @@ void PlayerSystem::UpdateNormalMode()
 					{
 						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName())
 						{
-							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("normalAttack"))
+							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("normalAttack") && !blockade->IsSkillBlocked("normalAttack"))
 							{
 								player->attackType = 1;
 								player->enemyClicked = true;
@@ -122,7 +127,7 @@ void PlayerSystem::UpdateNormalMode()
 					}
 					else
 					{
-						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("normalAttack"))
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("normalAttack") && !blockade->IsSkillBlocked("normalAttack"))
 						{
 							player->attackType = 1;
 							player->enemyClicked = true;
@@ -165,7 +170,7 @@ void PlayerSystem::UpdateNormalMode()
 				{
 					if (player->targetedEnemy)
 					{
-						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName() && cooldown->CanUseSkill("strongAttack"))
+						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName() && cooldown->CanUseSkill("strongAttack") && !blockade->IsSkillBlocked("strongAttack"))
 						{
 							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
 							{
@@ -178,7 +183,7 @@ void PlayerSystem::UpdateNormalMode()
 					}
 					else
 					{
-						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("strongAttack"))
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("strongAttack") && !blockade->IsSkillBlocked("strongAttack"))
 						{
 							player->attackType = 2;
 							player->enemyClicked = true;
@@ -219,7 +224,7 @@ void PlayerSystem::UpdateNormalMode()
 			{
 				if (coll->OriginObject->GetTag() == Tags::ENEMY)
 				{
-					if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("biteAttack"))
+					if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("biteAttack") && !blockade->IsSkillBlocked("biteAttack"))
 					{
 						player->attackType = 5;
 						player->enemyClicked = true;
@@ -313,6 +318,8 @@ void PlayerSystem::UpdateNormalMode()
 					player->isBiteAttack = true;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->bited = true;
 					playerBiteCorutine.Restart(4.1f);
+
+					player->biteAudio->AudioFile->Play(player->biteAudio->Volume*AudioSystem::VOLUME, player->biteAudio->Pitch, player->biteAudio->Pan);
 				}
 			}
 		}
@@ -335,7 +342,7 @@ void PlayerSystem::UpdateVampireMode()
 	{
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1))
 		{
-			if (player->vampireAbility != 1)
+			if (player->vampireAbility != 1 && !blockade->IsSkillBlocked("teleport"))
 				player->vampireAbility = 1;
 			else
 				player->vampireAbility = 0;
@@ -411,6 +418,8 @@ void PlayerSystem::UpdateVampireMode()
 						*playerHealth -= player->playerTeleportSwapDamage;
 
 						PlayerHit();
+
+						player->teleportAudio->AudioFile->Play(player->teleportAudio->Volume*AudioSystem::VOLUME, player->teleportAudio->Pitch, player->teleportAudio->Pan);
 					}
 				}
 			}
@@ -442,7 +451,7 @@ void PlayerSystem::UpdateVampireMode()
 
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D2))
 		{
-			if (player->vampireAbility != 2)
+			if (player->vampireAbility != 2 && !blockade->IsSkillBlocked("cleaveAttack"))
 				player->vampireAbility = 2;
 			else
 				player->vampireAbility = 0;
@@ -481,7 +490,7 @@ void PlayerSystem::UpdateVampireMode()
 
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D3))
 		{
-			if (player->vampireAbility != 3)
+			if (player->vampireAbility != 3 && !blockade->IsSkillBlocked("swap"))
 				player->vampireAbility = 3;
 			else
 				player->vampireAbility = 0;
@@ -515,6 +524,8 @@ void PlayerSystem::UpdateVampireMode()
 					player->enemyClicked = false;
 					player->targetedEnemy = nullptr;
 					player->vampireAbility = 0;
+
+					player->swapAudio->AudioFile->Play(player->swapAudio->Volume*AudioSystem::VOLUME, player->swapAudio->Pitch, player->swapAudio->Pan);
 				}
 			}
 		}
@@ -534,10 +545,7 @@ void PlayerSystem::UpdateCorutines()
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerNormalAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 
-					if (player->swordAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
-					{
-						player->swordAudio->AudioFile->Play(player->swordAudio->Volume, player->swordAudio->Pitch, player->swordAudio->Pan);
-					}
+					player->normalAttackAudio->AudioFile->Play(player->normalAttackAudio->Volume*AudioSystem::VOLUME, player->normalAttackAudio->Pitch, player->normalAttackAudio->Pan);
 				}
 			}
 
@@ -559,10 +567,8 @@ void PlayerSystem::UpdateCorutines()
 				{
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerPoweAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
-					if (player->swordAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
-					{
-						player->swordAudio->AudioFile->Play(player->swordAudio->Volume, player->swordAudio->Pitch, player->swordAudio->Pan);
-					}
+
+					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
 				}
 			}
 
@@ -618,6 +624,8 @@ void PlayerSystem::UpdateCorutines()
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->vampireAbility = 0;
+
+				player->ripAttackAudio->AudioFile->Play(player->ripAttackAudio->Volume*AudioSystem::VOLUME, player->ripAttackAudio->Pitch, player->ripAttackAudio->Pan);
 			}
 		}
 	}
@@ -664,8 +672,7 @@ void PlayerSystem::UpdateAnimations()
 			if (player->footstepAudio != nullptr) {
 				player->footstepAudio->Mute = false;
 				if (player->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
-					player->footstepAudio->AudioFile->Play(player->footstepAudio->Volume, player->footstepAudio->Pitch, player->footstepAudio->Pan);
-					//player->footstepAudio->AudioLoopInstance->Play(true);
+					player->footstepAudio->AudioFile->Play(player->footstepAudio->Volume*AudioSystem::VOLUME, player->footstepAudio->Pitch, player->footstepAudio->Pan);
 				}
 			}
 

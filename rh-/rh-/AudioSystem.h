@@ -40,10 +40,12 @@ public:
 	virtual void Initialize() override;
 	virtual void Iterate() override;
 
+	static float VOLUME;
+
 private:
 	unique_ptr<DirectX::AudioEngine> _audioEngine;
 	bool _retryAudio;
 	const float LOOP_DELAY_TIME = 0.2;
-	const float LOOP_DELAY_STEP = 0.02;
+	const float LOOP_DELAY_STEP = 0.02;	
 };
 

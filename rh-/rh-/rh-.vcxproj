@@ -159,6 +159,7 @@
     <ClInclude Include="AnimationClip.h" />
     <ClInclude Include="AnimationPlayer.h" />
     <ClInclude Include="AudioComponent.h" />
+    <ClInclude Include="Blockade.h" />
     <ClInclude Include="Bone.h" />
     <ClInclude Include="BoneAnimation.h" />
     <ClInclude Include="BufferContainer.h" />
@@ -231,6 +232,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AudioComponent.cpp" />
+    <ClCompile Include="Blockade.cpp" />
     <ClCompile Include="Bone.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
