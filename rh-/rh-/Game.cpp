@@ -146,7 +146,6 @@ void Game::Update(DX::StepTimer const& timer)
 			gameStage = 6;
 			InitializeAll(device, context);
 			menuBackgroundAudio->Stop(true);
-			//gameBackgroundAudio->Mute = false;
 		}
 	}
 	else if (gameStage == 5)
@@ -180,7 +179,7 @@ void Game::Update(DX::StepTimer const& timer)
 												{
 													gameStage = 6;
 													plotBackgroundAudio->AudioFile->~SoundEffect();
-													//gameBackgroundAudio->Mute = false;
+													gameBackgroundAudio->Mute = false;
 												}
 												else
 												{
@@ -709,7 +708,6 @@ void Game::Render()
 		world->RefreshWorld();
 		if (!initTerrain) {
 			terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
-			//terrain->SetStaticObjects(world->GetComponents<PhysicsComponent>());
 			initTerrain = true;
 		}
 		RenderObjects(context);
@@ -750,11 +748,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 
 	//XMVECTORF32 collider1Color = Collision::GetCollisionColor(colliderCup1->ColliderBounding->CollisionKind);
 	//XMVECTORF32 collider2Color = Collision::GetCollisionColor(colliderCup2->ColliderBounding->CollisionKind);
-	//terrain->Update(collisionSystem->GetColliders());
-	/*if (vampireMode)
-	{
-		terrain->Draw(camera, m_roomTex);
-	}*/
+
 	if (debugDraw) //REMOVE
 		renderableSystem->DebugDrawAction->DrawOctTree(
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
@@ -1145,7 +1139,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
-	enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 26.0f));
+	enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 27.0f));
 	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity1->SetTag(Tags::ENEMY);
 
@@ -1182,7 +1176,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		{
 			gameBackgroundAudio = component;
 			gameBackgroundAudio->Loop = true;
-			gameBackgroundAudio->Volume = 1.0f;
+			gameBackgroundAudio->Volume = 0.8f;
 			gameBackgroundAudio->Mute = true;
 			continue;
 		}
@@ -1580,7 +1574,7 @@ void Game::ShowPlot(int stage)
 		m_spriteBatch->Draw(plot5Texture.Get(), m_screenPos, nullptr, Colors::White,
 			0.f, Vector2(0, 0), 1.0f);
 
-		m_spriteBatch->Draw(plot6Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+		m_spriteBatch->Draw(plot6Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, 1.0f },
 			0.f, Vector2(0, 0), 1.0f);
 
 		m_spriteBatch->End();
@@ -1636,7 +1630,7 @@ void Game::ShowPlot(int stage)
 		m_spriteBatch->Draw(plot9Texture.Get(), m_screenPos, nullptr, Colors::White,
 			0.f, Vector2(0, 0), 1.0f);
 
-		m_spriteBatch->Draw(plot10Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, ColorChanger },
+		m_spriteBatch->Draw(plot10Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, 1.0f },
 			0.f, Vector2(0, 0), 1.0f);
 
 		m_spriteBatch->End();
@@ -1658,7 +1652,7 @@ void Game::SkipPlot()
 	{
 		plotScreens = false;
 		plotBackgroundAudio->AudioFile->~SoundEffect();
-		//gameBackgroundAudio->Mute = false;
+		gameBackgroundAudio->Mute = false;
 	}
 
 }
