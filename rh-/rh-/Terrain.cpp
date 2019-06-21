@@ -200,11 +200,13 @@ void Terrain::Draw(Camera camera)
 	m_batch->Begin();
 
 	DrawRange(posOrigin, 25, 25, Colors::WhiteSmoke);
+	FixRendering();
 
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 1)
 	{
 		color = Colors::IndianRed;
-		DrawRange(posOrigin, 11, 11, color);
+		DrawRange(posOrigin, 11, 11, color);	
+		FixRendering();
 	}
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 2)
 	{
@@ -284,6 +286,16 @@ void Terrain::FillTile(Vector3 position, XMVECTOR color)
 
 	m_batch->DrawQuad(v1, v2, v3, v4);
 
+}
+
+void Terrain::FixRendering()
+{
+	VertexPositionColor v1(Vector3(0, 0, 0) + Vector3(tileSize / 2.f, 0.f, tileSize / 2.f), XMVECTOR{ 1.0f, 1.0f, 1.0f, 0.0f });
+	VertexPositionColor v2(Vector3(0, 0, 0) + Vector3(tileSize / 2.f, 0.f, -tileSize / 2.f), XMVECTOR{ 1.0f, 1.0f, 1.0f, 0.0f });
+	VertexPositionColor v3(Vector3(0, 0, 0) + Vector3(-tileSize / 2.f, 0.f, -tileSize / 2.f), XMVECTOR{ 1.0f, 1.0f, 1.0f, 0.0f });
+	VertexPositionColor v4(Vector3(0, 0, 0) + Vector3(-tileSize / 2.f, 0.f, tileSize / 2.f), XMVECTOR{ 1.0f, 1.0f, 1.0f, 0.0f });
+
+	m_batch->DrawQuad(v1, v2, v3, v4);
 }
 
 void Terrain::MakeOcupied(MapTilePtr tile)

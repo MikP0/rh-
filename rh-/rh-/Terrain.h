@@ -27,6 +27,7 @@ public:
 	void Draw(Camera);
 	void DrawRange(Vector2, int, int, XMVECTOR);
 	void FillTile(Vector3, XMVECTOR);
+	void FixRendering();
 
 	vector<MapTilePtr> GetPath(MapTilePtr, MapTilePtr);
 	float EuklideanDistance(dxmath::Vector3, dxmath::Vector3);

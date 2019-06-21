@@ -47,7 +47,7 @@ public:
 	//Shadow setting
 	void _cdecl SetRenderingShadowMap(bool value);
 	void _cdecl SetShadowEnable(bool value);
-	void XM_CALLCONV SetShadowMapTransform(DirectX::FXMMATRIX value);
+	void  SetShadowMapTransform(DirectX::FXMMATRIX value);
 	void SetShadowMapEnabled(bool value);
 	void SetShadowMap(_In_opt_ ID3D11ShaderResourceView* value);
 
