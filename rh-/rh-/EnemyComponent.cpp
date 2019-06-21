@@ -27,9 +27,11 @@ EnemyComponent::EnemyComponent()
 	enemyState = EnemyState::IDLE;
 
 	enemyRenderableComponent = nullptr;
+
+	canBeHitted = true;
 }
 
-EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, float Damage, float DistanceToAttack, float FollowPlayerDistance)
+EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, float AttackDamageTime, float Damage, float DistanceToAttack, float FollowPlayerDistance)
 {
 	this->health = Health;
 	this->originHealth = this->health;
@@ -38,6 +40,7 @@ EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, fl
 	this->damage = Damage;
 	this->distanceToAttack = DistanceToAttack;
 	this->followPlayerDistance = FollowPlayerDistance;
+	this->attackDamageTime = AttackDamageTime;
 
 	this->hit = false;
 	this->bited = false;
@@ -54,6 +57,8 @@ EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, fl
 	enemyState = EnemyState::IDLE;
 
 	enemyRenderableComponent = nullptr;
+
+	canBeHitted = true;
 }
 
 

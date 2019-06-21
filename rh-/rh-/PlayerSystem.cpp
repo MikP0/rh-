@@ -36,6 +36,9 @@ void PlayerSystem::Iterate()
 	if (player->isHit)
 		PlayerHit();
 
+	if (player->isHealed)
+		PlayerHealed();
+
 	if (!vampireMode)
 	{
 		UpdateNormalMode();
@@ -73,8 +76,21 @@ void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, st
 void PlayerSystem::PlayerHit()
 {
 	player->isHit = false;
-	playerRenderableComponent->_modelSkinned->isHitted = true;
-	playerHittedCorutine.Restart(0.1f);
+	if (!playerHittedCorutine.active)
+	{		
+		playerRenderableComponent->_modelSkinned->isHitted = true;
+		playerHittedCorutine.Restart(0.1f);
+	}
+}
+
+void PlayerSystem::PlayerHealed()
+{
+	player->isHealed = false;
+	if (!playerHealedCorutine.active)
+	{
+		playerRenderableComponent->_modelSkinned->isHealed = true;
+		playerHealedCorutine.Restart(0.1f);
+	}
 }
 
 void PlayerSystem::UpdateNormalMode()
@@ -261,7 +277,8 @@ void PlayerSystem::UpdateNormalMode()
 					player->isWalking = false;
 					player->isNormalAttack = true;
 					player->isBiteAttack = false;
-					playerNormalAttackCorutine.Restart(1.5f);
+					//playerNormalAttackCorutine.Restart(1.5f);
+					playerNormalAttackCorutine.RestartWithEvent(1.5f, 0.6f);
 				}
 			}
 			else if (player->attackType == 2)
@@ -278,7 +295,8 @@ void PlayerSystem::UpdateNormalMode()
 					player->isPowerAttack = true;
 					player->isBiteAttack = false;
 					player->isNormalAttack = false;
-					playerPowerAttackCorutine.Restart(1.3f);
+					//playerPowerAttackCorutine.Restart(1.3f);
+					playerPowerAttackCorutine.RestartWithEvent(1.3f, 0.7f);
 				}
 			}
 			else if (player->attackType == 5)
@@ -429,10 +447,8 @@ void PlayerSystem::UpdateCorutines()
 	{
 		if (playerNormalAttackCorutine.active)
 		{
-			if (!(playerNormalAttackCorutine.Update()))
+			if (!(playerNormalAttackCorutine.UpdateEvent()))
 			{
-				player->isNormalAttack = false;
-
 				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), player->targetedEnemy->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
 				{
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerNormalAttackDamage;
@@ -443,6 +459,11 @@ void PlayerSystem::UpdateCorutines()
 						player->normalAttackAudio->AudioFile->Play(player->normalAttackAudio->Volume*AudioSystem::VOLUME, player->normalAttackAudio->Pitch, player->normalAttackAudio->Pan);
 					}
 				}
+			}
+
+			if (!(playerNormalAttackCorutine.Update()))
+			{
+				player->isNormalAttack = false;
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
@@ -452,10 +473,8 @@ void PlayerSystem::UpdateCorutines()
 
 		if (playerPowerAttackCorutine.active)
 		{
-			if (!(playerPowerAttackCorutine.Update()))
+			if (!(playerPowerAttackCorutine.UpdateEvent()))
 			{
-				player->isPowerAttack = false;
-
 				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), player->targetedEnemy->GetTransform()->GetPosition(), Vector3(1.5f, .1f, 1.5f)))
 				{
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerPoweAttackDamage;
@@ -466,6 +485,11 @@ void PlayerSystem::UpdateCorutines()
 						player->normalAttackAudio->AudioFile->Play(player->normalAttackAudio->Volume*AudioSystem::VOLUME, player->normalAttackAudio->Pitch, player->normalAttackAudio->Pan);
 					}
 				}
+			}
+
+			if (!(playerPowerAttackCorutine.Update()))
+			{
+				player->isPowerAttack = false;
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;

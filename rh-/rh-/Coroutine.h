@@ -12,6 +12,7 @@ public:
 	Coroutine(float time, float eventTime);
 	// return TRUE if still active and waitTime > 0
 	bool Update();
+	bool UpdateEvent();
 	float GetTime();
 	void Restart(float time);
 	void RestartWithEvent(float time, float eventTime);

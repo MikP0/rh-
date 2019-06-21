@@ -1,27 +1,42 @@
 #pragma once
 
 #include <map>
-
+#include "Cooldown.h"
 
 using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
-struct UiElement
+struct BasicUiElement
 {
 	string name;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
 	Vector2 position;
 	Vector2 scale;
 
-	UiElement() : name("None"), position(Vector2(0.0f, 0.0f)), scale(Vector2(1.0f, 1.0f)) {};
-	~UiElement() {};
+	BasicUiElement() : name("None"), position(Vector2(0.0f, 0.0f)), scale(Vector2(1.0f, 1.0f)) {};
+	~BasicUiElement() {};
+};
+
+struct ImageUiElement : BasicUiElement
+{
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
+
+	ImageUiElement() : BasicUiElement() {};
+	~ImageUiElement() {};
+};
+
+struct TextUiElement : BasicUiElement
+{
+	shared_ptr<DirectX::SpriteFont> font;
+
+	TextUiElement() : BasicUiElement() {};
+	~TextUiElement() {};
 };
 
 class UI
 {
 public:
-	UI(ID3D11Device1* device, ID3D11DeviceContext1* context, float playerHealthOrigin, shared_ptr<float> playerHealth);
+	UI(ID3D11Device1* device, ID3D11DeviceContext1* context, float playerHealthOrigin, shared_ptr<float> playerHealth, shared_ptr<Cooldown> cooldown);
 	~UI();
 
 	void Initialize();
@@ -48,6 +63,8 @@ private:
 	float _playerHealthOrigin;
 	float transitionElapsedTime;
 	shared_ptr<float> _playerHealth;
-	map<string, UiElement> _elements;
+	map<string, ImageUiElement> _imageElements;
+	map<string, TextUiElement> _textElements;
+	shared_ptr<Cooldown> _cooldown;
 };
 

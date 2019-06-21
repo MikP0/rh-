@@ -17,6 +17,7 @@ public:
 	int vampireAbility;
 
 	bool isHit;
+	bool isHealed;
 
 	bool isDancing;
 	bool isWalking;
