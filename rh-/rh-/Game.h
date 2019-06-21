@@ -219,8 +219,15 @@ private:
 	std::shared_ptr<Entity> playerEntity;
 	std::shared_ptr<PlayerSystem> playerSystem;
 	std::shared_ptr<Cooldown> cooldown;
-	vector<string> skillsNames = {
+	vector<string> humanSkillsNames = { 
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack"
+	};
+	vector<string> vampireSkillsNames = {
+		"teleport", "cleaveAttack", "swap","aoeAttack"
+	};
+	vector<bool> skillsBlockadeStates = {
+		false, false, true, false,
+		false, false, false, true,
 	};
 	vector<float> skillsTimeLimits = {
 		0.0f, 2.0f, 4.0f, 10.0f

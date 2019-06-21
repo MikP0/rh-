@@ -232,6 +232,7 @@
     <ClInclude Include="Cooldown.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="Blockade.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -420,6 +421,7 @@
     <ClCompile Include="Cooldown.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="Blockade.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
