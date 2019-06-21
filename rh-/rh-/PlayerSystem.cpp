@@ -77,7 +77,7 @@ void PlayerSystem::PlayerHit()
 {
 	player->isHit = false;
 	if (!playerHittedCorutine.active)
-	{		
+	{
 		playerRenderableComponent->_modelSkinned->isHitted = true;
 		playerHittedCorutine.Restart(0.1f);
 	}
@@ -314,10 +314,8 @@ void PlayerSystem::UpdateNormalMode()
 					player->isBiteAttack = true;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->bited = true;
 					playerBiteCorutine.Restart(4.1f);
-					if (player->biteAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
-					{
-						player->biteAudio->AudioFile->Play(player->biteAudio->Volume*AudioSystem::VOLUME, player->biteAudio->Pitch, player->biteAudio->Pan);
-					}
+
+					player->biteAudio->AudioFile->Play(player->biteAudio->Volume*AudioSystem::VOLUME, player->biteAudio->Pitch, player->biteAudio->Pan);
 				}
 			}
 		}
@@ -354,8 +352,8 @@ void PlayerSystem::UpdateVampireMode()
 				playerEntity->GetTransform()->SetPosition(destination);
 				player->vampireAbility = 0;
 				*playerHealth -= player->playerTeleportSwapDamage;
-
-				PlayerHit();
+				PlayerHit(); 
+				player->teleportAudio->AudioFile->Play(player->teleportAudio->Volume*AudioSystem::VOLUME, player->teleportAudio->Pitch, player->teleportAudio->Pan);
 			}
 		}
 
@@ -435,6 +433,8 @@ void PlayerSystem::UpdateVampireMode()
 					player->enemyClicked = false;
 					player->targetedEnemy = nullptr;
 					player->vampireAbility = 0;
+
+					player->swapAudio->AudioFile->Play(player->swapAudio->Volume*AudioSystem::VOLUME, player->swapAudio->Pitch, player->swapAudio->Pan);
 				}
 			}
 		}
@@ -453,11 +453,8 @@ void PlayerSystem::UpdateCorutines()
 				{
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerNormalAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
-					
-					if (player->normalAttackAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) 
-					{
-						player->normalAttackAudio->AudioFile->Play(player->normalAttackAudio->Volume*AudioSystem::VOLUME, player->normalAttackAudio->Pitch, player->normalAttackAudio->Pan);
-					}
+
+					player->normalAttackAudio->AudioFile->Play(player->normalAttackAudio->Volume*AudioSystem::VOLUME, player->normalAttackAudio->Pitch, player->normalAttackAudio->Pan);
 				}
 			}
 
@@ -479,11 +476,8 @@ void PlayerSystem::UpdateCorutines()
 				{
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerPoweAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
-					
-					if (player->normalAttackAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
-					{
-						player->normalAttackAudio->AudioFile->Play(player->normalAttackAudio->Volume*AudioSystem::VOLUME, player->normalAttackAudio->Pitch, player->normalAttackAudio->Pan);
-					}
+
+					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
 				}
 			}
 
@@ -506,7 +500,7 @@ void PlayerSystem::UpdateCorutines()
 				player->targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
 				player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerBiteAttackDamage;
-				
+
 				*playerHealth += player->playerBiteAttackHealRate;
 
 				if (*playerHealth > playerHealthOrigin)
@@ -532,13 +526,15 @@ void PlayerSystem::UpdateCorutines()
 				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerRipAttackDamage;
 				player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 
-				
+
 				*playerHealth -= player->playerRipPlayerDamage;
 				PlayerHit();
 
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->vampireAbility = 0;
+
+				player->ripAttackAudio->AudioFile->Play(player->ripAttackAudio->Volume*AudioSystem::VOLUME, player->ripAttackAudio->Pitch, player->ripAttackAudio->Pan);
 			}
 		}
 	}
@@ -588,7 +584,7 @@ void PlayerSystem::UpdateAnimations()
 					player->footstepAudio->AudioFile->Play(player->footstepAudio->Volume*AudioSystem::VOLUME, player->footstepAudio->Pitch, player->footstepAudio->Pan);
 				}
 			}
-			
+
 			playerRenderableComponent->_modelSkinned->currentAnimation = "Walk";
 		}
 		else if ((!player->isWalking) && (player->isNormalAttack))
@@ -598,7 +594,7 @@ void PlayerSystem::UpdateAnimations()
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-			playerRenderableComponent->_modelSkinned->currentAnimation = "Attack";			
+			playerRenderableComponent->_modelSkinned->currentAnimation = "Attack";
 		}
 		else if ((!player->isWalking) && (player->isPowerAttack))
 		{
@@ -607,7 +603,7 @@ void PlayerSystem::UpdateAnimations()
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-			playerRenderableComponent->_modelSkinned->currentAnimation = "PowerAttack";			
+			playerRenderableComponent->_modelSkinned->currentAnimation = "PowerAttack";
 		}
 		else if ((!player->isWalking) && (player->isBiteAttack))
 		{

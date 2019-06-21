@@ -62,6 +62,13 @@ public:
 
 	std::shared_ptr<AudioComponent> footstepAudio;
 	std::shared_ptr<AudioComponent> normalAttackAudio;
+	std::shared_ptr<AudioComponent> powerAttackAudio;
 	std::shared_ptr<AudioComponent> biteAudio;
+	std::shared_ptr<AudioComponent> damageAudio;
+
+
+	std::shared_ptr<AudioComponent> teleportAudio;
+	std::shared_ptr<AudioComponent> ripAttackAudio;
+	std::shared_ptr<AudioComponent> swapAudio;
 };
 

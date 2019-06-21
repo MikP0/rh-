@@ -160,7 +160,7 @@ void Terrain::CreateWorld(vector<shared_ptr<PhysicsComponent>> colliders)
 						if (collider->GetParent()->GetTag() == Tags::PLAYER || collider->GetParent()->GetTag() == Tags::ENEMY) {
 							characters.push_back(collider);
 						}
-					}					
+					}
 				}
 			}
 		}
@@ -321,6 +321,19 @@ bool Terrain::Within(MapTilePtr tile)
 
 }
 
+bool Terrain::IsTileOccupied(MapTilePtr tile, shared_ptr<PhysicsComponent> object)
+{
+	for each (shared_ptr<PhysicsComponent> character in characters)
+	{
+		if (character != object) {
+			if (tile == GetTileWithPosition(character->GetParent()->GetTransform()->GetPosition())) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 MapTilePtr Terrain::GetTileWithPosition(dxmath::Vector3 position)
 {
 	float x = position.x;
@@ -382,7 +395,8 @@ Vector3 Terrain::FallBack(Vector3 current, Vector3 previous)
 
 vector<MapTilePtr> Terrain::GetPath(MapTilePtr start, MapTilePtr goal)
 {
-	if (start == nullptr || goal == nullptr || start == goal || !this->Within(start) || !this->Within(goal)) {
+	if (start == nullptr || goal == nullptr || start == goal) //|| !this->Within(start) || !this->Within(goal)) 
+	{
 		return vector<MapTilePtr>();
 	}
 

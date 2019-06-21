@@ -37,6 +37,7 @@ public:
 	bool CanWalk(dxmath::Vector3);
 	bool CanMove(dxmath::Vector3, dxmath::Vector3);
 	bool Within(MapTilePtr);
+	bool IsTileOccupied(MapTilePtr, shared_ptr<PhysicsComponent>);
 	MapTilePtr GetTileWithPosition(Vector3);
 	MapTilePtr GetTileFromMap(Vector2);
 	Vector3 GetNearestNeighbor(Vector3);
