@@ -178,6 +178,7 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 				*playerHealth -= enemy->damage;
 
 				player->GetComponent<PlayerComponent>()->isHit = true;
+				player->GetComponent<PlayerComponent>()->damageAudio->AudioFile->Play(player->GetComponent<PlayerComponent>()->damageAudio->Volume*AudioSystem::VOLUME, player->GetComponent<PlayerComponent>()->damageAudio->Pitch, player->GetComponent<PlayerComponent>()->damageAudio->Pan);
 			}
 		}
 

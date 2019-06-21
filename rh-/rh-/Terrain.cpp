@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Terrain.h"
 #include "PlayerComponent.h"
+#include "EnemyComponent.h"
 
 #include <map>
 #include <unordered_set>
@@ -203,23 +204,45 @@ void Terrain::Draw(Camera camera)
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 1)
 	{
 		color = Colors::IndianRed;
-		DrawRange(posOrigin, 8, 8, color);
+		DrawRange(posOrigin, 12, 12, color);
 	}
-
+	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 2)
+	{
+		color = Colors::IndianRed;
+		for each (shared_ptr<PhysicsComponent> var in characters)
+		{
+			if (var != nullptr && var->_isEnabled)
+			{
+				MapTilePtr tempTile = GetTileWithPosition(var->GetParent()->GetTransform()->GetPosition());
+				if (tempTile != playerTile && XMVector3NearEqual(tempTile->worldPosition, playerTile->worldPosition, Vector3(1.f, 1.f, 1.f)))
+				{
+					FillTile(tempTile->worldPosition, color);
+				}
+			}
+			else
+			{
+				vector<shared_ptr<PhysicsComponent>>::iterator position = std::find(characters.begin(), characters.end(), var);
+				if (position != characters.end())
+					characters.erase(position);
+			}
+		}
+	}
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 3)
 	{
 		color = Colors::IndianRed;
 		for each (shared_ptr<PhysicsComponent> var in characters)
 		{
-			if (var != nullptr) {
+			if (var != nullptr && var->_isEnabled) 
+			{
 				MapTilePtr tempTile = GetTileWithPosition(var->GetParent()->GetTransform()->GetPosition());
 				FillTile(tempTile->worldPosition, color);
 			}
-			else {
+			else 
+			{
 				vector<shared_ptr<PhysicsComponent>>::iterator position = std::find(characters.begin(), characters.end(), var);
 				if (position != characters.end())
 					characters.erase(position);
-			}
+			}			
 		}
 	}
 	m_batch->End();
@@ -284,7 +307,8 @@ bool Terrain::CanWalk(dxmath::Vector3 position)
 	//	&& (position.z > (tiles.front()->worldPosition.z - (tileSize / 2.f))) && (position.z < (tiles.back()->worldPosition.z + (tileSize / 2.f)))) {
 
 	MapTilePtr tempPtr = this->GetTileWithPosition(position);
-	if (tempPtr != nullptr) {
+	if (tempPtr != nullptr) 
+	{
 		if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.05f) {
 			return true;
 		}
