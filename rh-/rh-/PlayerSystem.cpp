@@ -372,7 +372,13 @@ void PlayerSystem::UpdateVampireMode()
 					
 					XMVECTOR playNExtVec = DirectX::XMVector3Transform(Vector3::Zero, playerEntity->GetWorldMatrix());
 					
-					std::shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(playNExtVec, vec));
+
+					XMVECTOR origin = Vector4(playerEntity->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, playerEntity->GetTransform()->GetPosition().z, 0.0f);
+					//XMFLOAT3 dirFromMouse = Raycast::GetRayDirFromMousePos(camera);
+					XMVECTOR direction = Vector4(destination.x, destination.y, destination.z, 0.0f);
+
+
+					std::shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(origin, direction));
 					vector<std::shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
 
 					/*for each (std::shared_ptr<Collision> coll in collisionsWithRay)

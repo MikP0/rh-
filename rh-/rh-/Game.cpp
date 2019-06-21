@@ -1061,8 +1061,8 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
 	// Creation of enemy components ------------------------------------------------------------------
-	enemyEntity1->AddComponent<EnemyComponent>(30.f, 20);
-	enemyEntity2->AddComponent<EnemyComponent>(30.f, 18);
+	enemyEntity1->AddComponent<EnemyComponent>(3.f, 20);
+	enemyEntity2->AddComponent<EnemyComponent>(3.f, 18);
 	enemyEntity3->AddComponent<EnemyComponent>(3.f, 22);
 	enemyEntity4->AddComponent<EnemyComponent>(3.f, 19);
 	enemyEntity5->AddComponent<EnemyComponent>(3.f, 23);
