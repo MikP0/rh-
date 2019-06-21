@@ -975,8 +975,6 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 {
-	cooldown = make_shared<Cooldown>(skillsNames, skillsTimeLimits);
-
 	terrain = std::make_shared<Terrain>();
 	world = std::make_shared<World>();
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
@@ -1211,7 +1209,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 
 	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
-	playerSystem->AdditionalInitialization(terrain, cooldown);
+	playerSystem->AdditionalInitialization(terrain, humanSkillsNames, vampireSkillsNames, skillsTimeLimits, skillsBlockadeStates);
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
 
 	//Setting up UI -----------------------------------------------------------------------------------
