@@ -143,6 +143,9 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 						else if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
 							aShadow = true;
 
+						if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
+							aShadow = true;
+
 						oEntity->AddComponent<RenderableComponent>(aPath, _camera, aShadow);
 					}
 
