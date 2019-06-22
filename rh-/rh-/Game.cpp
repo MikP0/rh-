@@ -92,7 +92,7 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 	// TO DISABLE MENU and START SCREENS
-	//mainMenu = false;
+	mainMenu = false;
 
 	if (gameStage < 5)
 	{
@@ -238,8 +238,8 @@ void Game::Update(DX::StepTimer const& timer)
 
 		//Mouse
 		auto mouse = Input::GetMouseState();
-		if (freeCamera)
-			Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+		//if (freeCamera)
+		//	Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		//Pressed Keys
 		std::vector<actionList> pushedKeysActions = Input::GetActions();
@@ -673,6 +673,15 @@ void Game::Render()
 	{
 		renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
 
+		if (playerSystem->turnOffVampireMode)
+		{
+			playerSystem->turnOffVampireMode = false;
+			vampireMode = false;
+			playerSystem->SetVampireMode(false);
+			enemySystem->SetVampireMode(false);
+		}
+
+
 		float vampireModeBrightness = brightness + 20.0f;
 
 		if (vampireMode)
@@ -990,7 +999,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	menuBackground = std::make_unique<SoundEffect>(audEngine.get(), L"Resources\\Audio\\Altar.wav");
 	menuBackgroundAudio = menuBackground->CreateInstance();
-	menuBackgroundAudio->SetVolume(1.0f);
+	menuBackgroundAudio->SetVolume(0.0f);
 	menuBackgroundAudio->Play(true);
 }
 
@@ -1383,7 +1392,10 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Bite.fbx", "Bite");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Rip.fbx", "Rip");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_PowerAttack_Normal.fbx", "PowerAttack");
-
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Spin_2H.fbx", "SpinAttack");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_4th.fbx", "4th");
+	
+	
 	component = enemyEntity1->GetComponent<RenderableComponent>();
 	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
 	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");

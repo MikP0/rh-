@@ -25,6 +25,9 @@ public:
 	bool isPowerAttack;
 	bool isRipAttack;
 	bool isBiteAttack;
+	bool isAOEAttack;
+	bool isSpinAttack;
+
 
 	bool isPlayerHealed;
 
@@ -53,13 +56,21 @@ public:
 	const float playerBiteAttackDamage = 2.0f;
 	const float playerBiteAttackHealRate = 3.0f;
 	const float playerRipAttackDamage = 4.0f;
+	const float playerAOEAttackDamage = 3.0f;
+
+	const float playerSpinAttackDamage = 2.0f;
+	const float playerSpinDistance = 1.0f;
+
 
 	const float playerRipPlayerDamage = 2.0f;
 	const float playerTeleportSwapDamage = 1.0f;
+	const float playerAOEDamage = 3.0f;
 
 	const float playerAfterEnemyKilledHealRate = 2.0f;
 
 	const float playerTeleport_SwapDistance = 6.0f;
+
+	const float playerAoEDistance = 3.0f;
 
 	std::shared_ptr<AudioComponent> footstepAudio;
 	std::shared_ptr<AudioComponent> normalAttackAudio;

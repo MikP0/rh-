@@ -47,12 +47,20 @@ public:
 	Coroutine playerHittedCorutine;
 	Coroutine playerHealedCorutine;
 	Coroutine playerRipAttackCorutine;
+	Coroutine playerAOEAttackCorutine;
+	Coroutine playerSpinAttackCorutine;
+
+
+	std::vector<std::shared_ptr<Entity>> enemiesInRangeToAOE;
+
 
 	Camera* camera;
 
 	void PlayerHit();
 	void PlayerHealed();
 	
+
+	bool turnOffVampireMode;
 
 
 	void UpdateNormalMode();

@@ -15,6 +15,8 @@ PlayerComponent::PlayerComponent()
 	isBiteAttack = false;
 	isRipAttack = false;
 	isPowerAttack = false;
+	isAOEAttack = false;
+	isSpinAttack = false;
 
 	isPlayerHealed = false;
 
