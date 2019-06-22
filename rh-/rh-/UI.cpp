@@ -24,7 +24,8 @@ void UI::Initialize()
 		"heroIconTransitionRing", "vamprireRedCircle", "teleportCost", "cleaveAttackCost",
 		"swapCost", "aoeAttackCost","skillKeyLPM", "skillKeyPPM", "skillKeyCPM", "skillKeyE",
 		"skillKey1", "skillKey2", "skillKey3", "skillKey4",
-		"humanCoolDownFrame", "vampireCoolDownFrame", "humanSkillBlockade", "vampireSkillBlockade"
+		"humanCoolDownFrame", "vampireCoolDownFrame", "humanSkillBlockade", "vampireSkillBlockade",
+		"normalAttackTip"
 	};
 
 	vector<string> uiTextNames = {
@@ -67,7 +68,8 @@ void UI::Initialize()
 		{"humanCoolDownFrame", "Resources\\UISprites\\Human_Skill_Cooldown_Frame.dds"},
 		{"vampireCoolDownFrame", "Resources\\UISprites\\Vampire_Skill_Cooldown_Frame.dds"},
 		{"humanSkillBlockade", "Resources\\UISprites\\Human_Blocked_Skill.dds"},
-		{"vampireSkillBlockade", "Resources\\UISprites\\Vampire_Blocked_Skill.dds"}
+		{"vampireSkillBlockade", "Resources\\UISprites\\Vampire_Blocked_Skill.dds"},
+		{"normalAttackTip", "Resources\\UISprites\\Normal_Attack_Tip.dds"}
 	};
 
 	skillSetPosition = Vector2(690.0f, 930.0f);
@@ -111,7 +113,8 @@ void UI::Initialize()
 		{"spinAttackCooldown", skillSetPosition + Vector2(316.0f, 5.0f)},
 		{"biteAttackCooldown", skillSetPosition + Vector2(466.0f, 5.0f)},
 		{"humanSkillBlockade", skillSetPosition + Vector2(5.0f, 0.0f)},
-		{"vampireSkillBlockade", skillSetPosition + Vector2(-5.0f, -10.0f)}
+		{"vampireSkillBlockade", skillSetPosition + Vector2(-5.0f, -10.0f)},
+		{"normalAttackTip", skillSetPosition + Vector2(-110.0f, -330.0f)},
 	};
 
 	map<string, Vector2> uiNameScaleMap = {
@@ -153,7 +156,8 @@ void UI::Initialize()
 		{"spinAttackCooldown", Vector2(1.6f, 1.6f)},
 		{"biteAttackCooldown", Vector2(1.6f, 1.6f)},
 		{"humanSkillBlockade", Vector2(0.20f, 0.20f)},
-		{"vampireSkillBlockade", Vector2(0.24f, 0.24f)}
+		{"vampireSkillBlockade", Vector2(0.24f, 0.24f)},
+		{"normalAttackTip", Vector2(0.70f, 0.70f)},
 	};
 
 
@@ -166,11 +170,18 @@ void UI::Initialize()
 		const wchar_t* spritePath = wide_string.c_str();
 		DX::ThrowIfFailed(
 			CreateDDSTextureFromFile(_device, spritePath,
-				nullptr,
+				_imageElements[uiElement].resource.GetAddressOf(),
 				_imageElements[uiElement].texture.ReleaseAndGetAddressOf()));
 
 		_imageElements[uiElement].position = uiNamePositionMap[uiElement];
 		_imageElements[uiElement].scale = uiNameScaleMap[uiElement];
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2D;
+		DX::ThrowIfFailed(_imageElements[uiElement].resource.As(&texture2D));
+		CD3D11_TEXTURE2D_DESC texture2Ddesc;
+		texture2D->GetDesc(&texture2Ddesc);
+		
+		_imageElements[uiElement].endPos = _imageElements[uiElement].position + _imageElements[uiElement].scale * Vector2(texture2Ddesc.Width, texture2Ddesc.Height);
 	}
 
 	for each(string uiElement in uiTextNames)
@@ -188,6 +199,28 @@ void UI::Initialize()
 	fpsFont = std::make_unique<SpriteFont>(_device, L"Resources\\Fonts\\fpsFont.spritefont");
 	fpsFontPos = Vector2(710.0f, 10.0f);
 	fpsFontText = std::wstring(L"60");
+
+}
+
+void UI::CheckSkillTips(bool vampireMode)
+{
+	Mouse::State mouse = Input::GetMouseState();
+
+	if (!vampireMode)
+	{
+		if (mouse.x >= _imageElements["normalAttack"].position.x &&
+			mouse.y >= _imageElements["normalAttack"].position.y &&
+			mouse.x <= _imageElements["normalAttack"].endPos.x &&
+			mouse.y <= _imageElements["normalAttack"].endPos.y)
+		{
+			uiSpriteBatch->Draw(_imageElements["normalAttackTip"].texture.Get(), _imageElements["normalAttackTip"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["normalAttackTip"].scale);
+		}
+	}
+	else
+	{
+
+	}
 
 }
 
@@ -457,6 +490,8 @@ void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime)
 				0.f, Vector2(0, 0), _imageElements["vamprireRedCircle"].scale);
 		}
 	}
+
+	CheckSkillTips(vampireMode);
 
 	uiSpriteBatch->Draw(_imageElements["fpsBackground"].texture.Get(), _imageElements["fpsBackground"].position, nullptr, Colors::White,
 		0.f, Vector2(0, 0), _imageElements["fpsBackground"].scale);
