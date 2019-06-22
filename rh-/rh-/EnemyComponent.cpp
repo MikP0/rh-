@@ -31,9 +31,12 @@ EnemyComponent::EnemyComponent()
 	canBeHitted = true;
 
 	isGuard = false;
+
+	checkpointNumber = 1;
+
 }
 
-EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, float AttackDamageTime, float Damage, float DistanceToAttack, float FollowPlayerDistance)
+EnemyComponent::EnemyComponent(int checkpointNumber, float Health, float Speed, float AttackLength, float AttackDamageTime, float Damage, float DistanceToAttack, float FollowPlayerDistance)
 {
 	this->health = Health;
 	this->originHealth = this->health;
@@ -55,6 +58,8 @@ EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, fl
 	this->hitCorutine.active = false;
 	this->dyingCorutine.active = false;
 	this->hitColorCorutine.active = false;
+
+	this->checkpointNumber = checkpointNumber;
 
 	enemyState = EnemyState::IDLE;
 

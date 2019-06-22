@@ -67,6 +67,13 @@ void PlayerSystem::Initialize()
 		playerHealthOrigin = playerComponent->playerHealthOrigin;
 		playerRenderableComponent = playerEntity->GetComponent<RenderableComponent>();
 	}
+	InitializeCheckpoints();
+}
+
+void PlayerSystem::InitializeCheckpoints()
+{
+	checkpointMap[1] = dmath::Vector3(2.0f, 0.0f, 15.0f);
+	checkpointMap[2] = dmath::Vector3(10.0f, 0.0f, 60.0f);
 }
 
 void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates)
@@ -79,6 +86,16 @@ void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, ve
 	skillsNames.insert(skillsNames.end(), humanSkillsNames.begin(), humanSkillsNames.end());
 	skillsNames.insert(skillsNames.end(), vampireSkillsNames.begin(), vampireSkillsNames.end());
 	blockade = make_shared<Blockade>(skillsNames, skillsBlockadeStates);
+	player->playerPositionOrigin = player->GetParent()->GetTransform()->GetPosition();
+}
+
+void PlayerSystem::RespawnPlayer(int checkpoint)
+{
+	for (auto playerComponent : _world->GetComponents<PlayerComponent>())
+	{
+		*playerComponent->playerHealth = playerComponent->playerHealthOrigin;
+		playerComponent->GetParent()->GetTransform()->SetPosition(checkpointMap[checkpoint]);
+	}
 }
 
 void PlayerSystem::PlayerHit()

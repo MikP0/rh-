@@ -208,6 +208,46 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 	}
 }
 
+int EnemySystem::RespawnEnemiesFromCheckpoint()
+{
+	int cp;
+
+	for (auto enemyComponent : _world->GetComponents<EnemyComponent>()) 
+	{
+		if (enemyComponent->enemyState != EnemyState::DEAD && enemyComponent->enemyState != EnemyState::DYING) {
+			cp = enemyComponent->checkpointNumber;
+			break;
+		}
+	}
+
+	for (auto enemyComponent : _world->GetComponents<EnemyComponent>()) 
+	{
+		if (enemyComponent->enemyState != EnemyState::DEAD && enemyComponent->enemyState != EnemyState::DYING) {
+			if (cp > enemyComponent->checkpointNumber)
+				cp = enemyComponent->checkpointNumber;
+		}
+	}
+
+	for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+	{
+		if (enemyComponent->checkpointNumber >= cp) {
+			enemyComponent->GetParent()->GetTransform()->SetPosition(enemyComponent->originPosition);
+			enemyComponent->health = enemyComponent->originHealth;
+
+			enemyComponent->enemyState = EnemyState::IDLE;
+
+			enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
+
+			enemyComponent->enemyRenderableComponent->SetIsEnabled(true);
+			enemyComponent->GetParent()->GetComponent<PhysicsComponent>()->SetIsEnabled(true);
+			enemyComponent->SetIsEnabled(true);
+			enemyComponent->GetParent()->SetActive(true);
+			enemyComponent->dying = false;
+		}
+	}
+	return cp;
+}
+
 void EnemySystem::Initialize()
 {
 	//Nothing
@@ -224,7 +264,9 @@ void EnemySystem::AdditionalInitialization(std::shared_ptr<Entity> Player, std::
 		enemyComponent->navMesh->terrain = Terrain;
 		enemyComponent->navMesh->speed = enemyComponent->speed;
 		enemyComponent->enemyRenderableComponent = enemyComponent->GetParent()->GetComponent<RenderableComponent>();
+		enemyComponent->originPosition = enemyComponent->GetParent()->GetTransform()->GetPosition();
 	}
+
 }
 
 void EnemySystem::SetVampireMode(bool mode)

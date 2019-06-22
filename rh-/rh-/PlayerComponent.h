@@ -44,6 +44,8 @@ public:
 	const float playerHealthOrigin = 10.0f;
 	std::shared_ptr<float> playerHealth;
 
+	DirectX::SimpleMath::Vector3 playerPositionOrigin;
+
 	float playerSpeed;
 
 	std::shared_ptr<NavMesh> navMesh;

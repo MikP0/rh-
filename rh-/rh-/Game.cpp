@@ -308,37 +308,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 				if (*iter == playBackground)
 				{
-					//world->ClearWorld();
-
-					//auto device = m_deviceResources->GetD3DDevice();
-					//auto context = m_deviceResources->GetD3DDeviceContext();
-
-
-					//collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
-					//renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
-					////renderableSystem = std::make_shared<RenderableSystem>(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
-					////lightSystem = std::make_shared<LightSystem>(renderableSystem->_fxFactory);
-
-					//// Adding systems to world ------------------------------------------------------------------
-					//world->AddSystem<PhysicsSystem>(collisionSystem, 0);
-					////world->AddSystem<LightSystem>(lightSystem, 1);
-					////world->AddSystem<AudioSystem>(audioSystem, 2);
-					//world->AddSystem<RenderableSystem>(renderableSystem, 3);
-
-					//playerEntity = world->CreateEntity("Player");
-
-
-					//worldLoader->LoadWorldFromXML("testLevel.xml");
-
-					////world->InitializeSystem<AudioSystem>();
-					//world->InitializeSystem<PhysicsSystem>();
-					////world->InitializeSystem<LightSystem>();
-					//world->InitializeSystem<RenderableSystem>();
-
-
-					//playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Hero.fbx", &camera);
-
-					//audioBackgroundSound->Mute = false;
+					playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
 				}
 
 				//if (*iter == playSound1)
@@ -1115,12 +1085,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
 	// Creation of enemy components ------------------------------------------------------------------
-	enemyEntity1->AddComponent<EnemyComponent>(3.f, 20);
-	enemyEntity2->AddComponent<EnemyComponent>(3.f, 18);
-	enemyEntity3->AddComponent<EnemyComponent>(3.f, 22);
-	enemyEntity4->AddComponent<EnemyComponent>(3.f, 19);
-	enemyEntity5->AddComponent<EnemyComponent>(3.f, 23);
-	enemyEntity6->AddComponent<EnemyComponent>(10.f, 35, 1.9f, 1.0f, 3.0f);
+	enemyEntity1->AddComponent<EnemyComponent>(1, 3.f, 20);
+	enemyEntity2->AddComponent<EnemyComponent>(1, 3.f, 18);
+	enemyEntity3->AddComponent<EnemyComponent>(1, 3.f, 22);
+	enemyEntity4->AddComponent<EnemyComponent>(1, 3.f, 19);
+	enemyEntity5->AddComponent<EnemyComponent>(1, 3.f, 23);
+	enemyEntity6->AddComponent<EnemyComponent>(2, 10.f, 35, 1.9f, 1.0f, 3.0f);
 	
 	playerEntity->AddComponent<PlayerComponent>();
 

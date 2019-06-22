@@ -31,5 +31,7 @@ public:
 	void SetStates(std::shared_ptr<EnemyComponent> enemy);
 	void ApplyStates(std::shared_ptr<EnemyComponent> enemy);
 	void CheckCorutines(std::shared_ptr<EnemyComponent> enemy);
+
+	int RespawnEnemiesFromCheckpoint();
 };
 
