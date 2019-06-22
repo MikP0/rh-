@@ -6,6 +6,7 @@
 #include "NavMesh.h"
 #include "Entity.h"
 #include "AudioComponent.h"	
+#include "RenderableComponent.h"
 
 class PlayerComponent : public Component
 {
@@ -50,6 +51,8 @@ public:
 
 	void AddPlayerHealth(float HealthRate);
 
+	void LoadPlayerAnimations();
+
 
 	const float playerNormalAttackDamage = 1.0f;
 	const float playerPoweAttackDamage = 3.0f;
@@ -60,7 +63,7 @@ public:
 
 	const float playerSpinAttackDamage = 2.0f;
 	const float playerSpinDistance = 1.0f;
-
+	DirectX::SimpleMath::Vector3 newPosToSpin;
 
 	const float playerRipPlayerDamage = 2.0f;
 	const float playerTeleportSwapDamage = 1.0f;

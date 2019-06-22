@@ -280,14 +280,11 @@ private:
 	int gameStage = 0;
 	float startTimer = 0;
 
-	bool afterInitialization = false;
-
 	void InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context);
 
 	void UpdateMainMenu(float elapsedTime);
 	void SkipPlot();
 	void SkipStartScreen();
-
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cattyTexture;	// cat Textrue to tests
 
@@ -308,20 +305,12 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> blackBackTexture;
 
-	//XMVECTORF32 ColorChanger = { { { 1.000000000f, 1.000000000f, 1.000000000f, 0.900000000f } } };
-
 	float ColorChanger = 0.0f;
-
 	void ClearColorChanger();
-	//bool colorChangerCleared = true;
 	int remPlotStage = 0;
-
 
 	int plotStage = 0;
 	float plotTimer = 0;
-
 	void ShowPlot(int stage);
-
 	std::unique_ptr<CommonStates> states;
-
 };

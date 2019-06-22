@@ -79,7 +79,7 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 	}
 	else if ((!enemy->dyingCorutine.active) && (!enemy->hitCorutine.active))
 	{
-		if ((enemy->hit) && (enemy->canBeHitted))
+		if (enemy->hit)
 		{
 			enemy->enemyState = EnemyState::HIT;
 
@@ -109,7 +109,10 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 				float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 				enemy->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-				enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime);
+				if (!enemy->isGuard)
+					enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime);
+				else
+					enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime-0.1f);
 
 				enemy->normalAttackAudio->AudioFile->Play(enemy->normalAttackAudio->Volume*AudioSystem::VOLUME, enemy->normalAttackAudio->Pitch, enemy->normalAttackAudio->Pan);
 			}
@@ -173,7 +176,7 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 	{
 		if (!(enemy->attackCorutine.UpdateEvent()))
 		{
-			if (CheckRangeAndCone(enemy, player->GetTransform()->GetPosition(), enemy->attackLength, 60.f))
+			if (CheckRangeAndCone(enemy, player->GetTransform()->GetPosition(), enemy->distanceToAttack + 1.2f, 80.f))
 			{
 				*playerHealth -= enemy->damage;
 

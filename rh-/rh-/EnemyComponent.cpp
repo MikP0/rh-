@@ -29,6 +29,8 @@ EnemyComponent::EnemyComponent()
 	enemyRenderableComponent = nullptr;
 
 	canBeHitted = true;
+
+	isGuard = false;
 }
 
 EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, float AttackDamageTime, float Damage, float DistanceToAttack, float FollowPlayerDistance)
@@ -59,9 +61,32 @@ EnemyComponent::EnemyComponent(float Health, float Speed, float AttackLength, fl
 	enemyRenderableComponent = nullptr;
 
 	canBeHitted = true;
+
+	isGuard = false;
 }
 
 
 EnemyComponent::~EnemyComponent()
 {
+}
+
+void EnemyComponent::LoadBruteAnimations()
+{
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
+	enemyRenderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
+}
+
+void EnemyComponent::LoadGuardAnimations()
+{
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardIdle.fbx", "Idle");
+	enemyRenderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardWalk.fbx", "Walk");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardAttack.fbx", "Attack");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardDying.fbx", "Dying");
+
+	isGuard = true;
 }

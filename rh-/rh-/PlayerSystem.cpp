@@ -223,25 +223,33 @@ void PlayerSystem::UpdateNormalMode()
 
 		if (mouseTracker.middleButton == Mouse::ButtonStateTracker::PRESSED)
 		{
-			if (player->attackType != 3)
+			//cooldown->StartSkillCounter("spinAttack");	// tutej bez ¿adnych warunkow, po prostu jak klikniesz middleButton to wykonaj
+															// niezaleznie czy sa przeciwnicy
+			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
+			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+	
+			if (collisionsWithRay.size() > 0)
+				player->newPosToSpin = Vector3(collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().z);
+			else
+				player->newPosToSpin = playerEntity->GetTransform()->GetPosition();
+
+
+			player->enemyClicked = true;
+			player->attackType = 3;
+			
+
+			enemiesInRangeToAOE.clear();
+
+			for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 			{
-				//cooldown->StartSkillCounter("spinAttack");
-
-				player->enemyClicked = true;
-				player->attackType = 3;
-
-				enemiesInRangeToAOE.clear();
-
-				for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+				if (enemyComponent->_isEnabled)
 				{
-					if (enemyComponent->_isEnabled)
+					if (!enemyComponent->dying)
 					{
-						if (!enemyComponent->dying)
+						if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), enemyComponent->GetParent()->GetTransform()->GetPosition(), Vector3(player->playerSpinDistance, .1f, player->playerSpinDistance)))
 						{
-							if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), enemyComponent->GetParent()->GetTransform()->GetPosition(), Vector3(player->playerSpinDistance, .1f, player->playerSpinDistance)))
-							{
-								enemiesInRangeToAOE.push_back(enemyComponent->GetParent());
-							}
+							enemiesInRangeToAOE.push_back(enemyComponent->GetParent());
 						}
 					}
 				}
@@ -342,8 +350,10 @@ void PlayerSystem::UpdateNormalMode()
 			}
 			else if (player->attackType == 3)
 			{
+				player->navMesh->SetDestination(player->newPosToSpin);
+
 				player->isSpinAttack = true;
-				player->navMesh->isMoving = false;
+				player->navMesh->isMoving = true;
 				player->isWalking = false;
 				player->isPowerAttack = false;
 				player->isBiteAttack = false;
@@ -359,7 +369,7 @@ void PlayerSystem::UpdateNormalMode()
 				}
 				enemiesInRangeToAOE.clear();
 
-				playerSpinAttackCorutine.RestartWithEvent(2.0f, 1.0f);
+				playerSpinAttackCorutine.RestartWithEvent(2.0f, 0.2f);
 			}
 			else if (player->attackType == 5)
 			{
@@ -645,6 +655,8 @@ void PlayerSystem::UpdateCorutines()
 
 				player->enemyClicked = false;
 				player->attackType = 0;
+
+				player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
 			}
 		}
 
@@ -717,6 +729,8 @@ void PlayerSystem::UpdateCorutines()
 				enemiesInRangeToAOE.clear();
 
 				turnOffVampireMode = true;
+
+				player->ripAttackAudio->AudioFile->Play(player->ripAttackAudio->Volume*AudioSystem::VOLUME, player->ripAttackAudio->Pitch, player->ripAttackAudio->Pan);
 			}
 		}
 	}
@@ -793,6 +807,7 @@ void PlayerSystem::UpdateAnimations()
 		}
 		else if ((!player->isWalking) && (player->isSpinAttack))
 		{
+			player->navMesh->Move(Coroutine::elapsedTime);
 			playerRenderableComponent->_modelSkinned->currentAnimation = "SpinAttack";
 		}
 		else if ((!player->isWalking) && (player->isBiteAttack))
@@ -830,6 +845,7 @@ void PlayerSystem::SetVampireMode(bool mode)
 		player->isNormalAttack = false;
 		player->isPowerAttack = false;
 		player->isBiteAttack = false;
+		player->isSpinAttack = false;
 		player->isWalking = false;
 		player->attackType = 0;
 		player->navMesh->isMoving = false;

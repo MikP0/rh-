@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "Coroutine.h"
 #include "AudioComponent.h"
+#include "RenderableComponent.h"
 
 enum EnemyState
 {
@@ -24,6 +25,10 @@ public:
 	EnemyComponent(float Health, float Speed = 20.0f, float AttackLength = 1.9f, float AttackDamageTime = 0.6f, float Damage = 1.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 10.f);
 	virtual ~EnemyComponent();
 
+	void LoadBruteAnimations();
+	void LoadGuardAnimations();
+
+	bool isGuard;
 
 	float health;
 	float originHealth;
