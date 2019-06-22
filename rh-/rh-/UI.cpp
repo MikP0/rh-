@@ -22,7 +22,7 @@ void UI::Initialize()
 		"teleport", "cleaveAttack", "swap","aoeAttack",
 		"fpsBackground", "popUpMenu", "heroIconVampire", "heroIconVampireRing",
 		"heroIconTransitionRing", "vamprireRedCircle", "teleportCost", "cleaveAttackCost",
-		"swapCost", "skillKeyLPM", "skillKeyPPM", "skillKeyCPM", "skillKeyE",
+		"swapCost", "aoeAttackCost","skillKeyLPM", "skillKeyPPM", "skillKeyCPM", "skillKeyE",
 		"skillKey1", "skillKey2", "skillKey3", "skillKey4",
 		"humanCoolDownFrame", "vampireCoolDownFrame", "humanSkillBlockade", "vampireSkillBlockade"
 	};
@@ -55,6 +55,7 @@ void UI::Initialize()
 		{"teleportCost", "Resources\\UISprites\\Blood_Drop_One.dds"},
 		{"cleaveAttackCost", "Resources\\UISprites\\Blood_Drop_Two.dds"},
 		{"swapCost", "Resources\\UISprites\\Blood_Drop_One.dds"},
+		{"aoeAttackCost", "Resources\\UISprites\\Blood_Drop_Three.dds"},
 		{"skillKeyLPM", "Resources\\UISprites\\Human_Skill_Key_LPM.dds"},
 		{"skillKeyPPM", "Resources\\UISprites\\Human_Skill_Key_PPM.dds"},
 		{"skillKeyCPM", "Resources\\UISprites\\Human_Skill_Key_CPM.dds"},
@@ -92,8 +93,9 @@ void UI::Initialize()
 		{"heroIconTransitionRing", Vector2(0.0f, 0.0f)},
 		{"vamprireRedCircle", skillSetPosition + Vector2(-6.0f, -12.0f)},
 		{"teleportCost", skillSetPosition + Vector2(25.0f, -60.0f)},
-		{"cleaveAttackCost", Vector2(skillSetPosition.x + 145.0f + 15.0f, skillSetPosition.y - 60.0f)},
-		{"swapCost", Vector2(skillSetPosition.x + 290.0f + 35.0f, skillSetPosition.y - 60.0f)},
+		{"cleaveAttackCost", Vector2(skillSetPosition.x + 160.0f, skillSetPosition.y - 60.0f)},
+		{"swapCost", Vector2(skillSetPosition.x + 325.0f, skillSetPosition.y - 60.0f)},
+		{"aoeAttackCost", Vector2(skillSetPosition.x + 440.0f, skillSetPosition.y - 60.0f)},
 		{"skillKeyLPM", skillSetPosition + Vector2(15.0f, 65.0f)},
 		{"skillKeyPPM", skillSetPosition + Vector2(165.0f, 65.0f)},
 		{"skillKeyCPM", skillSetPosition + Vector2(315.0f, 65.0f)},
@@ -135,6 +137,7 @@ void UI::Initialize()
 		{"teleportCost", Vector2(0.25f, 0.25f)},
 		{"cleaveAttackCost", Vector2(0.25f, 0.25f)},
 		{"swapCost", Vector2(0.25f, 0.25f)},
+		{"aoeAttackCost", Vector2(0.25f, 0.25f)},
 		{"skillKeyLPM", Vector2(0.30f, 0.30f)},
 		{"skillKeyPPM", Vector2(0.30f, 0.30f)},
 		{"skillKeyCPM", Vector2(0.30f, 0.30f)},
@@ -223,7 +226,7 @@ void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime)
 					bloodDropsToColor = (int)_playerSystem->player->playerTeleportSwapDamage;
 				else
 					if (vampireAbility == 4)
-						bloodDropsToColor = (int)0.0f;
+						bloodDropsToColor = (int)_playerSystem->player->playerAOEDamage;
 	}
 
 	for (bloodDropNumber = 0; bloodDropNumber < (playerCurrentHealth - bloodDropsToColor); bloodDropNumber++)
@@ -435,6 +438,9 @@ void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime)
 
 			uiSpriteBatch->Draw(_imageElements["aoeAttack"].texture.Get(), _imageElements["aoeAttack"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["aoeAttack"].scale);
+
+			uiSpriteBatch->Draw(_imageElements["aoeAttackCost"].texture.Get(), _imageElements["aoeAttackCost"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["aoeAttackCost"].scale);
 
 		}
 		else

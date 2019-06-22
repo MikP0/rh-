@@ -240,29 +240,32 @@ void PlayerSystem::UpdateNormalMode()
 
 		if (mouseTracker.middleButton == Mouse::ButtonStateTracker::PRESSED)
 		{
-			//cooldown->StartSkillCounter("spinAttack");
-			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			if (collisionsWithRay.size() > 0)
-				player->newPosToSpin = Vector3(collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().z);
-			else
-				player->newPosToSpin = playerEntity->GetTransform()->GetPosition();
-
-			player->enemyClicked = true;
-			player->attackType = 3;
-			
-			enemiesInRangeToAOE.clear();
-
-			for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+			if (cooldown->CanUseSkill("spinAttack") && !blockade->IsSkillBlocked("spinAttack"))
 			{
-				if (enemyComponent->_isEnabled)
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				if (collisionsWithRay.size() > 0)
+					player->newPosToSpin = Vector3(collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().z);
+				else
+					player->newPosToSpin = playerEntity->GetTransform()->GetPosition();
+
+				player->enemyClicked = true;
+				player->attackType = 3;
+				cooldown->StartSkillCounter("spinAttack");
+
+				enemiesInRangeToAOE.clear();
+
+				for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 				{
-					if (!enemyComponent->dying)
+					if (enemyComponent->_isEnabled)
 					{
-						if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), enemyComponent->GetParent()->GetTransform()->GetPosition(), Vector3(player->playerSpinDistance, .1f, player->playerSpinDistance)))
+						if (!enemyComponent->dying)
 						{
-							enemiesInRangeToAOE.push_back(enemyComponent->GetParent());
+							if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), enemyComponent->GetParent()->GetTransform()->GetPosition(), Vector3(player->playerSpinDistance, .1f, player->playerSpinDistance)))
+							{
+								enemiesInRangeToAOE.push_back(enemyComponent->GetParent());
+							}
 						}
 					}
 				}
@@ -543,7 +546,7 @@ void PlayerSystem::UpdateVampireMode()
 
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D4))
 		{
-			if (player->vampireAbility != 4)// && !blockade->IsSkillBlocked("aoeAttack"))
+			if (player->vampireAbility != 4 && !blockade->IsSkillBlocked("aoeAttack"))
 				player->vampireAbility = 4;
 			else
 				player->vampireAbility = 0;

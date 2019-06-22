@@ -226,8 +226,8 @@ private:
 		"teleport", "cleaveAttack", "swap","aoeAttack"
 	};
 	vector<bool> skillsBlockadeStates = {
-		false, false, true, false,
-		false, false, false, true,
+		false, false, false, false,
+		false, false, false, false,
 	};
 	vector<float> skillsTimeLimits = {
 		0.0f, 2.0f, 4.0f, 10.0f
