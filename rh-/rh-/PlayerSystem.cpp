@@ -576,6 +576,7 @@ void PlayerSystem::UpdateVampireMode()
 				{
 					player->isAOEAttack = true;
 					playerAOEAttackCorutine.Restart(2.5f);
+					player->aoeAudio->AudioFile->Play(player->aoeAudio->Volume*AudioSystem::VOLUME, player->aoeAudio->Pitch, player->aoeAudio->Pan);
 				}
 			}
 		}
@@ -639,9 +640,9 @@ void PlayerSystem::UpdateCorutines()
 			{
 				if (enemiesInRangeToAOE.size() > 0)
 				{
-					enemiesInRangeToAOE.clear();
-					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
+					enemiesInRangeToAOE.clear();					
 				}
+				player->spinAttackAudio->AudioFile->Play(player->spinAttackAudio->Volume*AudioSystem::VOLUME, player->spinAttackAudio->Pitch, player->spinAttackAudio->Pan);
 			}
 
 			if (!(playerSpinAttackCorutine.Update()))
@@ -671,7 +672,7 @@ void PlayerSystem::UpdateCorutines()
 						ene->GetComponent<EnemyComponent>()->health -= player->playerAOEAttackDamage / 2.0f;
 						ene->GetComponent<EnemyComponent>()->hit = true;
 					}
-					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
+					//player->spinAttackAudio->AudioFile->Play(player->spinAttackAudio->Volume*AudioSystem::VOLUME, player->spinAttackAudio->Pitch, player->spinAttackAudio->Pan);
 				}
 				enemiesInRangeToAOE.clear();
 
@@ -748,9 +749,7 @@ void PlayerSystem::UpdateCorutines()
 				player->vampireAbility = 0;
 				enemiesInRangeToAOE.clear();
 
-				turnOffVampireMode = true;
-
-				player->ripAttackAudio->AudioFile->Play(player->ripAttackAudio->Volume*AudioSystem::VOLUME, player->ripAttackAudio->Pitch, player->ripAttackAudio->Pan);
+				turnOffVampireMode = true;				
 			}
 		}
 	}

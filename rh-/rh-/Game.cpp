@@ -1016,10 +1016,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerNormalAttack = world->CreateEntity("PlayerNormalAttack");
 	playerBite = world->CreateEntity("PlayerBite");
 	playerDamage = world->CreateEntity("PlayerDamage");
+	playerSpinAttack = world->CreateEntity("PlayerSpinAttack");
 
 	playerTeleport = world->CreateEntity("PlayerTeleport");
 	playerRipAttack = world->CreateEntity("PlayerRipAttack");
 	playerSwap = world->CreateEntity("PlayerSwap");
+	playerAoe = world->CreateEntity("PlayerAoe");
 
 	enemyFootstep = world->CreateEntity("EnemyFootstep");
 	enemyAttack = world->CreateEntity("EnemyAttack");
@@ -1061,12 +1063,14 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 	playerFootstep->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	playerNormalAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerAttack.wav");
+	playerSpinAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerSpinAttack.wav");
 	playerBite->AddComponent<AudioComponent>("Resources\\Audio\\bite.wav");
 	playerDamage->AddComponent<AudioComponent>("Resources\\Audio\\playerDamage.wav");
 
 	playerTeleport->AddComponent<AudioComponent>("Resources\\Audio\\teleport.wav");
 	playerRipAttack->AddComponent <AudioComponent>("Resources\\Audio\\playerAttack.wav");
 	playerSwap->AddComponent<AudioComponent>("Resources\\Audio\\swap.wav");
+	playerAoe->AddComponent<AudioComponent>("Resources\\Audio\\playerAoe.wav");
 
 	enemyFootstep->AddComponent<AudioComponent>("Resources\\Audio\\step7.wav");
 	enemyAttack->AddComponent<AudioComponent>("Resources\\Audio\\enemyAttack.wav");
@@ -1172,6 +1176,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			playerEntity->GetComponent<PlayerComponent>()->powerAttackAudio = component;
 			continue;
 		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerSpinAttack") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->spinAttackAudio = component;
+			continue;
+		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerBite") == 0)
 		{
 			component->Volume = 1.0f;
@@ -1200,6 +1210,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		{
 			component->Volume = 1.0f;
 			playerEntity->GetComponent<PlayerComponent>()->swapAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerAoe") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->aoeAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyFootstep") == 0)
