@@ -92,7 +92,7 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 	// TO DISABLE MENU and START SCREENS
-	//mainMenu = false;
+	mainMenu = false;
 
 	if (gameStage < 5)
 	{
