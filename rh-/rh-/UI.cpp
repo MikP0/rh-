@@ -25,7 +25,8 @@ void UI::Initialize()
 		"swapCost", "aoeAttackCost","skillKeyLPM", "skillKeyPPM", "skillKeyCPM", "skillKeyE",
 		"skillKey1", "skillKey2", "skillKey3", "skillKey4",
 		"humanCoolDownFrame", "vampireCoolDownFrame", "humanSkillBlockade", "vampireSkillBlockade",
-		"normalAttackTip"
+		"normalAttackTip", "strongAttackTip", "spinAttackTip", "biteAttackTip",
+		"teleportTip", "cleaveAttackTip", "swapTip", "aoeAttackTip"
 	};
 
 	vector<string> uiTextNames = {
@@ -69,7 +70,14 @@ void UI::Initialize()
 		{"vampireCoolDownFrame", "Resources\\UISprites\\Vampire_Skill_Cooldown_Frame.dds"},
 		{"humanSkillBlockade", "Resources\\UISprites\\Human_Blocked_Skill.dds"},
 		{"vampireSkillBlockade", "Resources\\UISprites\\Vampire_Blocked_Skill.dds"},
-		{"normalAttackTip", "Resources\\UISprites\\Normal_Attack_Tip.dds"}
+		{"normalAttackTip", "Resources\\UISprites\\Normal_Attack_Tip.dds"},
+		{"strongAttackTip", "Resources\\UISprites\\Strong_Attack_Tip.dds"},
+		{"spinAttackTip", "Resources\\UISprites\\Spin_Attack_Tip.dds"},
+		{"biteAttackTip", "Resources\\UISprites\\Bite_Attack_Tip.dds"},
+		{"teleportTip", "Resources\\UISprites\\Teleport_Tip.dds"},
+		{"cleaveAttackTip", "Resources\\UISprites\\Cleave_Attack_Tip.dds"},
+		{"swapTip", "Resources\\UISprites\\Swap_Tip.dds"},
+		{"aoeAttackTip", "Resources\\UISprites\\Aoe_Attack_Tip.dds"}
 	};
 
 	skillSetPosition = Vector2(690.0f, 930.0f);
@@ -114,7 +122,14 @@ void UI::Initialize()
 		{"biteAttackCooldown", skillSetPosition + Vector2(466.0f, 5.0f)},
 		{"humanSkillBlockade", skillSetPosition + Vector2(5.0f, 0.0f)},
 		{"vampireSkillBlockade", skillSetPosition + Vector2(-5.0f, -10.0f)},
-		{"normalAttackTip", skillSetPosition + Vector2(-110.0f, -330.0f)},
+		{"normalAttackTip", skillSetPosition + Vector2(-70.0f, -230.0f)},
+		{"strongAttackTip", skillSetPosition + Vector2(85.0f, -230.0f)},
+		{"spinAttackTip", skillSetPosition + Vector2(240.0f, -230.0f)},
+		{"biteAttackTip", skillSetPosition + Vector2(395.0f, -230.0f)},
+		{"teleportTip", skillSetPosition + Vector2(-70.0f, -230.0f)},
+		{"cleaveAttackTip", skillSetPosition + Vector2(85.0f, -230.0f)},
+		{"swapTip", skillSetPosition + Vector2(240.0f, -230.0f)},
+		{"aoeAttackTip", skillSetPosition + Vector2(395.0f, -230.0f)},
 	};
 
 	map<string, Vector2> uiNameScaleMap = {
@@ -157,7 +172,14 @@ void UI::Initialize()
 		{"biteAttackCooldown", Vector2(1.6f, 1.6f)},
 		{"humanSkillBlockade", Vector2(0.20f, 0.20f)},
 		{"vampireSkillBlockade", Vector2(0.24f, 0.24f)},
-		{"normalAttackTip", Vector2(0.70f, 0.70f)},
+		{"normalAttackTip", Vector2(0.50f, 0.50f)},
+		{"strongAttackTip", Vector2(0.50f, 0.50f)},
+		{"spinAttackTip", Vector2(0.50f, 0.50f)},
+		{"biteAttackTip", Vector2(0.50f, 0.50f)},
+		{"teleportTip", Vector2(0.50f, 0.50f)},
+		{"cleaveAttackTip", Vector2(0.50f, 0.50f)},
+		{"swapTip", Vector2(0.50f, 0.50f)},
+		{"aoeAttackTip", Vector2(0.50f, 0.50f)},
 	};
 
 
@@ -206,22 +228,39 @@ void UI::CheckSkillTips(bool vampireMode)
 {
 	Mouse::State mouse = Input::GetMouseState();
 
+	vector<string> skillsNames = {
+			"normalAttack", "strongAttack", "spinAttack", "biteAttack",
+			"teleport", "cleaveAttack", "swap", "aoeAttack"
+	};
+
 	if (!vampireMode)
-	{
-		if (mouse.x >= _imageElements["normalAttack"].position.x &&
-			mouse.y >= _imageElements["normalAttack"].position.y &&
-			mouse.x <= _imageElements["normalAttack"].endPos.x &&
-			mouse.y <= _imageElements["normalAttack"].endPos.y)
+	{	
+		for (int i = 0; i < 4; i++)
 		{
-			uiSpriteBatch->Draw(_imageElements["normalAttackTip"].texture.Get(), _imageElements["normalAttackTip"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _imageElements["normalAttackTip"].scale);
+			if (mouse.x >= _imageElements[skillsNames[i]].position.x &&
+				mouse.y >= _imageElements[skillsNames[i]].position.y &&
+				mouse.x <= _imageElements[skillsNames[i]].endPos.x &&
+				mouse.y <= _imageElements[skillsNames[i]].endPos.y)
+			{
+				uiSpriteBatch->Draw(_imageElements[skillsNames[i]+ "Tip"].texture.Get(), _imageElements[skillsNames[i] + "Tip"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements[skillsNames[i] + "Tip"].scale);
+			}
 		}
 	}
 	else
 	{
-
+		for (int i = 4; i < 8; i++)
+		{
+			if (mouse.x >= _imageElements[skillsNames[i]].position.x &&
+				mouse.y >= _imageElements[skillsNames[i]].position.y &&
+				mouse.x <= _imageElements[skillsNames[i]].endPos.x &&
+				mouse.y <= _imageElements[skillsNames[i]].endPos.y)
+			{
+				uiSpriteBatch->Draw(_imageElements[skillsNames[i] + "Tip"].texture.Get(), _imageElements[skillsNames[i] + "Tip"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements[skillsNames[i] + "Tip"].scale);
+			}
+		}
 	}
-
 }
 
 void UI::DrawRedBorder()
