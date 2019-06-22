@@ -223,22 +223,18 @@ void PlayerSystem::UpdateNormalMode()
 
 		if (mouseTracker.middleButton == Mouse::ButtonStateTracker::PRESSED)
 		{
-			//cooldown->StartSkillCounter("spinAttack");	// tutej bez ¿adnych warunkow, po prostu jak klikniesz middleButton to wykonaj
-															// niezaleznie czy sa przeciwnicy
+			//cooldown->StartSkillCounter("spinAttack");
 			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
 			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
 
-	
 			if (collisionsWithRay.size() > 0)
 				player->newPosToSpin = Vector3(collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().z);
 			else
 				player->newPosToSpin = playerEntity->GetTransform()->GetPosition();
 
-
 			player->enemyClicked = true;
 			player->attackType = 3;
 			
-
 			enemiesInRangeToAOE.clear();
 
 			for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
@@ -366,8 +362,9 @@ void PlayerSystem::UpdateNormalMode()
 						ene->GetComponent<EnemyComponent>()->health -= player->playerAOEAttackDamage / 2.0f;
 						ene->GetComponent<EnemyComponent>()->hit = true;
 					}
+					//player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
 				}
-				enemiesInRangeToAOE.clear();
+				//enemiesInRangeToAOE.clear();
 
 				playerSpinAttackCorutine.RestartWithEvent(2.0f, 0.2f);
 			}
@@ -616,11 +613,15 @@ void PlayerSystem::UpdateCorutines()
 			}
 		}
 
-		if (playerSpinAttackCorutine.active)	// spin dzia³a na 2 razy, polowa obrazen jest zadawana na poczatku i druga na koncu ataku
+		if (playerSpinAttackCorutine.active)
 		{
 			if (!(playerSpinAttackCorutine.UpdateEvent()))
 			{
-				player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
+				if (enemiesInRangeToAOE.size() > 0)
+				{
+					enemiesInRangeToAOE.clear();
+					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
+				}
 			}
 
 			if (!(playerSpinAttackCorutine.Update()))
@@ -650,13 +651,12 @@ void PlayerSystem::UpdateCorutines()
 						ene->GetComponent<EnemyComponent>()->health -= player->playerAOEAttackDamage / 2.0f;
 						ene->GetComponent<EnemyComponent>()->hit = true;
 					}
+					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
 				}
 				enemiesInRangeToAOE.clear();
 
 				player->enemyClicked = false;
 				player->attackType = 0;
-
-				player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
 			}
 		}
 
