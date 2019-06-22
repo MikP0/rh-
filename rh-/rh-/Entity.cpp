@@ -16,6 +16,7 @@ Entity::Entity()
 	_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 	_world = nullptr;
 	_active = true;
+	_tag = Tags::NONE;
 }
 
 Entity::Entity(const std::string name)
@@ -27,6 +28,7 @@ Entity::Entity(const std::string name)
 	_worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 	_world = nullptr;
 	_active = true;
+	_tag = Tags::NONE;
 }
 
 Entity::Entity(const Entity & entity)
@@ -38,6 +40,7 @@ Entity::Entity(const Entity & entity)
 	_parent = entity._parent;
 	_worldMatrix = entity._worldMatrix;
 	_active = entity._active;
+	_tag = entity._tag;
 }
 
 Entity::~Entity()

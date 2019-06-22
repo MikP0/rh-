@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "Coroutine.h"
 #include "AudioComponent.h"
+#include "RenderableComponent.h"
 
 enum EnemyState
 {
@@ -21,13 +22,19 @@ class EnemyComponent : public Component
 {
 public:
 	EnemyComponent();
-	EnemyComponent(float Health, float Speed = 20.0f, float AttackLength = 1.9f, float AttackDamageTime = 0.6f, float Damage = 1.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 10.f);
+	EnemyComponent(int checkpointNumber, float Health, float Speed = 20.0f, float AttackLength = 1.9f, float AttackDamageTime = 0.6f, float Damage = 1.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 10.f);
 	virtual ~EnemyComponent();
 
+	void LoadBruteAnimations();
+	void LoadGuardAnimations();
+
+	bool isGuard;
 
 	float health;
 	float originHealth;
 	float speed;
+
+	DirectX::SimpleMath::Vector3 originPosition;
 
 	float attackLength;
 	float attackDamageTime;
@@ -58,5 +65,10 @@ public:
 	EnemyState enemyState;
 
 	std::shared_ptr<AudioComponent> footstepAudio;
+	std::shared_ptr<AudioComponent> normalAttackAudio;
+	std::shared_ptr<AudioComponent> damageAudio;
+	std::shared_ptr<AudioComponent> deathAudio;
+
+	int checkpointNumber;
 };
 

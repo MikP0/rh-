@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PlayerSystem.h"
+#include "AudioSystem.h"
 
 PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 {
@@ -17,10 +18,14 @@ PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 	playerHittedCorutine.active = false;
 	playerHealedCorutine.active = false;
 	playerRipAttackCorutine.active = false;
+	playerAOEAttackCorutine.active = false;
+	playerSpinAttackCorutine.active = false;
 
 	collisionSystem = collSys;
 	playerRenderableComponent = nullptr;
 	camera = cam;
+
+	turnOffVampireMode = false;
 }
 
 PlayerSystem::~PlayerSystem()
@@ -62,6 +67,13 @@ void PlayerSystem::Initialize()
 		playerHealthOrigin = playerComponent->playerHealthOrigin;
 		playerRenderableComponent = playerEntity->GetComponent<RenderableComponent>();
 	}
+	InitializeCheckpoints();
+}
+
+void PlayerSystem::InitializeCheckpoints()
+{
+	checkpointMap[1] = dmath::Vector3(2.0f, 0.0f, 15.0f);
+	checkpointMap[2] = dmath::Vector3(10.0f, 0.0f, 60.0f);
 }
 
 void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates)
@@ -74,13 +86,23 @@ void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, ve
 	skillsNames.insert(skillsNames.end(), humanSkillsNames.begin(), humanSkillsNames.end());
 	skillsNames.insert(skillsNames.end(), vampireSkillsNames.begin(), vampireSkillsNames.end());
 	blockade = make_shared<Blockade>(skillsNames, skillsBlockadeStates);
+	player->playerPositionOrigin = player->GetParent()->GetTransform()->GetPosition();
+}
+
+void PlayerSystem::RespawnPlayer(int checkpoint)
+{
+	for (auto playerComponent : _world->GetComponents<PlayerComponent>())
+	{
+		*playerComponent->playerHealth = playerComponent->playerHealthOrigin;
+		playerComponent->GetParent()->GetTransform()->SetPosition(checkpointMap[checkpoint]);
+	}
 }
 
 void PlayerSystem::PlayerHit()
 {
 	player->isHit = false;
 	if (!playerHittedCorutine.active)
-	{		
+	{
 		playerRenderableComponent->_modelSkinned->isHitted = true;
 		playerHittedCorutine.Restart(0.1f);
 	}
@@ -150,6 +172,7 @@ void PlayerSystem::UpdateNormalMode()
 				playerNormalAttackCorutine.active = false;
 				playerPowerAttackCorutine.active = false;
 				playerBiteCorutine.active = false;
+				playerSpinAttackCorutine.active = false;
 				player->isNormalAttack = false;
 				player->isPowerAttack = false;
 				player->isBiteAttack = false;
@@ -205,11 +228,44 @@ void PlayerSystem::UpdateNormalMode()
 				player->targetedEnemy = nullptr;
 				playerNormalAttackCorutine.active = false;
 				playerPowerAttackCorutine.active = false;
+				playerSpinAttackCorutine.active = false;
 				playerBiteCorutine.active = false;
 				player->isNormalAttack = false;
 				player->isPowerAttack = false;
 				player->isBiteAttack = false;
 				player->attackType = 0;
+			}
+		}
+
+
+		if (mouseTracker.middleButton == Mouse::ButtonStateTracker::PRESSED)
+		{
+			//cooldown->StartSkillCounter("spinAttack");
+			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
+			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+			if (collisionsWithRay.size() > 0)
+				player->newPosToSpin = Vector3(collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().z);
+			else
+				player->newPosToSpin = playerEntity->GetTransform()->GetPosition();
+
+			player->enemyClicked = true;
+			player->attackType = 3;
+			
+			enemiesInRangeToAOE.clear();
+
+			for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+			{
+				if (enemyComponent->_isEnabled)
+				{
+					if (!enemyComponent->dying)
+					{
+						if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), enemyComponent->GetParent()->GetTransform()->GetPosition(), Vector3(player->playerSpinDistance, .1f, player->playerSpinDistance)))
+						{
+							enemiesInRangeToAOE.push_back(enemyComponent->GetParent());
+						}
+					}
+				}
 			}
 		}
 
@@ -237,6 +293,7 @@ void PlayerSystem::UpdateNormalMode()
 					player->targetedEnemy = nullptr;
 					playerNormalAttackCorutine.active = false;
 					playerPowerAttackCorutine.active = false;
+					playerSpinAttackCorutine.active = false;
 					playerBiteCorutine.active = false;
 					player->isNormalAttack = false;
 					player->isPowerAttack = false;
@@ -265,7 +322,7 @@ void PlayerSystem::UpdateNormalMode()
 
 	if (player->enemyClicked)
 	{
-		if ((!playerNormalAttackCorutine.active) && (!playerPowerAttackCorutine.active) && (!playerBiteCorutine.active))
+		if ((!playerNormalAttackCorutine.active) && (!playerPowerAttackCorutine.active) && (!playerBiteCorutine.active) && (!playerSpinAttackCorutine.active))
 		{
 			if (player->attackType == 1)
 			{
@@ -280,6 +337,7 @@ void PlayerSystem::UpdateNormalMode()
 					player->isWalking = false;
 					player->isNormalAttack = true;
 					player->isBiteAttack = false;
+					player->isSpinAttack = false;
 					//playerNormalAttackCorutine.Restart(1.5f);
 					playerNormalAttackCorutine.RestartWithEvent(1.5f, 0.6f);
 				}
@@ -298,9 +356,34 @@ void PlayerSystem::UpdateNormalMode()
 					player->isPowerAttack = true;
 					player->isBiteAttack = false;
 					player->isNormalAttack = false;
+					player->isSpinAttack = false;
 					//playerPowerAttackCorutine.Restart(1.3f);
 					playerPowerAttackCorutine.RestartWithEvent(1.3f, 0.7f);
 				}
+			}
+			else if (player->attackType == 3)
+			{
+				player->navMesh->SetDestination(player->newPosToSpin);
+
+				player->isSpinAttack = true;
+				player->navMesh->isMoving = true;
+				player->isWalking = false;
+				player->isPowerAttack = false;
+				player->isBiteAttack = false;
+				player->isNormalAttack = false;
+
+				if (enemiesInRangeToAOE.size() > 0)
+				{
+					for each (std::shared_ptr<Entity> ene in enemiesInRangeToAOE)
+					{
+						ene->GetComponent<EnemyComponent>()->health -= player->playerAOEAttackDamage / 2.0f;
+						ene->GetComponent<EnemyComponent>()->hit = true;
+					}
+					//player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
+				}
+				//enemiesInRangeToAOE.clear();
+
+				playerSpinAttackCorutine.RestartWithEvent(2.0f, 0.2f);
 			}
 			else if (player->attackType == 5)
 			{
@@ -315,8 +398,11 @@ void PlayerSystem::UpdateNormalMode()
 					player->isWalking = false;
 					player->isNormalAttack = false;
 					player->isBiteAttack = true;
+					player->isSpinAttack = false;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->bited = true;
 					playerBiteCorutine.Restart(4.1f);
+
+					player->biteAudio->AudioFile->Play(player->biteAudio->Volume*AudioSystem::VOLUME, player->biteAudio->Pitch, player->biteAudio->Pan);
 				}
 			}
 		}
@@ -335,7 +421,7 @@ void PlayerSystem::UpdateNormalMode()
 
 void PlayerSystem::UpdateVampireMode()
 {
-	if (!playerRipAttackCorutine.active)
+	if ((!playerRipAttackCorutine.active) && (!playerAOEAttackCorutine.active))
 	{
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1))
 		{
@@ -350,11 +436,21 @@ void PlayerSystem::UpdateVampireMode()
 			if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
 				Vector3 destination = Raycast::GetPointOnGround(*camera);
-				playerEntity->GetTransform()->SetPosition(destination);
-				player->vampireAbility = 0;
-				*playerHealth -= player->playerTeleportSwapDamage;
 
-				PlayerHit();
+				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), destination, Vector3(player->playerTeleport_SwapDistance, .1f, player->playerTeleport_SwapDistance)))
+				{
+					if (player->navMesh->terrain->CanWalk(destination))
+					{
+						playerEntity->GetTransform()->SetPosition(destination);
+						player->vampireAbility = 0;
+						*playerHealth -= player->playerTeleportSwapDamage;
+
+						PlayerHit();
+
+						player->teleportAudio->AudioFile->Play(player->teleportAudio->Volume*AudioSystem::VOLUME, player->teleportAudio->Pitch, player->teleportAudio->Pan);
+
+					}
+				}
 			}
 		}
 
@@ -392,7 +488,8 @@ void PlayerSystem::UpdateVampireMode()
 				if (player->enemyClicked)
 				{
 					player->isRipAttack = true;
-					playerRipAttackCorutine.Restart(2.5f);
+					//playerRipAttackCorutine.Restart(2.5f);
+					playerRipAttackCorutine.RestartWithEvent(2.5f, 1.5f);
 				}
 			}
 		}
@@ -417,8 +514,11 @@ void PlayerSystem::UpdateVampireMode()
 				{
 					if (coll->OriginObject->GetTag() == Tags::ENEMY)
 					{
-						player->enemyClicked = true;
-						player->targetedEnemy = coll->OriginObject;
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+						{
+							player->enemyClicked = true;
+							player->targetedEnemy = coll->OriginObject;
+						}
 					}
 				}
 
@@ -434,9 +534,49 @@ void PlayerSystem::UpdateVampireMode()
 					player->enemyClicked = false;
 					player->targetedEnemy = nullptr;
 					player->vampireAbility = 0;
+
+					player->swapAudio->AudioFile->Play(player->swapAudio->Volume*AudioSystem::VOLUME, player->swapAudio->Pitch, player->swapAudio->Pan);
 				}
 			}
 		}
+
+
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D4))
+		{
+			if (player->vampireAbility != 4)// && !blockade->IsSkillBlocked("aoeAttack"))
+				player->vampireAbility = 4;
+			else
+				player->vampireAbility = 0;
+		}
+
+		if (player->vampireAbility == 4)
+		{
+			if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+			{
+				enemiesInRangeToAOE.clear();
+
+				for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+				{
+					if (enemyComponent->_isEnabled)
+					{
+						if (!enemyComponent->dying)
+						{
+							if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), enemyComponent->GetParent()->GetTransform()->GetPosition(), Vector3(player->playerAoEDistance, .1f, player->playerAoEDistance)))
+							{
+								enemiesInRangeToAOE.push_back(enemyComponent->GetParent());
+							}
+						}
+					}
+				}
+
+				if (enemiesInRangeToAOE.size() > 0)
+				{
+					player->isAOEAttack = true;
+					playerAOEAttackCorutine.Restart(2.5f);
+				}
+			}
+		}
+
 	}
 }
 
@@ -453,10 +593,7 @@ void PlayerSystem::UpdateCorutines()
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerNormalAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 
-					if (player->swordAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
-					{
-						player->swordAudio->AudioFile->Play(player->swordAudio->Volume, player->swordAudio->Pitch, player->swordAudio->Pan);
-					}
+					player->normalAttackAudio->AudioFile->Play(player->normalAttackAudio->Volume*AudioSystem::VOLUME, player->normalAttackAudio->Pitch, player->normalAttackAudio->Pan);
 				}
 			}
 
@@ -478,10 +615,8 @@ void PlayerSystem::UpdateCorutines()
 				{
 					player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerPoweAttackDamage;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
-					if (player->swordAudio->AudioLoopInstance->GetState() != SoundState::PLAYING)
-					{
-						player->swordAudio->AudioFile->Play(player->swordAudio->Volume, player->swordAudio->Pitch, player->swordAudio->Pan);
-					}
+
+					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
 				}
 			}
 
@@ -495,6 +630,53 @@ void PlayerSystem::UpdateCorutines()
 			}
 		}
 
+		if (playerSpinAttackCorutine.active)
+		{
+			if (!(playerSpinAttackCorutine.UpdateEvent()))
+			{
+				if (enemiesInRangeToAOE.size() > 0)
+				{
+					enemiesInRangeToAOE.clear();
+					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
+				}
+			}
+
+			if (!(playerSpinAttackCorutine.Update()))
+			{
+				player->isSpinAttack = false;
+
+				enemiesInRangeToAOE.clear();
+
+				for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+				{
+					if (enemyComponent->_isEnabled)
+					{
+						if (!enemyComponent->dying)
+						{
+							if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), enemyComponent->GetParent()->GetTransform()->GetPosition(), Vector3(player->playerSpinDistance, .1f, player->playerSpinDistance)))
+							{
+								enemiesInRangeToAOE.push_back(enemyComponent->GetParent());
+							}
+						}
+					}
+				}
+
+				if (enemiesInRangeToAOE.size() > 0)
+				{
+					for each (std::shared_ptr<Entity> ene in enemiesInRangeToAOE)
+					{
+						ene->GetComponent<EnemyComponent>()->health -= player->playerAOEAttackDamage / 2.0f;
+						ene->GetComponent<EnemyComponent>()->hit = true;
+					}
+					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
+				}
+				enemiesInRangeToAOE.clear();
+
+				player->enemyClicked = false;
+				player->attackType = 0;
+			}
+		}
+
 		if (playerBiteCorutine.active)
 		{
 			if (!(playerBiteCorutine.Update()))
@@ -504,7 +686,7 @@ void PlayerSystem::UpdateCorutines()
 				player->targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
 				player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
 				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerBiteAttackDamage;
-				
+
 				*playerHealth += player->playerBiteAttackHealRate;
 
 				if (*playerHealth > playerHealthOrigin)
@@ -523,20 +705,49 @@ void PlayerSystem::UpdateCorutines()
 	{
 		if (playerRipAttackCorutine.active)
 		{
+			if (!(playerRipAttackCorutine.UpdateEvent()))
+			{
+				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerRipAttackDamage;
+				player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
+
+				*playerHealth -= player->playerRipPlayerDamage;
+				PlayerHit();
+
+				player->ripAttackAudio->AudioFile->Play(player->ripAttackAudio->Volume*AudioSystem::VOLUME, player->ripAttackAudio->Pitch, player->ripAttackAudio->Pan);
+			}
+
 			if (!(playerRipAttackCorutine.Update()))
 			{
 				player->isRipAttack = false;
 
-				player->targetedEnemy->GetComponent<EnemyComponent>()->health -= player->playerRipAttackDamage;
-				player->targetedEnemy->GetComponent<EnemyComponent>()->hit = true;
-
-				
-				*playerHealth -= player->playerRipPlayerDamage;
-				PlayerHit();
-
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->vampireAbility = 0;
+
+			}
+		}
+
+		if (playerAOEAttackCorutine.active)
+		{
+			if (!(playerAOEAttackCorutine.Update()))
+			{
+				player->isAOEAttack = false;
+
+				for each (std::shared_ptr<Entity> ene in enemiesInRangeToAOE)
+				{
+					ene->GetComponent<EnemyComponent>()->health -= player->playerAOEAttackDamage;
+					ene->GetComponent<EnemyComponent>()->hit = true;
+				}
+
+				*playerHealth -= player->playerAOEDamage;
+				PlayerHit();
+
+				player->vampireAbility = 0;
+				enemiesInRangeToAOE.clear();
+
+				turnOffVampireMode = true;
+
+				player->ripAttackAudio->AudioFile->Play(player->ripAttackAudio->Volume*AudioSystem::VOLUME, player->ripAttackAudio->Pitch, player->ripAttackAudio->Pan);
 			}
 		}
 	}
@@ -571,6 +782,10 @@ void PlayerSystem::UpdateAnimations()
 
 			playerRenderableComponent->_modelSkinned->currentAnimation = "Rip";
 		}
+		else if (player->isAOEAttack)
+		{
+			playerRenderableComponent->_modelSkinned->currentAnimation = "4th";
+		}
 		else
 		{
 			playerRenderableComponent->_modelSkinned->currentAnimation = "Idle";
@@ -583,11 +798,10 @@ void PlayerSystem::UpdateAnimations()
 			if (player->footstepAudio != nullptr) {
 				player->footstepAudio->Mute = false;
 				if (player->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
-					player->footstepAudio->AudioFile->Play(player->footstepAudio->Volume, player->footstepAudio->Pitch, player->footstepAudio->Pan);
-					//player->footstepAudio->AudioLoopInstance->Play(true);
+					player->footstepAudio->AudioFile->Play(player->footstepAudio->Volume*AudioSystem::VOLUME, player->footstepAudio->Pitch, player->footstepAudio->Pan);
 				}
 			}
-			
+
 			playerRenderableComponent->_modelSkinned->currentAnimation = "Walk";
 		}
 		else if ((!player->isWalking) && (player->isNormalAttack))
@@ -597,7 +811,7 @@ void PlayerSystem::UpdateAnimations()
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-			playerRenderableComponent->_modelSkinned->currentAnimation = "Attack";			
+			playerRenderableComponent->_modelSkinned->currentAnimation = "Attack";
 		}
 		else if ((!player->isWalking) && (player->isPowerAttack))
 		{
@@ -606,7 +820,12 @@ void PlayerSystem::UpdateAnimations()
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 			playerEntity->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-			playerRenderableComponent->_modelSkinned->currentAnimation = "PowerAttack";			
+			playerRenderableComponent->_modelSkinned->currentAnimation = "PowerAttack";
+		}
+		else if ((!player->isWalking) && (player->isSpinAttack))
+		{
+			player->navMesh->Move(Coroutine::elapsedTime);
+			playerRenderableComponent->_modelSkinned->currentAnimation = "SpinAttack";
 		}
 		else if ((!player->isWalking) && (player->isBiteAttack))
 		{
@@ -630,14 +849,20 @@ void PlayerSystem::SetVampireMode(bool mode)
 
 	if (vampireMode)
 	{
+		if (player->targetedEnemy)
+			player->targetedEnemy->GetComponent<EnemyComponent>()->bited = false;
+
 		player->enemyClicked = false;
 		player->targetedEnemy = nullptr;
 		playerNormalAttackCorutine.active = false;
 		playerPowerAttackCorutine.active = false;
 		playerBiteCorutine.active = false;
+		playerSpinAttackCorutine.active = false;
+		enemiesInRangeToAOE.clear();
 		player->isNormalAttack = false;
 		player->isPowerAttack = false;
 		player->isBiteAttack = false;
+		player->isSpinAttack = false;
 		player->isWalking = false;
 		player->attackType = 0;
 		player->navMesh->isMoving = false;
@@ -646,7 +871,10 @@ void PlayerSystem::SetVampireMode(bool mode)
 	{
 		player->vampireAbility = 0;
 		playerRipAttackCorutine.active = false;
+		playerAOEAttackCorutine.active = false;
+		enemiesInRangeToAOE.clear();
 		player->isRipAttack = false;
+		player->isAOEAttack = false;
 		playerRenderableComponent->_modelSkinned->currentAnimation = "Idle";
 		player->enemyClicked = false;
 		player->targetedEnemy = nullptr;

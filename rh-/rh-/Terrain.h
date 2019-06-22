@@ -27,6 +27,7 @@ public:
 	void Draw(Camera);
 	void DrawRange(Vector2, int, int, XMVECTOR);
 	void FillTile(Vector3, XMVECTOR);
+	void FixRendering();
 
 	vector<MapTilePtr> GetPath(MapTilePtr, MapTilePtr);
 	float EuklideanDistance(dxmath::Vector3, dxmath::Vector3);
@@ -37,6 +38,7 @@ public:
 	bool CanWalk(dxmath::Vector3);
 	bool CanMove(dxmath::Vector3, dxmath::Vector3);
 	bool Within(MapTilePtr);
+	bool IsTileOccupied(MapTilePtr, shared_ptr<PhysicsComponent>);
 	MapTilePtr GetTileWithPosition(Vector3);
 	MapTilePtr GetTileFromMap(Vector2);
 	Vector3 GetNearestNeighbor(Vector3);

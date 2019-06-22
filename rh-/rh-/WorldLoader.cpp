@@ -85,7 +85,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					tx::XMLElement* eYCoord = ePosition->FirstChildElement("y");
 					if (eYCoord != nullptr)
 					{
-						oEntity->GetTransform()->SetY(atof(eYCoord->GetText()) + 1.8f);
+						oEntity->GetTransform()->SetY(atof(eYCoord->GetText()) + 1.82f);
 					}
 
 					tx::XMLElement* eZCoord = ePosition->FirstChildElement("z");
@@ -138,8 +138,13 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 						tx::XMLElement* eRenderableComponentShadow = eRenderableComponent->FirstChildElement("Shadow");
 						if (eRenderableComponentShadow != nullptr)
 						{
-							aShadow = atoi(eRenderableComponentShadow->GetText());
+							aShadow = atoi(eRenderableComponentShadow->GetText());	
 						}
+						else if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
+							aShadow = true;
+
+						//if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
+							//aShadow = true;
 
 						oEntity->AddComponent<RenderableComponent>(aPath, _camera, aShadow);
 					}

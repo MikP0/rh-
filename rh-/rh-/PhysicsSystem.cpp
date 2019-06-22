@@ -196,8 +196,8 @@ void PhysicsSystem::Iterate()
 
 		_octTree->UnloadContent();
 		_octTree->InsertIntoTree(activeComponents);
-		_octTree->BuildTree();
-		AllCollisions = GetCurrentCollisions();*/
+		_octTree->BuildTree();*/
+		//AllCollisions = GetCurrentCollisions();
 		ResetAllUpdatePositionFlags();
 	}
 

@@ -1,5 +1,5 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 02.06.2019 18:34:31
+# File Created: 11.06.2019 14:12:56
 
 newmtl Floor2_lambert9SG
 	Ns 30.0000
@@ -12,5 +12,5 @@ newmtl Floor2_lambert9SG
 	Kd 0.0000 0.0000 0.0000
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka C:\Users\mpopi\Downloads\-o_100_0_texture_multiplied.jpg
-	map_Kd C:\Users\mpopi\Downloads\-o_100_0_texture_multiplied.jpg
+	map_Ka E:\Studia\PBL\Modele Adama\-o_100_0_texture_multiplied.jpg
+	map_Kd E:\Studia\PBL\Modele Adama\-o_100_0_texture_multiplied.jpg

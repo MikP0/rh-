@@ -15,6 +15,8 @@
 #include "Cooldown.h"
 #include "Blockade.h"
 
+namespace dmath = DirectX::SimpleMath;
+
 class PlayerSystem : public System
 {
 public:
@@ -23,6 +25,7 @@ public:
 
 	virtual void Iterate() override;
 	virtual void Initialize() override;
+	void InitializeCheckpoints();
 	void AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates);
 
 	std::shared_ptr<PhysicsSystem> collisionSystem;
@@ -47,12 +50,22 @@ public:
 	Coroutine playerHittedCorutine;
 	Coroutine playerHealedCorutine;
 	Coroutine playerRipAttackCorutine;
+	Coroutine playerAOEAttackCorutine;
+	Coroutine playerSpinAttackCorutine;
+
+	void RespawnPlayer(int checkpoint);
+
+	std::vector<std::shared_ptr<Entity>> enemiesInRangeToAOE;
+
+	std::map<int, dmath::Vector3> checkpointMap;
 
 	Camera* camera;
 
 	void PlayerHit();
 	void PlayerHealed();
 	
+
+	bool turnOffVampireMode;
 
 
 	void UpdateNormalMode();

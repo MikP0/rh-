@@ -113,11 +113,25 @@ private:
 	std::shared_ptr<Entity> myEntity3;
 	std::shared_ptr<Entity> myEntity4;
 
-	std::shared_ptr<Entity> backgroundAudio;
-	std::shared_ptr<Entity> damageAudio;
-	std::shared_ptr<Entity>	playerFootstepAudio;
-	std::shared_ptr<Entity>	enemyFootstepAudio;
-	std::shared_ptr<Entity> swordSlashAudio;
+	//Audio Entities
+	std::shared_ptr<Entity> plotBackground;
+	std::shared_ptr<Entity> gameBackground;	
+
+	std::shared_ptr<Entity> playerFootstep;
+	std::shared_ptr<Entity> playerNormalAttack;
+	std::shared_ptr<Entity> playerBite;
+	std::shared_ptr<Entity> playerDamage;
+
+	std::shared_ptr<Entity> playerTeleport;
+	std::shared_ptr<Entity> playerRipAttack;
+	std::shared_ptr<Entity> playerSwap;
+
+	std::shared_ptr<Entity> enemyFootstep;
+	std::shared_ptr<Entity> enemyAttack;
+	std::shared_ptr<Entity> enemyDamage;
+	std::shared_ptr<Entity> enemyDeath;
+	std::shared_ptr<Entity> knighFootstep;
+
 
 	std::shared_ptr<Entity> enemyEntity1;
 	std::shared_ptr<Entity> enemyEntity2;
@@ -192,7 +206,8 @@ private:
 
 	//Audio
 	std::shared_ptr<AudioSystem> audioSystem;
-	std::shared_ptr<AudioComponent> audioBackgroundSound;
+	std::shared_ptr<AudioComponent> plotBackgroundAudio;
+	std::shared_ptr<AudioComponent> gameBackgroundAudio;
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
 
@@ -203,6 +218,7 @@ private:
 	//Player
 	std::shared_ptr<Entity> playerEntity;
 	std::shared_ptr<PlayerSystem> playerSystem;
+	std::shared_ptr<Cooldown> cooldown;
 	vector<string> humanSkillsNames = { 
 		"normalAttack", "strongAttack", "spinAttack", "biteAttack"
 	};
@@ -264,17 +280,18 @@ private:
 	int gameStage = 0;
 	float startTimer = 0;
 
-	bool afterInitialization = false;
-
 	void InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context);
 
 	void UpdateMainMenu(float elapsedTime);
 	void SkipPlot();
 	void SkipStartScreen();
 
-
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cattyTexture;	// cat Textrue to tests
 
+	std::unique_ptr<AudioEngine> audEngine;
+	std::unique_ptr<SoundEffect> menuBackground;
+	std::unique_ptr<SoundEffectInstance> menuBackgroundAudio;
+	
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> plot1Texture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> plot2Texture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> plot3Texture;
@@ -288,20 +305,12 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> blackBackTexture;
 
-	//XMVECTORF32 ColorChanger = { { { 1.000000000f, 1.000000000f, 1.000000000f, 0.900000000f } } };
-
 	float ColorChanger = 0.0f;
-
 	void ClearColorChanger();
-	//bool colorChangerCleared = true;
 	int remPlotStage = 0;
-
 
 	int plotStage = 0;
 	float plotTimer = 0;
-
 	void ShowPlot(int stage);
-
 	std::unique_ptr<CommonStates> states;
-
 };

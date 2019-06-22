@@ -125,7 +125,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	{
 		lightContributionData.LightDirection = get_light_data(PointLight[i].Position, input.worldPosition, PointLight[i].Radius);
 		lightContributionData.LightColor = PointLight[i].Color;
-		tempColor = get_light_contribution(lightContributionData) * shadow;
+		tempColor = get_light_contribution(lightContributionData) *shadow;
 		tempColor = get_toonShading(lightContributionData.LightDirection, normal, tempColor);
 		totalLightContribution += tempColor;// *shadow;
 	}
@@ -147,7 +147,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 			diffuse = DirectionalLight[i].Color.rgb * DirectionalLight[i].Color.a * n_dot_l * color.rgb;
 		}
 
-		tempColor = diffuse * shadow;
+		tempColor = diffuse *shadow;
 		tempColor = get_toonShading(float4(lightDirection.x, lightDirection.y, lightDirection.z, 1.0f), normal, tempColor);
 
 		totalLightContribution += tempColor;// *shadow;
@@ -160,7 +160,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	{
 		result = get_spot_light(SpotLight[i], color, normal, input.worldPosition, viewDirection, SpecularColor, SpecularPower);
 		
-		tempColor = result * shadow;
+		tempColor = result *shadow;
 		tempColor = get_toonShading(float4(SpotLight[i].Direction.x, SpotLight[i].Direction.y, SpotLight[i].Direction.z, 1.0f), normal, tempColor);
 
 		totalLightContribution += tempColor;// *shadow;

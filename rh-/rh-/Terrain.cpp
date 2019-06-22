@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Terrain.h"
 #include "PlayerComponent.h"
+#include "EnemyComponent.h"
 
 #include <map>
 #include <unordered_set>
@@ -160,7 +161,7 @@ void Terrain::CreateWorld(vector<shared_ptr<PhysicsComponent>> colliders)
 						if (collider->GetParent()->GetTag() == Tags::PLAYER || collider->GetParent()->GetTag() == Tags::ENEMY) {
 							characters.push_back(collider);
 						}
-					}					
+					}
 				}
 			}
 		}
@@ -199,27 +200,51 @@ void Terrain::Draw(Camera camera)
 	m_batch->Begin();
 
 	DrawRange(posOrigin, 25, 25, Colors::WhiteSmoke);
+	FixRendering();
 
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 1)
 	{
 		color = Colors::IndianRed;
-		DrawRange(posOrigin, 8, 8, color);
+		DrawRange(posOrigin, 11, 11, color);	
+		FixRendering();
 	}
-
+	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 2)
+	{
+		color = Colors::IndianRed;
+		for each (shared_ptr<PhysicsComponent> var in characters)
+		{
+			if (var != nullptr && var->_isEnabled)
+			{
+				MapTilePtr tempTile = GetTileWithPosition(var->GetParent()->GetTransform()->GetPosition());
+				if (tempTile != playerTile && XMVector3NearEqual(tempTile->worldPosition, playerTile->worldPosition, Vector3(1.f, 1.f, 1.f)))
+				{
+					FillTile(tempTile->worldPosition, color);
+				}
+			}
+			else
+			{
+				vector<shared_ptr<PhysicsComponent>>::iterator position = std::find(characters.begin(), characters.end(), var);
+				if (position != characters.end())
+					characters.erase(position);
+			}
+		}
+	}
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 3)
 	{
 		color = Colors::IndianRed;
 		for each (shared_ptr<PhysicsComponent> var in characters)
 		{
-			if (var != nullptr) {
+			if (var != nullptr && var->_isEnabled) 
+			{
 				MapTilePtr tempTile = GetTileWithPosition(var->GetParent()->GetTransform()->GetPosition());
 				FillTile(tempTile->worldPosition, color);
 			}
-			else {
+			else 
+			{
 				vector<shared_ptr<PhysicsComponent>>::iterator position = std::find(characters.begin(), characters.end(), var);
 				if (position != characters.end())
 					characters.erase(position);
-			}
+			}			
 		}
 	}
 	m_batch->End();
@@ -263,6 +288,16 @@ void Terrain::FillTile(Vector3 position, XMVECTOR color)
 
 }
 
+void Terrain::FixRendering()
+{
+	VertexPositionColor v1(Vector3(0, 0, 0) + Vector3(tileSize / 2.f, 0.f, tileSize / 2.f), XMVECTOR{ 1.0f, 1.0f, 1.0f, 0.0f });
+	VertexPositionColor v2(Vector3(0, 0, 0) + Vector3(tileSize / 2.f, 0.f, -tileSize / 2.f), XMVECTOR{ 1.0f, 1.0f, 1.0f, 0.0f });
+	VertexPositionColor v3(Vector3(0, 0, 0) + Vector3(-tileSize / 2.f, 0.f, -tileSize / 2.f), XMVECTOR{ 1.0f, 1.0f, 1.0f, 0.0f });
+	VertexPositionColor v4(Vector3(0, 0, 0) + Vector3(-tileSize / 2.f, 0.f, tileSize / 2.f), XMVECTOR{ 1.0f, 1.0f, 1.0f, 0.0f });
+
+	m_batch->DrawQuad(v1, v2, v3, v4);
+}
+
 void Terrain::MakeOcupied(MapTilePtr tile)
 {
 	if (tile != nullptr)
@@ -284,7 +319,8 @@ bool Terrain::CanWalk(dxmath::Vector3 position)
 	//	&& (position.z > (tiles.front()->worldPosition.z - (tileSize / 2.f))) && (position.z < (tiles.back()->worldPosition.z + (tileSize / 2.f)))) {
 
 	MapTilePtr tempPtr = this->GetTileWithPosition(position);
-	if (tempPtr != nullptr) {
+	if (tempPtr != nullptr) 
+	{
 		if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.05f) {
 			return true;
 		}
@@ -319,6 +355,19 @@ bool Terrain::Within(MapTilePtr tile)
 	return (tile->worldPosition.x > (tiles.front()->worldPosition.x - (tileSize / 2.f))) && (tile->worldPosition.x < (tiles.back()->worldPosition.x + (tileSize / 2.f)))
 		&& (tile->worldPosition.z > (tiles.front()->worldPosition.z - (tileSize / 2.f))) && (tile->worldPosition.z < (tiles.back()->worldPosition.z + (tileSize / 2.f)));
 
+}
+
+bool Terrain::IsTileOccupied(MapTilePtr tile, shared_ptr<PhysicsComponent> object)
+{
+	for each (shared_ptr<PhysicsComponent> character in characters)
+	{
+		if (character != object) {
+			if (tile == GetTileWithPosition(character->GetParent()->GetTransform()->GetPosition())) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 MapTilePtr Terrain::GetTileWithPosition(dxmath::Vector3 position)
@@ -382,7 +431,8 @@ Vector3 Terrain::FallBack(Vector3 current, Vector3 previous)
 
 vector<MapTilePtr> Terrain::GetPath(MapTilePtr start, MapTilePtr goal)
 {
-	if (start == nullptr || goal == nullptr || start == goal || !this->Within(start) || !this->Within(goal)) {
+	if (start == nullptr || goal == nullptr || start == goal) //|| !this->Within(start) || !this->Within(goal)) 
+	{
 		return vector<MapTilePtr>();
 	}
 

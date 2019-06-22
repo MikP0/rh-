@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "EnemySystem.h"
+#include "AudioSystem.h"
 
 EnemySystem::EnemySystem()
 {
@@ -60,8 +61,11 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 			enemy->navMesh->isMoving = false;
 
 			enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
-
+			
 			enemy->dyingCorutine.Restart(2.51f);
+
+			enemy->deathAudio->AudioFile->Play(enemy->deathAudio->Volume*AudioSystem::VOLUME, enemy->deathAudio->Pitch, enemy->deathAudio->Pan);
+
 		}
 	}
 	else if (enemy->bited)
@@ -75,7 +79,7 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 	}
 	else if ((!enemy->dyingCorutine.active) && (!enemy->hitCorutine.active))
 	{
-		if ((enemy->hit) && (enemy->canBeHitted))
+		if (enemy->hit)
 		{
 			enemy->enemyState = EnemyState::HIT;
 
@@ -84,6 +88,8 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 			enemy->hitColorCorutine.Restart(0.1f);
 
 			enemy->attackCorutine.active = false;
+
+			enemy->damageAudio->AudioFile->Play(enemy->damageAudio->Volume*AudioSystem::VOLUME, enemy->damageAudio->Pitch, enemy->damageAudio->Pan);
 		}
 		else if (!enemy->attackCorutine.active)
 		{
@@ -103,7 +109,12 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 				float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
 				enemy->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
 
-				enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime);
+				if (!enemy->isGuard)
+					enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime);
+				else
+					enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime-0.1f);
+
+				enemy->normalAttackAudio->AudioFile->Play(enemy->normalAttackAudio->Volume*AudioSystem::VOLUME, enemy->normalAttackAudio->Pitch, enemy->normalAttackAudio->Pan);
 			}
 		}
 	}
@@ -125,11 +136,9 @@ void EnemySystem::ApplyStates(std::shared_ptr<EnemyComponent> enemy)
 	}
 	else if (enemy->enemyState == EnemyState::FOLLOW)
 	{
-		if (enemy->footstepAudio != nullptr) {
-			enemy->footstepAudio->Mute = false;
-			if (enemy->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
-				enemy->footstepAudio->AudioFile->Play(enemy->footstepAudio->Volume, enemy->footstepAudio->Pitch, enemy->footstepAudio->Pan);
-			}
+		enemy->footstepAudio->Mute = false;
+		if (enemy->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
+			enemy->footstepAudio->AudioFile->Play(enemy->footstepAudio->Volume*AudioSystem::VOLUME, enemy->footstepAudio->Pitch, enemy->footstepAudio->Pan);
 		}
 		enemy->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Walk");
 	}
@@ -167,11 +176,12 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 	{
 		if (!(enemy->attackCorutine.UpdateEvent()))
 		{
-			if (CheckRangeAndCone(enemy, player->GetTransform()->GetPosition(), enemy->attackLength, 60.f))
+			if (CheckRangeAndCone(enemy, player->GetTransform()->GetPosition(), enemy->distanceToAttack + 1.2f, 80.f))
 			{
 				*playerHealth -= enemy->damage;
 
 				player->GetComponent<PlayerComponent>()->isHit = true;
+				player->GetComponent<PlayerComponent>()->damageAudio->AudioFile->Play(player->GetComponent<PlayerComponent>()->damageAudio->Volume*AudioSystem::VOLUME, player->GetComponent<PlayerComponent>()->damageAudio->Pitch, player->GetComponent<PlayerComponent>()->damageAudio->Pan);
 			}
 		}
 
@@ -198,6 +208,46 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 	}
 }
 
+int EnemySystem::RespawnEnemiesFromCheckpoint()
+{
+	int cp;
+
+	for (auto enemyComponent : _world->GetComponents<EnemyComponent>()) 
+	{
+		if (enemyComponent->enemyState != EnemyState::DEAD && enemyComponent->enemyState != EnemyState::DYING) {
+			cp = enemyComponent->checkpointNumber;
+			break;
+		}
+	}
+
+	for (auto enemyComponent : _world->GetComponents<EnemyComponent>()) 
+	{
+		if (enemyComponent->enemyState != EnemyState::DEAD && enemyComponent->enemyState != EnemyState::DYING) {
+			if (cp > enemyComponent->checkpointNumber)
+				cp = enemyComponent->checkpointNumber;
+		}
+	}
+
+	for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+	{
+		if (enemyComponent->checkpointNumber >= cp) {
+			enemyComponent->GetParent()->GetTransform()->SetPosition(enemyComponent->originPosition);
+			enemyComponent->health = enemyComponent->originHealth;
+
+			enemyComponent->enemyState = EnemyState::IDLE;
+
+			enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
+
+			enemyComponent->enemyRenderableComponent->SetIsEnabled(true);
+			enemyComponent->GetParent()->GetComponent<PhysicsComponent>()->SetIsEnabled(true);
+			enemyComponent->SetIsEnabled(true);
+			enemyComponent->GetParent()->SetActive(true);
+			enemyComponent->dying = false;
+		}
+	}
+	return cp;
+}
+
 void EnemySystem::Initialize()
 {
 	//Nothing
@@ -214,7 +264,9 @@ void EnemySystem::AdditionalInitialization(std::shared_ptr<Entity> Player, std::
 		enemyComponent->navMesh->terrain = Terrain;
 		enemyComponent->navMesh->speed = enemyComponent->speed;
 		enemyComponent->enemyRenderableComponent = enemyComponent->GetParent()->GetComponent<RenderableComponent>();
+		enemyComponent->originPosition = enemyComponent->GetParent()->GetTransform()->GetPosition();
 	}
+
 }
 
 void EnemySystem::SetVampireMode(bool mode)
