@@ -673,6 +673,15 @@ void Game::Render()
 	{
 		renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
 
+		if (playerSystem->turnOffVampireMode)
+		{
+			playerSystem->turnOffVampireMode = false;
+			vampireMode = false;
+			playerSystem->SetVampireMode(false);
+			enemySystem->SetVampireMode(false);
+		}
+
+
 		float vampireModeBrightness = brightness + 20.0f;
 
 		if (vampireMode)
@@ -1313,8 +1322,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		}*/
 	}
 
-	enemyEntity6->GetComponent<EnemyComponent>()->canBeHitted = false;
-
 	//// Setting up parameters of colliders ----------------------------------------------------------------
 
 	//for (auto physicsComponent : world->GetComponents<PhysicsComponent>())
@@ -1367,82 +1374,17 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	Ui = make_shared<UI>(device, context, playerSystem);
 
 	////Setting up skinned model -----------------------------------------------------------------------
-	auto component = playerEntity->GetComponent<RenderableComponent>();
-	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Idle.fbx", "Idle");
-	//component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Walk.fbx", "Walk");
-	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_HipHop.fbx", "HipHop");
-	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Dance.fbx", "Dance");
-	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Attack.fbx", "Attack");
-	//component->_modelSkinned->AddAnimationClip("content\\Models\\Hero_Bite.fbx", "Bite");
+	
+	playerEntity->GetComponent<PlayerComponent>()->LoadPlayerAnimations();
 
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Idle.fbx", "Idle");
-	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Run_Slow.fbx", "Walk");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_NormalAttack.fbx", "Attack");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Bite.fbx", "Bite");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Rip.fbx", "Rip");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_PowerAttack_Normal.fbx", "PowerAttack");
-
-	component = enemyEntity1->GetComponent<RenderableComponent>();
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
-	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
-
-	component = enemyEntity2->GetComponent<RenderableComponent>();
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
-	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
-
-	component = enemyEntity3->GetComponent<RenderableComponent>();
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
-	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
-
-	component = enemyEntity4->GetComponent<RenderableComponent>();
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
-	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
-
-	component = enemyEntity5->GetComponent<RenderableComponent>();
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteIdle.fbx", "Idle");
-	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteRun.fbx", "Walk");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteAttack.fbx", "Attack");		// 1.8s;
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteHit.fbx", "Hit");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\BruteDying.fbx", "Dying");
-
-
-	component = enemyEntity6->GetComponent<RenderableComponent>();
-	component->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardIdle.fbx", "Idle");
-	component->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardWalk.fbx", "Walk");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardAttack.fbx", "Attack");		// 1.8s;
-	component->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardDying.fbx", "Dying");
-
-
+	enemyEntity1->GetComponent<EnemyComponent>()->LoadBruteAnimations();
+	enemyEntity2->GetComponent<EnemyComponent>()->LoadBruteAnimations();
+	enemyEntity3->GetComponent<EnemyComponent>()->LoadBruteAnimations();
+	enemyEntity4->GetComponent<EnemyComponent>()->LoadBruteAnimations();
+	enemyEntity5->GetComponent<EnemyComponent>()->LoadBruteAnimations();
+	enemyEntity6->GetComponent<EnemyComponent>()->LoadGuardAnimations();
+	
 	Ui->Initialize();
-
-
-	// Normal map
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalText;
-	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(device, L"wall_normal.dds",
-			nullptr,
-			normalText.ReleaseAndGetAddressOf()));
-	renderableSystem->_ShadowsfxFactory->SetNormalMap("initialShadingGroup", normalText.Get());
 
 
 	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->myModelName = "Player";

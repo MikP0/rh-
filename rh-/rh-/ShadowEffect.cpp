@@ -304,11 +304,12 @@ void ShadowEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		deviceContext->PSSetConstantBuffers(
 			0, 1, m_staticConstantBuffer.GetAddressOf());
 
+
 		XMStoreFloat4x4(&m_dynamicData.World, XMMatrixTranspose(m_world));
 		XMStoreFloat4x4(&m_dynamicData.View, XMMatrixTranspose(m_view));
 		XMStoreFloat4x4(&m_dynamicData.Projection, XMMatrixTranspose(m_projection));
 		XMStoreFloat4x4(&m_dynamicData.WorldViewProjection, XMMatrixTranspose(XMMatrixMultiply((XMMatrixMultiply(m_world, m_view)), m_projection)));
-		XMStoreFloat4x4(&m_dynamicData.ShadowMapTransform, m_shadowMapTransform);
+		XMStoreFloat4x4(&m_dynamicData.ShadowMapTransform, XMMatrixTranspose(XMMatrixMultiply(m_world, m_shadowMapTransform)));
 
 
 		XMVECTOR cam = { m_camera.x, m_camera.y, m_camera.z };
@@ -599,9 +600,9 @@ void ShadowEffect::SetShadowEnable(bool value)
 	m_pImpl->shadowEnable = value;
 }
 
-void XM_CALLCONV ShadowEffect::SetShadowMapTransform(FXMMATRIX value)
+void ShadowEffect::SetShadowMapTransform(FXMMATRIX value)
 {
-	m_pImpl->m_shadowMapTransform =  XMMatrixTranspose(m_pImpl->m_world * value);
+	m_pImpl->m_shadowMapTransform = value;
 }
 
 void ShadowEffect::SetShadowMapEnabled(bool value)
