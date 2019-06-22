@@ -119,12 +119,14 @@ private:
 
 	std::shared_ptr<Entity> playerFootstep;
 	std::shared_ptr<Entity> playerNormalAttack;
+	std::shared_ptr<Entity> playerSpinAttack;
 	std::shared_ptr<Entity> playerBite;
 	std::shared_ptr<Entity> playerDamage;
 
 	std::shared_ptr<Entity> playerTeleport;
 	std::shared_ptr<Entity> playerRipAttack;
 	std::shared_ptr<Entity> playerSwap;
+	std::shared_ptr<Entity> playerAoe;
 
 	std::shared_ptr<Entity> enemyFootstep;
 	std::shared_ptr<Entity> enemyAttack;
