@@ -91,8 +91,16 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 	}
 
-	// TO DISABLE MENU and START SCREENS
-	mainMenu = false;
+
+	////////////////////////////////////////SKIP////////////////////////////////////////
+	// TO SKIP MENU and SKIP PLOT
+	//mainMenu = false;
+
+	//TO SKIP FIRST PHASE 
+	//SetHumanMode(false);
+	////////////////////////////////////////////////////////////////////////////////////
+
+
 
 	if (gameStage < 5)
 	{
@@ -275,8 +283,8 @@ void Game::Update(DX::StepTimer const& timer)
 
 				if (*iter == playBackground)
 				{
-					SetHumanMode(false);
-					//playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
+					//SetHumanMode(false);
+					playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
 				}
 
 				//if (*iter == playSound1)
@@ -1021,7 +1029,8 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	*/
 
 	// Creation of entities ------------------------------------------------------------------
-	myEntity1 = world->CreateEntity("HeroWeaponCup1");
+	swordEntity = world->CreateEntity("SwordModel");
+	myEntity1 = world->CreateEntity("Cup1");
 	myEntity2 = world->CreateEntity("Cup2");
 	myEntity3 = world->CreateEntity("Cup3");
 	myEntity4 = world->CreateEntity("Cup4");
@@ -1063,13 +1072,13 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 
 	// Creation of renderable components
-	myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	swordEntity->AddComponent<RenderableComponent>(L"SwordModel.cmo", &camera);
 	//myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	//myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	//myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	//myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Anna.fbx", &camera);
-	humanEntity->AddComponent<RenderableComponent>(L"content\\Models\\Anna.fbx", &camera);
+	humanEntity->AddComponent<RenderableComponent>(L"content\\Models\\Human.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity3->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
@@ -1098,7 +1107,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyDeath->AddComponent<AudioComponent>("Resources\\Audio\\enemyDeath.wav");
 	knighFootstep->AddComponent<AudioComponent>("Resources\\Audio\\heavyStep.wav");
 	// Creation of physics components ----------------------------------------------------------------
-	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), true);
+	swordEntity->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), true);
 	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
 	enemyEntity1->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity2->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
@@ -1128,8 +1137,9 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	//directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, -0.5f));
 	// Setting up transform parameters of entities  --------------------------------------------------
 	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
-	myEntity1->GetTransform()->SetScale(Vector3(0.2f, 0.2f, 0.2f));
-	myEntity1->GetTransform()->SetPosition(Vector3(-8.5f, 0.5f, 39.0f));
+	swordEntity->GetTransform()->SetScale(Vector3(0.001f, 0.001f, 0.001f));
+	swordEntity->GetTransform()->SetRotation(Quaternion(Vector3(0, 1, 0), XMConvertToRadians(360)));
+	swordEntity->GetTransform()->SetPosition(Vector3(-8.5f, 0.5f, 39.f));
 
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, 0.2f, 6.0f));
@@ -1193,7 +1203,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		{
 			component->Volume = 1.0f;
 			playerEntity->GetComponent<PlayerComponent>()->footstepAudio = component;
-			humanEntity->GetComponent<HumanComponent>()->footstepAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerNormalAttack") == 0)
@@ -1256,6 +1265,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			enemyEntity4->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity5->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity6->GetComponent<EnemyComponent>()->footstepAudio = component;
+			humanEntity->GetComponent<HumanComponent>()->footstepAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyAttack") == 0)
@@ -1610,6 +1620,9 @@ void Game::ShowPlot(int stage)
 
 void Game::SetHumanMode(bool check)
 {
+	if ((!check) && (!skipper))
+		return;
+
 	humanMode = check;
 	playerSystem->humanMode = check;
 	enemySystem->humanMode = check;
@@ -1623,6 +1636,7 @@ void Game::SetHumanMode(bool check)
 		enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 25.0f));
 		enemyEntity6->GetComponent<EnemyComponent>()->followPlayerDistance = 2.0f;
 		enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
+		skipper = true;
 	}
 	else
 	{
@@ -1636,10 +1650,13 @@ void Game::SetHumanMode(bool check)
 		playerEntity->GetComponent<PlayerComponent>()->aoeAudio->AudioFile->Play(playerEntity->GetComponent<PlayerComponent>()->aoeAudio->Volume*AudioSystem::VOLUME, playerEntity->GetComponent<PlayerComponent>()->aoeAudio->Pitch, playerEntity->GetComponent<PlayerComponent>()->aoeAudio->Pan);
 		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = playerEntity->GetComponent<PlayerComponent>()->playerHealthOrigin;
 		playerSystem->gettingWeapon = true;
-		playerSystem->gettingWeaponCorutine.Restart(2.5f);
+		playerSystem->gettingWeaponCorutine.Restart(4.5f);
 		enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
 		enemyEntity6->GetComponent<EnemyComponent>()->followPlayerDistance = 10.0f;
 		enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 26.0f));
+		skipper = false;
+
+		playerSystem->player->navMesh->isMoving = false;
 	}
 }
 

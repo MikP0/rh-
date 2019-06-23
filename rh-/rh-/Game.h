@@ -325,6 +325,9 @@ private:
 
 
 	//
+	std::shared_ptr<Entity> swordEntity;
+
 	bool humanMode = true;
 	void SetHumanMode(bool check);
+	bool skipper = false;
 };

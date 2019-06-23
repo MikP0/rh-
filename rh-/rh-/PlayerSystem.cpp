@@ -499,7 +499,7 @@ void PlayerSystem::UpdateVampireMode()
 				{
 					player->isRipAttack = true;
 					//playerRipAttackCorutine.Restart(2.5f);
-					playerRipAttackCorutine.RestartWithEvent(2.5f, 1.5f);
+					playerRipAttackCorutine.RestartWithEvent(1.5f, 0.6f);
 				}
 			}
 		}
@@ -717,6 +717,7 @@ void PlayerSystem::UpdateCorutines()
 			if (!(gettingWeaponCorutine.Update()))
 			{
 				gettingWeapon = false;
+				player->navMesh->isMoving = true;
 			}
 		}
 	}
@@ -823,7 +824,7 @@ void PlayerSystem::UpdateAnimations()
 		}
 		else if (gettingWeapon)
 		{
-			playerRenderableComponent->_modelSkinned->currentAnimation = "4th";
+			playerRenderableComponent->_modelSkinned->currentAnimation = "TheSword";
 		}
 		else if ((!player->isWalking) && (player->isNormalAttack))
 		{

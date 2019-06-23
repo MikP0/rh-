@@ -76,8 +76,8 @@ void HumanSystem::UpdateNormalMode()
 
 		for each (shared_ptr<Collision> coll in collisionsWithRay)
 		{
-			if (coll->OriginObject->GetName() == "HeroWeaponCup1")
-			{
+			if (coll->OriginObject->GetName() == "SwordModel")
+			{	
 				if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), coll->OriginObject->GetTransform()->GetPosition(), Vector3(2.5f, 2.1f, 2.5f)))
 				{
 					coll->OriginObject->GetComponent<RenderableComponent>()->SetIsEnabled(false);
