@@ -38,6 +38,9 @@
 #include "PlayerComponent.h"
 #include "Cooldown.h"
 
+#include "HumanSystem.h"
+#include "HumanComponent.h"
+
 #include "WorldLoader.h"
 
 //typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
@@ -235,6 +238,10 @@ private:
 		0.0f, 2.0f, 4.0f, 10.0f
 	};
 
+	//human
+	std::shared_ptr<HumanSystem> humanSystem;
+	std::shared_ptr<Entity> humanEntity;
+
 	//NavMesh
 	std::shared_ptr<Terrain> terrain;
 
@@ -315,4 +322,9 @@ private:
 	float plotTimer = 0;
 	void ShowPlot(int stage);
 	std::unique_ptr<CommonStates> states;
+
+
+	//
+	bool humanMode = true;
+	void SetHumanMode(bool check);
 };

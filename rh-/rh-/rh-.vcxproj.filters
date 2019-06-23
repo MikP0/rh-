@@ -233,6 +233,12 @@
       <Filter>Inc</Filter>
     </ClInclude>
     <ClInclude Include="Blockade.h" />
+    <ClInclude Include="HumanComponent.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="HumanSystem.h">
+      <Filter>Inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -422,6 +428,12 @@
       <Filter>Src</Filter>
     </ClCompile>
     <ClCompile Include="Blockade.cpp" />
+    <ClCompile Include="HumanComponent.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
+    <ClCompile Include="HumanSystem.cpp">
+      <Filter>Src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

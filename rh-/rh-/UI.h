@@ -44,7 +44,7 @@ public:
 	void Initialize();
 	void CheckSkillTips(bool vampireMode);
 	void DrawRedBorder();
-	void Draw(bool menuIsOn, float totalTime, float elapsedTime);
+	void Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode);
 	void Reset();
 
 
