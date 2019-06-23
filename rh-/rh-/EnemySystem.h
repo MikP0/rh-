@@ -33,5 +33,7 @@ public:
 	void CheckCorutines(std::shared_ptr<EnemyComponent> enemy);
 
 	int RespawnEnemiesFromCheckpoint();
+
+	bool humanMode;
 };
 

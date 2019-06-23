@@ -169,6 +169,8 @@
     <ClInclude Include="Coroutine.h" />
     <ClInclude Include="EnemyComponent.h" />
     <ClInclude Include="EnemySystem.h" />
+    <ClInclude Include="HumanComponent.h" />
+    <ClInclude Include="HumanSystem.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Component.h" />
@@ -259,6 +261,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="HumanComponent.cpp" />
+    <ClCompile Include="HumanSystem.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Component.cpp" />
