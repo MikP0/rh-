@@ -66,17 +66,17 @@ void ShadowMap::BindDsvAndSetNullRenderTarget(ID3D11DeviceContext * context)
 	context->RSGetViewports(&numViewports, &orgViewport);
 	context->RSSetViewports(1, &_viewport);
 
-	context->OMGetRenderTargets(1, &orgRenderTarger, &orgDepthStencilView);
+	//context->OMGetRenderTargets(1, &orgRenderTarger, &orgDepthStencilView);
 	
-	ID3D11ShaderResourceView* textures[3];
+	/*ID3D11ShaderResourceView* textures[3];
 	textures[0] = NULL;
 	textures[1] = NULL;
 	textures[2] = NULL;
 	context->PSSetShaderResources(
-		0, static_cast<UINT>(3), textures);
+		0, static_cast<UINT>(3), textures);*/
 
-	ID3D11RenderTargetView* pNullRTV = NULL;
-	context->OMSetRenderTargets(1, &pNullRTV, NULL);
+	//ID3D11RenderTargetView* pNullRTV = NULL;
+	//context->OMSetRenderTargets(1, &pNullRTV, NULL);
 	ID3D11RenderTargetView* renderTargets[1] = { 0 };
 	context->OMSetRenderTargets(1, renderTargets, _depthMapDSV);
 
@@ -88,18 +88,18 @@ void ShadowMap::UnbindTargetAndViewport(ID3D11DeviceContext * context)
 {
 	context->RSSetViewports(1, &orgViewport);
 
-	ID3D11ShaderResourceView* textures[3];
-	textures[0] = NULL;
-	textures[1] = NULL;
-	textures[2] = NULL;
-	context->PSSetShaderResources(
-		0, static_cast<UINT>(3), textures);
+	//ID3D11ShaderResourceView* textures[3];
+	//textures[0] = NULL;
+	//textures[1] = NULL;
+	//textures[2] = NULL;
+	//context->PSSetShaderResources(
+	//	0, static_cast<UINT>(3), textures);
 
-	ID3D11RenderTargetView* pNullRTV = NULL;
-	context->OMSetRenderTargets(1, &pNullRTV, NULL);
+	//ID3D11RenderTargetView* pNullRTV = NULL;
+	//context->OMSetRenderTargets(1, &pNullRTV, NULL);
 
-	ID3D11RenderTargetView* renderTargets[1] = { orgRenderTarger };
-	context->OMSetRenderTargets(1, renderTargets, orgDepthStencilView);
+	//ID3D11RenderTargetView* renderTargets[1] = { orgRenderTarger };
+	//context->OMSetRenderTargets(1, renderTargets, orgDepthStencilView);
 }
 
 ShadowMap::~ShadowMap()
