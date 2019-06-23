@@ -125,7 +125,7 @@ void Game::Update(DX::StepTimer const& timer)
 								menuBackgroundAudio->Stop(true);
 								plotBackgroundAudio->AudioFile->Play(plotBackgroundAudio->Volume*AudioSystem::VOLUME, plotBackgroundAudio->Pitch, plotBackgroundAudio->Pan);
 								gameBackgroundAudio->Mute = true;
-								plotStage = 1;
+								plotStage = 0;
 							}
 							else
 							{
@@ -165,7 +165,7 @@ void Game::Update(DX::StepTimer const& timer)
 			plotTimer += elapsedTime;
 			ColorChanger += elapsedTime / 4.0f;
 
-			if (plotTimer > 4.0f)
+			if(plotTimer > 4.0f)
 			{
 				if (plotTimer > 8.0f)
 				{
@@ -175,64 +175,87 @@ void Game::Update(DX::StepTimer const& timer)
 						{
 							if (plotTimer > 20.0f)
 							{
+								fireBackgroundAudio->Mute = false;
 								if (plotTimer > 24.0f)
 								{
 									if (plotTimer > 28.0f)
 									{
 										if (plotTimer > 32.0f)
 										{
+											fireBackgroundAudio->Mute = true;
 											if (plotTimer > 36.0f)
 											{
 												if (plotTimer > 40.0f)
 												{
-													gameStage = 6;
-													plotBackgroundAudio->AudioFile->~SoundEffect();
-													gameBackgroundAudio->Mute = false;
+													if (plotTimer > 44.0f)
+													{
+														//gameStage = 6;
+														//plotBackgroundAudio->AudioFile->~SoundEffect();
+														//gameBackgroundAudio->Mute = false;
+														if (plotTimer > 48.0f)
+														{
+															gameStage = 6;
+															plotBackgroundAudio->AudioFile->~SoundEffect();
+															gameBackgroundAudio->Mute = false;
+														}
+														else
+														{
+															plotStage = 0;
+														}
+													}
+													else
+													{
+														plotStage = 10;
+													}
 												}
 												else
 												{
-													plotStage = 10;
+													plotStage = 9;
 												}
 											}
 											else
 											{
-												plotStage = 9;
+												plotStage = 8;
 											}
 										}
 										else
 										{
-											plotStage = 8;
+											plotStage = 7;
 										}
 									}
 									else
 									{
-										plotStage = 7;
+										plotStage = 6;
 									}
 								}
 								else
 								{
-									plotStage = 6;
+									plotStage = 5;
 								}
 							}
 							else
 							{
-								plotStage = 5;
+								plotStage = 4;
 							}
 						}
 						else
 						{
-							plotStage = 4;
+							plotStage = 3;
 						}
 					}
 					else
 					{
-						plotStage = 3;
+						plotStage = 2;
 					}
 				}
 				else
 				{
-					plotStage = 2;
+					plotStage = 1;
 				}
+			}	
+			else
+			{
+				plotStage = 0;
 			}
 		}
 		else
@@ -1038,6 +1061,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	//Audio entities
 	plotBackground = world->CreateEntity("PlotBackground");
 	gameBackground = world->CreateEntity("GameBackground");
+	fireBackground = world->CreateEntity("FireBackground");
 
 	playerFootstep = world->CreateEntity("PlayerFootstep");
 	playerNormalAttack = world->CreateEntity("PlayerNormalAttack");
@@ -1089,6 +1113,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	// Creation of audio components ------------------------------------------------------------------
 	plotBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotBackground.wav");
 	gameBackground->AddComponent<AudioComponent>("Resources\\Audio\\gameBackground.wav");
+	fireBackground->AddComponent<AudioComponent>("Resources\\Audio\\fire.wav");
 
 	playerFootstep->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	playerNormalAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerAttack.wav");
@@ -1199,6 +1224,14 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			gameBackgroundAudio->Mute = true;
 			continue;
 		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "FireBackground") == 0)
+		{
+			fireBackgroundAudio = component;
+			fireBackgroundAudio->Loop = true;
+			fireBackgroundAudio->Volume = 1.0f;
+			fireBackgroundAudio->Mute = true;
+			continue;
+		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerFootstep") == 0)
 		{
 			component->Volume = 1.0f;
@@ -1304,47 +1337,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		if (strcmp(component->GetParent()->GetName().c_str(), "KnighFootstep") == 0)
 		{
 		}
-
-		/*
-			audioBackgroundSound = component;
-			audioBackgroundSound->Loop = true;
-			audioBackgroundSound->Volume = 1.0f;
-			audioBackgroundSound->Mute = false;
-			continue;
-		}
-
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"DamageAudio") == 0)
-		{
-			component->Volume = 1.0f;
-			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
-			continue;
-		}
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"PlayerFootstepAudio") == 0)
-		{
-			playerEntity->GetComponent<PlayerComponent>()->footstepAudio = component;
-			continue;
-		}
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"EnemyFootstepAudio") == 0)
-		{
-			component->Volume = 1.0f;
-			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity3->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity4->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity5->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity6->GetComponent<EnemyComponent>()->footstepAudio = component;
-			continue;
-		}
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"SwordSlashAudio") == 0)
-		{
-			component->Volume = 1.0f;
-			playerEntity->GetComponent<PlayerComponent>()->swordAudio = component;
-			continue;
-		}*/
 	}
 
 	//// Setting up parameters of colliders ----------------------------------------------------------------
@@ -1472,6 +1464,20 @@ void Game::ShowPlot(int stage)
 
 	switch (stage)
 	{
+	case 0:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
 	case 1:
 	{
 		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
@@ -1611,7 +1617,7 @@ void Game::ShowPlot(int stage)
 		m_spriteBatch->End();
 
 		break;
-	}
+	}	
 
 	default:
 		break;

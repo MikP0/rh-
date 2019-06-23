@@ -247,6 +247,12 @@ void Terrain::Draw(Camera camera)
 			}			
 		}
 	}
+	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 4)
+	{
+		color = Colors::IndianRed;
+		DrawRange(posOrigin, 4, 4, color);
+		FixRendering();
+	}
 	m_batch->End();
 }
 
