@@ -15,6 +15,7 @@ RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* 
 
 	_ShadowsfxFactory = std::make_shared<ShadowFactory>(_device);
 	_noShadowsfxFactory = std::make_shared<ToonFactory>(_device);
+	_CeilingfxFactory = std::make_shared<EffectFactory>(_device);
 
 	DebugDrawAction = std::make_unique<DebugDraw>(_device, _context);
 
@@ -168,6 +169,11 @@ void RenderableSystem::Initialize()
 				renderableComponent->_model =
 					DirectX::Model::CreateFromCMO(_device, renderableComponent->_modelPath.c_str(), *_ShadowsfxFactory);
 			}
+			else if (renderableComponent->_ignoreShadows) 
+			{
+				renderableComponent->_model =
+					DirectX::Model::CreateFromCMO(_device, renderableComponent->_modelPath.c_str(), *_CeilingfxFactory);
+			}
 			else
 			{
 				renderableComponent->_model =
@@ -217,7 +223,7 @@ void RenderableSystem::ClearAfterRenderShadows()
 
 	_context->RSSetState(0);
 	XMVECTORF32 myColor = { { { 0.0f, 0.0f, 0.0f, 1.000000000f } } };
-	_context->ClearRenderTargetView(_renderTargetView, Colors::Silver);
+	_context->ClearRenderTargetView(_renderTargetView, myColor);
 	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	_ShadowsfxFactory->SetShadowMapEnabled(true);
@@ -226,7 +232,7 @@ void RenderableSystem::ClearAfterRenderShadows()
 	_ShadowsfxFactory->SetShadowMapTransform(_shadowMap->_lightShadowTransform);
 
 
-	_context->ClearRenderTargetView(_sceneRT.Get(), Colors::Silver);
+	_context->ClearRenderTargetView(_sceneRT.Get(), myColor);
 	_context->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	_context->OMSetRenderTargets(1, _sceneRT.GetAddressOf(), _depthStencilView);
 }
