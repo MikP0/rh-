@@ -26,7 +26,7 @@ void UI::Initialize()
 		"skillKey1", "skillKey2", "skillKey3", "skillKey4",
 		"humanCoolDownFrame", "vampireCoolDownFrame", "humanSkillBlockade", "vampireSkillBlockade",
 		"normalAttackTip", "strongAttackTip", "spinAttackTip", "biteAttackTip",
-		"teleportTip", "cleaveAttackTip", "swapTip", "aoeAttackTip"
+		"teleportTip", "cleaveAttackTip", "swapTip", "aoeAttackTip", "popUpMenuOptions"
 	};
 
 	vector<string> uiTextNames = {
@@ -49,7 +49,8 @@ void UI::Initialize()
 		{"swap", "Resources\\UISprites\\Swap.dds"},
 		{"aoeAttack", "Resources\\UISprites\\Aoe_Attack.dds"},
 		{"fpsBackground", "Resources\\UISprites\\fpsbar.dds"},
-		{"popUpMenu", "Resources\\UISprites\\Menu.dds"},
+		{"popUpMenu", "Resources\\UISprites\\ContextMenu.dds"},
+		{"popUpMenuOptions", "Resources\\UISprites\\ContextMenuOptions.dds"},
 		{"heroIconVampire", "Resources\\UISprites\\Hero_Circle_Vampire.dds"},
 		{"heroIconVampireRing", "Resources\\UISprites\\Hero_Circle_Vampire_Ring.dds"},
 		{"heroIconTransitionRing", "Resources\\UISprites\\Hero_Circle_Transition.dds"},
@@ -97,7 +98,8 @@ void UI::Initialize()
 		{"swap", Vector2(skillSetPosition.x + 295.0f, skillSetPosition.y - 10.0f)},
 		{"aoeAttack", Vector2(skillSetPosition.x + 445.0f, skillSetPosition.y - 10.0f)},
 		{"fpsBackground", Vector2(710.0f, -5.0f)},
-		{"popUpMenu", Vector2(250.0f, 100.0f)},
+		{"popUpMenu", Vector2(700.0f, 180.0f)},
+		{"popUpMenuOptions", Vector2(700.0f, 180.0f)},
 		{"heroIconVampire", Vector2(0.0f, 0.0f)},
 		{"heroIconVampireRing", Vector2(0.0f, 0.0f)},
 		{"heroIconTransitionRing", Vector2(0.0f, 0.0f)},
@@ -147,7 +149,8 @@ void UI::Initialize()
 		{"swap", Vector2(0.24f, 0.24f)},
 		{"aoeAttack", Vector2(0.24f, 0.24f)},
 		{"fpsBackground", Vector2(0.15f, 0.15f)},
-		{"popUpMenu", Vector2(0.6f, 0.6f)},
+		{"popUpMenu", Vector2(0.8f, 0.8f)},
+		{"popUpMenuOptions", Vector2(0.8f, 0.8f)},
 		{"heroIconVampire", Vector2(0.35f, 0.35f)},
 		{"heroIconVampireRing", Vector2(0.35f, 0.35f)},
 		{"heroIconTransitionRing", Vector2(0.35f, 0.35f)},
@@ -273,7 +276,7 @@ void UI::DrawRedBorder()
 	uiSpriteBatchBorder->End();
 }
 
-void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode)
+void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 {
 	bool vampireMode = _playerSystem->vampireMode;
 	int vampireAbility = vampireMode != 0 ? _playerSystem->player->vampireAbility : 0;
@@ -541,18 +544,28 @@ void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 		fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
 			fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
 
-		if (menuIsOn)
+		if (menuIsOn == 1)
 		{
 			uiSpriteBatch->Draw(_imageElements["popUpMenu"].texture.Get(), _imageElements["popUpMenu"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["popUpMenu"].scale);
 		}
+		else if (menuIsOn == 2)
+		{
+			uiSpriteBatch->Draw(_imageElements["popUpMenuOptions"].texture.Get(), _imageElements["popUpMenuOptions"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["popUpMenuOptions"].scale);
+		}
 	}
 	else
 	{
-		if (menuIsOn)
+		if (menuIsOn == 1)
 		{
 			uiSpriteBatch->Draw(_imageElements["popUpMenu"].texture.Get(), _imageElements["popUpMenu"].position, nullptr, Colors::White,
 				0.f, Vector2(0, 0), _imageElements["popUpMenu"].scale);
+		}
+		else if (menuIsOn == 2)
+		{
+			uiSpriteBatch->Draw(_imageElements["popUpMenuOptions"].texture.Get(), _imageElements["popUpMenuOptions"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["popUpMenuOptions"].scale);
 		}
 
 	}

@@ -77,5 +77,7 @@ public:
 	void UpdateAnimations();
 
 	bool humanMode;
+
+	bool menuIsOn;
 };
 

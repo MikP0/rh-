@@ -31,7 +31,11 @@ cbuffer DynamicBuffer : register(b1)
 	float IsTextured;
 
 	float4 IsNormalMap;
+
+	float4x4 WorldInverseTranspose;
 };
+
+float4 TintColor = float4(1, 1, 1, 1);
 
 //------------------------------------------------------------------------------
 // Per-pixel color data passed through the pixel shader.
