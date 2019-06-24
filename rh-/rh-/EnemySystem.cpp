@@ -13,7 +13,28 @@ EnemySystem::~EnemySystem()
 
 void EnemySystem::Iterate()
 {
-	if (!vampireMode)
+	if ((!vampireMode) && (!humanMode))
+	{
+		for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+		{
+			if (enemyComponent->_isEnabled)
+			{
+				if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+				{
+					enemyComponent->enemyState = EnemyState::IDLE;
+					enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
+					enemyComponent->navMesh->isMoving = false;
+				}
+				else
+				{
+					SetStates(enemyComponent);
+					ApplyStates(enemyComponent);
+					CheckCorutines(enemyComponent);
+				}
+			}
+		}
+	}
+	else if (humanMode)
 	{
 		for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 		{
@@ -61,7 +82,7 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 			enemy->navMesh->isMoving = false;
 
 			enemy->enemyRenderableComponent->_modelSkinned->isHitted = false;
-			
+
 			enemy->dyingCorutine.Restart(2.51f);
 
 			enemy->deathAudio->AudioFile->Play(enemy->deathAudio->Volume*AudioSystem::VOLUME, enemy->deathAudio->Pitch, enemy->deathAudio->Pan);
@@ -112,7 +133,7 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 				if (!enemy->isGuard)
 					enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime);
 				else
-					enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime-0.1f);
+					enemy->attackCorutine.RestartWithEvent(enemy->attackLength, enemy->attackDamageTime - 0.1f);
 
 				enemy->normalAttackAudio->AudioFile->Play(enemy->normalAttackAudio->Volume*AudioSystem::VOLUME, enemy->normalAttackAudio->Pitch, enemy->normalAttackAudio->Pan);
 			}
@@ -212,7 +233,7 @@ int EnemySystem::RespawnEnemiesFromCheckpoint()
 {
 	int cp;
 
-	for (auto enemyComponent : _world->GetComponents<EnemyComponent>()) 
+	for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 	{
 		if (enemyComponent->enemyState != EnemyState::DEAD && enemyComponent->enemyState != EnemyState::DYING) {
 			cp = enemyComponent->checkpointNumber;
@@ -220,7 +241,7 @@ int EnemySystem::RespawnEnemiesFromCheckpoint()
 		}
 	}
 
-	for (auto enemyComponent : _world->GetComponents<EnemyComponent>()) 
+	for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 	{
 		if (enemyComponent->enemyState != EnemyState::DEAD && enemyComponent->enemyState != EnemyState::DYING) {
 			if (cp > enemyComponent->checkpointNumber)

@@ -38,6 +38,9 @@
 #include "PlayerComponent.h"
 #include "Cooldown.h"
 
+#include "HumanSystem.h"
+#include "HumanComponent.h"
+
 #include "WorldLoader.h"
 
 //typedef std::shared_ptr<ColliderSphere> ColliderSpherePtr;
@@ -119,12 +122,14 @@ private:
 
 	std::shared_ptr<Entity> playerFootstep;
 	std::shared_ptr<Entity> playerNormalAttack;
+	std::shared_ptr<Entity> playerSpinAttack;
 	std::shared_ptr<Entity> playerBite;
 	std::shared_ptr<Entity> playerDamage;
 
 	std::shared_ptr<Entity> playerTeleport;
 	std::shared_ptr<Entity> playerRipAttack;
 	std::shared_ptr<Entity> playerSwap;
+	std::shared_ptr<Entity> playerAoe;
 
 	std::shared_ptr<Entity> enemyFootstep;
 	std::shared_ptr<Entity> enemyAttack;
@@ -226,12 +231,16 @@ private:
 		"teleport", "cleaveAttack", "swap","aoeAttack"
 	};
 	vector<bool> skillsBlockadeStates = {
-		false, false, true, false,
-		false, false, false, true,
+		false, false, false, false,
+		false, false, false, false,
 	};
 	vector<float> skillsTimeLimits = {
 		0.0f, 2.0f, 4.0f, 10.0f
 	};
+
+	//human
+	std::shared_ptr<HumanSystem> humanSystem;
+	std::shared_ptr<Entity> humanEntity;
 
 	//NavMesh
 	std::shared_ptr<Terrain> terrain;
@@ -313,4 +322,12 @@ private:
 	float plotTimer = 0;
 	void ShowPlot(int stage);
 	std::unique_ptr<CommonStates> states;
+
+
+	//
+	std::shared_ptr<Entity> swordEntity;
+
+	bool humanMode = true;
+	void SetHumanMode(bool check);
+	bool skipper = false;
 };

@@ -91,8 +91,16 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 	}
 
-	// TO DISABLE MENU and START SCREENS
-	mainMenu = false;
+
+	////////////////////////////////////////SKIP////////////////////////////////////////
+	// TO SKIP MENU and SKIP PLOT
+	//mainMenu = false;
+
+	//TO SKIP FIRST PHASE 
+	//SetHumanMode(false);
+	////////////////////////////////////////////////////////////////////////////////////
+
+
 
 	if (gameStage < 5)
 	{
@@ -273,41 +281,9 @@ void Game::Update(DX::StepTimer const& timer)
 						move.z -= 1.f;
 				}
 
-				/*if (!vampireMode)
-				{
-					if (*iter == special1)
-					{
-						//for (auto component : world->GetComponents<RenderableComponent>())
-						//{
-						//	if (strcmp(component->GetParent()->GetName().c_str(),
-						//		"Player") == 0)
-						//	{
-						//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("HipHop"); // -> Player Entity -> Player Component
-						//		component->_modelSkinned->SetInMove(true);
-						//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
-						//		isDancing = true;
-						//	}
-						//}
-					}
-
-					if (*iter == special2)
-					{
-						//for (auto component : world->GetComponents<RenderableComponent>())
-						//{
-						//	if (strcmp(component->GetParent()->GetName().c_str(),
-						//		"Player") == 0)
-						//	{
-						//		component->_modelSkinned->GetAnimatorPlayer()->StartClip("Dance"); // -> Player Entity -> Player Component
-						//		component->_modelSkinned->SetInMove(true);
-						//		component->_modelSkinned->GetAnimatorPlayer()->SetDirection(true);
-						//		isDancing = true;
-						//	}
-						//}
-					}
-				}*/
-
 				if (*iter == playBackground)
 				{
+					//SetHumanMode(false);
 					playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
 				}
 
@@ -374,10 +350,20 @@ void Game::Update(DX::StepTimer const& timer)
 
 			else
 			{
-				camera.SetPosition(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom())); //FIXME: Change to Entity Transform
-				camera.SetLookAtPos(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
-				camera.SetPitch(0);
-				camera.SetYaw(0);
+				if (!humanMode)
+				{
+					camera.SetPosition(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom())); //FIXME: Change to Entity Transform
+					camera.SetLookAtPos(playerEntity->GetTransform()->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
+					camera.SetPitch(0);
+					camera.SetYaw(0);
+				}
+				else
+				{
+					camera.SetPosition(humanEntity->GetTransform()->GetPosition() - (Vector3(0.f, -7.f, 4.f) + camera.GetZoom())); //FIXME: Change to Entity Transform
+					camera.SetLookAtPos(humanEntity->GetTransform()->GetPosition() - (Vector3(0.f, -14.f, 0.f) + camera.GetZoom()));
+					camera.SetPitch(0);
+					camera.SetYaw(0);
+				}
 			}
 
 
@@ -395,6 +381,30 @@ void Game::Update(DX::StepTimer const& timer)
 		// UI FPS
 		std::string str = std::to_string(fps);
 		Ui->fpsFontText = std::wstring(str.begin(), str.end());
+
+
+
+		// HEALTH AND RESPAWN
+		if (!humanMode)
+		{
+			if (*(playerSystem->playerHealth) <= 0)
+			{
+				playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
+			}
+		}
+		else
+		{
+			if (*(playerSystem->playerHealth) <= 0)
+			{
+				*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
+				humanSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
+				enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 25.0f));
+				enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
+			}
+		}
+
+
+
 
 		if (!menuIsOn)
 		{
@@ -477,23 +487,37 @@ void Game::UpdateObjects(float elapsedTime)
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	if (vampireMode)
+	if (!humanMode)
 	{
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
+		if (vampireMode)
 		{
-			vampireMode = false;
-			playerSystem->SetVampireMode(false);
-			enemySystem->SetVampireMode(false);
+			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
+			{
+				vampireMode = false;
+				playerSystem->SetVampireMode(false);
+				enemySystem->SetVampireMode(false);
+			}
+		}
+		else
+		{
+			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
+			{
+				vampireMode = true;
+				Ui->transitionMode = true;
+				playerSystem->SetVampireMode(true);
+				enemySystem->SetVampireMode(true);
+			}
 		}
 	}
 	else
 	{
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
+		if (humanSystem->stopHumanMode)
 		{
-			vampireMode = true;
-			Ui->transitionMode = true;
-			playerSystem->SetVampireMode(true);
-			enemySystem->SetVampireMode(true);
+			SetHumanMode(false);
+		}
+		else
+		{
+			playerEntity->GetTransform()->SetPosition(humanEntity->GetTransform()->GetPosition());
 		}
 	}
 
@@ -733,7 +757,7 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
 	// TODO: UI 
-	Ui->Draw(menuIsOn, total_Time, elapsed_Time);
+	Ui->Draw(menuIsOn, total_Time, elapsed_Time, humanMode);
 }
 
 // Helper method to clear the back buffers.
@@ -989,20 +1013,23 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	lightSystem = std::make_shared<LightSystem>(renderableSystem->_ShadowsfxFactory, renderableSystem->_noShadowsfxFactory);
 	enemySystem = std::make_shared<EnemySystem>();
 	playerSystem = std::make_shared<PlayerSystem>(collisionSystem, &camera);
+	humanSystem = std::make_shared<HumanSystem>(collisionSystem, &camera);
 
 	// Adding systems to world ------------------------------------------------------------------
 	world->AddSystem<PhysicsSystem>(collisionSystem, 0);
-	world->AddSystem<PlayerSystem>(playerSystem, 1);
-	world->AddSystem<EnemySystem>(enemySystem, 2);
-	world->AddSystem<AudioSystem>(audioSystem, 3);
-	world->AddSystem<LightSystem>(lightSystem, 4);
-	world->AddSystem<RenderableSystem>(renderableSystem, 5);
+	world->AddSystem<HumanSystem>(humanSystem, 1);
+	world->AddSystem<PlayerSystem>(playerSystem, 2);
+	world->AddSystem<EnemySystem>(enemySystem, 3);
+	world->AddSystem<AudioSystem>(audioSystem, 4);
+	world->AddSystem<LightSystem>(lightSystem, 5);
+	world->AddSystem<RenderableSystem>(renderableSystem, 6);
 
 	/*
 		FILL WORLD OBJECT
 	*/
 
 	// Creation of entities ------------------------------------------------------------------
+	swordEntity = world->CreateEntity("SwordModel");
 	myEntity1 = world->CreateEntity("Cup1");
 	myEntity2 = world->CreateEntity("Cup2");
 	myEntity3 = world->CreateEntity("Cup3");
@@ -1016,10 +1043,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerNormalAttack = world->CreateEntity("PlayerNormalAttack");
 	playerBite = world->CreateEntity("PlayerBite");
 	playerDamage = world->CreateEntity("PlayerDamage");
+	playerSpinAttack = world->CreateEntity("PlayerSpinAttack");
 
 	playerTeleport = world->CreateEntity("PlayerTeleport");
 	playerRipAttack = world->CreateEntity("PlayerRipAttack");
 	playerSwap = world->CreateEntity("PlayerSwap");
+	playerAoe = world->CreateEntity("PlayerAoe");
 
 	enemyFootstep = world->CreateEntity("EnemyFootstep");
 	enemyAttack = world->CreateEntity("EnemyAttack");
@@ -1033,6 +1062,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	//directLightEntity1 = world->CreateEntity("DirectLight1");
 	myEntityFloor = world->CreateEntity("FloorForShadows");
 	playerEntity = world->CreateEntity("Player");
+	humanEntity = world->CreateEntity("Human");
 	enemyEntity1 = world->CreateEntity("Enemy1");
 	enemyEntity2 = world->CreateEntity("Enemy2");
 	enemyEntity3 = world->CreateEntity("Enemy3");
@@ -1042,12 +1072,13 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 
 	// Creation of renderable components
-	//myEntity1->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
+	swordEntity->AddComponent<RenderableComponent>(L"SwordModel.cmo", &camera);
 	//myEntity2->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	//myEntity3->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	//myEntity4->AddComponent<RenderableComponent>(L"cup.cmo", &camera);
 	//myEntityFloor->AddComponent<RenderableComponent>(L"NFloor.cmo", &camera);
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Anna.fbx", &camera);
+	humanEntity->AddComponent<RenderableComponent>(L"content\\Models\\Human.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity3->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
@@ -1061,12 +1092,14 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 	playerFootstep->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	playerNormalAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerAttack.wav");
+	playerSpinAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerSpinAttack.wav");
 	playerBite->AddComponent<AudioComponent>("Resources\\Audio\\bite.wav");
 	playerDamage->AddComponent<AudioComponent>("Resources\\Audio\\playerDamage.wav");
 
 	playerTeleport->AddComponent<AudioComponent>("Resources\\Audio\\teleport.wav");
 	playerRipAttack->AddComponent <AudioComponent>("Resources\\Audio\\playerAttack.wav");
 	playerSwap->AddComponent<AudioComponent>("Resources\\Audio\\swap.wav");
+	playerAoe->AddComponent<AudioComponent>("Resources\\Audio\\playerAoe.wav");
 
 	enemyFootstep->AddComponent<AudioComponent>("Resources\\Audio\\step7.wav");
 	enemyAttack->AddComponent<AudioComponent>("Resources\\Audio\\enemyAttack.wav");
@@ -1074,7 +1107,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyDeath->AddComponent<AudioComponent>("Resources\\Audio\\enemyDeath.wav");
 	knighFootstep->AddComponent<AudioComponent>("Resources\\Audio\\heavyStep.wav");
 	// Creation of physics components ----------------------------------------------------------------
-	myEntity1->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(.49f, 1.5f, 4.49f), false);
+	swordEntity->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), true);
 	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
 	enemyEntity1->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity2->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
@@ -1083,6 +1116,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity5->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity6->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
+	humanEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
 	// Creation of enemy components ------------------------------------------------------------------
 	enemyEntity1->AddComponent<EnemyComponent>(1, 3.f, 20);
@@ -1093,6 +1127,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity6->AddComponent<EnemyComponent>(2, 10.f, 35, 1.9f, 1.0f, 3.0f);
 	
 	playerEntity->AddComponent<PlayerComponent>();
+	humanEntity->AddComponent<HumanComponent>();
 
 	//pointLightEntity1->GetTransform()->SetPosition(Vector3(0.0f, 3.5f, 2.0f));
 
@@ -1102,8 +1137,9 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	//directLightEntity1->AddComponent<LightComponent>(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, -0.5f));
 	// Setting up transform parameters of entities  --------------------------------------------------
 	Vector3 scaleEntity1(0.1f, 0.1f, 0.1f), scaleEntity2(0.2f, 0.2f, 0.2f), scaleEntity3(0.3f, 0.3f, 0.3f), scaleEntity4(1.0f, 1.0f, 1.0f);
-	myEntity1->GetTransform()->SetScale(scaleEntity1);
-	myEntity1->GetTransform()->SetPosition(Vector3(-30.0f, 1.25f, 20.0f));
+	swordEntity->GetTransform()->SetScale(Vector3(0.001f, 0.001f, 0.001f));
+	swordEntity->GetTransform()->SetRotation(Quaternion(Vector3(0, 1, 0), XMConvertToRadians(360)));
+	swordEntity->GetTransform()->SetPosition(Vector3(-8.5f, 0.5f, 39.f));
 
 	myEntity2->GetTransform()->SetScale(scaleEntity2);
 	myEntity2->GetTransform()->SetPosition(Vector3(6.0f, 0.2f, 6.0f));
@@ -1118,11 +1154,15 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
+	humanEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 15.0f));
+	humanEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+	humanEntity->SetTag(Tags::PLAYER);
+
 	enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 27.0f));
 	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity1->SetTag(Tags::ENEMY);
 
-	enemyEntity2->GetTransform()->SetPosition(Vector3(-7.0f, 0.0f, 26.0f));
+	enemyEntity2->GetTransform()->SetPosition(Vector3(16.0f, 0.0f, 44.0f));
 	enemyEntity2->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity2->SetTag(Tags::ENEMY);
 
@@ -1172,6 +1212,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			playerEntity->GetComponent<PlayerComponent>()->powerAttackAudio = component;
 			continue;
 		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerSpinAttack") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->spinAttackAudio = component;
+			continue;
+		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerBite") == 0)
 		{
 			component->Volume = 1.0f;
@@ -1182,6 +1228,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		{
 			component->Volume = 1.0f;
 			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
+			humanEntity->GetComponent<HumanComponent>()->damageAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerTeleport") == 0)
@@ -1202,6 +1249,13 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			playerEntity->GetComponent<PlayerComponent>()->swapAudio = component;
 			continue;
 		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerAoe") == 0)
+		{
+			component->Volume = 1.0f;
+			playerEntity->GetComponent<PlayerComponent>()->aoeAudio = component;
+			humanEntity->GetComponent<HumanComponent>()->aoeAudio = component;
+			continue;
+		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyFootstep") == 0)
 		{
 			component->Volume = 1.0f;
@@ -1211,6 +1265,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			enemyEntity4->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity5->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity6->GetComponent<EnemyComponent>()->footstepAudio = component;
+			humanEntity->GetComponent<HumanComponent>()->footstepAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyAttack") == 0)
@@ -1334,10 +1389,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	world->InitializeSystem<LightSystem>();
 	world->InitializeSystem<EnemySystem>();
 	world->InitializeSystem<PlayerSystem>();
+	world->InitializeSystem<HumanSystem>();
 
 
 	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
 	playerSystem->AdditionalInitialization(terrain, humanSkillsNames, vampireSkillsNames, skillsTimeLimits, skillsBlockadeStates);
+	humanSystem->AdditionalInitialization(terrain, humanSkillsNames, vampireSkillsNames, skillsTimeLimits, skillsBlockadeStates);
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
 
 	//Setting up UI -----------------------------------------------------------------------------------
@@ -1346,6 +1403,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	////Setting up skinned model -----------------------------------------------------------------------
 	
 	playerEntity->GetComponent<PlayerComponent>()->LoadPlayerAnimations();
+	humanEntity->GetComponent<HumanComponent>()->LoadHumanAnimations();
 
 	enemyEntity1->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	enemyEntity2->GetComponent<EnemyComponent>()->LoadBruteAnimations();
@@ -1360,9 +1418,14 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->myModelName = "Player";
 	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
 
+	humanEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->myModelName = "Player";
+	humanEntity->GetComponent<RenderableComponent>()->_modelSkinned->GetAnimatorPlayer()->SetBlending(true);
+
 	//world->RefreshWorld();
 	renderableSystem->_terrain = terrain;
 	renderableSystem->_camera = &camera;
+
+	SetHumanMode(true);
 }
 
 
@@ -1552,6 +1615,48 @@ void Game::ShowPlot(int stage)
 
 	default:
 		break;
+	}
+}
+
+void Game::SetHumanMode(bool check)
+{
+	if ((!check) && (!skipper))
+		return;
+
+	humanMode = check;
+	playerSystem->humanMode = check;
+	enemySystem->humanMode = check;
+	humanSystem->humanMode = check;
+
+	if (check)
+	{
+		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
+		playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isVisible = false;
+		playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->playingAnimation = false;
+		enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 25.0f));
+		enemyEntity6->GetComponent<EnemyComponent>()->followPlayerDistance = 2.0f;
+		enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
+		skipper = true;
+	}
+	else
+	{
+		humanEntity->GetComponent<RenderableComponent>()->_modelSkinned->isVisible = false;
+		humanEntity->GetComponent<RenderableComponent>()->_modelSkinned->playingAnimation = false;
+		humanEntity->SetActive(false);
+		playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isVisible = true;
+		playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->playingAnimation = true;
+		playerEntity->GetTransform()->SetPosition(humanEntity->GetTransform()->GetPosition());
+		playerEntity->GetTransform()->SetRotation(humanEntity->GetTransform()->GetRotation());
+		playerEntity->GetComponent<PlayerComponent>()->aoeAudio->AudioFile->Play(playerEntity->GetComponent<PlayerComponent>()->aoeAudio->Volume*AudioSystem::VOLUME, playerEntity->GetComponent<PlayerComponent>()->aoeAudio->Pitch, playerEntity->GetComponent<PlayerComponent>()->aoeAudio->Pan);
+		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = playerEntity->GetComponent<PlayerComponent>()->playerHealthOrigin;
+		playerSystem->gettingWeapon = true;
+		playerSystem->gettingWeaponCorutine.Restart(4.5f);
+		enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
+		enemyEntity6->GetComponent<EnemyComponent>()->followPlayerDistance = 10.0f;
+		enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 26.0f));
+		skipper = false;
+
+		playerSystem->player->navMesh->isMoving = false;
 	}
 }
 

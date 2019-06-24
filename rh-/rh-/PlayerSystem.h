@@ -53,6 +53,9 @@ public:
 	Coroutine playerAOEAttackCorutine;
 	Coroutine playerSpinAttackCorutine;
 
+	Coroutine gettingWeaponCorutine;
+	bool gettingWeapon;
+
 	void RespawnPlayer(int checkpoint);
 
 	std::vector<std::shared_ptr<Entity>> enemiesInRangeToAOE;
@@ -72,5 +75,7 @@ public:
 	void UpdateVampireMode();
 	void UpdateCorutines();
 	void UpdateAnimations();
+
+	bool humanMode;
 };
 

@@ -20,8 +20,10 @@ struct BasicUiElement
 struct ImageUiElement : BasicUiElement
 {
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
+	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
+	Vector2 endPos;
 
-	ImageUiElement() : BasicUiElement() {};
+	ImageUiElement() : BasicUiElement(), endPos(Vector2(0.0f, 0.0f)) {};
 	~ImageUiElement() {};
 };
 
@@ -40,8 +42,9 @@ public:
 	~UI();
 
 	void Initialize();
+	void CheckSkillTips(bool vampireMode);
 	void DrawRedBorder();
-	void Draw(bool menuIsOn, float totalTime, float elapsedTime);
+	void Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode);
 	void Reset();
 
 

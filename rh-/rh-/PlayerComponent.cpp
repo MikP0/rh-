@@ -51,8 +51,9 @@ void PlayerComponent::LoadPlayerAnimations()
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Run_Slow.fbx", "Walk");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_NormalAttack.fbx", "Attack");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Bite.fbx", "Bite");
-	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Rip.fbx", "Rip");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_RipAttack.fbx", "Rip");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_PowerAttack_Normal.fbx", "PowerAttack");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_Spin_2H.fbx", "SpinAttack");
 	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_4th.fbx", "4th");
+	component->_modelSkinned->AddAnimationClip("content\\Models\\Anna_TheSword.fbx", "TheSword");
 }

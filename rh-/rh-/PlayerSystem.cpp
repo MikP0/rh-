@@ -21,11 +21,15 @@ PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 	playerAOEAttackCorutine.active = false;
 	playerSpinAttackCorutine.active = false;
 
+	gettingWeaponCorutine.active = false;
+
 	collisionSystem = collSys;
 	playerRenderableComponent = nullptr;
 	camera = cam;
 
 	turnOffVampireMode = false;
+
+	gettingWeapon = false;
 }
 
 PlayerSystem::~PlayerSystem()
@@ -34,27 +38,30 @@ PlayerSystem::~PlayerSystem()
 
 void PlayerSystem::Iterate()
 {
-	keyboardTracker.Update(Input::GetKeyboardState());
-	mouseTracker.Update(Input::GetMouseState());
-
-	if (player->isHit)
-		PlayerHit();
-
-	if (player->isHealed)
-		PlayerHealed();
-
-	if (!vampireMode)
+	if (!humanMode)
 	{
-		UpdateNormalMode();
-	}
-	else
-	{
-		UpdateVampireMode();
-	}
+		keyboardTracker.Update(Input::GetKeyboardState());
+		mouseTracker.Update(Input::GetMouseState());
 
-	UpdateCorutines();
-	UpdateAnimations();
-	cooldown->Update();
+		if (player->isHit)
+			PlayerHit();
+
+		if (player->isHealed)
+			PlayerHealed();
+
+		if (!vampireMode)
+		{
+			UpdateNormalMode();
+		}
+		else
+		{
+			UpdateVampireMode();
+		}
+
+		UpdateCorutines();
+		UpdateAnimations();
+		cooldown->Update();
+	}
 }
 
 void PlayerSystem::Initialize()
@@ -240,29 +247,32 @@ void PlayerSystem::UpdateNormalMode()
 
 		if (mouseTracker.middleButton == Mouse::ButtonStateTracker::PRESSED)
 		{
-			//cooldown->StartSkillCounter("spinAttack");
-			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			if (collisionsWithRay.size() > 0)
-				player->newPosToSpin = Vector3(collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().z);
-			else
-				player->newPosToSpin = playerEntity->GetTransform()->GetPosition();
-
-			player->enemyClicked = true;
-			player->attackType = 3;
-			
-			enemiesInRangeToAOE.clear();
-
-			for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+			if (cooldown->CanUseSkill("spinAttack") && !blockade->IsSkillBlocked("spinAttack"))
 			{
-				if (enemyComponent->_isEnabled)
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				if (collisionsWithRay.size() > 0)
+					player->newPosToSpin = Vector3(collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().x, playerEntity->GetTransform()->GetPosition().y, collisionsWithRay[0]->OriginObject->GetTransform()->GetPosition().z);
+				else
+					player->newPosToSpin = playerEntity->GetTransform()->GetPosition();
+
+				player->enemyClicked = true;
+				player->attackType = 3;
+				cooldown->StartSkillCounter("spinAttack");
+
+				enemiesInRangeToAOE.clear();
+
+				for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 				{
-					if (!enemyComponent->dying)
+					if (enemyComponent->_isEnabled)
 					{
-						if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), enemyComponent->GetParent()->GetTransform()->GetPosition(), Vector3(player->playerSpinDistance, .1f, player->playerSpinDistance)))
+						if (!enemyComponent->dying)
 						{
-							enemiesInRangeToAOE.push_back(enemyComponent->GetParent());
+							if (XMVector3NearEqual(playerEntity->GetTransform()->GetPosition(), enemyComponent->GetParent()->GetTransform()->GetPosition(), Vector3(player->playerSpinDistance, .1f, player->playerSpinDistance)))
+							{
+								enemiesInRangeToAOE.push_back(enemyComponent->GetParent());
+							}
 						}
 					}
 				}
@@ -322,7 +332,7 @@ void PlayerSystem::UpdateNormalMode()
 
 	if (player->enemyClicked)
 	{
-		if ((!playerNormalAttackCorutine.active) && (!playerPowerAttackCorutine.active) && (!playerBiteCorutine.active) && (!playerSpinAttackCorutine.active))
+		if ((!playerNormalAttackCorutine.active) && (!playerPowerAttackCorutine.active) && (!playerBiteCorutine.active) && (!playerSpinAttackCorutine.active) && (!gettingWeaponCorutine.active))
 		{
 			if (player->attackType == 1)
 			{
@@ -489,7 +499,7 @@ void PlayerSystem::UpdateVampireMode()
 				{
 					player->isRipAttack = true;
 					//playerRipAttackCorutine.Restart(2.5f);
-					playerRipAttackCorutine.RestartWithEvent(2.5f, 1.5f);
+					playerRipAttackCorutine.RestartWithEvent(1.5f, 0.6f);
 				}
 			}
 		}
@@ -543,7 +553,7 @@ void PlayerSystem::UpdateVampireMode()
 
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D4))
 		{
-			if (player->vampireAbility != 4)// && !blockade->IsSkillBlocked("aoeAttack"))
+			if (player->vampireAbility != 4 && !blockade->IsSkillBlocked("aoeAttack"))
 				player->vampireAbility = 4;
 			else
 				player->vampireAbility = 0;
@@ -573,6 +583,7 @@ void PlayerSystem::UpdateVampireMode()
 				{
 					player->isAOEAttack = true;
 					playerAOEAttackCorutine.Restart(2.5f);
+					player->aoeAudio->AudioFile->Play(player->aoeAudio->Volume*AudioSystem::VOLUME, player->aoeAudio->Pitch, player->aoeAudio->Pan);
 				}
 			}
 		}
@@ -634,11 +645,11 @@ void PlayerSystem::UpdateCorutines()
 		{
 			if (!(playerSpinAttackCorutine.UpdateEvent()))
 			{
-				if (enemiesInRangeToAOE.size() > 0)
+				/*if (enemiesInRangeToAOE.size() > 0)
 				{
 					enemiesInRangeToAOE.clear();
-					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
-				}
+				}*/
+				player->spinAttackAudio->AudioFile->Play(player->spinAttackAudio->Volume*AudioSystem::VOLUME, player->spinAttackAudio->Pitch, player->spinAttackAudio->Pan);
 			}
 
 			if (!(playerSpinAttackCorutine.Update()))
@@ -668,7 +679,7 @@ void PlayerSystem::UpdateCorutines()
 						ene->GetComponent<EnemyComponent>()->health -= player->playerAOEAttackDamage / 2.0f;
 						ene->GetComponent<EnemyComponent>()->hit = true;
 					}
-					player->powerAttackAudio->AudioFile->Play(player->powerAttackAudio->Volume*AudioSystem::VOLUME, player->powerAttackAudio->Pitch, player->powerAttackAudio->Pan);
+					//player->spinAttackAudio->AudioFile->Play(player->spinAttackAudio->Volume*AudioSystem::VOLUME, player->spinAttackAudio->Pitch, player->spinAttackAudio->Pan);
 				}
 				enemiesInRangeToAOE.clear();
 
@@ -698,6 +709,15 @@ void PlayerSystem::UpdateCorutines()
 
 				playerRenderableComponent->_modelSkinned->isHealed = true;
 				playerHealedCorutine.Restart(0.1f);
+			}
+		}
+
+		if (gettingWeaponCorutine.active)
+		{
+			if (!(gettingWeaponCorutine.Update()))
+			{
+				gettingWeapon = false;
+				player->navMesh->isMoving = true;
 			}
 		}
 	}
@@ -746,8 +766,6 @@ void PlayerSystem::UpdateCorutines()
 				enemiesInRangeToAOE.clear();
 
 				turnOffVampireMode = true;
-
-				player->ripAttackAudio->AudioFile->Play(player->ripAttackAudio->Volume*AudioSystem::VOLUME, player->ripAttackAudio->Pitch, player->ripAttackAudio->Pan);
 			}
 		}
 	}
@@ -803,6 +821,10 @@ void PlayerSystem::UpdateAnimations()
 			}
 
 			playerRenderableComponent->_modelSkinned->currentAnimation = "Walk";
+		}
+		else if (gettingWeapon)
+		{
+			playerRenderableComponent->_modelSkinned->currentAnimation = "TheSword";
 		}
 		else if ((!player->isWalking) && (player->isNormalAttack))
 		{
@@ -866,6 +888,9 @@ void PlayerSystem::SetVampireMode(bool mode)
 		player->isWalking = false;
 		player->attackType = 0;
 		player->navMesh->isMoving = false;
+
+		gettingWeaponCorutine.active = false;
+		gettingWeapon = false;
 	}
 	else
 	{
