@@ -154,6 +154,7 @@ void Game::Update(DX::StepTimer const& timer)
 			gameStage = 6;
 			InitializeAll(device, context);
 			menuBackgroundAudio->Stop(true);
+			Ui->messageToShow = 1;
 		}
 	}
 	else if (gameStage == 5)
@@ -186,6 +187,7 @@ void Game::Update(DX::StepTimer const& timer)
 												if (plotTimer > 40.0f)
 												{
 													gameStage = 6;
+													Ui->messageToShow = 1;
 													plotBackgroundAudio->AudioFile->~SoundEffect();
 													gameBackgroundAudio->Mute = false;
 												}
@@ -238,6 +240,7 @@ void Game::Update(DX::StepTimer const& timer)
 		else
 		{
 			gameStage = 6;
+			Ui->messageToShow = 1;
 		}
 	}
 	else if (gameStage == 6)

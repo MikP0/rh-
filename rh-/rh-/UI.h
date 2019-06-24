@@ -43,6 +43,7 @@ public:
 
 	void Initialize();
 	void CheckSkillTips(bool vampireMode);
+	void ShowMessages(float elapsedTime);
 	void DrawRedBorder();
 	void Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode);
 	void Reset();
@@ -52,12 +53,16 @@ public:
 
 	shared_ptr<DirectX::SpriteBatch> uiSpriteBatch;
 	shared_ptr<DirectX::SpriteBatch> uiSpriteBatchBorder;
+	shared_ptr<DirectX::SpriteBatch> uiSpriteBatchMessages;
 
 	shared_ptr<DirectX::SpriteFont> fpsFont;
 	Vector2 fpsFontPos;
 	wstring fpsFontText;
 
 	bool transitionMode;
+	int messageToShow;
+	float messageDelay;
+	float messageElapsedTime;
 
 private:
 	ID3D11Device1 *_device;
