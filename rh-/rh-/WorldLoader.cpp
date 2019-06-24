@@ -142,7 +142,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							aShadow = atoi(eRenderableComponentShadow->GetText());	
 						}
 						else if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
-							aShadow = false;
+							aShadow = true;
 
 						if (std::string(oEntity->GetName()).find("Ceiling") != std::string::npos)
 							aIgnoreShadow = true;
