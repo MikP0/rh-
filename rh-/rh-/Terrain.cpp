@@ -47,7 +47,7 @@ void Terrain::Initialize(ID3D11DeviceContext1* context, ID3D11Device1* device, s
 	}
 
 	ResetTileMap();
-	SetTilesPosition(-15, 0);
+	SetTilesPosition(-50, 0);
 	CreateEdges();
 }
 

@@ -1,7 +1,7 @@
 #include "Include\\Common.fxh"
 #include "Include\\ShadowMap.fx"
 
-#define MAX_NUMBER_OF_LIGHT 25
+#define MAX_NUMBER_OF_LIGHT 100
 
 cbuffer StaticBuffer : register(b0)
 {
@@ -120,7 +120,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float3 totalLightContribution = (float3)0;
 	float3 tempColor;
 
-	[unroll(23)]
+	[unroll(100)]
 	for (int i = 0; i < NumOfLights.x; i++)
 	{
 		lightContributionData.LightDirection = get_light_data(PointLight[i].Position, input.worldPosition, PointLight[i].Radius);

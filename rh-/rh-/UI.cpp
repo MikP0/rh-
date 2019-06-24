@@ -6,6 +6,9 @@ UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, shared_ptr<Player
 	_device = device;
 	_context = context;
 	transitionMode = false;
+	messageToShow = 0;
+	messageDelay = 0.2f;
+	messageElapsedTime = 0.0f;
 	transitionElapsedTime = 0.0f;
 	_playerSystem = playerSystem;
 }
@@ -26,7 +29,8 @@ void UI::Initialize()
 		"skillKey1", "skillKey2", "skillKey3", "skillKey4",
 		"humanCoolDownFrame", "vampireCoolDownFrame", "humanSkillBlockade", "vampireSkillBlockade",
 		"normalAttackTip", "strongAttackTip", "spinAttackTip", "biteAttackTip",
-		"teleportTip", "cleaveAttackTip", "swapTip", "aoeAttackTip"
+		"teleportTip", "cleaveAttackTip", "swapTip", "aoeAttackTip",
+		"messageStartPlot", "messageStartTips"
 	};
 
 	vector<string> uiTextNames = {
@@ -77,7 +81,9 @@ void UI::Initialize()
 		{"teleportTip", "Resources\\UISprites\\Teleport_Tip.dds"},
 		{"cleaveAttackTip", "Resources\\UISprites\\Cleave_Attack_Tip.dds"},
 		{"swapTip", "Resources\\UISprites\\Swap_Tip.dds"},
-		{"aoeAttackTip", "Resources\\UISprites\\Aoe_Attack_Tip.dds"}
+		{"aoeAttackTip", "Resources\\UISprites\\Aoe_Attack_Tip.dds"},
+		{"messageStartPlot", "Resources\\UISprites\\Message_Start_Plot.dds"},
+		{"messageStartTips", "Resources\\UISprites\\Message_Start_Tips.dds"}
 	};
 
 	skillSetPosition = Vector2(690.0f, 930.0f);
@@ -130,6 +136,8 @@ void UI::Initialize()
 		{"cleaveAttackTip", skillSetPosition + Vector2(85.0f, -230.0f)},
 		{"swapTip", skillSetPosition + Vector2(240.0f, -230.0f)},
 		{"aoeAttackTip", skillSetPosition + Vector2(395.0f, -230.0f)},
+		{"messageStartPlot", Vector2(500.0f, 250.0f)},
+		{"messageStartTips", Vector2(500.0f, 250.0f)}
 	};
 
 	map<string, Vector2> uiNameScaleMap = {
@@ -180,6 +188,8 @@ void UI::Initialize()
 		{"cleaveAttackTip", Vector2(0.50f, 0.50f)},
 		{"swapTip", Vector2(0.50f, 0.50f)},
 		{"aoeAttackTip", Vector2(0.50f, 0.50f)},
+		{"messageStartPlot", Vector2(0.40f, 0.40f)},
+		{"messageStartTips", Vector2(0.40f, 0.40f)},
 	};
 
 
@@ -217,6 +227,7 @@ void UI::Initialize()
 
 	uiSpriteBatch = std::make_shared<SpriteBatch>(_context); // UI Component, UISystem->Initialize()
 	uiSpriteBatchBorder = std::make_shared<SpriteBatch>(_context);
+	uiSpriteBatchMessages = std::make_shared<SpriteBatch>(_context);
 
 	fpsFont = std::make_unique<SpriteFont>(_device, L"Resources\\Fonts\\fpsFont.spritefont");
 	fpsFontPos = Vector2(710.0f, 10.0f);
@@ -263,6 +274,45 @@ void UI::CheckSkillTips(bool vampireMode)
 	}
 }
 
+void UI::ShowMessages(float elapsedTime)
+{
+	Mouse::State mouse = Input::GetMouseState();
+	Keyboard::State keyboard = Input::GetKeyboardState();
+
+	uiSpriteBatchMessages->Begin();
+
+	switch (messageToShow)
+	{
+		case 1:
+		{
+			uiSpriteBatchMessages->Draw(_imageElements["messageStartPlot"].texture.Get(), _imageElements["messageStartPlot"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["messageStartPlot"].scale);
+
+			if (keyboard.Enter && messageElapsedTime > messageDelay)
+			{
+				messageToShow = 2;
+				messageElapsedTime = 0.0f;
+			}
+		} break;
+
+		case 2:
+		{
+			uiSpriteBatchMessages->Draw(_imageElements["messageStartTips"].texture.Get(), _imageElements["messageStartTips"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["messageStartTips"].scale);
+
+			if (keyboard.Enter && messageElapsedTime > messageDelay)
+			{
+				messageToShow = 0;
+				messageElapsedTime = 0.0f;
+			}
+		} break;
+	}
+
+	messageElapsedTime += elapsedTime;
+
+	uiSpriteBatchMessages->End();
+}
+
 void UI::DrawRedBorder()
 {
 	uiSpriteBatchBorder->Begin();
@@ -285,7 +335,6 @@ void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 
 	if (!humanMode)
 	{
-
 		uiSpriteBatch->Draw(_imageElements["healthBar"].texture.Get(), _imageElements["healthBar"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _imageElements["healthBar"].scale);
 
@@ -535,26 +584,26 @@ void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 
 		CheckSkillTips(vampireMode);
 
-		uiSpriteBatch->Draw(_imageElements["fpsBackground"].texture.Get(), _imageElements["fpsBackground"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["fpsBackground"].scale);
-
-		fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
-			fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
-
-		if (menuIsOn)
-		{
-			uiSpriteBatch->Draw(_imageElements["popUpMenu"].texture.Get(), _imageElements["popUpMenu"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _imageElements["popUpMenu"].scale);
-		}
+		
 	}
 	else
 	{
-		if (menuIsOn)
-		{
-			uiSpriteBatch->Draw(_imageElements["popUpMenu"].texture.Get(), _imageElements["popUpMenu"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _imageElements["popUpMenu"].scale);
-		}
+		
+	}
 
+	if (messageToShow != 0)
+		ShowMessages(elapsedTime);
+
+	uiSpriteBatch->Draw(_imageElements["fpsBackground"].texture.Get(), _imageElements["fpsBackground"].position, nullptr, Colors::White,
+		0.f, Vector2(0, 0), _imageElements["fpsBackground"].scale);
+
+	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
+		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
+
+	if (menuIsOn)
+	{
+		uiSpriteBatch->Draw(_imageElements["popUpMenu"].texture.Get(), _imageElements["popUpMenu"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["popUpMenu"].scale);
 	}
 
 	uiSpriteBatch->End();

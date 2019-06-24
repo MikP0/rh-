@@ -1,6 +1,6 @@
 #include "Include\\Common.fxh"
 
-#define MAX_NUMBER_OF_LIGHT 25
+#define MAX_NUMBER_OF_LIGHT 100
 
 cbuffer StaticBuffer : register(b0)
 {

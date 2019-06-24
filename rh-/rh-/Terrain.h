@@ -45,8 +45,8 @@ public:
 	Vector3 FallBack(Vector3, Vector3);
 
 
-	const int widthInTiles = 70;
-	const int heightInTiles = 100;
+	const int widthInTiles = 200;
+	const int heightInTiles = 300;
 	const float tileSize = 1.f;
 
 	vector<MapTilePtr> tiles;

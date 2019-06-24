@@ -43,6 +43,7 @@ public:
 	std::unique_ptr<DirectX::CommonStates> _states;
 	std::shared_ptr<ShadowFactory> _ShadowsfxFactory;
 	std::shared_ptr<ToonFactory> _noShadowsfxFactory;
+	std::shared_ptr<DirectX::IEffectFactory> _CeilingfxFactory;
 
 	ID3D11Device1* _device;
 	ID3D11DeviceContext1* _context;
