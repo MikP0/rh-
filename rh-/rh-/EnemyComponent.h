@@ -22,7 +22,7 @@ class EnemyComponent : public Component
 {
 public:
 	EnemyComponent();
-	EnemyComponent(int checkpointNumber, float Health, float Speed = 20.0f, float AttackLength = 1.9f, float AttackDamageTime = 0.6f, float Damage = 1.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 10.f);
+	EnemyComponent(int checkpointNumber, float Health, float Speed = 20.0f, float AttackLength = 1.9f, float AttackDamageTime = 0.6f, float Damage = 1.f, float DistanceToAttack = 1.0f, float FollowPlayerDistance = 5.f);
 	virtual ~EnemyComponent();
 
 	void LoadBruteAnimations();
