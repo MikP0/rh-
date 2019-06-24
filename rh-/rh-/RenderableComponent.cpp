@@ -11,9 +11,10 @@ RenderableComponent::RenderableComponent(std::wstring path , Camera* camera)
 	_canRenderShadows = false;
 	_canCastShadows = false;
 	_canReflect = false;
+	_ignoreShadows = false;
 }
 
-RenderableComponent::RenderableComponent(std::wstring path, Camera* camera, bool Shadow)
+RenderableComponent::RenderableComponent(std::wstring path, Camera* camera, bool Shadow, bool ignoreShadow)
 {
 	_modelPath = path;
 	_camera = camera;
@@ -22,6 +23,7 @@ RenderableComponent::RenderableComponent(std::wstring path, Camera* camera, bool
 	_canRenderShadows = Shadow;
 	_canCastShadows = false;
 	_canReflect = false;
+	_ignoreShadows = ignoreShadow;
 }
 
 RenderableComponent::RenderableComponent(std::wstring path, Camera* camera, bool Shadow, bool CastShadow)
@@ -33,6 +35,7 @@ RenderableComponent::RenderableComponent(std::wstring path, Camera* camera, bool
 	_canRenderShadows = Shadow;
 	_canCastShadows = CastShadow;
 	_canReflect = false;
+	_ignoreShadows = false;
 }
 
 RenderableComponent::RenderableComponent(std::wstring path, Camera * camera, bool Shadow, bool CastShadow, bool Reflection)
@@ -44,6 +47,7 @@ RenderableComponent::RenderableComponent(std::wstring path, Camera * camera, boo
 	_canRenderShadows = Shadow;
 	_canCastShadows = CastShadow;
 	_canReflect = Reflection;
+	_ignoreShadows = false;
 }
 
 RenderableComponent::~RenderableComponent()

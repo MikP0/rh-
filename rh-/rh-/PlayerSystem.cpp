@@ -85,7 +85,9 @@ void PlayerSystem::Initialize()
 void PlayerSystem::InitializeCheckpoints()
 {
 	checkpointMap[1] = dmath::Vector3(2.0f, 0.0f, 15.0f);
-	checkpointMap[2] = dmath::Vector3(10.0f, 0.0f, 60.0f);
+	checkpointMap[2] = dmath::Vector3(-7.7f, 0.0f, 59.4f);
+	checkpointMap[3] = dmath::Vector3(-13.93f, 0, 70.26f);
+	checkpointMap[4] = dmath::Vector3(-12.67f, 0, 91.79f);
 }
 
 void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates)

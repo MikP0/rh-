@@ -146,6 +146,15 @@ private:
 	std::shared_ptr<Entity> enemyEntity4;
 	std::shared_ptr<Entity> enemyEntity5;
 	std::shared_ptr<Entity> enemyEntity6;
+	std::shared_ptr<Entity> enemyEntity7;
+	std::shared_ptr<Entity> enemyEntity8;
+	std::shared_ptr<Entity> enemyEntity9;
+	std::shared_ptr<Entity> enemyEntity10;
+	std::shared_ptr<Entity> enemyEntity11;
+	std::shared_ptr<Entity> enemyEntity12;
+	std::shared_ptr<Entity> enemyEntity13;
+	std::shared_ptr<Entity> enemyEntity14;
+	std::shared_ptr<Entity> enemyEntity15;
 
 	// floor for shadows
 	std::shared_ptr<Entity> myEntityFloor;

@@ -120,7 +120,7 @@ void ShadowMap::BuildShadowTransform(DirectX::SimpleMath::Vector3 pos)
 	DirectX::XMVECTOR lightDir = DirectX::XMVectorSet(1.0f, -1.0f, -0.5f, 0.0f);
 	DirectX::XMVECTOR eye = -lightDir * 50;
 	DirectX::XMVECTOR at = DirectX::XMVectorSet(pos.x, 0.0f, pos.z, 0.0f);
-	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 10.0f, 0.0f, 0.0f);
 
 	DirectX::XMMATRIX smView = DirectX::XMMatrixLookAtLH(eye, at, up);
 	DirectX::XMMATRIX smProjection = DirectX::XMMatrixOrthographicLH(20.f, 20.f, 0.1f, 100.f);
