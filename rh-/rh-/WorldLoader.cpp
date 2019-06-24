@@ -128,6 +128,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 						std::wstring aPath;
 						bool aShadow = false;
 						bool castShadow = true;
+						bool reflectThat = false;
 
 						tx::XMLElement* eRenderableComponentPath = eRenderableComponent->FirstChildElement("Path");
 						if (eRenderableComponentPath != nullptr)
@@ -146,12 +147,18 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 
 						if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
 							castShadow = false;
-						//else if (std::string(oEntity->GetName()).find("Ceiling") != std::string::npos)
-						//	castShadow = false;
+						else if (std::string(oEntity->GetName()).find("Ceiling") != std::string::npos)
+							castShadow = false;
 						else if (std::string(oEntity->GetName()).find("Wall") != std::string::npos)
 							castShadow = false;
+						else if (std::string(oEntity->GetName()).find("lamp") != std::string::npos)
+							castShadow = false;
 
-						oEntity->AddComponent<RenderableComponent>(aPath, _camera, aShadow, castShadow);
+		
+						if (std::string(oEntity->GetName()).find("Coffin") != std::string::npos)
+							reflectThat = true;
+
+						oEntity->AddComponent<RenderableComponent>(aPath, _camera, aShadow, castShadow, reflectThat);
 					}
 
 					tx::XMLElement* eLightComponent = eComponents->FirstChildElement("LightComponent");

@@ -239,6 +239,8 @@
     <ClInclude Include="HumanSystem.h">
       <Filter>Inc</Filter>
     </ClInclude>
+    <ClInclude Include="ReflectionFactory.h" />
+    <ClInclude Include="ReflectionEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp">
@@ -434,6 +436,8 @@
     <ClCompile Include="HumanSystem.cpp">
       <Filter>Src</Filter>
     </ClCompile>
+    <ClCompile Include="ReflectionFactory.cpp" />
+    <ClCompile Include="ReflectionEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -496,6 +500,12 @@
       <Filter>Inc\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="content\Shaders\PSShadowShader.hlsl">
+      <Filter>Inc\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Shaders\PSReflectionShader.hlsl">
+      <Filter>Inc\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="content\Shaders\VSReflectionShader.hlsl">
       <Filter>Inc\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
