@@ -879,7 +879,7 @@ void Game::CreateWindowSizeDependentResources()											// !! CreateResources(
 
 
 	camera.SetPosition(0.0f, 0.0f, -2.0f); // TODO: Move to camera function
-	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.1f, 30.f);
+	camera.SetProjectionValues(XMConvertToRadians(70.f), float(size.right) / float(size.bottom), 0.1f, 200.f);
 	camera.SetPitch(m_pitch);
 	camera.SetYaw(m_yaw);
 	camera.SetZoom(XMFLOAT3(0.f, 0.f, 0.f));
@@ -1003,8 +1003,8 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	world = std::make_shared<World>();
 	worldLoader = std::make_shared<WorldLoader>(world, &camera);
 
-	worldLoader->LoadWorldFromXML("testLevel.xml");
-	worldLoader->LoadWorldFromXML("testLevel2.xml");
+	worldLoader->LoadWorldFromXML("Level1.xml");
+	//worldLoader->LoadWorldFromXML("testLevel2.xml");
 
 	// Creation of systems ------------------------------------------------------------------
 	audioSystem = std::make_shared<AudioSystem>();

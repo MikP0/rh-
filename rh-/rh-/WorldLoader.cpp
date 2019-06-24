@@ -85,7 +85,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					tx::XMLElement* eYCoord = ePosition->FirstChildElement("y");
 					if (eYCoord != nullptr)
 					{
-						oEntity->GetTransform()->SetY(atof(eYCoord->GetText()) + 1.82f);
+						oEntity->GetTransform()->SetY(atof(eYCoord->GetText()));
 					}
 
 					tx::XMLElement* eZCoord = ePosition->FirstChildElement("z");
@@ -127,6 +127,7 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					{
 						std::wstring aPath;
 						bool aShadow = false;
+						bool aIgnoreShadow = false;
 
 						tx::XMLElement* eRenderableComponentPath = eRenderableComponent->FirstChildElement("Path");
 						if (eRenderableComponentPath != nullptr)
@@ -141,12 +142,16 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							aShadow = atoi(eRenderableComponentShadow->GetText());	
 						}
 						else if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
-							aShadow = true;
+							aShadow = false;
+
+						if (std::string(oEntity->GetName()).find("Ceiling") != std::string::npos)
+							aIgnoreShadow = true;
+						
 
 						//if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
 							//aShadow = true;
 
-						oEntity->AddComponent<RenderableComponent>(aPath, _camera, aShadow);
+						oEntity->AddComponent<RenderableComponent>(aPath, _camera, aShadow, aIgnoreShadow);
 					}
 
 					tx::XMLElement* eLightComponent = eComponents->FirstChildElement("LightComponent");
