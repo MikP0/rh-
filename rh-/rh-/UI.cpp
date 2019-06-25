@@ -12,6 +12,7 @@ UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, shared_ptr<Player
 	messageElapsedTime = 0.0f;
 	transitionElapsedTime = 0.0f;
 	_playerSystem = playerSystem;
+	selectedVampireSkillScale = Vector2(0.03f, 0.03f);
 }
 
 UI::~UI()
@@ -108,8 +109,8 @@ void UI::Initialize()
 		{"swap", Vector2(skillSetPosition.x + 295.0f, skillSetPosition.y - 10.0f)},
 		{"aoeAttack", Vector2(skillSetPosition.x + 445.0f, skillSetPosition.y - 10.0f)},
 		{"fpsBackground", Vector2(710.0f, -5.0f)},
-		{"popUpMenu", Vector2(700.0f, 180.0f)},
-		{"popUpMenuOptions", Vector2(700.0f, 180.0f)},
+		{"popUpMenu", Vector2(750.0f, 180.0f)},
+		{"popUpMenuOptions", Vector2(750.0f, 180.0f)},
 		{"heroIconVampire", Vector2(0.0f, 0.0f)},
 		{"heroIconVampireRing", Vector2(0.0f, 0.0f)},
 		{"heroIconTransitionRing", Vector2(0.0f, 0.0f)},
@@ -322,11 +323,11 @@ void UI::ShowMessages(float elapsedTime)
 
 		case 3:
 		{
-			if (messageElapsedTime > 3.0f)
-			uiSpriteBatchMessages->Draw(_imageElements["messageWeapon"].texture.Get(), _imageElements["messageWeapon"].position, nullptr, Colors::White,
-				0.f, Vector2(0, 0), _imageElements["messageWeapon"].scale);
+			if (messageElapsedTime > 4.0f)
+				uiSpriteBatchMessages->Draw(_imageElements["messageWeapon"].texture.Get(), _imageElements["messageWeapon"].position, nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["messageWeapon"].scale);
 
-			if (keyboard.Enter && messageElapsedTime > (3.0f + messageDelay))
+			if (keyboard.Enter && messageElapsedTime > (4.0f + messageDelay))
 			{
 				messageToShow = 4;
 				messageElapsedTime = 0.0f;
@@ -556,14 +557,28 @@ void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 
 			if (!_playerSystem->blockade->IsSkillBlocked("teleport"))
 			{
-				uiSpriteBatch->Draw(_imageElements["skillKey1"].texture.Get(), _imageElements["skillKey1"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["skillKey1"].scale);
+				if (vampireAbility == 1)
+				{
+					uiSpriteBatch->Draw(_imageElements["skillKey1"].texture.Get(), _imageElements["skillKey1"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["skillKey1"].scale + selectedVampireSkillScale);
 
-				uiSpriteBatch->Draw(_imageElements["teleport"].texture.Get(), _imageElements["teleport"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["teleport"].scale);
+					uiSpriteBatch->Draw(_imageElements["teleport"].texture.Get(), _imageElements["teleport"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["teleport"].scale + selectedVampireSkillScale);
 
-				uiSpriteBatch->Draw(_imageElements["teleportCost"].texture.Get(), _imageElements["teleportCost"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["teleportCost"].scale);
+					uiSpriteBatch->Draw(_imageElements["teleportCost"].texture.Get(), _imageElements["teleportCost"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["teleportCost"].scale + selectedVampireSkillScale);
+				}
+				else
+				{
+					uiSpriteBatch->Draw(_imageElements["skillKey1"].texture.Get(), _imageElements["skillKey1"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["skillKey1"].scale);
+
+					uiSpriteBatch->Draw(_imageElements["teleport"].texture.Get(), _imageElements["teleport"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["teleport"].scale);
+
+					uiSpriteBatch->Draw(_imageElements["teleportCost"].texture.Get(), _imageElements["teleportCost"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["teleportCost"].scale);
+				}		
 			}
 			else
 			{
@@ -573,14 +588,28 @@ void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 
 			if (!_playerSystem->blockade->IsSkillBlocked("cleaveAttack"))
 			{
-				uiSpriteBatch->Draw(_imageElements["skillKey2"].texture.Get(), _imageElements["skillKey2"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["skillKey2"].scale);
+				if (vampireAbility == 2)
+				{
+					uiSpriteBatch->Draw(_imageElements["skillKey2"].texture.Get(), _imageElements["skillKey2"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["skillKey2"].scale + selectedVampireSkillScale);
 
-				uiSpriteBatch->Draw(_imageElements["cleaveAttack"].texture.Get(), _imageElements["cleaveAttack"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["cleaveAttack"].scale);
+					uiSpriteBatch->Draw(_imageElements["cleaveAttack"].texture.Get(), _imageElements["cleaveAttack"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["cleaveAttack"].scale + selectedVampireSkillScale);
 
-				uiSpriteBatch->Draw(_imageElements["cleaveAttackCost"].texture.Get(), _imageElements["cleaveAttackCost"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["cleaveAttackCost"].scale);
+					uiSpriteBatch->Draw(_imageElements["cleaveAttackCost"].texture.Get(), _imageElements["cleaveAttackCost"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["cleaveAttackCost"].scale + selectedVampireSkillScale);
+				}
+				else
+				{
+					uiSpriteBatch->Draw(_imageElements["skillKey2"].texture.Get(), _imageElements["skillKey2"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["skillKey2"].scale);
+
+					uiSpriteBatch->Draw(_imageElements["cleaveAttack"].texture.Get(), _imageElements["cleaveAttack"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["cleaveAttack"].scale);
+
+					uiSpriteBatch->Draw(_imageElements["cleaveAttackCost"].texture.Get(), _imageElements["cleaveAttackCost"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["cleaveAttackCost"].scale);
+				}
 			}
 			else
 			{
@@ -590,14 +619,28 @@ void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 
 			if (!_playerSystem->blockade->IsSkillBlocked("swap"))
 			{
-				uiSpriteBatch->Draw(_imageElements["skillKey3"].texture.Get(), _imageElements["skillKey3"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["skillKey3"].scale);
+				if (vampireAbility == 3)
+				{
+					uiSpriteBatch->Draw(_imageElements["skillKey3"].texture.Get(), _imageElements["skillKey3"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["skillKey3"].scale + selectedVampireSkillScale);
 
-				uiSpriteBatch->Draw(_imageElements["swap"].texture.Get(), _imageElements["swap"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["swap"].scale);
+					uiSpriteBatch->Draw(_imageElements["swap"].texture.Get(), _imageElements["swap"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["swap"].scale + selectedVampireSkillScale);
 
-				uiSpriteBatch->Draw(_imageElements["swapCost"].texture.Get(), _imageElements["swapCost"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["swapCost"].scale);
+					uiSpriteBatch->Draw(_imageElements["swapCost"].texture.Get(), _imageElements["swapCost"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["swapCost"].scale + selectedVampireSkillScale);
+				}
+				else
+				{
+					uiSpriteBatch->Draw(_imageElements["skillKey3"].texture.Get(), _imageElements["skillKey3"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["skillKey3"].scale);
+
+					uiSpriteBatch->Draw(_imageElements["swap"].texture.Get(), _imageElements["swap"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["swap"].scale);
+
+					uiSpriteBatch->Draw(_imageElements["swapCost"].texture.Get(), _imageElements["swapCost"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["swapCost"].scale);
+				}	
 			}
 			else
 			{
@@ -607,15 +650,28 @@ void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 
 			if (!_playerSystem->blockade->IsSkillBlocked("aoeAttack"))
 			{
-				uiSpriteBatch->Draw(_imageElements["skillKey4"].texture.Get(), _imageElements["skillKey4"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["skillKey4"].scale);
+				if (vampireAbility == 4)
+				{
+					uiSpriteBatch->Draw(_imageElements["skillKey4"].texture.Get(), _imageElements["skillKey4"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["skillKey4"].scale + selectedVampireSkillScale);
 
-				uiSpriteBatch->Draw(_imageElements["aoeAttack"].texture.Get(), _imageElements["aoeAttack"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["aoeAttack"].scale);
+					uiSpriteBatch->Draw(_imageElements["aoeAttack"].texture.Get(), _imageElements["aoeAttack"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["aoeAttack"].scale + selectedVampireSkillScale);
 
-				uiSpriteBatch->Draw(_imageElements["aoeAttackCost"].texture.Get(), _imageElements["aoeAttackCost"].position, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["aoeAttackCost"].scale);
+					uiSpriteBatch->Draw(_imageElements["aoeAttackCost"].texture.Get(), _imageElements["aoeAttackCost"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["aoeAttackCost"].scale + selectedVampireSkillScale);
+				}
+				else
+				{
+					uiSpriteBatch->Draw(_imageElements["skillKey4"].texture.Get(), _imageElements["skillKey4"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["skillKey4"].scale);
 
+					uiSpriteBatch->Draw(_imageElements["aoeAttack"].texture.Get(), _imageElements["aoeAttack"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["aoeAttack"].scale);
+
+					uiSpriteBatch->Draw(_imageElements["aoeAttackCost"].texture.Get(), _imageElements["aoeAttackCost"].position, nullptr, Colors::White,
+						0.f, Vector2(0, 0), _imageElements["aoeAttackCost"].scale);
+				}
 			}
 			else
 			{
@@ -625,10 +681,10 @@ void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 
 			if (vampireAbility != 0)
 			{
-				Vector2 vampireRedCirclePos = _imageElements["vamprireRedCircle"].position + Vector2(150.0f * (_playerSystem->player->vampireAbility - 1), 0.0f);
+				Vector2 vampireRedCirclePos = _imageElements["vamprireRedCircle"].position + Vector2(150.0f * (vampireAbility - 1), 0.0f);
 
 				uiSpriteBatch->Draw(_imageElements["vamprireRedCircle"].texture.Get(), vampireRedCirclePos, nullptr, Colors::White,
-					0.f, Vector2(0, 0), _imageElements["vamprireRedCircle"].scale);
+					0.f, Vector2(0, 0), _imageElements["vamprireRedCircle"].scale + selectedVampireSkillScale);
 			}
 		}
 

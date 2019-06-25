@@ -95,10 +95,10 @@ void Game::Update(DX::StepTimer const& timer)
 
 	////////////////////////////////////////SKIP////////////////////////////////////////
 	// TO SKIP MENU and SKIP PLOT
-	//mainMenu = false;
+	mainMenu = false;
 
 	//TO SKIP FIRST PHASE 
-	//SetHumanMode(false);
+	SetHumanMode(false);
 	////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -451,15 +451,15 @@ void Game::Update(DX::StepTimer const& timer)
 
 			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
-				if ((mouse.x >= size.left + 0.43f * size.right) && (mouse.x <= size.left + 0.55f * size.right))
+				if ((mouse.x >= size.left + 0.42f * size.right) && (mouse.x <= size.left + 0.515f * size.right))
 				{
 					/////////////////////////////////////////////////////////////////////////////////////////////////CONTINUE
-					if ((mouse.y >= size.top + 0.27f * size.bottom) && (mouse.y <= size.top + 0.30f * size.bottom))
+					if ((mouse.y >= size.top + 0.24f * size.bottom) && (mouse.y <= size.top + 0.27f * size.bottom))
 					{
 						menuIsOn = 0;
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////LOADGAME
-					else if ((mouse.y >= size.top + 0.37f * size.bottom) && (mouse.y <= size.top + 0.40f * size.bottom))
+					else if ((mouse.y >= size.top + 0.33f * size.bottom) && (mouse.y <= size.top + 0.42f * size.bottom))
 					{
 						menuIsOn = 0;
 						RespawnRestart();
@@ -470,7 +470,7 @@ void Game::Update(DX::StepTimer const& timer)
 						menuIsOn = 2;
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////EXIT
-					else if ((mouse.y >= size.top + 0.59f * size.bottom) && (mouse.y <= size.top + 0.63f * size.bottom))
+					else if ((mouse.y >= size.top + 0.56f * size.bottom) && (mouse.y <= size.top + 0.595f * size.bottom))
 					{
 						ExitGame();
 					}
@@ -484,36 +484,36 @@ void Game::Update(DX::StepTimer const& timer)
 
 			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
-				if ((mouse.x >= size.left + 0.43f * size.right) && (mouse.x <= size.left + 0.55f * size.right))
+				if ((mouse.x >= size.left + 0.42f * size.right) && (mouse.x <= size.left + 0.515f * size.right))
 				{
 					/////////////////////////////////////////////////////////////////////////////////////////////////BACK
-					if ((mouse.y >= size.top + 0.26f * size.bottom) && (mouse.y <= size.top + 0.29f * size.bottom))
+					if ((mouse.y >= size.top + 0.52f * size.bottom) && (mouse.y <= size.top + 0.555f * size.bottom))
 					{
 						menuIsOn = 1;
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////VOLUME
-					else if ((mouse.y >= size.top + 0.43f * size.bottom) && (mouse.y <= size.top + 0.46f * size.bottom))
-					{
-						if ((mouse.x >= size.left + 0.445f * size.right) && (mouse.x <= size.left + 0.465f * size.right)) // +
-						{
+					else if ((mouse.y >= size.top + 0.44f * size.bottom) && (mouse.y <= size.top + 0.475f * size.bottom))
+					{				
+						if ((mouse.x >= size.left + 0.44f * size.right) && (mouse.x <= size.left + 0.46f * size.right)) // +
+						{						
 							AudioSystem::VOLUME = AudioSystem::VOLUME + 0.1f;
 						}
-						else if ((mouse.x >= size.left + 0.505f * size.right) && (mouse.x <= size.left + 0.525f * size.right))	// -
+						else if ((mouse.x >= size.left + 0.49f * size.right) && (mouse.x <= size.left + 0.505f * size.right))	// -
 						{
 							AudioSystem::VOLUME = AudioSystem::VOLUME - 0.1f;
 						}
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////BRIGHT
-					else if ((mouse.y >= size.top + 0.59f * size.bottom) && (mouse.y <= size.top + 0.62f * size.bottom))
+					else if ((mouse.y >= size.top + 0.33f * size.bottom) && (mouse.y <= size.top + 0.35f * size.bottom))
 					{
-						if ((mouse.x >= size.left + 0.445f * size.right) && (mouse.x <= size.left + 0.465f * size.right))	// +
+						if ((mouse.x >= size.left + 0.44f * size.right) && (mouse.x <= size.left + 0.46f * size.right)) // +
 						{
 							brightness += 0.2f;
 
 							if (brightness > 7.0f)
 								brightness = 7.0f;
 						}
-						else if ((mouse.x >= size.left + 0.505f * size.right) && (mouse.x <= size.left + 0.525f * size.right))   // -
+						else if ((mouse.x >= size.left + 0.49f * size.right) && (mouse.x <= size.left + 0.505f * size.right))	// -
 						{
 							brightness -= 0.2f;
 
