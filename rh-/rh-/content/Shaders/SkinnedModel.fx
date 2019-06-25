@@ -6,8 +6,19 @@
 cbuffer CBufferPerFrame
 {
     float4 AmbientColor = { 1.0f, 1.0f, 1.0f, 0.0f };
-    float4 LightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float3 LightPosition = { 0.0f, 0.0f, -2.0f };
+    float4 LightColor = { 0.7f, 0.7f, 0.7f, 0.9f };
+
+	float3 LightPosition = { 0.f, 1.5f, -30.0f };
+	float3 LightPosition2 = { -10.0f, 1.5f, -15.0f };
+	float3 LightPosition3 = { -10.0f, 1.5f, 30.0f };
+	float3 LightPosition4 = { -10.0f, 1.5f, 45.0f };
+	float3 LightPosition5 = { -10.0f, 1.5f, 60.0f };
+	float3 LightPosition6 = { -10.0f, 1.5f, 75.0f };
+	float3 LightPosition7 = { -10.0f, 1.5f, 90.0f };
+	float3 LightPosition8 = { -10.0f, 1.5f, 105.0f };
+	float3 LightPosition9 = { 0.0f, 1.5f, 115.0f };
+	float3 LightPosition10 = { 20.0f, 1.5f, -15.0f };
+
     float LightRadius = 150.0f;
     float3 CameraPosition;
 }
@@ -16,8 +27,8 @@ cbuffer CBufferPerObject
 {
     float4x4 WorldViewProjection : WORLDVIEWPROJECTION;
     float4x4 World : WORLD;
-    float4 SpecularColor : SPECULAR = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float SpecularPower : SPECULARPOWER  = 25.0f;
+    float4 SpecularColor : SPECULAR = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float SpecularPower : SPECULARPOWER  = 0.0f;
 	float4x4 View : VIEW;
 	float4x4 Projection : PROJECTION;
 
@@ -86,6 +97,19 @@ struct VS_SHADOW_OUTPUT
 };
 
 
+float3 countFastLight(LIGHT_CONTRIBUTION_DATA lightContributionData, float3 WorldPosition, float3 normal, float3 pos, float rad)
+{
+	float3 result = (float3)0;
+	float3 tempColor;
+	lightContributionData.LightDirection = get_light_data(pos, WorldPosition, rad);
+	lightContributionData.LightColor = LightColor;
+	tempColor = get_light_contribution(lightContributionData);
+	tempColor = get_toonShading(lightContributionData.LightDirection, normal, tempColor);
+	result = tempColor;
+	
+	return result;
+}
+
 /************* Vertex Shader *************/
 
 VS_OUTPUT vertex_shader(VS_INPUT IN)
@@ -121,34 +145,31 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
     float4 OUT = (float4)0;
 
 	float3 normal = normalize(IN.Normal);
-    float3 lightDirection = LightPosition - IN.WorldPosition;
-    lightDirection = normalize(lightDirection);
-
+	float3 viewDirection = normalize(CameraPosition - IN.WorldPosition);
 	float4 color = ColorTexture.Sample(ColorSampler, IN.TextureCoordinate);
 
-	float3 tempColor = color;
-	tempColor = get_toonShading(float4(lightDirection.x, lightDirection.y, lightDirection.z, 1.0f), normal, tempColor);
-	color.a = 1;
-	color.xyz = tempColor;
 
+	LIGHT_CONTRIBUTION_DATA lightContributionData;
+	lightContributionData.Color = color;
+	lightContributionData.Normal = normal;
+	lightContributionData.ViewDirection = viewDirection;
+	lightContributionData.SpecularColor = SpecularColor;
+	lightContributionData.SpecularPower = SpecularPower;
 
-	float3 mycam;
-	mycam.x = 0.0f;
-	mycam.y = 0.0f;
-	mycam.z = 0.0f;
+	float3 totalLightContribution = (float3)0;
+	
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition, 150);
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition2, 150);
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition3, 150);
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition4, 100);
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition5, 100);
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition6, 100);
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition7, 100);
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition8, 100);
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition9, 100);
+	totalLightContribution += countFastLight(lightContributionData, IN.WorldPosition, normal, LightPosition10, 150);
 
-    float3 viewDirection = normalize(mycam - IN.WorldPosition);
-
-    
-    float n_dot_l = dot(normal, lightDirection);
-    float3 halfVector = normalize(lightDirection + viewDirection);
-    float n_dot_h = dot(normal, halfVector);
-
-    float4 lightCoefficients = lit(n_dot_l, n_dot_h, SpecularPower);
-
-    float3 ambient = get_vector_color_contribution(AmbientColor, color.rgb);
-    float3 diffuse = get_vector_color_contribution(LightColor, lightCoefficients.y * color.rgb) * IN.Attenuation;
-    float3 specular = get_scalar_color_contribution(SpecularColor, min(lightCoefficients.z, color.w)) * IN.Attenuation;
+	float3 diffuse = totalLightContribution;
 
 	if (Hitted.x == 1.0f)
 	{
@@ -160,7 +181,7 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
 	}
 
 
-	OUT.rgb = ambient + diffuse + float3(1.0f,1.0f,1.0) * 0.5f;// +specular;
+	OUT.rgb = diffuse;
     OUT.a = 1.0f;
 
     return OUT;
