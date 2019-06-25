@@ -538,23 +538,33 @@ void Game::UpdateObjects(float elapsedTime)
 
 	if (!humanMode)
 	{
-		if (vampireMode)
+		if (Ui->messageToShow == 5)
 		{
-			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
-			{
-				vampireMode = false;
-				playerSystem->SetVampireMode(false);
-				enemySystem->SetVampireMode(false);
-			}
+			vampireMode = true;
+			Ui->transitionMode = true;
+			playerSystem->SetVampireMode(true);
+			enemySystem->SetVampireMode(true);
 		}
 		else
 		{
-			if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space))
+			if (vampireMode)
 			{
-				vampireMode = true;
-				Ui->transitionMode = true;
-				playerSystem->SetVampireMode(true);
-				enemySystem->SetVampireMode(true);
+				if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space) && (*playerSystem->messageMode == false))
+				{
+					vampireMode = false;
+					playerSystem->SetVampireMode(false);
+					enemySystem->SetVampireMode(false);
+				}
+			}
+			else
+			{
+				if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space) && (*playerSystem->messageMode == false))
+				{
+					vampireMode = true;
+					Ui->transitionMode = true;
+					playerSystem->SetVampireMode(true);
+					enemySystem->SetVampireMode(true);
+				}
 			}
 		}
 	}
@@ -563,6 +573,7 @@ void Game::UpdateObjects(float elapsedTime)
 		if (humanSystem->stopHumanMode)
 		{
 			SetHumanMode(false);
+			Ui->messageToShow = 3;
 		}
 		else
 		{
@@ -1586,14 +1597,13 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	world->InitializeSystem<PlayerSystem>();
 	world->InitializeSystem<HumanSystem>();
 
-
-	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
-	playerSystem->AdditionalInitialization(terrain, humanSkillsNames, vampireSkillsNames, skillsTimeLimits, skillsBlockadeStates);
-	humanSystem->AdditionalInitialization(terrain, humanSkillsNames, vampireSkillsNames, skillsTimeLimits, skillsBlockadeStates);
-	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
-
 	//Setting up UI -----------------------------------------------------------------------------------
 	Ui = make_shared<UI>(device, context, playerSystem);
+
+	// ----------------------   AFTER INITIALIZATION   -----------------------------------------------
+	playerSystem->AdditionalInitialization(terrain, humanSkillsNames, vampireSkillsNames, skillsTimeLimits, skillsBlockadeStates, Ui->messageMode);
+	humanSystem->AdditionalInitialization(terrain, humanSkillsNames, vampireSkillsNames, skillsTimeLimits, skillsBlockadeStates, Ui->messageMode);
+	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
 
 	////Setting up skinned model -----------------------------------------------------------------------
 

@@ -60,6 +60,7 @@ public:
 	wstring fpsFontText;
 
 	bool transitionMode;
+	shared_ptr<bool> messageMode;
 	int messageToShow;
 	float messageDelay;
 	float messageElapsedTime;

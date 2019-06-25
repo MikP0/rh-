@@ -52,12 +52,13 @@ void HumanSystem::InitializeCheckpoints()
 	checkpointMap[2] = dmath::Vector3(10.0f, 0.0f, 60.0f);
 }
 
-void HumanSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates)
+void HumanSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates, std::shared_ptr<bool> mesgMode)
 {
 	player->navMesh = std::make_shared<NavMesh>(player->GetParent()->GetTransform());
 	player->navMesh->terrain = Terrain;
 	player->navMesh->speed = player->playerSpeed;
 	player->playerPositionOrigin = player->GetParent()->GetTransform()->GetPosition();
+	messageMode = mesgMode;
 }
 
 void HumanSystem::RespawnPlayer(int checkpoint)
@@ -69,7 +70,7 @@ void HumanSystem::RespawnPlayer(int checkpoint)
 
 void HumanSystem::UpdateNormalMode()
 {
-	if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED || mouseTracker.leftButton == Mouse::ButtonStateTracker::HELD)
+	if ((mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED || mouseTracker.leftButton == Mouse::ButtonStateTracker::HELD) && (*messageMode == false))
 	{
 		shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
 		vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
