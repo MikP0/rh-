@@ -58,9 +58,9 @@ SamplerState ColorSampler
 //------------------------------------------------------------------------------
 // Textures and Samplers
 //------------------------------------------------------------------------------
-Texture2D ColorMap : register(t0);
+//Texture2D ColorMap : register(t0);
 
-TextureCube<float4> SkyboxTexture : register(t1);
+TextureCube<float4> SkyboxTexture : register(t0);
 
 SamplerState samAnisotropic
 {
@@ -102,44 +102,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
 
 
 
-
-
-	float3 normal = NormalW;
-	float3 viewDirection = toEye;
-
-
-	float4 color;
-
-	if (IsTextured == 0.0f)
-	{
-		color = DiffuseColor;
-	}
-	else
-	{
-		color = ColorMap.Sample(ColorSampler, input.Tex);
-	}
-
-
-	// POINT LIGHTS
-	LIGHT_CONTRIBUTION_DATA lightContributionData;
-	lightContributionData.Color = color;
-	lightContributionData.Normal = normal;
-	lightContributionData.ViewDirection = viewDirection;
-	lightContributionData.SpecularColor = SpecularColor;
-	lightContributionData.SpecularPower = SpecularPower;
-
-	float3 totalLightContribution = float3(1.0f, 1.0f, 1.0f);
-	float3 tempColor;
-
-	[unroll]
-	for (int i = 0; i < NumOfLights.x; i++)
-	{
-		lightContributionData.LightDirection = get_light_data(PointLight[i].Position, input.PosW, PointLight[i].Radius);
-		lightContributionData.LightColor = PointLight[i].Color;
-		tempColor = get_light_contribution(lightContributionData);
-		tempColor = get_toonShading(lightContributionData.LightDirection, normal, tempColor);
-		totalLightContribution += tempColor;
-	}
 
 
 	OUT.rgb = litColor;

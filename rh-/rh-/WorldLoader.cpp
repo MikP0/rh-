@@ -156,8 +156,8 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							castShadow = false;
 
 		
-						if (std::string(oEntity->GetName()).find("Coffin_Open") != std::string::npos)
-							reflectThat = true;
+						/*if (std::string(oEntity->GetName()).find("Coffin_Open") != std::string::npos)
+							reflectThat = true;*/
 
 						if (std::string(oEntity->GetName()).find("Ceiling") != std::string::npos)
 							aIgnoreShadow = true;

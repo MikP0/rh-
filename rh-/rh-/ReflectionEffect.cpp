@@ -298,28 +298,28 @@ void ReflectionEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 	//HR(D3DX11CreateShaderResourceViewFromFile(device,
 	//	cubemapFilename.c_str(), 0, 0, &mCubeMapSRV, 0));
 
-	ID3D11ShaderResourceView* textures[2];
+	ID3D11ShaderResourceView* textures[1];
 
-	if (m_isTextured)
+	/*if (m_isTextured)
 	{
 		textures[0] = m_texture.Get();
 	}
 	else
 	{
 		textures[0] = nullptr;
-	}
+	}*/
 
-	if (m_isCubed)
-	{
-		textures[1] = m_cubeMap.Get();
-	}
-	else
-	{
-		textures[1] = nullptr;
-	}
+	//if (m_isCubed)
+	//{
+		textures[0] = m_cubeMap.Get();
+	//}
+	//else
+	//{
+	//	textures[1] = nullptr;
+	//}
 
 	deviceContext->PSSetShaderResources(
-		0, static_cast<UINT>(2), textures);
+		0, static_cast<UINT>(1), textures);
 
 	deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
