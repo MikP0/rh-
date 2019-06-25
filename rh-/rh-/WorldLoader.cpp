@@ -127,6 +127,8 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 					{
 						std::wstring aPath;
 						bool aShadow = false;
+						bool castShadow = true;
+						bool reflectThat = false;
 						bool aIgnoreShadow = false;
 
 						tx::XMLElement* eRenderableComponentPath = eRenderableComponent->FirstChildElement("Path");
@@ -144,14 +146,23 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 						else if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
 							aShadow = true;
 
+						if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
+							castShadow = false;
+						else if (std::string(oEntity->GetName()).find("Ceiling") != std::string::npos)
+							castShadow = false;
+						else if (std::string(oEntity->GetName()).find("Wall") != std::string::npos)
+							castShadow = false;
+						else if (std::string(oEntity->GetName()).find("lamp") != std::string::npos)
+							castShadow = false;
+
+		
+						/*if (std::string(oEntity->GetName()).find("Coffin_Open") != std::string::npos)
+							reflectThat = true;*/
+
 						if (std::string(oEntity->GetName()).find("Ceiling") != std::string::npos)
 							aIgnoreShadow = true;
-						
 
-						//if (std::string(oEntity->GetName()).find("Floor") != std::string::npos)
-							//aShadow = true;
-
-						oEntity->AddComponent<RenderableComponent>(aPath, _camera, aShadow, aIgnoreShadow);
+						oEntity->AddComponent<RenderableComponent>(aPath, _camera, aShadow, castShadow, reflectThat, aIgnoreShadow);
 					}
 
 					tx::XMLElement* eLightComponent = eComponents->FirstChildElement("LightComponent");

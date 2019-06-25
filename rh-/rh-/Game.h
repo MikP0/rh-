@@ -77,6 +77,8 @@ public:
 	// Properties
 	void GetDefaultSize(int& width, int& height);
 
+	void RespawnRestart();
+
 private:
 
 	void Update(DX::StepTimer const& timer);
@@ -266,7 +268,7 @@ private:
 	float total_Time;
 	float elapsed_Time;
 
-	bool menuIsOn;
+	int menuIsOn = 0;
 	bool debugDraw = false;
 	bool debugDrawTreeRegions = true;
 
@@ -339,4 +341,6 @@ private:
 	bool humanMode = true;
 	void SetHumanMode(bool check);
 	bool skipper = false;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cubeMap;
 };

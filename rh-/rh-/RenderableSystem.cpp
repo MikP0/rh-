@@ -15,6 +15,7 @@ RenderableSystem::RenderableSystem(ID3D11Device1* device, ID3D11DeviceContext1* 
 
 	_ShadowsfxFactory = std::make_shared<ShadowFactory>(_device);
 	_noShadowsfxFactory = std::make_shared<ToonFactory>(_device);
+	_ReflectFactory = std::make_shared<ReflectionFactory>(_device);
 	_CeilingfxFactory = std::make_shared<EffectFactory>(_device);
 
 	DebugDrawAction = std::make_unique<DebugDraw>(_device, _context);
@@ -101,11 +102,22 @@ void RenderableSystem::Iterate()
 						renderableComponent->_modelSkinned->drawToShadows = false;
 					}
 				}
+				else if (renderableComponent->_model != nullptr)
+				{
+					if (renderableComponent->_canCastShadows)
+					{
+						renderableComponent->_model->Draw(
+							_context, *_states, renderableComponent->GetParent()->GetWorldMatrix(),
+							_shadowMap->_lightView,
+							_shadowMap->_lightProj
+						);
+					}
+				}
 			}
 		}
 	}
 
-	ClearAfterRenderShadows();	
+	ClearAfterRenderShadows();
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
@@ -127,10 +139,10 @@ void RenderableSystem::Iterate()
 	}
 
 	BloomBlur();
-	if(vampireMode)
+	if (vampireMode)
 	{
 		_terrain->Draw(*_camera);
-	}	
+	}
 
 	for (auto renderableComponent : _world->GetComponents<RenderableComponent>())
 	{
@@ -169,6 +181,11 @@ void RenderableSystem::Initialize()
 				renderableComponent->_model =
 					DirectX::Model::CreateFromCMO(_device, renderableComponent->_modelPath.c_str(), *_ShadowsfxFactory);
 			}
+			else if (renderableComponent->_canReflect)
+			{
+				renderableComponent->_model =
+					DirectX::Model::CreateFromCMO(_device, renderableComponent->_modelPath.c_str(), *_ReflectFactory);
+			}
 			else if (renderableComponent->_ignoreShadows) 
 			{
 				renderableComponent->_model =
@@ -178,7 +195,8 @@ void RenderableSystem::Initialize()
 			{
 				renderableComponent->_model =
 					DirectX::Model::CreateFromCMO(_device, renderableComponent->_modelPath.c_str(), *_noShadowsfxFactory);
-			}
+			}		
+
 		}
 		else
 		{
@@ -190,13 +208,13 @@ void RenderableSystem::Initialize()
 
 void RenderableSystem::SentResources(ID3D11RenderTargetView* renderTargetView, ID3D11DepthStencilView* depthStencilView, std::shared_ptr<Entity> Player, int screenWidth, int screenHeight, bool vampireMode)
 {
-	if (!_isSent)
-	{
-		_renderTargetView = renderTargetView;
-		_depthStencilView = depthStencilView;
-		_player = Player;
-		_isSent = true;
-	}
+	//if (!_isSent)
+	//{
+	_renderTargetView = renderTargetView;
+	_depthStencilView = depthStencilView;
+	_player = Player;
+	_isSent = true;
+	//}
 
 	if (_screenWidth != screenWidth || _screenHeight != screenHeight)
 	{

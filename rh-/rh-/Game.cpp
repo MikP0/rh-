@@ -83,6 +83,7 @@ void Game::Update(DX::StepTimer const& timer)
 	// TODO: Add your game logic here.
 	auto device = m_deviceResources->GetD3DDevice();
 	auto context = m_deviceResources->GetD3DDeviceContext();
+	auto size = m_deviceResources->GetOutputSize();
 
 	if (!audEngine->Update())
 	{
@@ -245,10 +246,16 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 	else if (gameStage == 6)
 	{
+		auto mouse = Input::GetMouseState();
+		auto keyboard = Input::GetKeyboardState();
+
+		tracker.Update(mouse);
+		keyboardTracker.Update(keyboard);
+
 		Vector3 move = Vector3::Zero;
 
 		//Mouse
-		auto mouse = Input::GetMouseState();
+		//auto mouse = Input::GetMouseState();
 		if (freeCamera)
 			Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
@@ -259,10 +266,10 @@ void Game::Update(DX::StepTimer const& timer)
 			if (*iter == closeWindow)
 			{
 				//ExitGame();
-				menuIsOn = true;
+				menuIsOn = 1;
 			}
 
-			if (!menuIsOn)
+			if (menuIsOn == 0)
 			{
 				if (freeCamera) {
 					if (*iter == up)
@@ -287,7 +294,8 @@ void Game::Update(DX::StepTimer const& timer)
 				if (*iter == playBackground)
 				{
 					//SetHumanMode(false);
-					playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
+					//playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
+					RespawnRestart();
 				}
 
 				//if (*iter == playSound1)
@@ -314,7 +322,7 @@ void Game::Update(DX::StepTimer const& timer)
 			}
 		}
 
-		if (!menuIsOn)
+		if (menuIsOn == 0)
 		{
 			//Camera Movement
 			if (freeCameraLook)
@@ -386,61 +394,99 @@ void Game::Update(DX::StepTimer const& timer)
 		Ui->fpsFontText = std::wstring(str.begin(), str.end());
 
 
-
 		// HEALTH AND RESPAWN
-		if (!humanMode)
+		if (*(playerSystem->playerHealth) <= 0)
 		{
-			if (*(playerSystem->playerHealth) <= 0)
-			{
-				playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
-			}
-		}
-		else
-		{
-			if (*(playerSystem->playerHealth) <= 0)
-			{
-				*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
-				humanSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
-				//enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 25.0f));
-				//enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
-			}
+			RespawnRestart();
 		}
 
 
 
 
-		if (!menuIsOn)
+		if (menuIsOn == 0)
 		{
 			UpdateObjects(elapsedTime);
 		}
-		else
+		else if (menuIsOn == 1)
+		{
+			//auto mouse = Input::GetMouseState();
+
+			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+			{
+				if ((mouse.x >= size.left + 0.43f * size.right) && (mouse.x <= size.left + 0.55f * size.right))
+				{
+					/////////////////////////////////////////////////////////////////////////////////////////////////CONTINUE
+					if ((mouse.y >= size.top + 0.27f * size.bottom) && (mouse.y <= size.top + 0.30f * size.bottom))
+					{
+						menuIsOn = 0;
+					}
+					/////////////////////////////////////////////////////////////////////////////////////////////////LOADGAME
+					else if ((mouse.y >= size.top + 0.37f * size.bottom) && (mouse.y <= size.top + 0.40f * size.bottom))
+					{
+						menuIsOn = 0;
+						RespawnRestart();
+					}
+					/////////////////////////////////////////////////////////////////////////////////////////////////OPTIONS
+					else if ((mouse.y >= size.top + 0.48f * size.bottom) && (mouse.y <= size.top + 0.51f * size.bottom))
+					{
+						menuIsOn = 2;
+					}
+					/////////////////////////////////////////////////////////////////////////////////////////////////EXIT
+					else if ((mouse.y >= size.top + 0.59f * size.bottom) && (mouse.y <= size.top + 0.63f * size.bottom))
+					{
+						ExitGame();
+					}
+				}
+
+			}
+		}
+		else if (menuIsOn == 2)
 		{
 			auto mouse = Input::GetMouseState();
 
-			if (mouse.leftButton)
+			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
-				if ((mouse.x >= 320) && (mouse.x <= 450))
+				if ((mouse.x >= size.left + 0.43f * size.right) && (mouse.x <= size.left + 0.55f * size.right))
 				{
-					if ((mouse.y >= 300) && (mouse.y <= 370))
+					/////////////////////////////////////////////////////////////////////////////////////////////////BACK
+					if ((mouse.y >= size.top + 0.26f * size.bottom) && (mouse.y <= size.top + 0.29f * size.bottom))
 					{
-						//menuIsOn = false;
-						ExitGame();
+						menuIsOn = 1;
 					}
-					else if ((mouse.y >= 160) && (mouse.y <= 220))
+					/////////////////////////////////////////////////////////////////////////////////////////////////VOLUME
+					else if ((mouse.y >= size.top + 0.43f * size.bottom) && (mouse.y <= size.top + 0.46f * size.bottom))
 					{
-						menuIsOn = false;
+						if ((mouse.x >= size.left + 0.445f * size.right) && (mouse.x <= size.left + 0.465f * size.right)) // +
+						{
+							AudioSystem::VOLUME = AudioSystem::VOLUME + 0.1f;
+						}
+						else if ((mouse.x >= size.left + 0.505f * size.right) && (mouse.x <= size.left + 0.525f * size.right))	// -
+						{
+							AudioSystem::VOLUME = AudioSystem::VOLUME - 0.1f;
+						}
+					}
+					/////////////////////////////////////////////////////////////////////////////////////////////////BRIGHT
+					else if ((mouse.y >= size.top + 0.59f * size.bottom) && (mouse.y <= size.top + 0.62f * size.bottom))
+					{
+						if ((mouse.x >= size.left + 0.445f * size.right) && (mouse.x <= size.left + 0.465f * size.right))	// +
+						{
+							brightness += 0.2f;
+
+							if (brightness > 7.0f)
+								brightness = 7.0f;
+						}
+						else if ((mouse.x >= size.left + 0.505f * size.right) && (mouse.x <= size.left + 0.525f * size.right))   // -
+						{
+							brightness -= 0.2f;
+
+							if (brightness < 1.0f)
+								brightness = 1.0f;
+						}				
 					}
 				}
-				else if ((mouse.x >= 275) && (mouse.x <= 515))
-				{
-					if ((mouse.y >= 160) && (mouse.y <= 220))
-					{
-						menuIsOn = false;
-					}
-				}
+
 			}
 		}
-
 	}
 
 	elapsedTime;
@@ -482,11 +528,11 @@ void Game::UpdateMainMenu(float elapsedTime)
 
 void Game::UpdateObjects(float elapsedTime)
 {
-	auto mouse = Input::GetMouseState();
-	auto keyboard = Input::GetKeyboardState();
+	//auto mouse = Input::GetMouseState();
+	//auto keyboard = Input::GetKeyboardState();
 
-	tracker.Update(mouse);
-	keyboardTracker.Update(keyboard);
+	//tracker.Update(mouse);
+	//keyboardTracker.Update(keyboard);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -680,6 +726,7 @@ void Game::Render()
 	case 6:
 	{
 		renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
+		renderableSystem->_ReflectFactory->SetCameraPosition(camera.GetPositionFloat3());
 
 		if (playerSystem->turnOffVampireMode)
 		{
@@ -722,7 +769,22 @@ void Game::Render()
 			renderableSystem->BloomBlurParams.brightness = vampireModeBrightness;
 		}
 
+
+		if (menuIsOn == 0)
+		{
+			playerSystem->menuIsOn = false;
+			enemySystem->menuIsOn = false;
+		}
+		else
+		{
+			playerSystem->menuIsOn = true;
+			enemySystem->menuIsOn = true;
+		}
+
+
 		world->RefreshWorld();
+
+
 		if (!initTerrain) {
 			terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
 			initTerrain = true;
@@ -863,6 +925,26 @@ void Game::GetDefaultSize(int& width, int& height)
 
 	width = w;
 	height = h;
+}
+void Game::RespawnRestart()
+{
+	if (!humanMode)
+	{
+		//if (*(playerSystem->playerHealth) <= 0)
+		//{
+		playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
+		//}
+	}
+	else
+	{
+		//if (*(playerSystem->playerHealth) <= 0)
+		//{
+		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
+		humanSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
+		//enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 25.0f));
+		//enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
+	//}
+	}
 }
 #pragma endregion
 
@@ -1024,7 +1106,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	audioSystem = std::make_shared<AudioSystem>();
 	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
 	renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
-	lightSystem = std::make_shared<LightSystem>(renderableSystem->_ShadowsfxFactory, renderableSystem->_noShadowsfxFactory);
+	lightSystem = std::make_shared<LightSystem>(renderableSystem->_ShadowsfxFactory, renderableSystem->_noShadowsfxFactory, renderableSystem->_ReflectFactory);
 	enemySystem = std::make_shared<EnemySystem>();
 	playerSystem = std::make_shared<PlayerSystem>(collisionSystem, &camera);
 	humanSystem = std::make_shared<HumanSystem>(collisionSystem, &camera);
@@ -1499,7 +1581,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		CreateDDSTextureFromFile(device, L"roomtexture.dds",
 			nullptr, m_roomTex.ReleaseAndGetAddressOf())); //REMOVE
 
-	menuIsOn = false;
+	menuIsOn = 0;
 
 
 
@@ -1524,7 +1606,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemySystem->AdditionalInitialization(playerEntity, terrain, playerSystem->playerHealth);
 
 	////Setting up skinned model -----------------------------------------------------------------------
-	
+
 	playerEntity->GetComponent<PlayerComponent>()->LoadPlayerAnimations();
 	humanEntity->GetComponent<HumanComponent>()->LoadHumanAnimations();
 
@@ -1556,6 +1638,15 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	//world->RefreshWorld();
 	renderableSystem->_terrain = terrain;
 	renderableSystem->_camera = &camera;
+
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"cubeMapTex2.dds",
+			nullptr,
+			cubeMap.ReleaseAndGetAddressOf()));
+
+
+	renderableSystem->_ReflectFactory->SetCubeMap(cubeMap.Get());
 
 	SetHumanMode(true);
 }

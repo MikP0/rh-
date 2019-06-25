@@ -30,6 +30,8 @@ PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 	turnOffVampireMode = false;
 
 	gettingWeapon = false;
+
+	menuIsOn = false;
 }
 
 PlayerSystem::~PlayerSystem()
@@ -38,29 +40,32 @@ PlayerSystem::~PlayerSystem()
 
 void PlayerSystem::Iterate()
 {
-	if (!humanMode)
+	if (!menuIsOn)
 	{
-		keyboardTracker.Update(Input::GetKeyboardState());
-		mouseTracker.Update(Input::GetMouseState());
-
-		if (player->isHit)
-			PlayerHit();
-
-		if (player->isHealed)
-			PlayerHealed();
-
-		if (!vampireMode)
+		if (!humanMode)
 		{
-			UpdateNormalMode();
-		}
-		else
-		{
-			UpdateVampireMode();
-		}
+			keyboardTracker.Update(Input::GetKeyboardState());
+			mouseTracker.Update(Input::GetMouseState());
 
-		UpdateCorutines();
-		UpdateAnimations();
-		cooldown->Update();
+			if (player->isHit)
+				PlayerHit();
+
+			if (player->isHealed)
+				PlayerHealed();
+
+			if (!vampireMode)
+			{
+				UpdateNormalMode();
+			}
+			else
+			{
+				UpdateVampireMode();
+			}
+
+			UpdateCorutines();
+			UpdateAnimations();
+			cooldown->Update();
+		}
 	}
 }
 

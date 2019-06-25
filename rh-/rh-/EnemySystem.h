@@ -35,5 +35,7 @@ public:
 	int RespawnEnemiesFromCheckpoint();
 
 	bool humanMode;
+
+	bool menuIsOn;
 };
 

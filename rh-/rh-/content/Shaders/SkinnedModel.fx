@@ -160,7 +160,7 @@ float4 pixel_shader(VS_OUTPUT IN) : SV_Target
 	}
 
 
-	OUT.rgb = ambient + diffuse;// +specular;
+	OUT.rgb = ambient + diffuse + float3(1.0f,1.0f,1.0) * 0.5f;// +specular;
     OUT.a = 1.0f;
 
     return OUT;
