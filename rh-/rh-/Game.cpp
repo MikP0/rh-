@@ -481,7 +481,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 							if (brightness < 1.0f)
 								brightness = 1.0f;
-						}				
+						}
 					}
 				}
 
@@ -501,24 +501,66 @@ void Game::UpdateMainMenu(float elapsedTime)
 	tracker.Update(mouse);
 	keyboardTracker.Update(keyboard);
 
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////CREDITS
+	if ((mouse.x >= size.left + 0.71f * size.right) && (mouse.x <= size.left + 0.86f * size.right))
+	{
+		if ((mouse.y >= size.top + 0.41f * size.bottom) && (mouse.y <= size.top + 0.51f * size.bottom))
+		{
+			creditsScreen = true;
+		}
+	}
+	else
+	{
+		creditsScreen = false;
+	}
+
+
 	if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 	{
-		if ((mouse.x >= size.left + 0.15f * size.right) && (mouse.x <= size.left + 0.33f * size.right))
+		/////////////////////////////////////////////////////////////////////////////////////////////////START
+
+		if ((mouse.x >= size.left + 0.61f * size.right) && (mouse.x <= size.left + 0.73f * size.right))
 		{
-			/////////////////////////////////////////////////////////////////////////////////////////////////START
-			if ((mouse.y >= size.top + 0.11f * size.bottom) && (mouse.y <= size.top + 0.21f * size.bottom))
+			if ((mouse.y >= size.top + 0.09f * size.bottom) && (mouse.y <= size.top + 0.18f * size.bottom))
 			{
 				gameStage = 4;
 			}
+		}
 
-			/////////////////////////////////////////////////////////////////////////////////////////////////OPTIONS
-			//else if ((mouse.y >= size.top + 0.42f * size.bottom) && (mouse.y <= size.top + 0.53f * size.bottom))
-			//{
-			//	// DO NOTHING
-			//}
 
-			/////////////////////////////////////////////////////////////////////////////////////////////////EXIT
-			else if ((mouse.y >= size.top + 0.7f * size.bottom) && (mouse.y <= size.top + 0.81f * size.bottom))
+		/////////////////////////////////////////////////////////////////////////////////////////////////CREDITS
+		if ((mouse.x >= size.left + 0.71f * size.right) && (mouse.x <= size.left + 0.86f * size.right))
+		{
+			if ((mouse.y >= size.top + 0.41f * size.bottom) && (mouse.y <= size.top + 0.51f * size.bottom))
+			{
+				creditsScreen = true;
+			}
+		}
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////OPTIONS
+		if ((mouse.x >= size.left + 0.39f * size.right) && (mouse.x <= size.left + 0.51f * size.right))
+		{
+			if ((mouse.y >= size.top + 0.38f * size.bottom) && (mouse.y <= size.top + 0.43f * size.bottom))
+			{
+				//////-
+				if ((mouse.x >= size.left + 0.39f * size.right) && (mouse.x <= size.left + 0.42f * size.right))
+				{
+					AudioSystem::VOLUME = AudioSystem::VOLUME - 0.1f;
+				}
+				//////+
+				else if ((mouse.x >= size.left + 0.48f * size.right) && (mouse.x <= size.left + 0.51f * size.right))
+				{
+					AudioSystem::VOLUME = AudioSystem::VOLUME + 0.1f;
+				}
+
+			}
+		}
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////EXIT
+		if ((mouse.x >= size.left + 0.22f * size.right) && (mouse.x <= size.left + 0.32f * size.right))
+		{
+			if ((mouse.y >= size.top + 0.31f * size.bottom) && (mouse.y <= size.top + 0.41f * size.bottom))
 			{
 				ExitGame();
 			}
@@ -700,8 +742,16 @@ void Game::Render()
 	{
 		m_spriteBatch->Begin();
 
-		m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), 1.0f);
+		if (!creditsScreen)
+		{
+			m_spriteBatch->Draw(mainMenuTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+		}
+		else
+		{
+			m_spriteBatch->Draw(mainMenuCreditsTexture.Get(), m_screenPos, nullptr, Colors::White,
+				0.f, Vector2(0, 0), 1.0f);
+		}
 
 		m_spriteBatch->End();
 
@@ -987,9 +1037,14 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 	m_ActualspriteBatch = std::make_unique<SpriteBatch>(context);
 
 	DX::ThrowIfFailed(
-		CreateDDSTextureFromFile(device, L"menuMiko.dds",
+		CreateDDSTextureFromFile(device, L"MenuFriends.dds",
 			nullptr,
 			mainMenuTexture.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"MenuFriendsCredits.dds",
+			nullptr,
+			mainMenuCreditsTexture.ReleaseAndGetAddressOf()));
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"WickedScreen.dds",
@@ -1625,7 +1680,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity13->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	enemyEntity14->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	enemyEntity15->GetComponent<EnemyComponent>()->LoadBruteAnimations();
-	
+
 	Ui->Initialize();
 
 

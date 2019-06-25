@@ -154,8 +154,11 @@ void WorldLoader::LoadWorldFromXML(std::string filename)
 							castShadow = false;
 						else if (std::string(oEntity->GetName()).find("lamp") != std::string::npos)
 							castShadow = false;
+						else if (std::string(oEntity->GetName()).find("chains") != std::string::npos)
+							castShadow = false;
+						else if (std::string(oEntity->GetName()).find("Torch") != std::string::npos)
+							castShadow = false;
 
-		
 						/*if (std::string(oEntity->GetName()).find("Coffin_Open") != std::string::npos)
 							reflectThat = true;*/
 
