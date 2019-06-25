@@ -1127,7 +1127,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	menuBackground = std::make_unique<SoundEffect>(audEngine.get(), L"Resources\\Audio\\Altar.wav");
 	menuBackgroundAudio = menuBackground->CreateInstance();
-	menuBackgroundAudio->SetVolume(1.0f);
+	menuBackgroundAudio->SetVolume(1.0f*AudioSystem::VOLUME);
 	menuBackgroundAudio->Play(true);
 }
 
