@@ -121,6 +121,11 @@ private:
 	//Audio Entities
 	std::shared_ptr<Entity> plotBackground;
 	std::shared_ptr<Entity> gameBackground;	
+	std::shared_ptr<Entity> fireBackground;
+	std::shared_ptr<Entity> runningBackground;
+	std::shared_ptr<Entity> deathBackground;
+	std::shared_ptr<Entity> explodeBackground;
+	std::shared_ptr<Entity> screamBackground;
 
 	std::shared_ptr<Entity> playerFootstep;
 	std::shared_ptr<Entity> playerNormalAttack;
@@ -224,6 +229,10 @@ private:
 	std::shared_ptr<AudioSystem> audioSystem;
 	std::shared_ptr<AudioComponent> plotBackgroundAudio;
 	std::shared_ptr<AudioComponent> gameBackgroundAudio;
+	std::shared_ptr<AudioComponent> fireBackgroundAudio;
+	std::shared_ptr<AudioComponent> runningBackgroundAudio;
+	std::shared_ptr<AudioComponent> explodeBackgroundAudio;
+	std::shared_ptr<AudioComponent> screamBackgroundAudio;
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
 
@@ -246,7 +255,7 @@ private:
 		false, false, false, false,
 	};
 	vector<float> skillsTimeLimits = {
-		0.0f, 2.0f, 4.0f, 10.0f
+		0.0f, 3.0f, 5.0f, 10.0f
 	};
 
 	//human
@@ -345,4 +354,9 @@ private:
 	bool skipper = false;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cubeMap;
+
+	bool isFire = false;
+	bool isRunning = false;
+	bool isExplode = false;
+	bool isScream = false;
 };

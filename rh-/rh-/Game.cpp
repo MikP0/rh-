@@ -95,7 +95,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 	////////////////////////////////////////SKIP////////////////////////////////////////
 	// TO SKIP MENU and SKIP PLOT
-	//mainMenu = false;
+	mainMenu = false;
 
 	//TO SKIP FIRST PHASE 
 	//SetHumanMode(false);
@@ -126,7 +126,7 @@ void Game::Update(DX::StepTimer const& timer)
 								menuBackgroundAudio->Stop(true);
 								plotBackgroundAudio->AudioFile->Play(plotBackgroundAudio->Volume*AudioSystem::VOLUME, plotBackgroundAudio->Pitch, plotBackgroundAudio->Pan);
 								gameBackgroundAudio->Mute = true;
-								plotStage = 1;
+								plotStage = 0;
 							}
 							else
 							{
@@ -172,70 +172,108 @@ void Game::Update(DX::StepTimer const& timer)
 				if (plotTimer > 8.0f)
 				{
 					if (plotTimer > 12.0f)
-					{
+					{	
+						if (!isRunning)
+						{
+							runningBackgroundAudio->AudioFile->Play(runningBackgroundAudio->Volume*AudioSystem::VOLUME, runningBackgroundAudio->Pitch, runningBackgroundAudio->Pan);
+							isRunning = true;
+						}
 						if (plotTimer > 16.0f)
 						{
 							if (plotTimer > 20.0f)
 							{
+								if (!isFire)
+								{
+									fireBackgroundAudio->AudioFile->Play(fireBackgroundAudio->Volume*AudioSystem::VOLUME, fireBackgroundAudio->Pitch, fireBackgroundAudio->Pan);
+									isFire = true;
+								}
 								if (plotTimer > 24.0f)
 								{
-									if (plotTimer > 28.0f)
+									if (!isScream)
 									{
+										screamBackgroundAudio->AudioFile->Play(screamBackgroundAudio->Volume*AudioSystem::VOLUME, screamBackgroundAudio->Pitch, screamBackgroundAudio->Pan);
+										isScream = true;
+									}
+									if (plotTimer > 28.0f)
+									{										
 										if (plotTimer > 32.0f)
-										{
+										{	
 											if (plotTimer > 36.0f)
 											{
 												if (plotTimer > 40.0f)
 												{
-													gameStage = 6;
-													Ui->messageToShow = 1;
-													plotBackgroundAudio->AudioFile->~SoundEffect();
-													gameBackgroundAudio->Mute = false;
+													if (plotTimer > 44.0f)
+													{
+														if (!isExplode)
+														{
+															explodeBackgroundAudio->AudioFile->Play(explodeBackgroundAudio->Volume*AudioSystem::VOLUME, explodeBackgroundAudio->Pitch, explodeBackgroundAudio->Pan);
+															isExplode = true;
+														}
+														if (plotTimer > 45.0f)
+														{
+															gameStage = 6;
+															Ui->messageToShow = 1;
+															plotBackgroundAudio->AudioFile->~SoundEffect();
+															gameBackgroundAudio->Mute = false;
+														}
+														else
+														{
+															plotStage = 11;															
+														}
+													}
+													else
+													{
+														plotStage = 10;
+													}
 												}
 												else
 												{
-													plotStage = 10;
+													plotStage = 9;
 												}
 											}
 											else
 											{
-												plotStage = 9;
+												plotStage = 8;
 											}
 										}
 										else
 										{
-											plotStage = 8;
+											plotStage = 7;
 										}
 									}
 									else
 									{
-										plotStage = 7;
+										plotStage = 6;
 									}
 								}
 								else
 								{
-									plotStage = 6;
+									plotStage = 5;
 								}
 							}
 							else
 							{
-								plotStage = 5;
+								plotStage = 4;
 							}
 						}
 						else
 						{
-							plotStage = 4;
+							plotStage = 3;
 						}
 					}
 					else
 					{
-						plotStage = 3;
+						plotStage = 2;
 					}
 				}
 				else
 				{
-					plotStage = 2;
+					plotStage = 1;
 				}
+			}
+			else
+			{
+				plotStage = 0;
 			}
 		}
 		else
@@ -413,15 +451,15 @@ void Game::Update(DX::StepTimer const& timer)
 
 			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
-				if ((mouse.x >= size.left + 0.43f * size.right) && (mouse.x <= size.left + 0.55f * size.right))
+				if ((mouse.x >= size.left + 0.42f * size.right) && (mouse.x <= size.left + 0.515f * size.right))
 				{
 					/////////////////////////////////////////////////////////////////////////////////////////////////CONTINUE
-					if ((mouse.y >= size.top + 0.27f * size.bottom) && (mouse.y <= size.top + 0.30f * size.bottom))
+					if ((mouse.y >= size.top + 0.24f * size.bottom) && (mouse.y <= size.top + 0.27f * size.bottom))
 					{
 						menuIsOn = 0;
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////LOADGAME
-					else if ((mouse.y >= size.top + 0.37f * size.bottom) && (mouse.y <= size.top + 0.40f * size.bottom))
+					else if ((mouse.y >= size.top + 0.33f * size.bottom) && (mouse.y <= size.top + 0.42f * size.bottom))
 					{
 						menuIsOn = 0;
 						RespawnRestart();
@@ -432,7 +470,7 @@ void Game::Update(DX::StepTimer const& timer)
 						menuIsOn = 2;
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////EXIT
-					else if ((mouse.y >= size.top + 0.59f * size.bottom) && (mouse.y <= size.top + 0.63f * size.bottom))
+					else if ((mouse.y >= size.top + 0.56f * size.bottom) && (mouse.y <= size.top + 0.595f * size.bottom))
 					{
 						ExitGame();
 					}
@@ -446,36 +484,36 @@ void Game::Update(DX::StepTimer const& timer)
 
 			if (tracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 			{
-				if ((mouse.x >= size.left + 0.43f * size.right) && (mouse.x <= size.left + 0.55f * size.right))
+				if ((mouse.x >= size.left + 0.42f * size.right) && (mouse.x <= size.left + 0.515f * size.right))
 				{
 					/////////////////////////////////////////////////////////////////////////////////////////////////BACK
-					if ((mouse.y >= size.top + 0.26f * size.bottom) && (mouse.y <= size.top + 0.29f * size.bottom))
+					if ((mouse.y >= size.top + 0.52f * size.bottom) && (mouse.y <= size.top + 0.555f * size.bottom))
 					{
 						menuIsOn = 1;
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////VOLUME
-					else if ((mouse.y >= size.top + 0.43f * size.bottom) && (mouse.y <= size.top + 0.46f * size.bottom))
-					{
-						if ((mouse.x >= size.left + 0.445f * size.right) && (mouse.x <= size.left + 0.465f * size.right)) // +
-						{
+					else if ((mouse.y >= size.top + 0.44f * size.bottom) && (mouse.y <= size.top + 0.475f * size.bottom))
+					{				
+						if ((mouse.x >= size.left + 0.44f * size.right) && (mouse.x <= size.left + 0.46f * size.right)) // +
+						{						
 							AudioSystem::VOLUME = AudioSystem::VOLUME + 0.1f;
 						}
-						else if ((mouse.x >= size.left + 0.505f * size.right) && (mouse.x <= size.left + 0.525f * size.right))	// -
+						else if ((mouse.x >= size.left + 0.49f * size.right) && (mouse.x <= size.left + 0.505f * size.right))	// -
 						{
 							AudioSystem::VOLUME = AudioSystem::VOLUME - 0.1f;
 						}
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////BRIGHT
-					else if ((mouse.y >= size.top + 0.59f * size.bottom) && (mouse.y <= size.top + 0.62f * size.bottom))
+					else if ((mouse.y >= size.top + 0.33f * size.bottom) && (mouse.y <= size.top + 0.35f * size.bottom))
 					{
-						if ((mouse.x >= size.left + 0.445f * size.right) && (mouse.x <= size.left + 0.465f * size.right))	// +
+						if ((mouse.x >= size.left + 0.44f * size.right) && (mouse.x <= size.left + 0.46f * size.right)) // +
 						{
 							brightness += 0.2f;
 
 							if (brightness > 7.0f)
 								brightness = 7.0f;
 						}
-						else if ((mouse.x >= size.left + 0.505f * size.right) && (mouse.x <= size.left + 0.525f * size.right))   // -
+						else if ((mouse.x >= size.left + 0.49f * size.right) && (mouse.x <= size.left + 0.505f * size.right))	// -
 						{
 							brightness -= 0.2f;
 
@@ -1144,7 +1182,7 @@ void Game::InitializeObjects(ID3D11Device1 * device, ID3D11DeviceContext1 * cont
 
 	menuBackground = std::make_unique<SoundEffect>(audEngine.get(), L"Resources\\Audio\\Altar.wav");
 	menuBackgroundAudio = menuBackground->CreateInstance();
-	menuBackgroundAudio->SetVolume(1.0f);
+	menuBackgroundAudio->SetVolume(1.0f*AudioSystem::VOLUME);
 	menuBackgroundAudio->Play(true);
 }
 
@@ -1189,6 +1227,10 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	//Audio entities
 	plotBackground = world->CreateEntity("PlotBackground");
 	gameBackground = world->CreateEntity("GameBackground");
+	fireBackground = world->CreateEntity("FireBackground");
+	runningBackground = world->CreateEntity("RunningBackground");
+	explodeBackground = world->CreateEntity("ExplodeBackground");
+	screamBackground = world->CreateEntity("ScreamBackground");
 
 	playerFootstep = world->CreateEntity("PlayerFootstep");
 	playerNormalAttack = world->CreateEntity("PlayerNormalAttack");
@@ -1258,6 +1300,10 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	// Creation of audio components ------------------------------------------------------------------
 	plotBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotBackground.wav");
 	gameBackground->AddComponent<AudioComponent>("Resources\\Audio\\gameBackground.wav");
+	fireBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotFire.wav");
+	runningBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotRunning.wav");
+	explodeBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotExplode.wav");
+	screamBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotScream.wav");
 
 	playerFootstep->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	playerNormalAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerAttack.wav");
@@ -1343,7 +1389,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 	humanEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 15.0f));
 	humanEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-	humanEntity->SetTag(Tags::PLAYER);
+	//humanEntity->SetTag(Tags::PLAYER);
 	//CP 1
 	enemyEntity1->GetTransform()->SetPosition(Vector3(-7.51f, 0.0f, 32.53f));
 	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
@@ -1422,6 +1468,31 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			gameBackgroundAudio->Loop = true;
 			gameBackgroundAudio->Volume = 0.8f;
 			gameBackgroundAudio->Mute = true;
+
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "FireBackground") == 0)
+		{
+			fireBackgroundAudio = component;
+			fireBackgroundAudio->Volume = 1.0f;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "RunningBackground") == 0)
+		{
+			runningBackgroundAudio = component;
+			runningBackgroundAudio->Volume = 1.0f;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "ExplodeBackground") == 0)
+		{
+			explodeBackgroundAudio = component;
+			explodeBackgroundAudio->Volume = 1.0f;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "ScreamBackground") == 0)
+		{
+			screamBackgroundAudio = component;
+			screamBackgroundAudio->Volume = 1.0f;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerFootstep") == 0)
@@ -1565,47 +1636,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		if (strcmp(component->GetParent()->GetName().c_str(), "KnighFootstep") == 0)
 		{
 		}
-
-		/*
-			audioBackgroundSound = component;
-			audioBackgroundSound->Loop = true;
-			audioBackgroundSound->Volume = 1.0f;
-			audioBackgroundSound->Mute = false;
-			continue;
-		}
-
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"DamageAudio") == 0)
-		{
-			component->Volume = 1.0f;
-			playerEntity->GetComponent<PlayerComponent>()->damageAudio = component;
-			continue;
-		}
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"PlayerFootstepAudio") == 0)
-		{
-			playerEntity->GetComponent<PlayerComponent>()->footstepAudio = component;
-			continue;
-		}
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"EnemyFootstepAudio") == 0)
-		{
-			component->Volume = 1.0f;
-			enemyEntity1->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity2->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity3->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity4->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity5->GetComponent<EnemyComponent>()->footstepAudio = component;
-			enemyEntity6->GetComponent<EnemyComponent>()->footstepAudio = component;
-			continue;
-		}
-		if (strcmp(component->GetParent()->GetName().c_str(),
-			"SwordSlashAudio") == 0)
-		{
-			component->Volume = 1.0f;
-			playerEntity->GetComponent<PlayerComponent>()->swordAudio = component;
-			continue;
-		}*/
 	}
 
 	//// Setting up parameters of colliders ----------------------------------------------------------------
@@ -1750,6 +1780,20 @@ void Game::ShowPlot(int stage)
 
 	switch (stage)
 	{
+	case 0:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
 	case 1:
 	{
 		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
@@ -1890,7 +1934,20 @@ void Game::ShowPlot(int stage)
 
 		break;
 	}
+	case 11:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
+		m_spriteBatch->Draw(plot10Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, 1.0f },
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
 	default:
 		break;
 	}

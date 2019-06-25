@@ -106,11 +106,25 @@ void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, ve
 
 void PlayerSystem::RespawnPlayer(int checkpoint)
 {
-	for (auto playerComponent : _world->GetComponents<PlayerComponent>())
-	{
-		*playerComponent->playerHealth = playerComponent->playerHealthOrigin;
-		playerComponent->GetParent()->GetTransform()->SetPosition(checkpointMap[checkpoint]);
-	}
+	//for (auto playerComponent : _world->GetComponents<PlayerComponent>())
+	//{
+		*player->playerHealth = player->playerHealthOrigin;
+		player->GetParent()->GetTransform()->SetPosition(checkpointMap[checkpoint]);
+		player->enemyClicked = false;
+		player->targetedEnemy = nullptr;
+		playerNormalAttackCorutine.active = false;
+		playerPowerAttackCorutine.active = false;
+		playerBiteCorutine.active = false;
+		playerSpinAttackCorutine.active = false;
+		enemiesInRangeToAOE.clear();
+		player->isNormalAttack = false;
+		player->isPowerAttack = false;
+		player->isBiteAttack = false;
+		player->isSpinAttack = false;
+		player->isWalking = false;
+		player->attackType = 0;
+		player->navMesh->currentPath.clear();
+	//}
 }
 
 void PlayerSystem::PlayerHit()
@@ -441,7 +455,7 @@ void PlayerSystem::UpdateVampireMode()
 {
 	if ((!playerRipAttackCorutine.active) && (!playerAOEAttackCorutine.active))
 	{
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1) && (*messageMode == false))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1) && (*messageMode == false) && (*playerHealth >= player->playerTeleportSwapDamage + 1.0f))
 		{
 			if (player->vampireAbility != 1 && !blockade->IsSkillBlocked("teleport"))
 				player->vampireAbility = 1;
@@ -473,7 +487,7 @@ void PlayerSystem::UpdateVampireMode()
 		}
 
 
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D2) && (*messageMode == false))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D2) && (*messageMode == false) && (*playerHealth >= player->playerRipPlayerDamage + 1.0f))
 		{
 			if (player->vampireAbility != 2 && !blockade->IsSkillBlocked("cleaveAttack"))
 				player->vampireAbility = 2;
@@ -513,7 +527,7 @@ void PlayerSystem::UpdateVampireMode()
 		}
 
 
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D3) && (*messageMode == false))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D3) && (*messageMode == false) && (*playerHealth >= player->playerTeleportSwapDamage + 1.0f))
 		{
 			if (player->vampireAbility != 3 && !blockade->IsSkillBlocked("swap"))
 				player->vampireAbility = 3;
@@ -559,7 +573,7 @@ void PlayerSystem::UpdateVampireMode()
 		}
 
 
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D4) && (*messageMode == false))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D4) && (*messageMode == false) && (*playerHealth >= player->playerAOEDamage + 1.0f))
 		{
 			if (player->vampireAbility != 4 && !blockade->IsSkillBlocked("aoeAttack"))
 				player->vampireAbility = 4;
