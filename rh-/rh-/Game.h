@@ -298,6 +298,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> directXTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> wickedScreenTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mainMenuTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mainMenuCreditsTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> loadingScreenTexture;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 	std::unique_ptr<DirectX::SpriteBatch> m_ActualspriteBatch;
@@ -305,6 +306,7 @@ private:
 
 	bool mainMenu = true;
 	bool plotScreens = true;
+	bool creditsScreen = false;
 
 	int gameStage = 0;
 	float startTimer = 0;
