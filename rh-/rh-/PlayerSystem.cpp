@@ -751,7 +751,7 @@ void PlayerSystem::UpdateCorutines()
 				player->enemyClicked = false;
 				player->targetedEnemy = nullptr;
 				player->vampireAbility = 0;
-
+				turnOffVampireMode = true;
 			}
 		}
 
