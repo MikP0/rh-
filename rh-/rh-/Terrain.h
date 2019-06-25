@@ -23,6 +23,8 @@ public:
 
 	void CreateWorld(vector<shared_ptr<PhysicsComponent>>);
 	void MakeOcupied(MapTilePtr);
+	void ReleaseTile(MapTilePtr);
+	void OccupyTile(MapTilePtr);
 
 	void Draw(Camera);
 	void DrawRange(Vector2, int, int, XMVECTOR);
@@ -36,12 +38,12 @@ public:
 	float HexDistance(dxmath::Vector3, dxmath::Vector3);
 
 	bool CanWalk(dxmath::Vector3);
-	bool CanMove(dxmath::Vector3, dxmath::Vector3);
+	bool CanMove(dxmath::Vector3, shared_ptr<PhysicsComponent>);
 	bool Within(MapTilePtr);
 	bool IsTileOccupied(MapTilePtr, shared_ptr<PhysicsComponent>);
 	MapTilePtr GetTileWithPosition(Vector3);
 	MapTilePtr GetTileFromMap(Vector2);
-	Vector3 GetNearestNeighbor(Vector3);
+	Vector3 GetNearestNeighbor(Vector3, MapTilePtr, shared_ptr<PhysicsComponent>);
 	Vector3 FallBack(Vector3, Vector3);
 
 

@@ -205,7 +205,7 @@ void Terrain::Draw(Camera camera)
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 1)
 	{
 		color = Colors::IndianRed;
-		DrawRange(posOrigin, 11, 11, color);	
+		DrawRange(posOrigin, 11, 11, color);
 		FixRendering();
 	}
 	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 2)
@@ -234,18 +234,39 @@ void Terrain::Draw(Camera camera)
 		color = Colors::IndianRed;
 		for each (shared_ptr<PhysicsComponent> var in characters)
 		{
-			if (var != nullptr && var->_isEnabled) 
+			if (var != nullptr && var->_isEnabled)
 			{
 				MapTilePtr tempTile = GetTileWithPosition(var->GetParent()->GetTransform()->GetPosition());
 				FillTile(tempTile->worldPosition, color);
 			}
-			else 
+			else
 			{
 				vector<shared_ptr<PhysicsComponent>>::iterator position = std::find(characters.begin(), characters.end(), var);
 				if (position != characters.end())
 					characters.erase(position);
-			}			
+			}
 		}
+	}
+	if (playerEntity->GetComponent<PlayerComponent>()->vampireAbility == 4)
+	{
+		color = Colors::IndianRed;
+		/*for (int i = -4 / 2; i <= 4 / 2; i++)
+		{
+			for (int j = -4 / 2; j <= 4 / 2; j++) {
+				MapTilePtr tile = GetTileFromMap(posOrigin + Vector2(i, j));
+				if (tile != nullptr && tile->walkable)
+				{
+					VertexPositionColor v1(tile->worldPosition + Vector3(tileSize / 2.f, 0.f, tileSize / 2.f), color);
+					VertexPositionColor v2(tile->worldPosition + Vector3(tileSize / 2.f, 0.f, -tileSize / 2.f), color);
+					VertexPositionColor v3(tile->worldPosition + Vector3(-tileSize / 2.f, 0.f, -tileSize / 2.f), color);
+					VertexPositionColor v4(tile->worldPosition + Vector3(-tileSize / 2.f, 0.f, tileSize / 2.f), color);
+
+					m_batch->DrawQuad(v1, v2, v3, v4);
+				}
+			}
+		}*/
+		DrawRange(posOrigin, 4, 4, color);
+		FixRendering();
 	}
 	m_batch->End();
 }
@@ -312,6 +333,32 @@ void Terrain::MakeOcupied(MapTilePtr tile)
 		}
 	}
 }
+void Terrain::OccupyTile(MapTilePtr tile)
+{
+	if (tile != nullptr)
+	{
+		tile->walkable = false;
+		for each (shared_ptr<MapEdge> edge in tile->edges)
+		{
+			if (edge != nullptr) {
+				edge->cost = 1.f;
+			}
+		}
+	}
+}
+void Terrain::ReleaseTile(MapTilePtr tile)
+{
+	if (tile != nullptr)
+	{
+		tile->walkable = true;
+		for each (shared_ptr<MapEdge> edge in tile->edges)
+		{
+			if (edge != nullptr) {
+				edge->cost = 0.f;
+			}
+		}
+	}
+}
 
 bool Terrain::CanWalk(dxmath::Vector3 position)
 {
@@ -319,7 +366,7 @@ bool Terrain::CanWalk(dxmath::Vector3 position)
 	//	&& (position.z > (tiles.front()->worldPosition.z - (tileSize / 2.f))) && (position.z < (tiles.back()->worldPosition.z + (tileSize / 2.f)))) {
 
 	MapTilePtr tempPtr = this->GetTileWithPosition(position);
-	if (tempPtr != nullptr) 
+	if (tempPtr != nullptr)
 	{
 		if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.05f) {
 			return true;
@@ -331,21 +378,26 @@ bool Terrain::CanWalk(dxmath::Vector3 position)
 	return false;
 }
 
-bool Terrain::CanMove(dxmath::Vector3 position, dxmath::Vector3 charpos)
+bool Terrain::CanMove(dxmath::Vector3 position, shared_ptr<PhysicsComponent> enemy)
 {
-	if ((position.x > (tiles.front()->worldPosition.x - (tileSize / 2.f))) && (position.x < (tiles.back()->worldPosition.x + (tileSize / 2.f)))
-		&& (position.z > (tiles.front()->worldPosition.z - (tileSize / 2.f))) && (position.z < (tiles.back()->worldPosition.z + (tileSize / 2.f)))) {
-
-		MapTilePtr tempPtr = this->GetTileWithPosition(position);
-		if (tempPtr != nullptr) {
-			if (tempPtr == GetTileWithPosition(charpos)) {
-				return true;
+	MapTilePtr tempPtr = this->GetTileWithPosition(position);
+	if (tempPtr != nullptr)
+	{
+		/*for each (shared_ptr<PhysicsComponent> character in characters)
+		{
+			if (character != enemy && tempPtr == GetTileWithPosition(character->GetParent()->GetTransform()->GetPosition()))
+			{
+				return 2;
 			}
-			if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.07f) {
-				return true;
-			}
-			return tempPtr->walkable;
+		}*/
+		if (tempPtr == GetTileWithPosition(enemy->GetParent()->GetTransform()->GetPosition()))
+		{
+			return true;
 		}
+		if (!tempPtr->walkable && abs(dxmath::Vector3::Distance(tempPtr->worldPosition, position)) > (tileSize *sqrtf(2.f) / 2.f) - 0.05f) {
+			return true;
+		}
+		return (tempPtr->walkable) ? 1 : 0;
 	}
 	return false;
 }
@@ -397,18 +449,31 @@ MapTilePtr Terrain::GetTileFromMap(Vector2 position)
 	}
 }
 
-Vector3 Terrain::GetNearestNeighbor(dxmath::Vector3 position)
+Vector3 Terrain::GetNearestNeighbor(dxmath::Vector3 position, MapTilePtr dest, shared_ptr<PhysicsComponent> enemy)
 {
-	MapTilePtr tile = this->GetTileWithPosition(position);
+	MapTilePtr origin = GetTileWithPosition(position);
 	float distance = 100.f;
 	MapTilePtr returnTile = nullptr;
-	for each (shared_ptr<MapEdge> edge in tile->edges)
+	for (int i = 0; i < 8; i++)
 	{
-		if (edge != nullptr && edge->node2->walkable) {
-			float temp = sqrtf(pow(edge->node2->worldPosition.x - position.x, 2) + pow(edge->node2->worldPosition.y - position.y, 2) + pow(edge->node2->worldPosition.z - position.z, 2));
-			if (temp < distance) {
-				distance = temp;
-				returnTile = edge->node2;
+		shared_ptr<MapEdge> edge = dest->edges[i];
+		if (edge != nullptr)
+		{
+			if (edge->node1 != dest && edge->node1->walkable && edge->node1 != origin)
+			{
+				float temp = sqrtf(pow(edge->node1->worldPosition.x - position.x, 2) + pow(edge->node1->worldPosition.y - position.y, 2) + pow(edge->node1->worldPosition.z - position.z, 2));
+				if (temp < distance) {
+					distance = temp;
+					returnTile = edge->node1;
+				}
+			}
+			if (edge->node2 != dest && edge->node2->walkable && edge->node2 != origin)
+			{
+				float temp = sqrtf(pow(edge->node2->worldPosition.x - position.x, 2) + pow(edge->node2->worldPosition.y - position.y, 2) + pow(edge->node2->worldPosition.z - position.z, 2));
+				if (temp < distance) {
+					distance = temp;
+					returnTile = edge->node2;
+				}
 			}
 		}
 	}

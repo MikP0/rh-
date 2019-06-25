@@ -123,6 +123,7 @@ void PlayerSystem::RespawnPlayer(int checkpoint)
 		player->isSpinAttack = false;
 		player->isWalking = false;
 		player->attackType = 0;
+		player->navMesh->currentPath.clear();
 	//}
 }
 
