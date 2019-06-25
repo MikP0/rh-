@@ -98,7 +98,7 @@ void Game::Update(DX::StepTimer const& timer)
 	mainMenu = false;
 
 	//TO SKIP FIRST PHASE 
-	SetHumanMode(false);
+	//SetHumanMode(false);
 	////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1343,7 +1343,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 
 	humanEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 15.0f));
 	humanEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
-	humanEntity->SetTag(Tags::PLAYER);
+	//humanEntity->SetTag(Tags::PLAYER);
 	//CP 1
 	enemyEntity1->GetTransform()->SetPosition(Vector3(-7.51f, 0.0f, 32.53f));
 	enemyEntity1->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));

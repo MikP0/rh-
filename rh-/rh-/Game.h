@@ -246,7 +246,7 @@ private:
 		false, false, false, false,
 	};
 	vector<float> skillsTimeLimits = {
-		0.0f, 2.0f, 4.0f, 10.0f
+		0.0f, 3.0f, 5.0f, 10.0f
 	};
 
 	//human

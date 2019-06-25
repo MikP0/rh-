@@ -89,6 +89,9 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 
 			enemy->dyingCorutine.Restart(2.51f);
 
+			enemy->enemyRenderableComponent->_modelSkinned->isHitted = true;
+			enemy->hitColorCorutine.Restart(0.1f);
+
 			enemy->deathAudio->AudioFile->Play(enemy->deathAudio->Volume*AudioSystem::VOLUME, enemy->deathAudio->Pitch, enemy->deathAudio->Pan);
 
 		}
@@ -201,7 +204,7 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 	{
 		if (!(enemy->attackCorutine.UpdateEvent()))
 		{
-			if (CheckRangeAndCone(enemy, player->GetTransform()->GetPosition(), enemy->distanceToAttack + 1.2f, 80.f))
+			if (CheckRangeAndCone(enemy, player->GetTransform()->GetPosition(), enemy->distanceToAttack + 1.5f, 80.f))
 			{
 				*playerHealth -= enemy->damage;
 
