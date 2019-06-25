@@ -45,7 +45,7 @@ public:
 	void CheckSkillTips(bool vampireMode);
 	void ShowMessages(float elapsedTime);
 	void DrawRedBorder();
-	void Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode);
+	void Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode);
 	void Reset();
 
 
@@ -60,6 +60,7 @@ public:
 	wstring fpsFontText;
 
 	bool transitionMode;
+	shared_ptr<bool> messageMode;
 	int messageToShow;
 	float messageDelay;
 	float messageElapsedTime;

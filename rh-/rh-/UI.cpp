@@ -6,6 +6,7 @@ UI::UI(ID3D11Device1 * device, ID3D11DeviceContext1 * context, shared_ptr<Player
 	_device = device;
 	_context = context;
 	transitionMode = false;
+	messageMode = make_shared<bool>(false);
 	messageToShow = 0;
 	messageDelay = 0.2f;
 	messageElapsedTime = 0.0f;
@@ -30,7 +31,7 @@ void UI::Initialize()
 		"humanCoolDownFrame", "vampireCoolDownFrame", "humanSkillBlockade", "vampireSkillBlockade",
 		"normalAttackTip", "strongAttackTip", "spinAttackTip", "biteAttackTip",
 		"teleportTip", "cleaveAttackTip", "swapTip", "aoeAttackTip",
-		"messageStartPlot", "messageStartTips"
+		"messageStartPlot", "messageStartTips", "messageWeapon", "messageSkills", "messageMode", "popUpMenuOptions"
 	};
 
 	vector<string> uiTextNames = {
@@ -53,7 +54,8 @@ void UI::Initialize()
 		{"swap", "Resources\\UISprites\\Swap.dds"},
 		{"aoeAttack", "Resources\\UISprites\\Aoe_Attack.dds"},
 		{"fpsBackground", "Resources\\UISprites\\fpsbar.dds"},
-		{"popUpMenu", "Resources\\UISprites\\Menu.dds"},
+		{"popUpMenu", "Resources\\UISprites\\ContextMenu.dds"},
+		{"popUpMenuOptions", "Resources\\UISprites\\ContextMenuOptions.dds"},
 		{"heroIconVampire", "Resources\\UISprites\\Hero_Circle_Vampire.dds"},
 		{"heroIconVampireRing", "Resources\\UISprites\\Hero_Circle_Vampire_Ring.dds"},
 		{"heroIconTransitionRing", "Resources\\UISprites\\Hero_Circle_Transition.dds"},
@@ -83,7 +85,10 @@ void UI::Initialize()
 		{"swapTip", "Resources\\UISprites\\Swap_Tip.dds"},
 		{"aoeAttackTip", "Resources\\UISprites\\Aoe_Attack_Tip.dds"},
 		{"messageStartPlot", "Resources\\UISprites\\Message_Start_Plot.dds"},
-		{"messageStartTips", "Resources\\UISprites\\Message_Start_Tips.dds"}
+		{"messageStartTips", "Resources\\UISprites\\Message_Start_Tips.dds"},
+		{"messageWeapon", "Resources\\UISprites\\Message_Weapon.dds"},
+		{"messageSkills", "Resources\\UISprites\\Message_Skills.dds"},
+		{"messageMode", "Resources\\UISprites\\Message_Mode.dds"}
 	};
 
 	skillSetPosition = Vector2(690.0f, 930.0f);
@@ -103,7 +108,8 @@ void UI::Initialize()
 		{"swap", Vector2(skillSetPosition.x + 295.0f, skillSetPosition.y - 10.0f)},
 		{"aoeAttack", Vector2(skillSetPosition.x + 445.0f, skillSetPosition.y - 10.0f)},
 		{"fpsBackground", Vector2(710.0f, -5.0f)},
-		{"popUpMenu", Vector2(250.0f, 100.0f)},
+		{"popUpMenu", Vector2(700.0f, 180.0f)},
+		{"popUpMenuOptions", Vector2(700.0f, 180.0f)},
 		{"heroIconVampire", Vector2(0.0f, 0.0f)},
 		{"heroIconVampireRing", Vector2(0.0f, 0.0f)},
 		{"heroIconTransitionRing", Vector2(0.0f, 0.0f)},
@@ -137,7 +143,10 @@ void UI::Initialize()
 		{"swapTip", skillSetPosition + Vector2(240.0f, -230.0f)},
 		{"aoeAttackTip", skillSetPosition + Vector2(395.0f, -230.0f)},
 		{"messageStartPlot", Vector2(500.0f, 250.0f)},
-		{"messageStartTips", Vector2(500.0f, 250.0f)}
+		{"messageStartTips", Vector2(500.0f, 250.0f)},
+		{"messageWeapon", Vector2(500.0f, 250.0f)},
+		{"messageSkills", Vector2(500.0f, 250.0f)},
+		{"messageMode", Vector2(500.0f, 250.0f)}
 	};
 
 	map<string, Vector2> uiNameScaleMap = {
@@ -155,7 +164,8 @@ void UI::Initialize()
 		{"swap", Vector2(0.24f, 0.24f)},
 		{"aoeAttack", Vector2(0.24f, 0.24f)},
 		{"fpsBackground", Vector2(0.15f, 0.15f)},
-		{"popUpMenu", Vector2(0.6f, 0.6f)},
+		{"popUpMenu", Vector2(0.8f, 0.8f)},
+		{"popUpMenuOptions", Vector2(0.8f, 0.8f)},
 		{"heroIconVampire", Vector2(0.35f, 0.35f)},
 		{"heroIconVampireRing", Vector2(0.35f, 0.35f)},
 		{"heroIconTransitionRing", Vector2(0.35f, 0.35f)},
@@ -190,6 +200,9 @@ void UI::Initialize()
 		{"aoeAttackTip", Vector2(0.50f, 0.50f)},
 		{"messageStartPlot", Vector2(0.40f, 0.40f)},
 		{"messageStartTips", Vector2(0.40f, 0.40f)},
+		{"messageWeapon", Vector2(0.40f, 0.40f)},
+		{"messageSkills", Vector2(0.40f, 0.40f)},
+		{"messageMode", Vector2(0.40f, 0.40f)}
 	};
 
 
@@ -306,6 +319,43 @@ void UI::ShowMessages(float elapsedTime)
 				messageElapsedTime = 0.0f;
 			}
 		} break;
+
+		case 3:
+		{
+			if (messageElapsedTime > 3.0f)
+			uiSpriteBatchMessages->Draw(_imageElements["messageWeapon"].texture.Get(), _imageElements["messageWeapon"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["messageWeapon"].scale);
+
+			if (keyboard.Enter && messageElapsedTime > (3.0f + messageDelay))
+			{
+				messageToShow = 4;
+				messageElapsedTime = 0.0f;
+			}
+		} break;
+
+		case 4:
+		{
+			uiSpriteBatchMessages->Draw(_imageElements["messageSkills"].texture.Get(), _imageElements["messageSkills"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["messageSkills"].scale);
+
+			if (keyboard.Enter && messageElapsedTime > messageDelay)
+			{
+				messageToShow = 5;
+				messageElapsedTime = 0.0f;
+			}
+		} break;
+
+		case 5:
+		{
+			uiSpriteBatchMessages->Draw(_imageElements["messageMode"].texture.Get(), _imageElements["messageMode"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["messageMode"].scale);
+
+			if (keyboard.Enter && messageElapsedTime > messageDelay)
+			{
+				messageToShow = 0;
+				messageElapsedTime = 0.0f;
+			}
+		} break;
 	}
 
 	messageElapsedTime += elapsedTime;
@@ -323,7 +373,7 @@ void UI::DrawRedBorder()
 	uiSpriteBatchBorder->End();
 }
 
-void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode)
+void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 {
 	bool vampireMode = _playerSystem->vampireMode;
 	int vampireAbility = vampireMode != 0 ? _playerSystem->player->vampireAbility : 0;
@@ -584,27 +634,44 @@ void UI::Draw(bool menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 
 		CheckSkillTips(vampireMode);
 
-		
+		uiSpriteBatch->Draw(_imageElements["fpsBackground"].texture.Get(), _imageElements["fpsBackground"].position, nullptr, Colors::White,
+			0.f, Vector2(0, 0), _imageElements["fpsBackground"].scale);
+
+		fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
+			fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
+
+		if (menuIsOn == 1)
+		{
+			uiSpriteBatch->Draw(_imageElements["popUpMenu"].texture.Get(), _imageElements["popUpMenu"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["popUpMenu"].scale);
+		}
+		else if (menuIsOn == 2)
+		{
+			uiSpriteBatch->Draw(_imageElements["popUpMenuOptions"].texture.Get(), _imageElements["popUpMenuOptions"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["popUpMenuOptions"].scale);
+		}
 	}
 	else
 	{
-		
+		if (menuIsOn == 1)
+		{
+			uiSpriteBatch->Draw(_imageElements["popUpMenu"].texture.Get(), _imageElements["popUpMenu"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["popUpMenu"].scale);
+		}
+		else if (menuIsOn == 2)
+		{
+			uiSpriteBatch->Draw(_imageElements["popUpMenuOptions"].texture.Get(), _imageElements["popUpMenuOptions"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["popUpMenuOptions"].scale);
+		}
 	}
-
 	if (messageToShow != 0)
-		ShowMessages(elapsedTime);
-
-	uiSpriteBatch->Draw(_imageElements["fpsBackground"].texture.Get(), _imageElements["fpsBackground"].position, nullptr, Colors::White,
-		0.f, Vector2(0, 0), _imageElements["fpsBackground"].scale);
-
-	fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
-		fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
-
-	if (menuIsOn)
 	{
-		uiSpriteBatch->Draw(_imageElements["popUpMenu"].texture.Get(), _imageElements["popUpMenu"].position, nullptr, Colors::White,
-			0.f, Vector2(0, 0), _imageElements["popUpMenu"].scale);
+		*messageMode = true;
+		ShowMessages(elapsedTime);
 	}
+	else
+		*messageMode = false;
+
 
 	uiSpriteBatch->End();
 }

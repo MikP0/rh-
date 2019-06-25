@@ -77,6 +77,8 @@ public:
 	// Properties
 	void GetDefaultSize(int& width, int& height);
 
+	void RespawnRestart();
+
 private:
 
 	void Update(DX::StepTimer const& timer);
@@ -151,6 +153,12 @@ private:
 	std::shared_ptr<Entity> enemyEntity7;
 	std::shared_ptr<Entity> enemyEntity8;
 	std::shared_ptr<Entity> enemyEntity9;
+	std::shared_ptr<Entity> enemyEntity10;
+	std::shared_ptr<Entity> enemyEntity11;
+	std::shared_ptr<Entity> enemyEntity12;
+	std::shared_ptr<Entity> enemyEntity13;
+	std::shared_ptr<Entity> enemyEntity14;
+	std::shared_ptr<Entity> enemyEntity15;
 
 	// floor for shadows
 	std::shared_ptr<Entity> myEntityFloor;
@@ -267,7 +275,7 @@ private:
 	float total_Time;
 	float elapsed_Time;
 
-	bool menuIsOn;
+	int menuIsOn = 0;
 	bool debugDraw = false;
 	bool debugDrawTreeRegions = true;
 
@@ -340,4 +348,6 @@ private:
 	bool humanMode = true;
 	void SetHumanMode(bool check);
 	bool skipper = false;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cubeMap;
 };

@@ -26,7 +26,7 @@ public:
 	virtual void Iterate() override;
 	virtual void Initialize() override;
 	void InitializeCheckpoints();
-	void AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates);
+	void AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates, std::shared_ptr<bool> mesgMode);
 
 	std::shared_ptr<PhysicsSystem> collisionSystem;
 	DirectX::Keyboard::KeyboardStateTracker keyboardTracker;
@@ -35,6 +35,7 @@ public:
 	std::shared_ptr<Cooldown> cooldown;
 	std::shared_ptr<Blockade> blockade;
 
+	std::shared_ptr<bool> messageMode;
 	std::shared_ptr<Entity> playerEntity;
 	std::shared_ptr<PlayerComponent> player;
 	std::shared_ptr<RenderableComponent> playerRenderableComponent;
@@ -77,5 +78,7 @@ public:
 	void UpdateAnimations();
 
 	bool humanMode;
+
+	bool menuIsOn;
 };
 

@@ -12,6 +12,8 @@
 #include "ShadowFactory.h"
 #include "Coroutine.h"
 
+#include "ReflectionFactory.h"
+
 struct BloomBlurParams
 {
 	bool horizontal = true;
@@ -43,6 +45,7 @@ public:
 	std::unique_ptr<DirectX::CommonStates> _states;
 	std::shared_ptr<ShadowFactory> _ShadowsfxFactory;
 	std::shared_ptr<ToonFactory> _noShadowsfxFactory;
+	std::shared_ptr<ReflectionFactory> _ReflectFactory;
 	std::shared_ptr<DirectX::IEffectFactory> _CeilingfxFactory;
 
 	ID3D11Device1* _device;

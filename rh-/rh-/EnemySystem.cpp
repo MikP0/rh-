@@ -5,6 +5,7 @@
 EnemySystem::EnemySystem()
 {
 	vampireMode = false;
+	menuIsOn = false;
 }
 
 EnemySystem::~EnemySystem()
@@ -13,55 +14,58 @@ EnemySystem::~EnemySystem()
 
 void EnemySystem::Iterate()
 {
-	if ((!vampireMode) && (!humanMode))
+	if (!menuIsOn)
 	{
-		for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+		if ((!vampireMode) && (!humanMode))
 		{
-			if (enemyComponent->_isEnabled)
+			for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 			{
-				if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+				if (enemyComponent->_isEnabled)
 				{
-					enemyComponent->enemyState = EnemyState::IDLE;
-					enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
-					enemyComponent->navMesh->isMoving = false;
-				}
-				else
-				{
-					SetStates(enemyComponent);
-					ApplyStates(enemyComponent);
-					CheckCorutines(enemyComponent);
+					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					{
+						enemyComponent->enemyState = EnemyState::IDLE;
+						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
+						enemyComponent->navMesh->isMoving = false;
+					}
+					else
+					{
+						SetStates(enemyComponent);
+						ApplyStates(enemyComponent);
+						CheckCorutines(enemyComponent);
+					}
 				}
 			}
 		}
-	}
-	else if (humanMode)
-	{
-		for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+		else if (humanMode)
 		{
-			if (enemyComponent->_isEnabled)
+			for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 			{
-				if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+				if (enemyComponent->_isEnabled)
 				{
-					enemyComponent->enemyState = EnemyState::IDLE;
-					enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
-					enemyComponent->navMesh->isMoving = false;
-				}
-				else
-				{
-					SetStates(enemyComponent);
-					ApplyStates(enemyComponent);
-					CheckCorutines(enemyComponent);
+					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					{
+						enemyComponent->enemyState = EnemyState::IDLE;
+						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
+						enemyComponent->navMesh->isMoving = false;
+					}
+					else
+					{
+						SetStates(enemyComponent);
+						ApplyStates(enemyComponent);
+						CheckCorutines(enemyComponent);
+					}
 				}
 			}
 		}
-	}
-	else
-	{
-		for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+		else
 		{
-			if (enemyComponent->_isEnabled)
+			for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 			{
-				enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
+				if (enemyComponent->_isEnabled)
+				{
+					enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
+				}
 			}
 		}
 	}

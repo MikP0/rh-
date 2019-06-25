@@ -1,10 +1,11 @@
 #include "pch.h"
 #include "LightSystem.h"
 
-LightSystem::LightSystem(std::shared_ptr<ShadowFactory> ShadowsfxFactory, std::shared_ptr<ToonFactory> NoShadowsfxFactory)
+LightSystem::LightSystem(std::shared_ptr<ShadowFactory> ShadowsfxFactory, std::shared_ptr<ToonFactory> NoShadowsfxFactory, std::shared_ptr<ReflectionFactory> RefFactory)
 {
 	_ShadowsfxFactory = ShadowsfxFactory;
 	_noShadowsfxFactory = NoShadowsfxFactory;
+	_refFactory = RefFactory;
 }
 
 LightSystem::~LightSystem()
@@ -43,6 +44,7 @@ void LightSystem::Initialize()
 		{
 			_ShadowsfxFactory->AddPointLight(lightComponent->Color, lightComponent->Position, lightComponent->Radius);
 			_noShadowsfxFactory->AddPointLight(lightComponent->Color, lightComponent->Position, lightComponent->Radius);
+			_refFactory->AddPointLight(lightComponent->Color, lightComponent->Position, lightComponent->Radius);
 		}
 		else if (lightComponent->LightType == LightTypeComponent::DIRECTLight)
 		{
