@@ -110,6 +110,7 @@ void PlayerSystem::RespawnPlayer(int checkpoint)
 	{
 		*playerComponent->playerHealth = playerComponent->playerHealthOrigin;
 		playerComponent->GetParent()->GetTransform()->SetPosition(checkpointMap[checkpoint]);
+		playerComponent->navMesh->currentPath.clear();
 	}
 }
 

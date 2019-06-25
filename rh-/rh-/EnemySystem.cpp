@@ -77,7 +77,7 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 	if (enemy->health <= 0)
 	{
 		enemy->enemyState = EnemyState::DYING;
-
+		enemy->navMesh->currentPath.clear();
 		if (!enemy->dyingCorutine.active)
 		{
 			enemy->dying = true;
@@ -96,7 +96,7 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 	else if (enemy->bited)
 	{
 		enemy->enemyState = EnemyState::BITED;
-
+		enemy->navMesh->currentPath.clear();
 		enemy->attackCorutine.active = false;
 		enemy->navMesh->isMoving = false;
 
@@ -107,7 +107,7 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 		if (enemy->hit)
 		{
 			enemy->enemyState = EnemyState::HIT;
-
+			enemy->navMesh->currentPath.clear();
 			enemy->enemyRenderableComponent->_modelSkinned->isHitted = true;
 			enemy->hitCorutine.Restart(0.5f);
 			enemy->hitColorCorutine.Restart(0.1f);
@@ -124,11 +124,12 @@ void EnemySystem::SetStates(std::shared_ptr<EnemyComponent> enemy)
 
 				enemy->navMesh->SetEnemyDestination(player->GetTransform()->GetPosition());
 				enemy->navMesh->Move(Coroutine::elapsedTime);
+				//enemy->navMesh->MoveEnemy(Coroutine::elapsedTime, enemy->GetParent()->GetComponent<PhysicsComponent>());
 			}
 			else
 			{
 				enemy->enemyState = EnemyState::ATTACK;
-
+				enemy->navMesh->currentPath.clear();
 				float dot = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x + enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z;
 				float cross = enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).z - enemy->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - enemy->GetParent()->GetTransform()->GetPosition()).x;
 				float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
