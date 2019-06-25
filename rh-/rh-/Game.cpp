@@ -1018,20 +1018,12 @@ void Game::RespawnRestart()
 {
 	if (!humanMode)
 	{
-		//if (*(playerSystem->playerHealth) <= 0)
-		//{
 		playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
-		//}
 	}
 	else
 	{
-		//if (*(playerSystem->playerHealth) <= 0)
-		//{
 		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
 		humanSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
-		//enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 25.0f));
-		//enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
-	//}
 	}
 }
 #pragma endregion
@@ -1968,9 +1960,8 @@ void Game::SetHumanMode(bool check)
 		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
 		playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isVisible = false;
 		playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->playingAnimation = false;
-		//enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 25.0f));
 		enemyEntity1->GetComponent<EnemyComponent>()->followPlayerDistance = 1.0f;
-		//enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
+		enemyEntity1->GetComponent<EnemyComponent>()->speed = 12.0f;
 		skipper = true;
 	}
 	else
@@ -1986,9 +1977,8 @@ void Game::SetHumanMode(bool check)
 		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = playerEntity->GetComponent<PlayerComponent>()->playerHealthOrigin;
 		playerSystem->gettingWeapon = true;
 		playerSystem->gettingWeaponCorutine.Restart(4.5f);
-		//enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
 		enemyEntity1->GetComponent<EnemyComponent>()->followPlayerDistance = 10.0f;
-		//enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 26.0f));
+		enemyEntity1->GetComponent<EnemyComponent>()->speed = 20.0f;
 		skipper = false;
 
 		playerSystem->player->navMesh->isMoving = false;

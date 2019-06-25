@@ -22,11 +22,17 @@ void EnemySystem::Iterate()
 			{
 				if (enemyComponent->_isEnabled)
 				{
-					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 15.0f, .1f, enemyComponent->followPlayerDistance + 15.0f)))
 					{
 						enemyComponent->enemyState = EnemyState::IDLE;
 						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
 						enemyComponent->navMesh->isMoving = false;
+					}
+					else if(!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					{
+						enemyComponent->enemyState = EnemyState::IDLE;
+						enemyComponent->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
+						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
 					}
 					else
 					{
@@ -43,11 +49,17 @@ void EnemySystem::Iterate()
 			{
 				if (enemyComponent->_isEnabled)
 				{
-					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 15.0f, .1f, enemyComponent->followPlayerDistance + 15.0f)))
 					{
 						enemyComponent->enemyState = EnemyState::IDLE;
 						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
 						enemyComponent->navMesh->isMoving = false;
+					}
+					else if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					{
+						enemyComponent->enemyState = EnemyState::IDLE;
+						enemyComponent->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
+						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
 					}
 					else
 					{
