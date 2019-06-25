@@ -30,7 +30,7 @@ cbuffer DynamicBuffer : register(b1)
 	float3 CameraPosition;
 	float IsTextured;
 
-	float4 IsNormalMap;
+	float4x4 WorldInverseTranspose;
 };
 
 //------------------------------------------------------------------------------
@@ -50,10 +50,10 @@ struct VertexShaderInput
 //------------------------------------------------------------------------------
 struct PixelShaderInput
 {
-	float4 pos : SV_Position;
-	float3 normal : NORMAL;
-	float2 texCoord : TEXCOORD0;
-	float3 worldPosition : TEXCOORD1;
+	float4 PosH    : SV_POSITION;
+	float3 PosW    : POSITION;
+	float3 NormalW : NORMAL;
+	float2 Tex     : TEXCOORD;
 };
 
 //------------------------------------------------------------------------------
@@ -63,11 +63,10 @@ PixelShaderInput main(VertexShaderInput input)
 {
 	PixelShaderInput OUT = (PixelShaderInput)0;
 
-	float4 pos = float4(input.pos, 1.0f);
-	OUT.pos = mul(pos, WorldViewProjection);
-	OUT.worldPosition = mul(pos, World).xyz;
-	OUT.texCoord = input.texCoord;
-	OUT.normal = normalize(mul(float4(input.normal, 0), World).xyz);
+	OUT.PosW = mul(float4(input.pos, 1.0f), World).xyz;
+	OUT.NormalW = mul(input.normal, (float3x3)WorldInverseTranspose);
+	OUT.PosH = mul(float4(input.pos, 1.0f), WorldViewProjection);
+	OUT.Tex = input.texCoord;
 
 	return OUT;
 }

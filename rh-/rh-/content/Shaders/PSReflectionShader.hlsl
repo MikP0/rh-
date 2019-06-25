@@ -17,7 +17,7 @@ cbuffer StaticBuffer : register(b0)
 	DIRECTIONAL_LIGHT DirectionalLight[MAX_NUMBER_OF_LIGHT];
 	SPOT_LIGHT SpotLight[MAX_NUMBER_OF_LIGHT];
 
-	float4 NumOfLights;		//x - point, y - dir, z - spot
+	float4 NumOfLights;	//x - point, y - dir, z - spot
 };
 
 //------------------------------------------------------------------------------
@@ -30,33 +30,43 @@ cbuffer DynamicBuffer : register(b1)
 	float3 CameraPosition;
 	float IsTextured;
 
-	float4 IsNormalMap;
-
 	float4x4 WorldInverseTranspose;
 };
 
-float4 TintColor = float4(1, 1, 1, 1);
+////float4 TintColor = float4(1, 1, 1, 1);
 
 //------------------------------------------------------------------------------
 // Per-pixel color data passed through the pixel shader.
 //------------------------------------------------------------------------------
 struct PixelShaderInput
 {
-	float4 pos : SV_Position;
-	float3 normal : NORMAL;
-	float2 texCoord : TEXCOORD0;
-	float3 worldPosition : TEXCOORD1;
+	float4 PosH    : SV_POSITION;
+	float3 PosW    : POSITION;
+	float3 NormalW : NORMAL;
+	float2 Tex     : TEXCOORD;
 };
+
+SamplerState ColorSampler
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = WRAP;
+	AddressV = WRAP;
+};
+
+
 
 //------------------------------------------------------------------------------
 // Textures and Samplers
 //------------------------------------------------------------------------------
 Texture2D ColorMap : register(t0);
-Texture2D NormalMap : register(t1);
 
-SamplerState ColorSampler
+TextureCube<float4> SkyboxTexture : register(t1);
+
+SamplerState samAnisotropic
 {
-	Filter = MIN_MAG_MIP_LINEAR;
+	Filter = ANISOTROPIC;
+	MaxAnisotropy = 4;
+
 	AddressU = WRAP;
 	AddressV = WRAP;
 };
@@ -67,9 +77,35 @@ SamplerState ColorSampler
 float4 main(PixelShaderInput input) : SV_TARGET
 {
 	float4 OUT = (float4)0;
+	
 
-	float3 normal = normalize(input.normal);
-	float3 viewDirection = normalize(CameraPosition - input.worldPosition);
+	float3 NormalW = normalize(input.NormalW);
+
+	float3 toEye = CameraPosition - input.PosW;
+
+	float distToEye = length(toEye);
+
+	// Normalize.
+	toEye /= distToEye;
+
+
+	//float4 color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	float4 litColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	float3 incident = -toEye;
+	float3 reflectionVector = reflect(incident, NormalW);
+	float4 reflectionColor = SkyboxTexture.Sample(samAnisotropic, reflectionVector);
+
+	litColor = reflectionColor;
+
+
+
+
+
+
+	float3 normal = NormalW;
+	float3 viewDirection = toEye;
 
 
 	float4 color;
@@ -80,13 +116,9 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	}
 	else
 	{
-		color = ColorMap.Sample(ColorSampler, input.texCoord);
+		color = ColorMap.Sample(ColorSampler, input.Tex);
 	}
 
-	if (IsNormalMap.x == 1.0)
-	{
-		normal = ((2 * NormalMap.Sample(ColorSampler, input.texCoord)) - 1.0).xyz;
-	}
 
 	// POINT LIGHTS
 	LIGHT_CONTRIBUTION_DATA lightContributionData;
@@ -96,13 +128,13 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	lightContributionData.SpecularColor = SpecularColor;
 	lightContributionData.SpecularPower = SpecularPower;
 
-	float3 totalLightContribution = (float3)0;
+	float3 totalLightContribution = float3(1.0f, 1.0f, 1.0f);
 	float3 tempColor;
 
 	[unroll]
 	for (int i = 0; i < NumOfLights.x; i++)
 	{
-		lightContributionData.LightDirection = get_light_data(PointLight[i].Position, input.worldPosition, PointLight[i].Radius);
+		lightContributionData.LightDirection = get_light_data(PointLight[i].Position, input.PosW, PointLight[i].Radius);
 		lightContributionData.LightColor = PointLight[i].Color;
 		tempColor = get_light_contribution(lightContributionData);
 		tempColor = get_toonShading(lightContributionData.LightDirection, normal, tempColor);
@@ -110,49 +142,45 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	}
 
 
-	// DIRECT LIGHTS
-	float3 lightDirection;
-	float n_dot_l;
-	float3 diffuse;
-
-	for (int i = 0; i < NumOfLights.y; i++)
-	{
-		lightDirection = normalize(-DirectionalLight[i].Direction);
-		n_dot_l = dot(lightDirection, normal);
-		diffuse = (float3)0;
-		if (n_dot_l > 0)
-		{
-			diffuse = DirectionalLight[i].Color.rgb * DirectionalLight[i].Color.a * n_dot_l * color.rgb;
-		}
-
-		tempColor = diffuse;
-		tempColor = get_toonShading(float4(lightDirection.x, lightDirection.y, lightDirection.z, 1.0f), normal, tempColor);
-
-		totalLightContribution += tempColor;
-	}
-
-	// SPOT LIGHTS
-	float3 result;
-	for (int i = 0; i < NumOfLights.z; i++)
-	{
-		result = get_spot_light(SpotLight[i], color, normal, input.worldPosition, viewDirection, SpecularColor, SpecularPower);
-
-		tempColor = result;
-		tempColor = get_toonShading(float4(SpotLight[i].Direction.x, SpotLight[i].Direction.y, SpotLight[i].Direction.z, 1.0f), normal, tempColor);
-
-		totalLightContribution += tempColor;
-	}
-
-	float3 ambient = get_vector_color_contribution(AmbientColor, color.rgb);
-
-	OUT.rgb = ambient + totalLightContribution;
+	OUT.rgb = litColor;
 	OUT.a = 1.0f;
 
-	OUT.rgb = float3(1.0f, 1.0, 1.0f);
 
-	//Lights off
-	//OUT.rgb = color.rgb;
-	//OUT.a = 1.0f;
+
+
 
 	return OUT;
 }
+
+
+
+
+
+/*
+float4 OUT = (float4)0;
+
+
+float3 NormalW = normalize(input.NormalW);
+
+float3 toEye = CameraPosition - input.PosW;
+
+float distToEye = length(toEye);
+
+// Normalize.
+toEye /= distToEye;
+
+
+//float4 color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
+float4 litColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
+float3 incident = -toEye;
+float3 reflectionVector = reflect(incident, NormalW);
+float4 reflectionColor = SkyboxTexture.Sample(samAnisotropic, reflectionVector);
+
+litColor = reflectionColor;
+
+
+OUT = litColor;
+
+return OUT;*/

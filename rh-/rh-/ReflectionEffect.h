@@ -2,7 +2,6 @@
 
 #include "pch.h"
 
-
 class ReflectionEffect : public DirectX::IEffect, public DirectX::IEffectMatrices
 {
 public:
@@ -31,8 +30,6 @@ public:
 	// ToonEffect methods
 	void SetTextureEnabled(bool value);
 	void SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
-	void SetNormalMapEnabled(bool value);
-	void SetNormalMap(_In_opt_ ID3D11ShaderResourceView* value);
 
 	// ToonEffect Materials
 	void SetDiffuseColor(DirectX::XMFLOAT3 value);
@@ -48,6 +45,8 @@ public:
 
 	void SetMaterialName(std::string Name);
 	std::string GetMaterialName();
+
+	void SetCubeMap(ID3D11ShaderResourceView* value);
 
 private:
 	// Private implementation.

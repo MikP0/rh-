@@ -77,7 +77,6 @@ _Use_decl_annotations_ std::shared_ptr<IEffect> ReflectionFactory::Impl::CreateE
 		ComPtr<ID3D11ShaderResourceView> srv;
 		factory->CreateTexture(info.normalTexture, deviceContext, srv.GetAddressOf());
 		effect->SetTexture(srv.Get());
-		effect->SetNormalMapEnabled(true);
 	}
 
 	if (mSharing && info.name && *info.name)
@@ -253,6 +252,22 @@ void ReflectionFactory::SetDirectory(_In_opt_z_ const wchar_t* path)
 		*pImpl->mPath = 0;
 }
 
+void ReflectionFactory::SetCameraPosition(DirectX::XMFLOAT3 value)
+{
+	for (std::map< std::wstring, std::shared_ptr<ReflectionEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->SetCameraPosition(value);
+	}
+}
+
+void ReflectionFactory::SetCubeMap(ID3D11ShaderResourceView * value)
+{
+	for (std::map< std::wstring, std::shared_ptr<ReflectionEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
+	{
+		it->second->SetCubeMap(value);
+	}
+}
+
 void ReflectionFactory::AddPointLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Position, float Radius)
 {
 	for (std::map< std::wstring, std::shared_ptr<ReflectionEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
@@ -293,14 +308,3 @@ void ReflectionFactory::UpdateSpotLight(int id, DirectX::XMFLOAT3 Position)
 	}
 }
 
-void ReflectionFactory::SetNormalMap(std::string material, ID3D11ShaderResourceView* value)
-{
-	for (std::map< std::wstring, std::shared_ptr<ReflectionEffect> >::const_iterator it = pImpl->mEffectCache.begin(); it != pImpl->mEffectCache.end(); ++it)
-	{
-		if (it->second->GetMaterialName() == material)
-		{
-			it->second->SetNormalMapEnabled(true);
-			it->second->SetNormalMap(value);
-		}
-	}
-}

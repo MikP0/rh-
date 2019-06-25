@@ -56,7 +56,7 @@ struct DynamicConstantBuffer
 	DirectX::XMFLOAT3 CameraPosition;
 	float IsTextured;
 
-	DirectX::XMFLOAT4 IsNormalMap;
+	DirectX::XMFLOAT4X4 WorldInverseTranspose;
 };
 
 
@@ -80,7 +80,6 @@ public:
 	XMVECTOR SpecularPower;
 	XMVECTOR IsTextured;
 
-	XMVECTOR IsNormal;
 
 	POINT_LIGHT PointLights[MAX_NUMBER_OF_LIGHT];
 	DIRECTIONAL_LIGHT DirectionalLights[MAX_NUMBER_OF_LIGHT];
@@ -97,13 +96,13 @@ public:
 
 	bool m_isInit = false;
 	bool m_isTextured = false;
-	bool m_isNormalMapped = false;
+	bool m_isCubed = false;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixelShader;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_staticConstantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_dynamicConstantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_normalMap;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cubeMap;
 	StaticConstantBuffer m_staticData;
 	DynamicConstantBuffer m_dynamicData;
 	std::vector<uint8_t> m_VSBytecode;
@@ -145,7 +144,6 @@ ReflectionEffect::Impl::Impl(_In_ ID3D11Device* device)
 	m_camera.z = 0;
 
 	IsTextured = { 0.0f };
-	IsNormal = { 0.0f , 0.0f, 0.0f, 0.0f };
 
 	if (FAILED(loadShaders(device)))
 	{
@@ -276,21 +274,16 @@ void ReflectionEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 	XMStoreFloat4x4(&m_dynamicData.View, XMMatrixTranspose(m_view));
 	XMStoreFloat4x4(&m_dynamicData.Projection, XMMatrixTranspose(m_projection));
 	XMStoreFloat4x4(&m_dynamicData.WorldViewProjection, XMMatrixTranspose(XMMatrixMultiply((XMMatrixMultiply(m_world, m_view)), m_projection)));
+	
+	DirectX::SimpleMath::Matrix m_invert_world = m_world;
+
+	XMStoreFloat4x4(&m_dynamicData.World, XMMatrixTranspose(m_invert_world.Invert()));
+
 
 	XMVECTOR cam = { m_camera.x, m_camera.y, m_camera.z };
 	XMStoreFloat3(&m_dynamicData.CameraPosition, cam);
 
 	XMStoreFloat(&m_dynamicData.IsTextured, IsTextured);
-
-	if (m_isNormalMapped)
-	{
-		IsNormal = { 1.0f , 0.0f, 0.0f, 0.0f };
-	}
-	else
-	{
-		IsNormal = { 0.0f , 0.0f, 0.0f, 0.0f };
-	}
-	XMStoreFloat4(&m_dynamicData.IsNormalMap, IsNormal);
 
 	deviceContext->UpdateSubresource(
 		m_dynamicConstantBuffer.Get(), 0, NULL, &m_dynamicData, 0, 0);
@@ -300,6 +293,10 @@ void ReflectionEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 	deviceContext->PSSetConstantBuffers(
 		1, 1, m_dynamicConstantBuffer.GetAddressOf());
 
+
+	//ID3D11ShaderResourceView* mCubeMapSRV;
+	//HR(D3DX11CreateShaderResourceViewFromFile(device,
+	//	cubemapFilename.c_str(), 0, 0, &mCubeMapSRV, 0));
 
 	ID3D11ShaderResourceView* textures[2];
 
@@ -312,9 +309,9 @@ void ReflectionEffect::Impl::Apply(_In_ ID3D11DeviceContext* deviceContext)
 		textures[0] = nullptr;
 	}
 
-	if (m_isNormalMapped)
+	if (m_isCubed)
 	{
-		textures[1] = m_normalMap.Get();
+		textures[1] = m_cubeMap.Get();
 	}
 	else
 	{
@@ -426,16 +423,6 @@ void ReflectionEffect::SetTexture(_In_opt_ ID3D11ShaderResourceView* value)
 	m_pImpl->m_texture = value;
 }
 
-void ReflectionEffect::SetNormalMapEnabled(bool value)
-{
-	m_pImpl->m_isNormalMapped = value;
-}
-
-void ReflectionEffect::SetNormalMap(_In_opt_ ID3D11ShaderResourceView* value)
-{
-	m_pImpl->m_normalMap = value;
-}
-
 void ReflectionEffect::SetDiffuseColor(DirectX::XMFLOAT3 value)
 {
 	m_pImpl->diffuseColor = value;
@@ -508,4 +495,10 @@ void ReflectionEffect::SetMaterialName(std::string Name)
 std::string ReflectionEffect::GetMaterialName()
 {
 	return m_pImpl->materialName;
+}
+
+void ReflectionEffect::SetCubeMap(ID3D11ShaderResourceView * value)
+{
+	m_pImpl->m_cubeMap = value;
+	m_pImpl->m_isCubed = true;
 }

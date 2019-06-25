@@ -341,4 +341,6 @@ private:
 	bool humanMode = true;
 	void SetHumanMode(bool check);
 	bool skipper = false;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cubeMap;
 };

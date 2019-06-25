@@ -95,10 +95,10 @@ void Game::Update(DX::StepTimer const& timer)
 
 	////////////////////////////////////////SKIP////////////////////////////////////////
 	// TO SKIP MENU and SKIP PLOT
-	//mainMenu = false;
+	mainMenu = false;
 
 	//TO SKIP FIRST PHASE 
-	//SetHumanMode(false);
+	SetHumanMode(false);
 	////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -715,6 +715,7 @@ void Game::Render()
 	case 6:
 	{
 		renderableSystem->SentResources(m_deviceResources->GetRenderTargetView(), m_deviceResources->GetDepthStencilView(), playerEntity, size.right, size.bottom, vampireMode);
+		renderableSystem->_ReflectFactory->SetCameraPosition(camera.GetPositionFloat3());
 
 		if (playerSystem->turnOffVampireMode)
 		{
@@ -1094,7 +1095,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	audioSystem = std::make_shared<AudioSystem>();
 	collisionSystem = std::make_shared<PhysicsSystem>(SCENE_CENTER, COLLISION_SCENE_RANGE, camera);
 	renderableSystem = std::make_shared<RenderableSystem>(device, context, collisionSystem);
-	lightSystem = std::make_shared<LightSystem>(renderableSystem->_ShadowsfxFactory, renderableSystem->_noShadowsfxFactory);
+	lightSystem = std::make_shared<LightSystem>(renderableSystem->_ShadowsfxFactory, renderableSystem->_noShadowsfxFactory, renderableSystem->_ReflectFactory);
 	enemySystem = std::make_shared<EnemySystem>();
 	playerSystem = std::make_shared<PlayerSystem>(collisionSystem, &camera);
 	humanSystem = std::make_shared<HumanSystem>(collisionSystem, &camera);
@@ -1627,6 +1628,15 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	//world->RefreshWorld();
 	renderableSystem->_terrain = terrain;
 	renderableSystem->_camera = &camera;
+
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"cubeMapTex2.dds",
+			nullptr,
+			cubeMap.ReleaseAndGetAddressOf()));
+
+
+	renderableSystem->_ReflectFactory->SetCubeMap(cubeMap.Get());
 
 	SetHumanMode(true);
 }

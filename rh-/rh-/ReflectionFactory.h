@@ -30,14 +30,18 @@ public:
 
 	void __cdecl SetDirectory(_In_opt_z_ const wchar_t* path);
 
+
+	void SetCameraPosition(DirectX::XMFLOAT3 value);
+
+	void SetCubeMap(ID3D11ShaderResourceView* value);
+
+
 	// Lights
 	void AddPointLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Position, float Radius);
 	void AddDirectLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction);
 	void AddSpotLight(DirectX::XMFLOAT4 Color, DirectX::XMFLOAT3 Direction, float OuterAngle, DirectX::XMFLOAT3 Position, float InnerAngle, float Radius);
 	void UpdatePointLight(int id, DirectX::XMFLOAT3 Position);
 	void UpdateSpotLight(int id, DirectX::XMFLOAT3 Position);
-
-	void SetNormalMap(std::string material, ID3D11ShaderResourceView* value);
 
 private:
 	// Private implementation.
