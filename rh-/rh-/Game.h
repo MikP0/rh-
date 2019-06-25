@@ -125,6 +125,7 @@ private:
 	std::shared_ptr<Entity> runningBackground;
 	std::shared_ptr<Entity> deathBackground;
 	std::shared_ptr<Entity> explodeBackground;
+	std::shared_ptr<Entity> screamBackground;
 
 	std::shared_ptr<Entity> playerFootstep;
 	std::shared_ptr<Entity> playerNormalAttack;
@@ -231,6 +232,7 @@ private:
 	std::shared_ptr<AudioComponent> fireBackgroundAudio;
 	std::shared_ptr<AudioComponent> runningBackgroundAudio;
 	std::shared_ptr<AudioComponent> explodeBackgroundAudio;
+	std::shared_ptr<AudioComponent> screamBackgroundAudio;
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
 
@@ -350,4 +352,9 @@ private:
 	bool skipper = false;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cubeMap;
+
+	bool isFire = false;
+	bool isRunning = false;
+	bool isExplode = false;
+	bool isScream = false;
 };

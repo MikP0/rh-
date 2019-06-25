@@ -166,18 +166,34 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			plotTimer += elapsedTime;
 			ColorChanger += elapsedTime / 4.0f;
+
 			if (plotTimer > 4.0f)
 			{
 				if (plotTimer > 8.0f)
 				{
 					if (plotTimer > 12.0f)
-					{						
+					{	
+						if (!isRunning)
+						{
+							runningBackgroundAudio->AudioFile->Play(runningBackgroundAudio->Volume*AudioSystem::VOLUME, runningBackgroundAudio->Pitch, runningBackgroundAudio->Pan);
+							isRunning = true;
+						}
 						if (plotTimer > 16.0f)
 						{
 							if (plotTimer > 20.0f)
-							{								
+							{
+								if (!isFire)
+								{
+									fireBackgroundAudio->AudioFile->Play(fireBackgroundAudio->Volume*AudioSystem::VOLUME, fireBackgroundAudio->Pitch, fireBackgroundAudio->Pan);
+									isFire = true;
+								}
 								if (plotTimer > 24.0f)
 								{
+									if (!isScream)
+									{
+										screamBackgroundAudio->AudioFile->Play(screamBackgroundAudio->Volume*AudioSystem::VOLUME, screamBackgroundAudio->Pitch, screamBackgroundAudio->Pan);
+										isScream = true;
+									}
 									if (plotTimer > 28.0f)
 									{										
 										if (plotTimer > 32.0f)
@@ -188,7 +204,12 @@ void Game::Update(DX::StepTimer const& timer)
 												{
 													if (plotTimer > 44.0f)
 													{
-														if (plotTimer > 48.0f)
+														if (!isExplode)
+														{
+															explodeBackgroundAudio->AudioFile->Play(explodeBackgroundAudio->Volume*AudioSystem::VOLUME, explodeBackgroundAudio->Pitch, explodeBackgroundAudio->Pan);
+															isExplode = true;
+														}
+														if (plotTimer > 45.0f)
 														{
 															gameStage = 6;
 															Ui->messageToShow = 1;
@@ -1154,6 +1175,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	fireBackground = world->CreateEntity("FireBackground");
 	runningBackground = world->CreateEntity("RunningBackground");
 	explodeBackground = world->CreateEntity("ExplodeBackground");
+	screamBackground = world->CreateEntity("ScreamBackground");
 
 	playerFootstep = world->CreateEntity("PlayerFootstep");
 	playerNormalAttack = world->CreateEntity("PlayerNormalAttack");
@@ -1223,9 +1245,10 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	// Creation of audio components ------------------------------------------------------------------
 	plotBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotBackground.wav");
 	gameBackground->AddComponent<AudioComponent>("Resources\\Audio\\gameBackground.wav");
-	fireBackground->AddComponent<AudioComponent>("Resources\\Audio\\fire.wav");
-	runningBackground->AddComponent<AudioComponent>("Resources\\Audio\\fire.wav");
-	explodeBackground->AddComponent<AudioComponent>("Resources\\Audio\\fire.wav");
+	fireBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotFire.wav");
+	runningBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotRunning.wav");
+	explodeBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotExplode.wav");
+	screamBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotScream.wav");
 
 	playerFootstep->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	playerNormalAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerAttack.wav");
@@ -1409,6 +1432,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		{
 			explodeBackgroundAudio = component;
 			explodeBackgroundAudio->Volume = 1.0f;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "ScreamBackground") == 0)
+		{
+			screamBackgroundAudio = component;
+			screamBackgroundAudio->Volume = 1.0f;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerFootstep") == 0)
