@@ -165,34 +165,28 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			plotTimer += elapsedTime;
 			ColorChanger += elapsedTime / 4.0f;
-
-			if(plotTimer > 4.0f)
+			if (plotTimer > 4.0f)
 			{
 				if (plotTimer > 8.0f)
 				{
 					if (plotTimer > 12.0f)
-					{
+					{						
 						if (plotTimer > 16.0f)
 						{
 							if (plotTimer > 20.0f)
-							{
-								fireBackgroundAudio->Mute = false;
+							{								
 								if (plotTimer > 24.0f)
 								{
 									if (plotTimer > 28.0f)
-									{
+									{										
 										if (plotTimer > 32.0f)
-										{
-											fireBackgroundAudio->Mute = true;
+										{	
 											if (plotTimer > 36.0f)
 											{
 												if (plotTimer > 40.0f)
 												{
 													if (plotTimer > 44.0f)
 													{
-														//gameStage = 6;
-														//plotBackgroundAudio->AudioFile->~SoundEffect();
-														//gameBackgroundAudio->Mute = false;
 														if (plotTimer > 48.0f)
 														{
 															gameStage = 6;
@@ -202,7 +196,7 @@ void Game::Update(DX::StepTimer const& timer)
 														}
 														else
 														{
-															plotStage = 0;
+															plotStage = 11;															
 														}
 													}
 													else
@@ -254,7 +248,7 @@ void Game::Update(DX::StepTimer const& timer)
 				{
 					plotStage = 1;
 				}
-			}	
+			}
 			else
 			{
 				plotStage = 0;
@@ -1065,6 +1059,8 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	plotBackground = world->CreateEntity("PlotBackground");
 	gameBackground = world->CreateEntity("GameBackground");
 	fireBackground = world->CreateEntity("FireBackground");
+	runningBackground = world->CreateEntity("RunningBackground");
+	explodeBackground = world->CreateEntity("ExplodeBackground");
 
 	playerFootstep = world->CreateEntity("PlayerFootstep");
 	playerNormalAttack = world->CreateEntity("PlayerNormalAttack");
@@ -1123,6 +1119,8 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	plotBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotBackground.wav");
 	gameBackground->AddComponent<AudioComponent>("Resources\\Audio\\gameBackground.wav");
 	fireBackground->AddComponent<AudioComponent>("Resources\\Audio\\fire.wav");
+	runningBackground->AddComponent<AudioComponent>("Resources\\Audio\\fire.wav");
+	explodeBackground->AddComponent<AudioComponent>("Resources\\Audio\\fire.wav");
 
 	playerFootstep->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	playerNormalAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerAttack.wav");
@@ -1165,7 +1163,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity7->AddComponent<EnemyComponent>(3, 3.f, 23);
 	enemyEntity8->AddComponent<EnemyComponent>(4, 10.f, 35, 1.9f, 1.0f, 3.0f);
 	enemyEntity9->AddComponent<EnemyComponent>(4, 10.f, 35, 1.9f, 1.0f, 3.0f);
-	
+
 	playerEntity->AddComponent<PlayerComponent>();
 	humanEntity->AddComponent<HumanComponent>();
 
@@ -1251,14 +1249,25 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			gameBackgroundAudio->Loop = true;
 			gameBackgroundAudio->Volume = 0.8f;
 			gameBackgroundAudio->Mute = true;
+
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "FireBackground") == 0)
 		{
 			fireBackgroundAudio = component;
-			fireBackgroundAudio->Loop = true;
 			fireBackgroundAudio->Volume = 1.0f;
-			fireBackgroundAudio->Mute = true;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "RunningBackground") == 0)
+		{
+			runningBackgroundAudio = component;
+			runningBackgroundAudio->Volume = 1.0f;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "ExplodeBackground") == 0)
+		{
+			explodeBackgroundAudio = component;
+			explodeBackgroundAudio->Volume = 1.0f;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerFootstep") == 0)
@@ -1434,7 +1443,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	Ui = make_shared<UI>(device, context, playerSystem);
 
 	////Setting up skinned model -----------------------------------------------------------------------
-	
+
 	playerEntity->GetComponent<PlayerComponent>()->LoadPlayerAnimations();
 	humanEntity->GetComponent<HumanComponent>()->LoadHumanAnimations();
 
@@ -1447,7 +1456,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity7->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	enemyEntity8->GetComponent<EnemyComponent>()->LoadGuardAnimations();
 	enemyEntity9->GetComponent<EnemyComponent>()->LoadGuardAnimations();
-	
+
 	Ui->Initialize();
 
 
@@ -1661,8 +1670,21 @@ void Game::ShowPlot(int stage)
 		m_spriteBatch->End();
 
 		break;
-	}	
+	}
+	case 11:
+	{
+		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
+		m_spriteBatch->Draw(plot10Texture.Get(), m_screenPos, nullptr, XMVECTOR{ 1.0f, 1.0f, 1.0f, 1.0f },
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+			0.f, Vector2(0, 0), 1.0f);
+
+		m_spriteBatch->End();
+
+		break;
+	}
 	default:
 		break;
 	}
