@@ -85,7 +85,7 @@ void PlayerSystem::InitializeCheckpoints()
 	checkpointMap[4] = dmath::Vector3(-12.67f, 0, 91.79f);
 }
 
-void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates)
+void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, vector<string> humanSkillsNames, vector<string> vampireSkillsNames, vector<float> skillsTimeLimits, vector<bool> skillsBlockadeStates, std::shared_ptr<bool> mesgMode)
 {
 	player->navMesh = std::make_shared<NavMesh>(player->GetParent()->GetTransform());
 	player->navMesh->terrain = Terrain;
@@ -96,6 +96,7 @@ void PlayerSystem::AdditionalInitialization(std::shared_ptr<Terrain> Terrain, ve
 	skillsNames.insert(skillsNames.end(), vampireSkillsNames.begin(), vampireSkillsNames.end());
 	blockade = make_shared<Blockade>(skillsNames, skillsBlockadeStates);
 	player->playerPositionOrigin = player->GetParent()->GetTransform()->GetPosition();
+	messageMode = mesgMode;
 }
 
 void PlayerSystem::RespawnPlayer(int checkpoint)
@@ -131,7 +132,7 @@ void PlayerSystem::UpdateNormalMode()
 {
 	if (!playerBiteCorutine.active)
 	{
-		if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED || mouseTracker.leftButton == Mouse::ButtonStateTracker::HELD)
+		if ((mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED || mouseTracker.leftButton == Mouse::ButtonStateTracker::HELD) && (*messageMode == false))
 		{
 			// !!!!!!!!!!!!!!!!    HOLD wylaczyc z atakowania - atakowanie tylko PRESSED
 
@@ -190,7 +191,7 @@ void PlayerSystem::UpdateNormalMode()
 		}
 
 
-		if (mouseTracker.rightButton == Mouse::ButtonStateTracker::PRESSED)
+		if (mouseTracker.rightButton == Mouse::ButtonStateTracker::PRESSED && (*messageMode == false))
 		{
 			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
 			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
@@ -247,7 +248,7 @@ void PlayerSystem::UpdateNormalMode()
 		}
 
 
-		if (mouseTracker.middleButton == Mouse::ButtonStateTracker::PRESSED)
+		if (mouseTracker.middleButton == Mouse::ButtonStateTracker::PRESSED && (*messageMode == false))
 		{
 			if (cooldown->CanUseSkill("spinAttack") && !blockade->IsSkillBlocked("spinAttack"))
 			{
@@ -282,7 +283,7 @@ void PlayerSystem::UpdateNormalMode()
 		}
 
 
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::E))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::E) && (*messageMode == false))
 		{
 			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
 			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
@@ -435,7 +436,7 @@ void PlayerSystem::UpdateVampireMode()
 {
 	if ((!playerRipAttackCorutine.active) && (!playerAOEAttackCorutine.active))
 	{
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D1) && (*messageMode == false))
 		{
 			if (player->vampireAbility != 1 && !blockade->IsSkillBlocked("teleport"))
 				player->vampireAbility = 1;
@@ -467,7 +468,7 @@ void PlayerSystem::UpdateVampireMode()
 		}
 
 
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D2))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D2) && (*messageMode == false))
 		{
 			if (player->vampireAbility != 2 && !blockade->IsSkillBlocked("cleaveAttack"))
 				player->vampireAbility = 2;
@@ -507,7 +508,7 @@ void PlayerSystem::UpdateVampireMode()
 		}
 
 
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D3))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D3) && (*messageMode == false))
 		{
 			if (player->vampireAbility != 3 && !blockade->IsSkillBlocked("swap"))
 				player->vampireAbility = 3;
@@ -553,7 +554,7 @@ void PlayerSystem::UpdateVampireMode()
 		}
 
 
-		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D4))
+		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::D4) && (*messageMode == false))
 		{
 			if (player->vampireAbility != 4 && !blockade->IsSkillBlocked("aoeAttack"))
 				player->vampireAbility = 4;
