@@ -50,6 +50,7 @@ public:
 
 
 	Vector2 skillSetPosition;
+	Vector2 selectedVampireSkillScale;
 
 	shared_ptr<DirectX::SpriteBatch> uiSpriteBatch;
 	shared_ptr<DirectX::SpriteBatch> uiSpriteBatchBorder;
