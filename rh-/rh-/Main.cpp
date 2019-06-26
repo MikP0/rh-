@@ -63,14 +63,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 		
 		//WINDOWED
-        HWND hwnd = CreateWindowExW(0, L"rh_WindowClass", L"rh-", WS_OVERLAPPEDWINDOW,
+        /*HWND hwnd = CreateWindowExW(0, L"rh_WindowClass", L"rh-", WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
-            nullptr);
+            nullptr);*/
 
 		//FULLSCREEN
-		/*HWND hwnd = CreateWindowExW(WS_EX_TOPMOST, L"rh_WindowClass", L"rh-", WS_POPUP,
+		HWND hwnd = CreateWindowExW(WS_EX_TOPMOST, L"rh_WindowClass", L"rh-", WS_POPUP,
 			CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
-			nullptr);*/
+			nullptr);
         // TODO: Change to CreateWindowExW(WS_EX_TOPMOST, L"rh_WindowClass", L"rh-", WS_POPUP,
         // to default to fullscreen.
 
@@ -130,7 +130,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static bool s_in_sizemove = false;
     static bool s_in_suspend = false;
     static bool s_minimized = false;
-    static bool s_fullscreen = false;
+    static bool s_fullscreen = true;
     // TODO: Set s_fullscreen to true if defaulting to fullscreen.
 
     auto game = reinterpret_cast<Game*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
