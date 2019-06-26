@@ -6,6 +6,7 @@ EnemySystem::EnemySystem()
 {
 	vampireMode = false;
 	menuIsOn = false;
+	stopInput = false;
 }
 
 EnemySystem::~EnemySystem()
@@ -14,7 +15,7 @@ EnemySystem::~EnemySystem()
 
 void EnemySystem::Iterate()
 {
-	if (!menuIsOn)
+	if ((!menuIsOn) || (!stopInput))
 	{
 		if ((!vampireMode) && (!humanMode))
 		{
@@ -22,11 +23,17 @@ void EnemySystem::Iterate()
 			{
 				if (enemyComponent->_isEnabled)
 				{
-					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 15.0f, .1f, enemyComponent->followPlayerDistance + 15.0f)))
 					{
 						enemyComponent->enemyState = EnemyState::IDLE;
 						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
 						enemyComponent->navMesh->isMoving = false;
+					}
+					else if(!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					{
+						enemyComponent->enemyState = EnemyState::IDLE;
+						enemyComponent->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
+						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
 					}
 					else
 					{
@@ -43,11 +50,17 @@ void EnemySystem::Iterate()
 			{
 				if (enemyComponent->_isEnabled)
 				{
-					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 15.0f, .1f, enemyComponent->followPlayerDistance + 15.0f)))
 					{
 						enemyComponent->enemyState = EnemyState::IDLE;
 						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
 						enemyComponent->navMesh->isMoving = false;
+					}
+					else if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 5.0f, .1f, enemyComponent->followPlayerDistance + 5.0f)))
+					{
+						enemyComponent->enemyState = EnemyState::IDLE;
+						enemyComponent->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
+						enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
 					}
 					else
 					{
@@ -239,7 +252,7 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 
 int EnemySystem::RespawnEnemiesFromCheckpoint()
 {
-	int cp;
+	int cp = 4;
 
 	for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 	{

@@ -32,6 +32,8 @@ PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 	gettingWeapon = false;
 
 	menuIsOn = false;
+
+	stopInput = false;
 }
 
 PlayerSystem::~PlayerSystem()
@@ -40,7 +42,7 @@ PlayerSystem::~PlayerSystem()
 
 void PlayerSystem::Iterate()
 {
-	if (!menuIsOn)
+	if ((!menuIsOn) && (!stopInput))
 	{
 		if (!humanMode)
 		{
@@ -153,116 +155,121 @@ void PlayerSystem::UpdateNormalMode()
 	{
 		if ((mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED || mouseTracker.leftButton == Mouse::ButtonStateTracker::HELD) && (*messageMode == false))
 		{
-			// !!!!!!!!!!!!!!!!    HOLD wylaczyc z atakowania - atakowanie tylko PRESSED
-
-			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			for each (shared_ptr<Collision> coll in collisionsWithRay)
+			if (cooldown->CanUseSkill("normalAttack") && !blockade->IsSkillBlocked("normalAttack"))
 			{
-				if (coll->OriginObject->GetTag() == Tags::ENEMY)
+
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				for each (shared_ptr<Collision> coll in collisionsWithRay)
 				{
-					if (player->targetedEnemy)
+					if (coll->OriginObject->GetTag() == Tags::ENEMY)
 					{
-						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName())
+						if (player->targetedEnemy)
 						{
-							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("normalAttack") && !blockade->IsSkillBlocked("normalAttack"))
+							if (coll->OriginObject->GetName() != player->targetedEnemy->GetName())
+							{
+								if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+								{
+									player->attackType = 1;
+									player->enemyClicked = true;
+									player->targetedEnemy = coll->OriginObject;
+									//cooldown->StartSkillCounter("normalAttack");
+								}
+							}
+						}
+						else
+						{
+							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
 							{
 								player->attackType = 1;
 								player->enemyClicked = true;
 								player->targetedEnemy = coll->OriginObject;
-								cooldown->StartSkillCounter("normalAttack");
+								//cooldown->StartSkillCounter("normalAttack");
 							}
 						}
 					}
-					else
-					{
-						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("normalAttack") && !blockade->IsSkillBlocked("normalAttack"))
-						{
-							player->attackType = 1;
-							player->enemyClicked = true;
-							player->targetedEnemy = coll->OriginObject;
-							cooldown->StartSkillCounter("normalAttack");
-						}
-					}
 				}
-			}
 
-			///////////////////////
+				///////////////////////
 
-			if ((!player->enemyClicked) || (collisionsWithRay.size() == 0))
-			{
-				Vector3 destination = Raycast::GetPointOnGround(*camera);
-				player->navMesh->SetDestination(destination);
-				player->isWalking = true;
+				if ((!player->enemyClicked) || (collisionsWithRay.size() == 0))
+				{
+					Vector3 destination = Raycast::GetPointOnGround(*camera);
+					player->navMesh->SetDestination(destination);
+					player->isWalking = true;
 
-				player->enemyClicked = false;
-				player->targetedEnemy = nullptr;
-				playerNormalAttackCorutine.active = false;
-				playerPowerAttackCorutine.active = false;
-				playerBiteCorutine.active = false;
-				playerSpinAttackCorutine.active = false;
-				player->isNormalAttack = false;
-				player->isPowerAttack = false;
-				player->isBiteAttack = false;
-				player->attackType = 0;
+					player->enemyClicked = false;
+					player->targetedEnemy = nullptr;
+					playerNormalAttackCorutine.active = false;
+					playerPowerAttackCorutine.active = false;
+					playerBiteCorutine.active = false;
+					playerSpinAttackCorutine.active = false;
+					player->isNormalAttack = false;
+					player->isPowerAttack = false;
+					player->isBiteAttack = false;
+					player->attackType = 0;
+				}
 			}
 		}
 
 
 		if (mouseTracker.rightButton == Mouse::ButtonStateTracker::PRESSED && (*messageMode == false))
 		{
-			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			for each (shared_ptr<Collision> coll in collisionsWithRay)
+			if (cooldown->CanUseSkill("strongAttack") && !blockade->IsSkillBlocked("strongAttack"))
 			{
-				if (coll->OriginObject->GetTag() == Tags::ENEMY)
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				for each (shared_ptr<Collision> coll in collisionsWithRay)
 				{
-					if (player->targetedEnemy)
+					if (coll->OriginObject->GetTag() == Tags::ENEMY)
 					{
-						if (coll->OriginObject->GetName() != player->targetedEnemy->GetName() && cooldown->CanUseSkill("strongAttack") && !blockade->IsSkillBlocked("strongAttack"))
+						if (player->targetedEnemy)
+						{
+							if (coll->OriginObject->GetName() != player->targetedEnemy->GetName())
+							{
+								if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+								{
+									player->attackType = 2;
+									player->enemyClicked = true;
+									player->targetedEnemy = coll->OriginObject;
+									//cooldown->StartSkillCounter("strongAttack");
+								}
+							}
+						}
+						else
 						{
 							if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
 							{
 								player->attackType = 2;
 								player->enemyClicked = true;
 								player->targetedEnemy = coll->OriginObject;
-								cooldown->StartSkillCounter("strongAttack");
+								//cooldown->StartSkillCounter("strongAttack");
 							}
 						}
 					}
-					else
-					{
-						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("strongAttack") && !blockade->IsSkillBlocked("strongAttack"))
-						{
-							player->attackType = 2;
-							player->enemyClicked = true;
-							player->targetedEnemy = coll->OriginObject;
-							cooldown->StartSkillCounter("strongAttack");
-						}
-					}
 				}
-			}
 
-			///////////////////////
+				///////////////////////
 
-			if ((!player->enemyClicked) || (collisionsWithRay.size() == 0))
-			{
-				//Vector3 destination = Raycast::GetPointOnGround(*camera);
-				//player->navMesh->SetDestination(destination);
-				//player->isWalking = true;
+				if ((!player->enemyClicked) || (collisionsWithRay.size() == 0))
+				{
+					//Vector3 destination = Raycast::GetPointOnGround(*camera);
+					//player->navMesh->SetDestination(destination);
+					//player->isWalking = true;
 
-				player->enemyClicked = false;
-				player->targetedEnemy = nullptr;
-				playerNormalAttackCorutine.active = false;
-				playerPowerAttackCorutine.active = false;
-				playerSpinAttackCorutine.active = false;
-				playerBiteCorutine.active = false;
-				player->isNormalAttack = false;
-				player->isPowerAttack = false;
-				player->isBiteAttack = false;
-				player->attackType = 0;
+					player->enemyClicked = false;
+					player->targetedEnemy = nullptr;
+					playerNormalAttackCorutine.active = false;
+					playerPowerAttackCorutine.active = false;
+					playerSpinAttackCorutine.active = false;
+					playerBiteCorutine.active = false;
+					player->isNormalAttack = false;
+					player->isPowerAttack = false;
+					player->isBiteAttack = false;
+					player->attackType = 0;
+				}
 			}
 		}
 
@@ -281,7 +288,7 @@ void PlayerSystem::UpdateNormalMode()
 
 				player->enemyClicked = true;
 				player->attackType = 3;
-				cooldown->StartSkillCounter("spinAttack");
+				//cooldown->StartSkillCounter("spinAttack");
 
 				enemiesInRangeToAOE.clear();
 
@@ -304,49 +311,52 @@ void PlayerSystem::UpdateNormalMode()
 
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::E) && (*messageMode == false))
 		{
-			shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
-			vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
-
-			for each (shared_ptr<Collision> coll in collisionsWithRay)
+			if (cooldown->CanUseSkill("biteAttack") && !blockade->IsSkillBlocked("biteAttack"))
 			{
-				if (coll->OriginObject->GetTag() == Tags::ENEMY)
+				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
+				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+				for each (shared_ptr<Collision> coll in collisionsWithRay)
 				{
-					if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying && cooldown->CanUseSkill("biteAttack") && !blockade->IsSkillBlocked("biteAttack"))
+					if (coll->OriginObject->GetTag() == Tags::ENEMY)
 					{
-						player->attackType = 5;
-						player->enemyClicked = true;
-						player->targetedEnemy = coll->OriginObject;
-						cooldown->StartSkillCounter("biteAttack");
+						if (!coll->OriginObject->GetComponent<EnemyComponent>()->dying)
+						{
+							player->attackType = 5;
+							player->enemyClicked = true;
+							player->targetedEnemy = coll->OriginObject;
+							//cooldown->StartSkillCounter("biteAttack");
+						}
+					}
+					else
+					{
+						player->enemyClicked = false;
+						player->targetedEnemy = nullptr;
+						playerNormalAttackCorutine.active = false;
+						playerPowerAttackCorutine.active = false;
+						playerSpinAttackCorutine.active = false;
+						playerBiteCorutine.active = false;
+						player->isNormalAttack = false;
+						player->isPowerAttack = false;
+						player->isBiteAttack = false;
+						player->attackType = 0;
 					}
 				}
-				else
+
+				///////////////////////
+
+				if ((!player->enemyClicked) || (collisionsWithRay.size() == 0))
 				{
 					player->enemyClicked = false;
 					player->targetedEnemy = nullptr;
 					playerNormalAttackCorutine.active = false;
 					playerPowerAttackCorutine.active = false;
-					playerSpinAttackCorutine.active = false;
 					playerBiteCorutine.active = false;
 					player->isNormalAttack = false;
 					player->isPowerAttack = false;
 					player->isBiteAttack = false;
 					player->attackType = 0;
 				}
-			}
-
-			///////////////////////
-
-			if ((!player->enemyClicked) || (collisionsWithRay.size() == 0))
-			{
-				player->enemyClicked = false;
-				player->targetedEnemy = nullptr;
-				playerNormalAttackCorutine.active = false;
-				playerPowerAttackCorutine.active = false;
-				playerBiteCorutine.active = false;
-				player->isNormalAttack = false;
-				player->isPowerAttack = false;
-				player->isBiteAttack = false;
-				player->attackType = 0;
 			}
 		}
 	}
@@ -372,6 +382,7 @@ void PlayerSystem::UpdateNormalMode()
 					player->isSpinAttack = false;
 					//playerNormalAttackCorutine.Restart(1.5f);
 					playerNormalAttackCorutine.RestartWithEvent(1.5f, 0.6f);
+					cooldown->StartSkillCounter("normalAttack");
 				}
 			}
 			else if (player->attackType == 2)
@@ -391,6 +402,7 @@ void PlayerSystem::UpdateNormalMode()
 					player->isSpinAttack = false;
 					//playerPowerAttackCorutine.Restart(1.3f);
 					playerPowerAttackCorutine.RestartWithEvent(1.3f, 0.7f);
+					cooldown->StartSkillCounter("strongAttack");
 				}
 			}
 			else if (player->attackType == 3)
@@ -416,6 +428,7 @@ void PlayerSystem::UpdateNormalMode()
 				//enemiesInRangeToAOE.clear();
 
 				playerSpinAttackCorutine.RestartWithEvent(2.0f, 0.2f);
+				cooldown->StartSkillCounter("spinAttack");
 			}
 			else if (player->attackType == 5)
 			{
@@ -433,6 +446,7 @@ void PlayerSystem::UpdateNormalMode()
 					player->isSpinAttack = false;
 					player->targetedEnemy->GetComponent<EnemyComponent>()->bited = true;
 					playerBiteCorutine.Restart(4.1f);
+					cooldown->StartSkillCounter("biteAttack");
 
 					player->biteAudio->AudioFile->Play(player->biteAudio->Volume*AudioSystem::VOLUME, player->biteAudio->Pitch, player->biteAudio->Pan);
 				}

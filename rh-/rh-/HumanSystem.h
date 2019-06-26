@@ -46,6 +46,8 @@ public:
 
 	bool humanMode;
 
+	bool stopInput;
+
 	bool stopHumanMode;
 
 	void UpdateNormalMode();

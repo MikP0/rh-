@@ -95,7 +95,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 	////////////////////////////////////////SKIP////////////////////////////////////////
 	// TO SKIP MENU and SKIP PLOT
-	mainMenu = false;
+	//mainMenu = false;
 
 	//TO SKIP FIRST PHASE 
 	//SetHumanMode(false);
@@ -122,10 +122,18 @@ void Game::Update(DX::StepTimer const& timer)
 							if (gameStage == 4)	// loading Screen
 							{
 								gameStage = 5;
-								InitializeAll(device, context);
-								menuBackgroundAudio->Stop(true);
-								plotBackgroundAudio->AudioFile->Play(plotBackgroundAudio->Volume*AudioSystem::VOLUME, plotBackgroundAudio->Pitch, plotBackgroundAudio->Pan);
-								gameBackgroundAudio->Mute = true;
+
+								if (!initialized)
+								{
+									InitializeAll(device, context);
+									menuBackgroundAudio->Stop(true);
+									gameBackgroundAudio->Mute = true;		
+									plotBackgroundAudio->AudioFile->Play(plotBackgroundAudio->Volume*AudioSystem::VOLUME, plotBackgroundAudio->Pitch, plotBackgroundAudio->Pan);
+								}
+								else
+								{
+									RestartAfterReplay();
+								}							
 								plotStage = 0;
 							}
 							else
@@ -153,7 +161,14 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			plotScreens = false;
 			gameStage = 6;
-			InitializeAll(device, context);
+			if (!initialized)
+			{
+				InitializeAll(device, context);
+			}
+			else
+			{
+				RestartAfterReplay();
+			}
 			menuBackgroundAudio->Stop(true);
 			Ui->messageToShow = 1;
 		}
@@ -212,9 +227,13 @@ void Game::Update(DX::StepTimer const& timer)
 														if (plotTimer > 45.0f)
 														{
 															gameStage = 6;
+															AfterInitButBeforePlotFin = true;
 															Ui->messageToShow = 1;
-															plotBackgroundAudio->AudioFile->~SoundEffect();
-															gameBackgroundAudio->Mute = false;
+															if (!initialized)
+															{
+																plotBackgroundAudio->AudioFile->~SoundEffect();
+																gameBackgroundAudio->Mute = false;
+															}
 														}
 														else
 														{
@@ -279,6 +298,7 @@ void Game::Update(DX::StepTimer const& timer)
 		else
 		{
 			gameStage = 6;
+			AfterInitButBeforePlotFin = true;
 			Ui->messageToShow = 1;
 		}
 	}
@@ -291,6 +311,8 @@ void Game::Update(DX::StepTimer const& timer)
 		keyboardTracker.Update(keyboard);
 
 		Vector3 move = Vector3::Zero;
+
+		gameBackgroundAudio->Volume = 1.0f * AudioSystem::VOLUME;
 
 		//Mouse
 		//auto mouse = Input::GetMouseState();
@@ -329,12 +351,12 @@ void Game::Update(DX::StepTimer const& timer)
 						move.z -= 1.f;
 				}
 
-				if (*iter == playBackground)
-				{
-					//SetHumanMode(false);
-					//playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
-					RespawnRestart();
-				}
+				//if (*iter == playBackground)
+				//{
+				//	//SetHumanMode(false);
+				//	//playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
+				//	RespawnRestart();
+				//}
 
 				//if (*iter == playSound1)
 				//{
@@ -435,7 +457,17 @@ void Game::Update(DX::StepTimer const& timer)
 		// HEALTH AND RESPAWN
 		if (*(playerSystem->playerHealth) <= 0)
 		{
-			RespawnRestart();
+			if (!isGameOver)
+			{
+				countGameOver = 0.0f;
+				enemySystem->stopInput = true;
+				playerSystem->stopInput = true;
+				humanSystem->stopInput = true;
+			}
+			isGameOver = true;
+			
+			if (countGameOver > 2)
+				RespawnRestart();			
 		}
 
 
@@ -472,7 +504,11 @@ void Game::Update(DX::StepTimer const& timer)
 					/////////////////////////////////////////////////////////////////////////////////////////////////EXIT
 					else if ((mouse.y >= size.top + 0.56f * size.bottom) && (mouse.y <= size.top + 0.595f * size.bottom))
 					{
-						ExitGame();
+						//ExitGame();
+						menuIsOn = 0;
+						RespawnRestart();
+						gameStage = 3;
+						startTimer = 15.0f;
 					}
 				}
 
@@ -539,6 +575,7 @@ void Game::UpdateMainMenu(float elapsedTime)
 	tracker.Update(mouse);
 	keyboardTracker.Update(keyboard);
 
+	menuBackgroundAudio->SetVolume(1.0f*AudioSystem::VOLUME);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////CREDITS
 	if ((mouse.x >= size.left + 0.71f * size.right) && (mouse.x <= size.left + 0.86f * size.right))
@@ -546,6 +583,10 @@ void Game::UpdateMainMenu(float elapsedTime)
 		if ((mouse.y >= size.top + 0.41f * size.bottom) && (mouse.y <= size.top + 0.51f * size.bottom))
 		{
 			creditsScreen = true;
+		}
+		else
+		{
+			creditsScreen = false;
 		}
 	}
 	else
@@ -872,6 +913,28 @@ void Game::Render()
 
 		world->RefreshWorld();
 
+		if (isGameOver)
+		{
+			if (countGameOver <= 2.0f)
+			{
+				countGameOver += elapsed_Time;
+
+				m_spriteBatch->Begin();
+
+				m_spriteBatch->Draw(gameOverTex.Get(), Vector2(550, 150), nullptr, Colors::White,
+					0.f, Vector2(0, 0), 1.0f);
+
+				m_spriteBatch->End();
+			}
+			else
+			{
+				isGameOver = false;
+				enemySystem->stopInput = false;
+				playerSystem->stopInput = false;
+				humanSystem->stopInput = false;
+			}
+		}
+
 
 		if (!initTerrain) {
 			terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
@@ -1018,20 +1081,12 @@ void Game::RespawnRestart()
 {
 	if (!humanMode)
 	{
-		//if (*(playerSystem->playerHealth) <= 0)
-		//{
 		playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
-		//}
 	}
 	else
 	{
-		//if (*(playerSystem->playerHealth) <= 0)
-		//{
 		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
 		humanSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
-		//enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 25.0f));
-		//enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
-	//}
 	}
 }
 #pragma endregion
@@ -1731,11 +1786,17 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			cubeMap.ReleaseAndGetAddressOf()));
 
 
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"GameOverScreen.dds",
+			nullptr,
+			gameOverTex.ReleaseAndGetAddressOf()));
+	
+
 	renderableSystem->_ReflectFactory->SetCubeMap(cubeMap.Get());
 
 	SetHumanMode(true);
+	initialized = true;
 }
-
 
 void Game::OnDeviceLost()
 {
@@ -1784,11 +1845,11 @@ void Game::ShowPlot(int stage)
 	{
 		m_spriteBatch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
 
-		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+		m_spriteBatch->Draw(startScreenTexture.Get(), m_screenPos, nullptr, Colors::White,
 			0.f, Vector2(0, 0), 1.0f);
 
-		m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
-			0.f, Vector2(0, 0), 1.0f);
+		//m_spriteBatch->Draw(blackBackTexture.Get(), m_screenPos, nullptr, Colors::White,
+		//	0.f, Vector2(0, 0), 1.0f);
 
 		m_spriteBatch->End();
 
@@ -1968,9 +2029,8 @@ void Game::SetHumanMode(bool check)
 		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
 		playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isVisible = false;
 		playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->playingAnimation = false;
-		//enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 25.0f));
 		enemyEntity1->GetComponent<EnemyComponent>()->followPlayerDistance = 1.0f;
-		//enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
+		enemyEntity1->GetComponent<EnemyComponent>()->speed = 12.0f;
 		skipper = true;
 	}
 	else
@@ -1986,9 +2046,8 @@ void Game::SetHumanMode(bool check)
 		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = playerEntity->GetComponent<PlayerComponent>()->playerHealthOrigin;
 		playerSystem->gettingWeapon = true;
 		playerSystem->gettingWeaponCorutine.Restart(4.5f);
-		//enemyEntity6->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 62.0f));
 		enemyEntity1->GetComponent<EnemyComponent>()->followPlayerDistance = 10.0f;
-		//enemyEntity1->GetTransform()->SetPosition(Vector3(10.0f, 0.0f, 26.0f));
+		enemyEntity1->GetComponent<EnemyComponent>()->speed = 20.0f;
 		skipper = false;
 
 		playerSystem->player->navMesh->isMoving = false;
@@ -2003,8 +2062,11 @@ void Game::SkipPlot()
 	if ((keyboardTracker.IsKeyPressed(Keyboard::Keys::Space)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Escape)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Enter)))
 	{
 		plotScreens = false;
-		plotBackgroundAudio->AudioFile->~SoundEffect();
-		gameBackgroundAudio->Mute = false;
+		if (!AfterInitButBeforePlotFin)
+		{
+			plotBackgroundAudio->AudioFile->~SoundEffect();
+			gameBackgroundAudio->Mute = false;
+		}
 	}
 
 }
@@ -2020,5 +2082,56 @@ void Game::SkipStartScreen()
 		startTimer += 30.0f;
 	}
 }
+
+
+
+void Game::RestartAfterReplay()
+{
+	plotScreens = true;
+	skipper = true;
+	*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
+	playerEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 15.0f));
+	humanEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 15.0f));
+	
+
+	swordEntity->GetComponent<RenderableComponent>()->SetIsEnabled(true);
+	humanEntity->GetComponent<HumanComponent>()->navMesh->currentPath.clear();
+
+	for (auto enemyComponent : world->GetComponents<EnemyComponent>())
+	{
+		enemyComponent->enemyState = EnemyState::IDLE;
+	}
+
+	enemySystem->RespawnEnemiesFromCheckpoint();
+
+	humanMode = true;
+	playerSystem->humanMode = true;
+	enemySystem->humanMode = true;
+	humanSystem->humanMode = true;
+
+
+	humanSystem->stopHumanMode = false;
+
+	*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
+	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isVisible = false;
+	playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->playingAnimation = false;
+	humanEntity->GetComponent<RenderableComponent>()->_modelSkinned->isVisible = true;
+	humanEntity->GetComponent<RenderableComponent>()->_modelSkinned->playingAnimation = true;
+	humanEntity->SetActive(true);
+	enemyEntity1->GetComponent<EnemyComponent>()->followPlayerDistance = 1.0f;
+	enemyEntity1->GetComponent<EnemyComponent>()->speed = 12.0f;
+
+	isRunning = false;
+	isFire = false;
+	isScream = false;
+	isExplode = false;
+
+	ColorChanger = 0.0f;
+	remPlotStage = 0;
+	plotStage = 0;
+	plotTimer = 0;
+}
+
+
 
 #pragma endregion

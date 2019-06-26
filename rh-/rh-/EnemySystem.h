@@ -37,5 +37,7 @@ public:
 	bool humanMode;
 
 	bool menuIsOn;
+
+	bool stopInput;
 };
 
