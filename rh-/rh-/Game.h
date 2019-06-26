@@ -312,6 +312,9 @@ private:
 	float startTimer = 0;
 
 	void InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context);
+	bool initialized = false;
+	void RestartAfterReplay();
+
 
 	void UpdateMainMenu(float elapsedTime);
 	void SkipPlot();
@@ -352,6 +355,7 @@ private:
 	bool humanMode = true;
 	void SetHumanMode(bool check);
 	bool skipper = false;
+	bool AfterInitButBeforePlotFin = false;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cubeMap;
 

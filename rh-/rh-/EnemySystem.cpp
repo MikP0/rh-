@@ -251,7 +251,7 @@ void EnemySystem::CheckCorutines(std::shared_ptr<EnemyComponent> enemy)
 
 int EnemySystem::RespawnEnemiesFromCheckpoint()
 {
-	int cp;
+	int cp = 4;
 
 	for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 	{
