@@ -345,8 +345,8 @@ void Game::Update(DX::StepTimer const& timer)
 
 		//Mouse
 		//auto mouse = Input::GetMouseState();
-		if (freeCamera)
-			Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+		//if (freeCamera)
+		//	Input::SetMouseMode(mouse.middleButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
 		//Pressed Keys
 		std::vector<actionList> pushedKeysActions = Input::GetActions();
@@ -360,7 +360,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 			if (menuIsOn == 0)
 			{
-				if (freeCamera) {
+				/*if (freeCamera) {
 					if (*iter == up)
 						move.y += 1.f;
 
@@ -378,7 +378,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 					if (*iter == actionList::backward)
 						move.z -= 1.f;
-				}
+				}*/
 
 				//if (*iter == playBackground)
 				//{
@@ -395,7 +395,7 @@ void Game::Update(DX::StepTimer const& timer)
 					//	healthBarHealthPos.x -= 5.f;
 				//}
 
-				if (*iter == freeCamera) {
+				/*if (*iter == freeCamera) {
 					freeCameraLook = !freeCameraLook;
 				}
 
@@ -407,7 +407,7 @@ void Game::Update(DX::StepTimer const& timer)
 				if (*iter == debugDrawWithoutRegions)
 				{
 					debugDrawTreeRegions = !debugDrawTreeRegions;
-				}
+				}*/
 			}
 		}
 
@@ -518,23 +518,23 @@ void Game::Update(DX::StepTimer const& timer)
 				if ((mouse.x >= size.left + 0.42f * size.right) && (mouse.x <= size.left + 0.515f * size.right))
 				{
 					/////////////////////////////////////////////////////////////////////////////////////////////////CONTINUE
-					if ((mouse.y >= size.top + 0.24f * size.bottom) && (mouse.y <= size.top + 0.27f * size.bottom))
+					if ((mouse.y >= size.top + 0.21f * size.bottom) && (mouse.y <= size.top + 0.27f * size.bottom))
 					{
 						menuIsOn = 0;
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////LOADGAME
-					else if ((mouse.y >= size.top + 0.33f * size.bottom) && (mouse.y <= size.top + 0.42f * size.bottom))
+					else if ((mouse.y >= size.top + 0.30f * size.bottom) && (mouse.y <= size.top + 0.42f * size.bottom))
 					{
 						menuIsOn = 0;
 						RespawnRestart();
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////OPTIONS
-					else if ((mouse.y >= size.top + 0.48f * size.bottom) && (mouse.y <= size.top + 0.51f * size.bottom))
+					else if ((mouse.y >= size.top + 0.45f * size.bottom) && (mouse.y <= size.top + 0.51f * size.bottom))
 					{
 						menuIsOn = 2;
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////EXIT
-					else if ((mouse.y >= size.top + 0.56f * size.bottom) && (mouse.y <= size.top + 0.595f * size.bottom))
+					else if ((mouse.y >= size.top + 0.53f * size.bottom) && (mouse.y <= size.top + 0.595f * size.bottom))
 					{
 						//ExitGame();
 						menuIsOn = 0;
@@ -557,12 +557,12 @@ void Game::Update(DX::StepTimer const& timer)
 				if ((mouse.x >= size.left + 0.42f * size.right) && (mouse.x <= size.left + 0.515f * size.right))
 				{
 					/////////////////////////////////////////////////////////////////////////////////////////////////BACK
-					if ((mouse.y >= size.top + 0.52f * size.bottom) && (mouse.y <= size.top + 0.555f * size.bottom))
+					if ((mouse.y >= size.top + 0.49f * size.bottom) && (mouse.y <= size.top + 0.555f * size.bottom))
 					{
 						menuIsOn = 1;
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////VOLUME
-					else if ((mouse.y >= size.top + 0.44f * size.bottom) && (mouse.y <= size.top + 0.475f * size.bottom))
+					else if ((mouse.y >= size.top + 0.41f * size.bottom) && (mouse.y <= size.top + 0.475f * size.bottom))
 					{
 						if ((mouse.x >= size.left + 0.44f * size.right) && (mouse.x <= size.left + 0.46f * size.right)) // +
 						{
@@ -578,7 +578,7 @@ void Game::Update(DX::StepTimer const& timer)
 						}
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////BRIGHT
-					else if ((mouse.y >= size.top + 0.33f * size.bottom) && (mouse.y <= size.top + 0.35f * size.bottom))
+					else if ((mouse.y >= size.top + 0.30f * size.bottom) && (mouse.y <= size.top + 0.35f * size.bottom))
 					{
 						if ((mouse.x >= size.left + 0.44f * size.right) && (mouse.x <= size.left + 0.46f * size.right)) // +
 						{
