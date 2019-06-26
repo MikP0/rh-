@@ -240,6 +240,7 @@ private:
 
 	//Enemy
 	std::shared_ptr<EnemySystem> enemySystem;
+	float enemyHpToShow = 0.0f;
 
 	//Player
 	std::shared_ptr<Entity> playerEntity;
@@ -316,7 +317,7 @@ private:
 	bool initialized = false;
 	void RestartAfterReplay();
 
-
+	vector<float> GetPointedEnemyHp();
 	void UpdateMainMenu(float elapsedTime);
 	void SkipPlot();
 	void SkipStartScreen();
