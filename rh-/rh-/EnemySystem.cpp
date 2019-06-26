@@ -6,6 +6,7 @@ EnemySystem::EnemySystem()
 {
 	vampireMode = false;
 	menuIsOn = false;
+	stopInput = false;
 }
 
 EnemySystem::~EnemySystem()
@@ -14,7 +15,7 @@ EnemySystem::~EnemySystem()
 
 void EnemySystem::Iterate()
 {
-	if (!menuIsOn)
+	if ((!menuIsOn) || (!stopInput))
 	{
 		if ((!vampireMode) && (!humanMode))
 		{

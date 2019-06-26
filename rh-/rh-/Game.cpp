@@ -457,7 +457,17 @@ void Game::Update(DX::StepTimer const& timer)
 		// HEALTH AND RESPAWN
 		if (*(playerSystem->playerHealth) <= 0)
 		{
-			RespawnRestart();
+			if (!isGameOver)
+			{
+				countGameOver = 0.0f;
+				enemySystem->stopInput = true;
+				playerSystem->stopInput = true;
+				humanSystem->stopInput = true;
+			}
+			isGameOver = true;
+			
+			if (countGameOver > 2)
+				RespawnRestart();			
 		}
 
 
@@ -573,6 +583,10 @@ void Game::UpdateMainMenu(float elapsedTime)
 		if ((mouse.y >= size.top + 0.41f * size.bottom) && (mouse.y <= size.top + 0.51f * size.bottom))
 		{
 			creditsScreen = true;
+		}
+		else
+		{
+			creditsScreen = false;
 		}
 	}
 	else
@@ -898,6 +912,28 @@ void Game::Render()
 
 
 		world->RefreshWorld();
+
+		if (isGameOver)
+		{
+			if (countGameOver <= 2.0f)
+			{
+				countGameOver += elapsed_Time;
+
+				m_spriteBatch->Begin();
+
+				m_spriteBatch->Draw(gameOverTex.Get(), Vector2(550, 150), nullptr, Colors::White,
+					0.f, Vector2(0, 0), 1.0f);
+
+				m_spriteBatch->End();
+			}
+			else
+			{
+				isGameOver = false;
+				enemySystem->stopInput = false;
+				playerSystem->stopInput = false;
+				humanSystem->stopInput = false;
+			}
+		}
 
 
 		if (!initTerrain) {
@@ -1749,6 +1785,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			nullptr,
 			cubeMap.ReleaseAndGetAddressOf()));
 
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"GameOverScreen.dds",
+			nullptr,
+			gameOverTex.ReleaseAndGetAddressOf()));
+	
 
 	renderableSystem->_ReflectFactory->SetCubeMap(cubeMap.Get());
 

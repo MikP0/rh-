@@ -363,4 +363,9 @@ private:
 	bool isRunning = false;
 	bool isExplode = false;
 	bool isScream = false;
+
+	//GameOver
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> gameOverTex;
+	bool isGameOver = false;
+	float countGameOver = 0.0;
 };

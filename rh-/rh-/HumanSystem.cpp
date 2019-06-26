@@ -14,6 +14,7 @@ HumanSystem::HumanSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 	camera = cam;
 
 	stopHumanMode = false;
+	stopInput = false;
 }
 
 HumanSystem::~HumanSystem()
@@ -22,14 +23,17 @@ HumanSystem::~HumanSystem()
 
 void HumanSystem::Iterate()
 {
-	if (humanMode)
+	if (!stopInput)
 	{
-		keyboardTracker.Update(Input::GetKeyboardState());
-		mouseTracker.Update(Input::GetMouseState());
+		if (humanMode)
+		{
+			keyboardTracker.Update(Input::GetKeyboardState());
+			mouseTracker.Update(Input::GetMouseState());
 
-		UpdateNormalMode();
-		UpdateCorutines();
-		UpdateAnimations();
+			UpdateNormalMode();
+			UpdateCorutines();
+			UpdateAnimations();
+		}
 	}
 }
 

@@ -32,6 +32,8 @@ PlayerSystem::PlayerSystem(std::shared_ptr<PhysicsSystem> collSys, Camera* cam)
 	gettingWeapon = false;
 
 	menuIsOn = false;
+
+	stopInput = false;
 }
 
 PlayerSystem::~PlayerSystem()
@@ -40,7 +42,7 @@ PlayerSystem::~PlayerSystem()
 
 void PlayerSystem::Iterate()
 {
-	if (!menuIsOn)
+	if ((!menuIsOn) && (!stopInput))
 	{
 		if (!humanMode)
 		{
