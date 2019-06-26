@@ -32,7 +32,8 @@ void UI::Initialize()
 		"humanCoolDownFrame", "vampireCoolDownFrame", "humanSkillBlockade", "vampireSkillBlockade",
 		"normalAttackTip", "strongAttackTip", "spinAttackTip", "biteAttackTip",
 		"teleportTip", "cleaveAttackTip", "swapTip", "aoeAttackTip",
-		"messageStartPlot", "messageStartTips", "messageWeapon", "messageSkills", "messageMode", "popUpMenuOptions"
+		"messageStartPlot", "messageStartTips", "messageWeapon", "messageSkills", "messageMode", 
+		"popUpMenuOptions", "enemyHealthBarLabel"
 	};
 
 	vector<string> uiTextNames = {
@@ -89,7 +90,8 @@ void UI::Initialize()
 		{"messageStartTips", "Resources\\UISprites\\Message_Start_Tips.dds"},
 		{"messageWeapon", "Resources\\UISprites\\Message_Weapon.dds"},
 		{"messageSkills", "Resources\\UISprites\\Message_Skills.dds"},
-		{"messageMode", "Resources\\UISprites\\Message_Mode.dds"}
+		{"messageMode", "Resources\\UISprites\\Message_Mode.dds"},
+		{"enemyHealthBarLabel", "Resources\\UISprites\\Bar_Enemy_Label.dds"}
 	};
 
 	skillSetPosition = Vector2(690.0f, 930.0f);
@@ -147,7 +149,8 @@ void UI::Initialize()
 		{"messageStartTips", Vector2(500.0f, 250.0f)},
 		{"messageWeapon", Vector2(500.0f, 250.0f)},
 		{"messageSkills", Vector2(500.0f, 250.0f)},
-		{"messageMode", Vector2(500.0f, 250.0f)}
+		{"messageMode", Vector2(500.0f, 250.0f)},
+		{"enemyHealthBarLabel", Vector2(760.0f, 20.0f)}
 	};
 
 	map<string, Vector2> uiNameScaleMap = {
@@ -203,7 +206,8 @@ void UI::Initialize()
 		{"messageStartTips", Vector2(0.40f, 0.40f)},
 		{"messageWeapon", Vector2(0.40f, 0.40f)},
 		{"messageSkills", Vector2(0.40f, 0.40f)},
-		{"messageMode", Vector2(0.40f, 0.40f)}
+		{"messageMode", Vector2(0.40f, 0.40f)},
+		{"enemyHealthBarLabel", Vector2(0.40f, 0.40f)}
 	};
 
 
@@ -374,7 +378,7 @@ void UI::DrawRedBorder()
 	uiSpriteBatchBorder->End();
 }
 
-void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode)
+void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode, float pointedEnemyHp, float pointedEnemyOriginHp)
 {
 	bool vampireMode = _playerSystem->vampireMode;
 	int vampireAbility = vampireMode != 0 ? _playerSystem->player->vampireAbility : 0;
@@ -690,11 +694,33 @@ void UI::Draw(int menuIsOn, float totalTime, float elapsedTime, bool humanMode)
 
 		CheckSkillTips(vampireMode);
 
-		uiSpriteBatch->Draw(_imageElements["fpsBackground"].texture.Get(), _imageElements["fpsBackground"].position, nullptr, Colors::White,
+		/*uiSpriteBatch->Draw(_imageElements["fpsBackground"].texture.Get(), _imageElements["fpsBackground"].position, nullptr, Colors::White,
 			0.f, Vector2(0, 0), _imageElements["fpsBackground"].scale);
 
 		fpsFont->DrawString(uiSpriteBatch.get(), fpsFontText.c_str(),
-			fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));
+			fpsFontPos, Colors::Black, 0.f, Vector2(0, 0));*/
+
+		if (pointedEnemyHp > 0.0f)
+		{
+			Vector2 calcScale;
+
+			if (pointedEnemyOriginHp < 5)
+				calcScale = Vector2(0.2f, 0.14f);
+			else
+				calcScale = Vector2(0.05f * pointedEnemyOriginHp, 0.14f);
+
+			uiSpriteBatch->Draw(_imageElements["healthBar"].texture.Get(), Vector2(_imageElements["enemyHealthBarLabel"].endPos.x - 40.0f, _imageElements["enemyHealthBarLabel"].position.y + 5.0f), nullptr, Colors::White,
+				0.f, Vector2(0, 0), calcScale);
+
+			uiSpriteBatch->Draw(_imageElements["enemyHealthBarLabel"].texture.Get(), _imageElements["enemyHealthBarLabel"].position, nullptr, Colors::White,
+				0.f, Vector2(0, 0), _imageElements["enemyHealthBarLabel"].scale);
+
+			for (int enemyBloodDropNumber = 0; enemyBloodDropNumber < pointedEnemyHp; enemyBloodDropNumber++)
+			{
+				uiSpriteBatch->Draw(_imageElements["healthAmount"].texture.Get(), Vector2(_imageElements["enemyHealthBarLabel"].endPos.x, _imageElements["enemyHealthBarLabel"].position.y + 20.0f) + enemyBloodDropNumber * Vector2(40.0f, 0.0f), nullptr, Colors::White,
+					0.f, Vector2(0, 0), _imageElements["healthAmount"].scale - Vector2(0.02f, 0.02f));
+			}
+		}
 
 		if (menuIsOn == 1)
 		{
