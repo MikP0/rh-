@@ -227,10 +227,10 @@ void Game::Update(DX::StepTimer const& timer)
 														if (plotTimer > 45.0f)
 														{
 															gameStage = 6;
-															AfterInitButBeforePlotFin = true;
 															Ui->messageToShow = 1;
-															if (!initialized)
+															if (!AfterInitButBeforePlotFin)
 															{
+																AfterInitButBeforePlotFin = true;
 																plotBackgroundAudio->AudioFile->~SoundEffect();
 																gameBackgroundAudio->Mute = false;
 															}
@@ -313,6 +313,36 @@ void Game::Update(DX::StepTimer const& timer)
 		Vector3 move = Vector3::Zero;
 
 		gameBackgroundAudio->Volume = 1.0f * AudioSystem::VOLUME;
+
+
+		if (playerEntity->GetTransform()->GetPosition().z >= 113)
+		{
+			if (bossMode == false)
+			{
+				enemySystem->boosIdleCorutine.Restart(2.0f);
+
+				bossMode = true;
+				enemySystem->bossModeCheck = true;
+				enemySystem->stopInput = true;
+				playerSystem->stopInput = true;
+				humanSystem->stopInput = true;
+
+				vampireMode = false;
+				playerSystem->SetVampireMode(false);
+				enemySystem->SetVampireMode(false);
+				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHitted = false;
+				playerEntity->GetComponent<RenderableComponent>()->_modelSkinned->isHealed = false;
+			}
+
+			if (enemySystem->endGame)
+			{
+				endGame = true;
+			}
+		}
+
+		
+
+
 
 		//Mouse
 		//auto mouse = Input::GetMouseState();
@@ -533,10 +563,14 @@ void Game::Update(DX::StepTimer const& timer)
 						if ((mouse.x >= size.left + 0.44f * size.right) && (mouse.x <= size.left + 0.46f * size.right)) // +
 						{						
 							AudioSystem::VOLUME = AudioSystem::VOLUME + 0.1f;
+							if (AudioSystem::VOLUME > 1)
+								AudioSystem::VOLUME = 1;
 						}
 						else if ((mouse.x >= size.left + 0.49f * size.right) && (mouse.x <= size.left + 0.505f * size.right))	// -
 						{
 							AudioSystem::VOLUME = AudioSystem::VOLUME - 0.1f;
+							if (AudioSystem::VOLUME < 0)
+								AudioSystem::VOLUME = 0;
 						}
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////BRIGHT
@@ -626,11 +660,15 @@ void Game::UpdateMainMenu(float elapsedTime)
 				if ((mouse.x >= size.left + 0.39f * size.right) && (mouse.x <= size.left + 0.42f * size.right))
 				{
 					AudioSystem::VOLUME = AudioSystem::VOLUME - 0.1f;
+					if (AudioSystem::VOLUME < 0)
+						AudioSystem::VOLUME = 0;
 				}
 				//////+
 				else if ((mouse.x >= size.left + 0.48f * size.right) && (mouse.x <= size.left + 0.51f * size.right))
 				{
 					AudioSystem::VOLUME = AudioSystem::VOLUME + 0.1f;
+					if (AudioSystem::VOLUME > 1)
+						AudioSystem::VOLUME = 1;
 				}
 
 			}
@@ -668,23 +706,26 @@ void Game::UpdateObjects(float elapsedTime)
 		}
 		else
 		{
-			if (vampireMode)
+			if (!bossMode)
 			{
-				if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space) && (*playerSystem->messageMode == false))
+				if (vampireMode)
 				{
-					vampireMode = false;
-					playerSystem->SetVampireMode(false);
-					enemySystem->SetVampireMode(false);
+					if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space) && (*playerSystem->messageMode == false))
+					{
+						vampireMode = false;
+						playerSystem->SetVampireMode(false);
+						enemySystem->SetVampireMode(false);
+					}
 				}
-			}
-			else
-			{
-				if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space) && (*playerSystem->messageMode == false))
+				else
 				{
-					vampireMode = true;
-					Ui->transitionMode = true;
-					playerSystem->SetVampireMode(true);
-					enemySystem->SetVampireMode(true);
+					if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Space) && (*playerSystem->messageMode == false))
+					{
+						vampireMode = true;
+						Ui->transitionMode = true;
+						playerSystem->SetVampireMode(true);
+						enemySystem->SetVampireMode(true);
+					}
 				}
 			}
 		}
@@ -935,6 +976,49 @@ void Game::Render()
 			}
 		}
 
+		if (endGame)
+		{
+			if (countEndGame <= 5.0f)
+			{
+				countEndGame += elapsed_Time;
+
+				m_spriteBatch->Begin();
+
+				m_spriteBatch->Draw(endGameTex.Get(), Vector2(0, 0), nullptr, Colors::White,
+					0.f, Vector2(0, 0), 1.0f);
+
+				m_spriteBatch->End();
+			}
+			else
+			{
+				endGame = false;
+				thanksScreen = true;
+			}
+		}
+
+		if (thanksScreen)
+		{
+			if (countThanks <= 5.0f)
+			{
+				countThanks += elapsed_Time;
+
+				m_spriteBatch->Begin();
+
+				m_spriteBatch->Draw(thanksTex.Get(), Vector2(0, 0), nullptr, Colors::White,
+					0.f, Vector2(0, 0), 1.0f);
+
+				m_spriteBatch->End();
+			}
+			else
+			{
+				endGame = false;
+				countEndGame = 0;
+				menuIsOn = 0;
+				RespawnRestart();
+				gameStage = 3;
+				startTimer = 15.0f;
+			}
+		}
 
 		if (!initTerrain) {
 			terrain->CreateWorld(world->GetComponents<PhysicsComponent>());
@@ -983,8 +1067,11 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 		renderableSystem->DebugDrawAction->DrawOctTree(
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
-	// TODO: UI 
-	Ui->Draw(menuIsOn, total_Time, elapsed_Time, humanMode);
+	if (!bossMode)
+	{
+		// TODO: UI 
+		Ui->Draw(menuIsOn, total_Time, elapsed_Time, humanMode);
+	}
 }
 
 // Helper method to clear the back buffers.
@@ -1326,6 +1413,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity13 = world->CreateEntity("Enemy13");
 	enemyEntity14 = world->CreateEntity("Enemy14");
 	enemyEntity15 = world->CreateEntity("Enemy15");
+	BossEntity = world->CreateEntity("Boss");
 
 
 	// Creation of renderable components
@@ -1351,6 +1439,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity13->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity14->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity15->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+	BossEntity->AddComponent<RenderableComponent>(L"content\\Models\\Boss.fbx", &camera);
 
 	// Creation of audio components ------------------------------------------------------------------
 	plotBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotBackground.wav");
@@ -1394,6 +1483,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity13->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity14->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	enemyEntity15->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
+	BossEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	playerEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 	humanEntity->AddComponent<PhysicsComponent>(Vector3(0, 80.0f, 0), XMFLOAT3(0.4f, 1.0f, 0.4f), true);
 
@@ -1413,6 +1503,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity13->AddComponent<EnemyComponent>(3, 3.f, 23);
 	enemyEntity14->AddComponent<EnemyComponent>(3, 3.f, 23);
 	enemyEntity15->AddComponent<EnemyComponent>(4, 3.f, 23);
+	BossEntity->AddComponent<EnemyComponent>(4, 3.f, 23);
 
 	playerEntity->AddComponent<PlayerComponent>();
 	humanEntity->AddComponent<HumanComponent>();
@@ -1442,6 +1533,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	playerEntity->SetTag(Tags::PLAYER);
 
+	//humanEntity->GetTransform()->SetPosition(Vector3(0.0f, 0.0f, 110.0f));
 	humanEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 15.0f));
 	humanEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	//humanEntity->SetTag(Tags::PLAYER);
@@ -1507,6 +1599,10 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity15->GetTransform()->SetPosition(Vector3(-13.6f, 0.0f, 104.8f));
 	enemyEntity15->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity15->SetTag(Tags::ENEMY);
+	
+	BossEntity->GetTransform()->SetPosition(Vector3(-1.f, 0.0f, 119.f));
+	BossEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
+	BossEntity->SetTag(Tags::ENEMY);
 
 	// Setting up parameters of audio -- REMOVE
 	for (auto component : world->GetComponents<AudioComponent>())
@@ -1625,6 +1721,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			enemyEntity13->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity14->GetComponent<EnemyComponent>()->footstepAudio = component;
 			enemyEntity15->GetComponent<EnemyComponent>()->footstepAudio = component;
+			BossEntity->GetComponent<EnemyComponent>()->footstepAudio = component;
 			humanEntity->GetComponent<HumanComponent>()->footstepAudio = component;
 			continue;
 		}
@@ -1646,6 +1743,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			enemyEntity13->GetComponent<EnemyComponent>()->normalAttackAudio = component;
 			enemyEntity14->GetComponent<EnemyComponent>()->normalAttackAudio = component;
 			enemyEntity15->GetComponent<EnemyComponent>()->normalAttackAudio = component;
+			BossEntity->GetComponent<EnemyComponent>()->normalAttackAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyDamage") == 0)
@@ -1666,6 +1764,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			enemyEntity13->GetComponent<EnemyComponent>()->damageAudio = component;
 			enemyEntity14->GetComponent<EnemyComponent>()->damageAudio = component;
 			enemyEntity15->GetComponent<EnemyComponent>()->damageAudio = component;
+			BossEntity->GetComponent<EnemyComponent>()->damageAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "EnemyDeath") == 0)
@@ -1686,6 +1785,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			enemyEntity13->GetComponent<EnemyComponent>()->deathAudio = component;
 			enemyEntity14->GetComponent<EnemyComponent>()->deathAudio = component;
 			enemyEntity15->GetComponent<EnemyComponent>()->deathAudio = component;
+			BossEntity->GetComponent<EnemyComponent>()->deathAudio = component;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "KnighFootstep") == 0)
@@ -1765,6 +1865,8 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity13->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	enemyEntity14->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	enemyEntity15->GetComponent<EnemyComponent>()->LoadBruteAnimations();
+	BossEntity->GetComponent<EnemyComponent>()->LoadBossAnimations();
+	BossEntity->GetComponent<EnemyComponent>()->isBoss = true;
 
 	Ui->Initialize();
 
@@ -1791,6 +1893,18 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			nullptr,
 			gameOverTex.ReleaseAndGetAddressOf()));
 	
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"EndGameScreen.dds",
+			nullptr,
+			endGameTex.ReleaseAndGetAddressOf()));
+
+	DX::ThrowIfFailed(
+		CreateDDSTextureFromFile(device, L"ThanksScreen.dds",
+			nullptr,
+			thanksTex.ReleaseAndGetAddressOf()));
+
+
 
 	renderableSystem->_ReflectFactory->SetCubeMap(cubeMap.Get());
 
@@ -2130,6 +2244,24 @@ void Game::RestartAfterReplay()
 	remPlotStage = 0;
 	plotStage = 0;
 	plotTimer = 0;
+
+	isGameOver = false;
+	countGameOver = 0.0;
+	enemySystem->stopInput = false;
+	playerSystem->stopInput = false;
+	humanSystem->stopInput = false;
+
+	bossMode = false;
+
+	enemySystem->bossModeCheck = false;
+
+	endGame = false;
+	enemySystem->endGame = false;
+
+	countEndGame = 0.0;
+
+	thanksScreen = false;
+	countThanks = 0.0;
 }
 
 

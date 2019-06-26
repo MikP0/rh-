@@ -48,7 +48,7 @@ public:
 
 
 	const int widthInTiles = 200;
-	const int heightInTiles = 300;
+	const int heightInTiles = 116;
 	const float tileSize = 1.f;
 
 	vector<MapTilePtr> tiles;

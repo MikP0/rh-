@@ -69,6 +69,10 @@ void PlayerSystem::Iterate()
 			cooldown->Update();
 		}
 	}
+	else if (stopInput)
+	{
+		playerRenderableComponent->_modelSkinned->currentAnimation = "Idle";
+	}
 }
 
 void PlayerSystem::Initialize()
@@ -311,7 +315,7 @@ void PlayerSystem::UpdateNormalMode()
 
 		if (keyboardTracker.IsKeyPressed(Keyboard::Keys::E) && (*messageMode == false))
 		{
-			if (cooldown->CanUseSkill("biteAttack") && !blockade->IsSkillBlocked("biteAttack"))
+			if (cooldown->CanUseSkill("biteAttack"))
 			{
 				shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(*camera));
 				vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
