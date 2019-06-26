@@ -28,6 +28,7 @@ public:
 	void LoadBruteAnimations();
 	void LoadGuardAnimations();
 	void LoadBossAnimations();
+	void LoadFewWarriorAnimations();
 
 	bool isGuard;
 

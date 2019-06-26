@@ -108,3 +108,13 @@ void EnemyComponent::LoadBossAnimations()
 
 	isBoss = true;
 }
+
+void EnemyComponent::LoadFewWarriorAnimations()
+{
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Idle.fbx", "Idle");
+	enemyRenderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Walk.fbx", "Walk");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Attack.fbx", "Attack");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Dying.fbx", "Dying");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Hit.fbx", "Hit");
+}

@@ -1425,7 +1425,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	playerEntity->AddComponent<RenderableComponent>(L"content\\Models\\Anna.fbx", &camera);
 	humanEntity->AddComponent<RenderableComponent>(L"content\\Models\\Human.fbx", &camera);
 	enemyEntity1->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
-	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+	enemyEntity2->AddComponent<RenderableComponent>(L"content\\Models\\FemWarrior.fbx", &camera);
 	enemyEntity3->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity4->AddComponent<RenderableComponent>(L"content\\Models\\EnemyGuard.fbx", &camera);
 	enemyEntity5->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
@@ -1433,11 +1433,11 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity7->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity8->AddComponent<RenderableComponent>(L"content\\Models\\EnemyGuard.fbx", &camera);
 	enemyEntity9->AddComponent<RenderableComponent>(L"content\\Models\\EnemyGuard.fbx", &camera);
-	enemyEntity10->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+	enemyEntity10->AddComponent<RenderableComponent>(L"content\\Models\\FemWarrior.fbx", &camera);
 	enemyEntity11->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity12->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	enemyEntity13->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
-	enemyEntity14->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
+	enemyEntity14->AddComponent<RenderableComponent>(L"content\\Models\\FemWarrior.fbx", &camera);
 	enemyEntity15->AddComponent<RenderableComponent>(L"content\\Models\\Brute.fbx", &camera);
 	BossEntity->AddComponent<RenderableComponent>(L"content\\Models\\Boss.fbx", &camera);
 
@@ -1490,19 +1490,19 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	// Creation of enemy components ------------------------------------------------------------------
 	enemyEntity1->AddComponent<EnemyComponent>(1, 3.f, 20);
 	enemyEntity2->AddComponent<EnemyComponent>(1, 3.f, 18);
-	enemyEntity3->AddComponent<EnemyComponent>(1, 3.f, 22);
+	enemyEntity3->AddComponent<EnemyComponent>(1, 3.f, 19);
 	enemyEntity4->AddComponent<EnemyComponent>(2, 10.f, 35, 1.9f, 1.0f, 3.0f);
 	enemyEntity5->AddComponent<EnemyComponent>(2, 3.f, 23);
 	enemyEntity6->AddComponent<EnemyComponent>(3, 10.f, 35, 1.9f, 1.0f, 3.0f);
 	enemyEntity7->AddComponent<EnemyComponent>(3, 3.f, 23);
 	enemyEntity8->AddComponent<EnemyComponent>(4, 10.f, 35, 1.9f, 1.0f, 3.0f);
 	enemyEntity9->AddComponent<EnemyComponent>(4, 10.f, 35, 1.9f, 1.0f, 3.0f);
-	enemyEntity10->AddComponent<EnemyComponent>(1, 3.f, 23);
-	enemyEntity11->AddComponent<EnemyComponent>(2, 3.f, 23);
+	enemyEntity10->AddComponent<EnemyComponent>(1, 3.f, 19);
+	enemyEntity11->AddComponent<EnemyComponent>(2, 3.f, 22);
 	enemyEntity12->AddComponent<EnemyComponent>(2, 3.f, 23);
-	enemyEntity13->AddComponent<EnemyComponent>(3, 3.f, 23);
+	enemyEntity13->AddComponent<EnemyComponent>(3, 3.f, 18);
 	enemyEntity14->AddComponent<EnemyComponent>(3, 3.f, 23);
-	enemyEntity15->AddComponent<EnemyComponent>(4, 3.f, 23);
+	enemyEntity15->AddComponent<EnemyComponent>(4, 3.f, 21);
 	BossEntity->AddComponent<EnemyComponent>(4, 3.f, 23);
 
 	playerEntity->AddComponent<PlayerComponent>();
@@ -1543,7 +1543,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity1->SetTag(Tags::ENEMY);
 
 	enemyEntity2->GetTransform()->SetPosition(Vector3(-9.79f, 0.0f, 49.64f));
-	enemyEntity2->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
+	enemyEntity2->GetTransform()->SetScale(Vector3(0.015f, 0.015f, 0.015f));
 	enemyEntity2->SetTag(Tags::ENEMY);
 
 	enemyEntity3->GetTransform()->SetPosition(Vector3(-3.54f, 0.0f, 49.64f));
@@ -1577,7 +1577,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity9->SetTag(Tags::ENEMY);
 	//OTHER
 	enemyEntity10->GetTransform()->SetPosition(Vector3(-7.47f, 0.0f, 55.95f));
-	enemyEntity10->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
+	enemyEntity10->GetTransform()->SetScale(Vector3(0.015f, 0.015f, 0.015f));
 	enemyEntity10->SetTag(Tags::ENEMY);
 
 	enemyEntity11->GetTransform()->SetPosition(Vector3(-32.56f, 0.0f, 64.63f));
@@ -1593,7 +1593,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity13->SetTag(Tags::ENEMY);
 
 	enemyEntity14->GetTransform()->SetPosition(Vector3(-6.6f, 0.0f, 77.7f));
-	enemyEntity14->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
+	enemyEntity14->GetTransform()->SetScale(Vector3(0.015f, 0.015f, 0.015f));
 	enemyEntity14->SetTag(Tags::ENEMY);
 
 	enemyEntity15->GetTransform()->SetPosition(Vector3(-13.6f, 0.0f, 104.8f));
@@ -1851,7 +1851,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	humanEntity->GetComponent<HumanComponent>()->LoadHumanAnimations();
 
 	enemyEntity1->GetComponent<EnemyComponent>()->LoadBruteAnimations();
-	enemyEntity2->GetComponent<EnemyComponent>()->LoadBruteAnimations();
+	enemyEntity2->GetComponent<EnemyComponent>()->LoadFewWarriorAnimations();
 	enemyEntity3->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	enemyEntity4->GetComponent<EnemyComponent>()->LoadGuardAnimations();
 	enemyEntity5->GetComponent<EnemyComponent>()->LoadBruteAnimations();
@@ -1859,11 +1859,11 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity7->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	enemyEntity8->GetComponent<EnemyComponent>()->LoadGuardAnimations();
 	enemyEntity9->GetComponent<EnemyComponent>()->LoadGuardAnimations();
-	enemyEntity10->GetComponent<EnemyComponent>()->LoadBruteAnimations();
-	enemyEntity11->GetComponent<EnemyComponent>()->LoadBruteAnimations();
+	enemyEntity10->GetComponent<EnemyComponent>()->LoadFewWarriorAnimations();
+	enemyEntity11->GetComponent<EnemyComponent>()->LoadGuardAnimations();
 	enemyEntity12->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	enemyEntity13->GetComponent<EnemyComponent>()->LoadBruteAnimations();
-	enemyEntity14->GetComponent<EnemyComponent>()->LoadBruteAnimations();
+	enemyEntity14->GetComponent<EnemyComponent>()->LoadFewWarriorAnimations();
 	enemyEntity15->GetComponent<EnemyComponent>()->LoadBruteAnimations();
 	BossEntity->GetComponent<EnemyComponent>()->LoadBossAnimations();
 	BossEntity->GetComponent<EnemyComponent>()->isBoss = true;
