@@ -95,10 +95,10 @@ void Game::Update(DX::StepTimer const& timer)
 
 	////////////////////////////////////////SKIP////////////////////////////////////////
 	// TO SKIP MENU and SKIP PLOT
-	//mainMenu = false;
+	mainMenu = false;
 
 	//TO SKIP FIRST PHASE 
-	//SetHumanMode(false);
+	SetHumanMode(false);
 	////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -566,6 +566,24 @@ void Game::Update(DX::StepTimer const& timer)
 	elapsedTime;
 }
 
+vector<float> Game::GetPointedEnemyHp()
+{
+	Mouse::State mouse = Input::GetMouseState();
+
+	shared_ptr<ColliderRay> sharedRay(Raycast::CastRay(camera));
+	vector<shared_ptr<Collision>> collisionsWithRay = collisionSystem->GetCollisionsWithRay(sharedRay);
+
+	for each (shared_ptr<Collision> coll in collisionsWithRay)
+	{
+		if (coll->OriginObject->GetTag() == Tags::ENEMY)
+		{
+			return vector<float> {coll->OriginObject->GetComponent<EnemyComponent>()->health, coll->OriginObject->GetComponent<EnemyComponent>()->originHealth};
+		}
+	}
+
+	return vector<float> {0.0f, 0.0f};
+}
+
 void Game::UpdateMainMenu(float elapsedTime)
 {
 	auto mouse = Input::GetMouseState();
@@ -983,8 +1001,9 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 		renderableSystem->DebugDrawAction->DrawOctTree(
 			collisionSystem->GetOctTree(), cameraView, cameraProjection, debugDrawTreeRegions);
 
+	vector<float> enemyHP = GetPointedEnemyHp();
 	// TODO: UI 
-	Ui->Draw(menuIsOn, total_Time, elapsed_Time, humanMode);
+	Ui->Draw(menuIsOn, total_Time, elapsed_Time, humanMode, enemyHP[0], enemyHP[1]);
 }
 
 // Helper method to clear the back buffers.
