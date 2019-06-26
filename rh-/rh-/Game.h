@@ -142,6 +142,7 @@ private:
 	std::shared_ptr<Entity> enemyAttack;
 	std::shared_ptr<Entity> enemyDamage;
 	std::shared_ptr<Entity> enemyDeath;
+	std::shared_ptr<Entity> bossEnd;
 
 
 	std::shared_ptr<Entity> enemyEntity1;
@@ -234,6 +235,7 @@ private:
 	std::shared_ptr<AudioComponent> explodeBackgroundAudio;
 	std::shared_ptr<AudioComponent> screamBackgroundAudio;
 	std::shared_ptr<AudioComponent> deathBackgroundAudio;
+	std::shared_ptr<AudioComponent> endingAudio;
 
 	std::shared_ptr<RenderableSystem> renderableSystem;
 

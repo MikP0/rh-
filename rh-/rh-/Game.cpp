@@ -319,7 +319,7 @@ void Game::Update(DX::StepTimer const& timer)
 			if (bossMode == false)
 			{
 				enemySystem->boosIdleCorutine.Restart(2.0f);
-
+				endingAudio->AudioFile->Play(endingAudio->Volume*AudioSystem::VOLUME, endingAudio->Pitch, endingAudio->Pan);
 				bossMode = true;
 				enemySystem->bossModeCheck = true;
 				enemySystem->stopInput = true;
@@ -1417,6 +1417,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyAttack = world->CreateEntity("EnemyAttack");
 	enemyDamage = world->CreateEntity("EnemyDamage");
 	enemyDeath = world->CreateEntity("EnemyDeath");
+	bossEnd = world->CreateEntity("BossEnd");
 
 
 	//pointLightEntity1 = world->CreateEntity("PointLight1");
@@ -1492,6 +1493,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyAttack->AddComponent<AudioComponent>("Resources\\Audio\\enemyAttack.wav");
 	enemyDamage->AddComponent<AudioComponent>("Resources\\Audio\\enemyDamage.wav");
 	enemyDeath->AddComponent<AudioComponent>("Resources\\Audio\\enemyDeath.wav");
+	bossEnd->AddComponent<AudioComponent>("Resources\\Audio\\bossEnd.wav");
 	// Creation of physics components ----------------------------------------------------------------
 	swordEntity->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), true);
 	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
@@ -1818,6 +1820,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			enemyEntity14->GetComponent<EnemyComponent>()->deathAudio = component;
 			enemyEntity15->GetComponent<EnemyComponent>()->deathAudio = component;
 			BossEntity->GetComponent<EnemyComponent>()->deathAudio = component;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "BossEnd") == 0)
+		{
+			component->Volume = 1.0f;
+			endingAudio = component;
 			continue;
 		}
 	}

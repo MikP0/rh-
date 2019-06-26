@@ -351,6 +351,7 @@ void EnemySystem::BossMode(std::shared_ptr<EnemyComponent> boss)
 			boss->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
 			boosAttackCorutine.Restart(1.0f);
 
+
 			float dot = boss->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - boss->GetParent()->GetTransform()->GetPosition()).x + boss->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - boss->GetParent()->GetTransform()->GetPosition()).z;
 			float cross = boss->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - boss->GetParent()->GetTransform()->GetPosition()).z - boss->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - boss->GetParent()->GetTransform()->GetPosition()).x;
 			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
