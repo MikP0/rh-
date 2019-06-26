@@ -17,11 +17,8 @@ public:
 	void SetEnemyDestination(dxmath::Vector3);
 	void RotateAndSetStep();
 	void Move(float);
-	void MoveEnemy(float, std::shared_ptr<PhysicsComponent>);
-
 
 	bool isMoving;
-
 	std::shared_ptr<Terrain> terrain;
 	std::shared_ptr<Transform> transform;
 	dxmath::Vector3 destination;

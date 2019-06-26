@@ -126,14 +126,15 @@ void Game::Update(DX::StepTimer const& timer)
 								if (!initialized)
 								{
 									InitializeAll(device, context);
-									menuBackgroundAudio->Stop(true);
-									gameBackgroundAudio->Mute = true;		
-									plotBackgroundAudio->AudioFile->Play(plotBackgroundAudio->Volume*AudioSystem::VOLUME, plotBackgroundAudio->Pitch, plotBackgroundAudio->Pan);
 								}
 								else
 								{
 									RestartAfterReplay();
-								}							
+								}
+								menuBackgroundAudio->Stop(true);
+								audioSystem->SetComponentAudioFile(plotBackgroundAudio);
+								plotBackgroundAudio->AudioFile->Play(plotBackgroundAudio->Volume*AudioSystem::VOLUME, plotBackgroundAudio->Pitch, plotBackgroundAudio->Pan);
+
 								plotStage = 0;
 							}
 							else
@@ -187,7 +188,7 @@ void Game::Update(DX::StepTimer const& timer)
 				if (plotTimer > 8.0f)
 				{
 					if (plotTimer > 12.0f)
-					{	
+					{
 						if (!isRunning)
 						{
 							runningBackgroundAudio->AudioFile->Play(runningBackgroundAudio->Volume*AudioSystem::VOLUME, runningBackgroundAudio->Pitch, runningBackgroundAudio->Pan);
@@ -210,9 +211,9 @@ void Game::Update(DX::StepTimer const& timer)
 										isScream = true;
 									}
 									if (plotTimer > 28.0f)
-									{										
+									{
 										if (plotTimer > 32.0f)
-										{	
+										{
 											if (plotTimer > 36.0f)
 											{
 												if (plotTimer > 40.0f)
@@ -228,16 +229,14 @@ void Game::Update(DX::StepTimer const& timer)
 														{
 															gameStage = 6;
 															Ui->messageToShow = 1;
-															if (!AfterInitButBeforePlotFin)
-															{
-																AfterInitButBeforePlotFin = true;
-																plotBackgroundAudio->AudioFile->~SoundEffect();
-																gameBackgroundAudio->Mute = false;
-															}
+															AfterInitButBeforePlotFin = true;
+															plotBackgroundAudio->AudioFile = nullptr;
+															gameBackgroundAudio->AudioLoopInstance->Play(true);
+															humanEntity->GetComponent<HumanComponent>()->navMesh->currentPath.clear();
 														}
 														else
 														{
-															plotStage = 11;															
+															plotStage = 11;
 														}
 													}
 													else
@@ -340,7 +339,7 @@ void Game::Update(DX::StepTimer const& timer)
 			}
 		}
 
-		
+
 
 
 
@@ -489,15 +488,18 @@ void Game::Update(DX::StepTimer const& timer)
 		{
 			if (!isGameOver)
 			{
+				gameBackgroundAudio->AudioLoopInstance->Stop(true);
 				countGameOver = 0.0f;
 				enemySystem->stopInput = true;
 				playerSystem->stopInput = true;
 				humanSystem->stopInput = true;
+				humanEntity->GetComponent<HumanComponent>()->navMesh->currentPath.clear();
+
+				deathBackgroundAudio->AudioFile->Play(deathBackgroundAudio->Volume*AudioSystem::VOLUME, deathBackgroundAudio->Pitch, deathBackgroundAudio->Pan);
 			}
-			isGameOver = true;
-			
+			isGameOver = true;			
 			if (countGameOver > 2)
-				RespawnRestart();			
+				RespawnRestart();
 		}
 
 
@@ -539,6 +541,8 @@ void Game::Update(DX::StepTimer const& timer)
 						RespawnRestart();
 						gameStage = 3;
 						startTimer = 15.0f;
+						gameBackgroundAudio->AudioLoopInstance->Stop(true);
+						menuBackgroundAudio->Play(true);
 					}
 				}
 
@@ -559,9 +563,9 @@ void Game::Update(DX::StepTimer const& timer)
 					}
 					/////////////////////////////////////////////////////////////////////////////////////////////////VOLUME
 					else if ((mouse.y >= size.top + 0.44f * size.bottom) && (mouse.y <= size.top + 0.475f * size.bottom))
-					{				
+					{
 						if ((mouse.x >= size.left + 0.44f * size.right) && (mouse.x <= size.left + 0.46f * size.right)) // +
-						{						
+						{
 							AudioSystem::VOLUME = AudioSystem::VOLUME + 0.1f;
 							if (AudioSystem::VOLUME > 1)
 								AudioSystem::VOLUME = 1;
@@ -1035,6 +1039,8 @@ void Game::Render()
 				RespawnRestart();
 				gameStage = 3;
 				startTimer = 15.0f;
+				gameBackgroundAudio->AudioLoopInstance->Stop(true);
+				menuBackgroundAudio->Play(true);
 			}
 		}
 
@@ -1087,9 +1093,9 @@ void Game::RenderObjects(ID3D11DeviceContext1 * context)
 
 	if (!bossMode)
 	{
-	    vector<float> enemyHP = GetPointedEnemyHp();
-	    // TODO: UI 
-	    Ui->Draw(menuIsOn, total_Time, elapsed_Time, humanMode, enemyHP[0], enemyHP[1]);
+		vector<float> enemyHP = GetPointedEnemyHp();
+		// TODO: UI 
+		Ui->Draw(menuIsOn, total_Time, elapsed_Time, humanMode, enemyHP[0], enemyHP[1]);
 	}
 }
 
@@ -1187,10 +1193,12 @@ void Game::RespawnRestart()
 {
 	if (!humanMode)
 	{
+		gameBackgroundAudio->AudioLoopInstance->Play(true);
 		playerSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
 	}
 	else
 	{
+		gameBackgroundAudio->AudioLoopInstance->Play(true);
 		*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
 		humanSystem->RespawnPlayer(enemySystem->RespawnEnemiesFromCheckpoint());
 	}
@@ -1392,6 +1400,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	runningBackground = world->CreateEntity("RunningBackground");
 	explodeBackground = world->CreateEntity("ExplodeBackground");
 	screamBackground = world->CreateEntity("ScreamBackground");
+	deathBackground = world->CreateEntity("DeathBackground");
 
 	playerFootstep = world->CreateEntity("PlayerFootstep");
 	playerNormalAttack = world->CreateEntity("PlayerNormalAttack");
@@ -1408,7 +1417,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyAttack = world->CreateEntity("EnemyAttack");
 	enemyDamage = world->CreateEntity("EnemyDamage");
 	enemyDeath = world->CreateEntity("EnemyDeath");
-	knighFootstep = world->CreateEntity("KnighFootstep");
 
 
 	//pointLightEntity1 = world->CreateEntity("PointLight1");
@@ -1467,6 +1475,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	runningBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotRunning.wav");
 	explodeBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotExplode.wav");
 	screamBackground->AddComponent<AudioComponent>("Resources\\Audio\\plotScream.wav");
+	deathBackground->AddComponent<AudioComponent>("Resources\\Audio\\deathBackground.wav");
 
 	playerFootstep->AddComponent<AudioComponent>("Resources\\Audio\\playerStep.wav");
 	playerNormalAttack->AddComponent<AudioComponent>("Resources\\Audio\\playerAttack.wav");
@@ -1483,7 +1492,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyAttack->AddComponent<AudioComponent>("Resources\\Audio\\enemyAttack.wav");
 	enemyDamage->AddComponent<AudioComponent>("Resources\\Audio\\enemyDamage.wav");
 	enemyDeath->AddComponent<AudioComponent>("Resources\\Audio\\enemyDeath.wav");
-	knighFootstep->AddComponent<AudioComponent>("Resources\\Audio\\heavyStep.wav");
 	// Creation of physics components ----------------------------------------------------------------
 	swordEntity->AddComponent<PhysicsComponent>(Vector3::Zero, XMFLOAT3(0.4f, 0.4f, 0.4f), true);
 	//myEntity2->AddComponent<PhysicsComponent>(Vector3::Zero, 0.7f, false);
@@ -1618,7 +1626,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 	enemyEntity15->GetTransform()->SetPosition(Vector3(-13.6f, 0.0f, 104.8f));
 	enemyEntity15->GetTransform()->SetScale(Vector3(0.009f, 0.009f, 0.009f));
 	enemyEntity15->SetTag(Tags::ENEMY);
-	
+
 	BossEntity->GetTransform()->SetPosition(Vector3(-1.f, 0.0f, 119.f));
 	BossEntity->GetTransform()->SetScale(Vector3(0.01f, 0.01f, 0.01f));
 	BossEntity->SetTag(Tags::ENEMY);
@@ -1637,7 +1645,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			gameBackgroundAudio = component;
 			gameBackgroundAudio->Loop = true;
 			gameBackgroundAudio->Volume = 0.8f;
-			gameBackgroundAudio->Mute = true;
 
 			continue;
 		}
@@ -1663,6 +1670,12 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		{
 			screamBackgroundAudio = component;
 			screamBackgroundAudio->Volume = 1.0f;
+			continue;
+		}
+		if (strcmp(component->GetParent()->GetName().c_str(), "DeathBackground") == 0)
+		{
+			deathBackgroundAudio = component;
+			deathBackgroundAudio->Volume = 1.0f;
 			continue;
 		}
 		if (strcmp(component->GetParent()->GetName().c_str(), "PlayerFootstep") == 0)
@@ -1807,9 +1820,6 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 			BossEntity->GetComponent<EnemyComponent>()->deathAudio = component;
 			continue;
 		}
-		if (strcmp(component->GetParent()->GetName().c_str(), "KnighFootstep") == 0)
-		{
-		}
 	}
 
 	//// Setting up parameters of colliders ----------------------------------------------------------------
@@ -1911,7 +1921,7 @@ void Game::InitializeAll(ID3D11Device1 * device, ID3D11DeviceContext1 * context)
 		CreateDDSTextureFromFile(device, L"GameOverScreen.dds",
 			nullptr,
 			gameOverTex.ReleaseAndGetAddressOf()));
-	
+
 
 	DX::ThrowIfFailed(
 		CreateDDSTextureFromFile(device, L"EndGameScreen.dds",
@@ -2195,13 +2205,10 @@ void Game::SkipPlot()
 	if ((keyboardTracker.IsKeyPressed(Keyboard::Keys::Space)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Escape)) || (keyboardTracker.IsKeyPressed(Keyboard::Keys::Enter)))
 	{
 		plotScreens = false;
-		if (!AfterInitButBeforePlotFin)
-		{
-			plotBackgroundAudio->AudioFile->~SoundEffect();
-			gameBackgroundAudio->Mute = false;
-		}
+		plotBackgroundAudio->AudioFile = nullptr;
+		gameBackgroundAudio->Mute = false;
+		humanEntity->GetComponent<HumanComponent>()->navMesh->currentPath.clear();
 	}
-
 }
 
 void Game::SkipStartScreen()
@@ -2216,8 +2223,6 @@ void Game::SkipStartScreen()
 	}
 }
 
-
-
 void Game::RestartAfterReplay()
 {
 	plotScreens = true;
@@ -2225,7 +2230,7 @@ void Game::RestartAfterReplay()
 	*playerEntity->GetComponent<PlayerComponent>()->playerHealth = 1;
 	playerEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 15.0f));
 	humanEntity->GetTransform()->SetPosition(Vector3(2.0f, 0.0f, 15.0f));
-	
+
 
 	swordEntity->GetComponent<RenderableComponent>()->SetIsEnabled(true);
 	humanEntity->GetComponent<HumanComponent>()->navMesh->currentPath.clear();
