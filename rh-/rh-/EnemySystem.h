@@ -39,5 +39,13 @@ public:
 	bool menuIsOn;
 
 	bool stopInput;
-};
 
+	void BossMode(std::shared_ptr<EnemyComponent> boss);
+
+	bool bossModeCheck;
+
+	Coroutine boosIdleCorutine;
+	Coroutine boosAttackCorutine;
+
+	bool endGame;
+};

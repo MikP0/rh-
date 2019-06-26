@@ -27,6 +27,8 @@ public:
 
 	void LoadBruteAnimations();
 	void LoadGuardAnimations();
+	void LoadBossAnimations();
+	void LoadFewWarriorAnimations();
 
 	bool isGuard;
 
@@ -70,5 +72,7 @@ public:
 	std::shared_ptr<AudioComponent> deathAudio;
 
 	int checkpointNumber;
+
+	bool isBoss;
 };
 

@@ -160,6 +160,7 @@ private:
 	std::shared_ptr<Entity> enemyEntity13;
 	std::shared_ptr<Entity> enemyEntity14;
 	std::shared_ptr<Entity> enemyEntity15;
+	std::shared_ptr<Entity> BossEntity;
 
 	// floor for shadows
 	std::shared_ptr<Entity> myEntityFloor;
@@ -239,6 +240,7 @@ private:
 
 	//Enemy
 	std::shared_ptr<EnemySystem> enemySystem;
+	float enemyHpToShow = 0.0f;
 
 	//Player
 	std::shared_ptr<Entity> playerEntity;
@@ -315,7 +317,7 @@ private:
 	bool initialized = false;
 	void RestartAfterReplay();
 
-
+	vector<float> GetPointedEnemyHp();
 	void UpdateMainMenu(float elapsedTime);
 	void SkipPlot();
 	void SkipStartScreen();
@@ -368,4 +370,14 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> gameOverTex;
 	bool isGameOver = false;
 	float countGameOver = 0.0;
+
+	bool bossMode = false;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> endGameTex;
+	bool endGame = false;
+	float countEndGame = 0.0;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> thanksTex;
+	bool thanksScreen = false;
+	float countThanks = 0.0;
 };

@@ -34,6 +34,7 @@ EnemyComponent::EnemyComponent()
 
 	checkpointNumber = 1;
 
+	isBoss = false;
 }
 
 EnemyComponent::EnemyComponent(int checkpointNumber, float Health, float Speed, float AttackLength, float AttackDamageTime, float Damage, float DistanceToAttack, float FollowPlayerDistance)
@@ -68,6 +69,8 @@ EnemyComponent::EnemyComponent(int checkpointNumber, float Health, float Speed, 
 	canBeHitted = true;
 
 	isGuard = false;
+
+	isBoss = false;
 }
 
 
@@ -94,4 +97,24 @@ void EnemyComponent::LoadGuardAnimations()
 	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\EnemyGuardDying.fbx", "Dying");
 
 	isGuard = true;
+}
+
+void EnemyComponent::LoadBossAnimations()
+{
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\Boss_Idle.fbx", "Idle");
+	enemyRenderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\Boss_Run.fbx", "Run");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\Boss_Jump.fbx", "Jump");
+
+	isBoss = true;
+}
+
+void EnemyComponent::LoadFewWarriorAnimations()
+{
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Idle.fbx", "Idle");
+	enemyRenderableComponent->_modelSkinned->GetAnimatorPlayer()->StartClip("Idle");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Walk.fbx", "Walk");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Attack.fbx", "Attack");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Dying.fbx", "Dying");
+	enemyRenderableComponent->_modelSkinned->AddAnimationClip("content\\Models\\FemWarrior_Hit.fbx", "Hit");
 }

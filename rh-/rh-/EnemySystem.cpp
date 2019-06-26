@@ -7,6 +7,11 @@ EnemySystem::EnemySystem()
 	vampireMode = false;
 	menuIsOn = false;
 	stopInput = false;
+	bossModeCheck = false;
+	boosAttackCorutine.active = false;
+	boosIdleCorutine.active = false;
+
+	endGame = false;
 }
 
 EnemySystem::~EnemySystem()
@@ -15,13 +20,19 @@ EnemySystem::~EnemySystem()
 
 void EnemySystem::Iterate()
 {
-	if ((!menuIsOn) || (!stopInput))
+	if ((!menuIsOn) && (!stopInput))
 	{
 		if ((!vampireMode) && (!humanMode))
 		{
 			for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
 			{
-				if (enemyComponent->_isEnabled)
+				if (enemyComponent->isBoss)
+				{	
+					enemyComponent->enemyState = EnemyState::IDLE;
+					enemyComponent->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
+					enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
+				}
+				else if (enemyComponent->_isEnabled)
 				{
 					if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 15.0f, .1f, enemyComponent->followPlayerDistance + 15.0f)))
 					{
@@ -78,6 +89,31 @@ void EnemySystem::Iterate()
 				if (enemyComponent->_isEnabled)
 				{
 					enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
+				}
+			}
+		}
+	}
+	else if (bossModeCheck)
+	{
+		for (auto enemyComponent : _world->GetComponents<EnemyComponent>())
+		{
+			if (enemyComponent->isBoss)
+			{
+				BossMode(enemyComponent);	
+			}
+			else
+			{
+				if (!XMVector3NearEqual(enemyComponent->GetParent()->GetTransform()->GetPosition(), player->GetTransform()->GetPosition(), DirectX::SimpleMath::Vector3(enemyComponent->followPlayerDistance + 15.0f, .1f, enemyComponent->followPlayerDistance + 15.0f)))
+				{
+					enemyComponent->enemyState = EnemyState::IDLE;
+					enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = false;
+					enemyComponent->navMesh->isMoving = false;
+				}
+				else
+				{
+					enemyComponent->enemyState = EnemyState::IDLE;
+					enemyComponent->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
+					enemyComponent->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
 				}
 			}
 		}
@@ -285,9 +321,59 @@ int EnemySystem::RespawnEnemiesFromCheckpoint()
 			enemyComponent->SetIsEnabled(true);
 			enemyComponent->GetParent()->SetActive(true);
 			enemyComponent->dying = false;
+			enemyComponent->bited = false;
+			enemyComponent->hit = false;
+			enemyComponent->enemyRenderableComponent->_modelSkinned->isHitted = false;
+			enemyComponent->hitCorutine.active = false;
+			enemyComponent->hitColorCorutine.active = false;
+
 		}
 	}
 	return cp;
+}
+
+void EnemySystem::BossMode(std::shared_ptr<EnemyComponent> boss)
+{
+	if (!boosAttackCorutine.active)
+	{
+		boss->enemyState = EnemyState::IDLE;
+		boss->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
+		boss->enemyRenderableComponent->_modelSkinned->playingAnimation = true;	
+	}
+
+
+	if (boosIdleCorutine.active)
+	{
+		if (!(boosIdleCorutine.Update()))
+		{
+			boosIdleCorutine.active = false;
+			boss->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Run");
+			boss->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
+			boosAttackCorutine.Restart(1.0f);
+
+			float dot = boss->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - boss->GetParent()->GetTransform()->GetPosition()).x + boss->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - boss->GetParent()->GetTransform()->GetPosition()).z;
+			float cross = boss->GetParent()->GetTransform()->GetTransformMatrix().Forward().x * (player->GetTransform()->GetPosition() - boss->GetParent()->GetTransform()->GetPosition()).z - boss->GetParent()->GetTransform()->GetTransformMatrix().Forward().z * (player->GetTransform()->GetPosition() - boss->GetParent()->GetTransform()->GetPosition()).x;
+			float fAngle = (atan2(cross, dot) * 180.0f / 3.14159f) + 180.0f;
+			boss->GetParent()->GetTransform()->Rotate(dxmath::Vector3(0, 1, 0), XMConvertToRadians(-fAngle));
+		}
+	}
+
+	if (boosAttackCorutine.active)
+	{
+		boss->footstepAudio->Mute = false;
+		if (boss->footstepAudio->AudioLoopInstance->GetState() != SoundState::PLAYING) {
+			boss->footstepAudio->AudioFile->Play(boss->footstepAudio->Volume*AudioSystem::VOLUME, boss->footstepAudio->Pitch, boss->footstepAudio->Pan);
+		}
+
+		if (!(boosAttackCorutine.Update()))
+		{
+			boosAttackCorutine.active = false;
+			boss->enemyState = EnemyState::IDLE;
+			boss->enemyRenderableComponent->_modelSkinned->SetCurrentAnimation("Idle");
+			boss->enemyRenderableComponent->_modelSkinned->playingAnimation = true;
+			endGame = true;
+		}
+	}
 }
 
 void EnemySystem::Initialize()
